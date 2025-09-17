@@ -1,9 +1,6 @@
 server:
   port: 8080
   host: localhost
-#  protocols:
-#    providers:
-#      http_1_1:
-#        max-prologue-length: 8192
-#      http_2:
-#        max-frame-size: 4096
+  protocols:
+    http_2:
+#    http_1_1:
