@@ -14,6 +14,7 @@ public final class Main {
 
         final var server = WebServer.builder()
                 .config(config.get("server"))
+                .protocolsDiscoverServices(false)
                 .build();
         server.start();
 

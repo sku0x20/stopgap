@@ -3,4 +3,3 @@ server:
   host: localhost
   protocols:
     http_2:
-#    http_1_1:
