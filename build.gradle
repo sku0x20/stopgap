@@ -16,6 +16,7 @@ ext {
 
 dependencies {
     implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
+    implementation("io.helidon.config:helidon-config-yaml:${helidonVersion}")
 }
 
 java {
