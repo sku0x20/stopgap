@@ -23,3 +23,7 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
+application {
+    mainClass = "com.myeglu.stopgap.Main"
+}
