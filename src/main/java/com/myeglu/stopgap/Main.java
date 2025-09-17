@@ -18,8 +18,6 @@ public final class Main {
                 .config(serverConfig)
                 .build();
         server.start();
-
-        System.out.println("Server started at http://:" + server + server.port());
     }
 
 }
