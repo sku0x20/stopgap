@@ -1,4 +1,4 @@
-FROM ghcr.io/graalvm/native-image-community:25.0.0-muslib AS build
+FROM ghcr.io/graalvm/jdk-community:25.0.0 AS buildjar
 WORKDIR /build/app/stopgap
 ENV GRADLE_USER_HOME=/build/.gradle
 COPY gradlew ./
@@ -9,10 +9,16 @@ COPY build.gradle settings.gradle gradle.properties  ./
 RUN ./gradlew dependencies --refresh-dependencies
 COPY src src
 RUN ./gradlew jar
-RUN native-image --static --libc=musl -jar build/libs/stopgap.jar
+
+
+FROM ghcr.io/graalvm/native-image-community:25.0.0-muslib AS buildnative
+WORKDIR /build/app/stopgap
+COPY --from=buildjar /build/app/stopgap/build/libs/libs libs
+COPY --from=buildjar /build/app/stopgap/build/libs/stopgap.jar ./
+RUN native-image --static --libc=musl -jar stopgap.jar
 
 
 FROM scratch
 WORKDIR /app/stopgap
-COPY --from=build /build/app/stopgap/stopgap ./
+COPY --from=buildnative /build/app/stopgap/stopgap ./
 ENTRYPOINT ["/app/stopgap/stopgap"]
