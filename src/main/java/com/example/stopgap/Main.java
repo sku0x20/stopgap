@@ -1,4 +1,4 @@
-package com.myeglu.stopgap;
+package com.example.stopgap;
 
 import io.helidon.config.Config;
 import io.helidon.webserver.WebServer;

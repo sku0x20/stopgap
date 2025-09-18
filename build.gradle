@@ -7,7 +7,7 @@ repositories {
     mavenCentral()
 }
 
-group = "com.myeglu.stopgap"
+group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
 ext {
@@ -26,7 +26,7 @@ java {
 }
 
 application {
-    mainClass = "com.myeglu.stopgap.Main"
+    mainClass = "com.example.stopgap.Main"
 }
 
 tasks.register('copyLibs', Copy) {
