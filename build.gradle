@@ -28,3 +28,19 @@ java {
 application {
     mainClass = "com.myeglu.stopgap.Main"
 }
+
+tasks.register('copyLibs', Copy) {
+    from(configurations.named("runtimeClasspath"))
+    into("build/libs/libs")
+}
+
+jar {
+    archiveFileName.set("${project.name}.jar")
+    manifest {
+        attributes(
+                "Main-Class": "${application.mainClass.get()}",
+                "Class-Path": configurations.named("runtimeClasspath").get().collect { "libs/${it.name}" }.join(" ")
+        )
+    }
+    dependsOn(tasks.named("copyLibs"))
+}
