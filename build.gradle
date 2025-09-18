@@ -12,11 +12,14 @@ version = "1.0-SNAPSHOT"
 
 ext {
     helidonVersion = '4.2.7'
+    junitVersion = "6.0.0-RC3"
 }
 
 dependencies {
     implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
     implementation("io.helidon.config:helidon-config-yaml:${helidonVersion}")
+
+    testImplementation("org.assertj:assertj-core:3.27.3")
 }
 
 java {
@@ -43,4 +46,15 @@ jar {
         )
     }
     dependsOn(tasks.named("copyLibs"))
+}
+
+testing {
+    //noinspection GroovyAssignabilityCheck
+    suites {
+        test {
+            //noinspection GrUnresolvedAccess
+            useJUnitJupiter(junitVersion)
+        }
+
+    }
 }
