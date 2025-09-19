@@ -4,14 +4,10 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     id 'java'
     id 'application'
-    id "org.jetbrains.kotlin.jvm" version "2.3.0-Beta1-16"
 }
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://packages.jetbrains.team/maven/p/kt/dev"
-    }
 }
 
 group = "com.example.stopgap"
