@@ -29,9 +29,7 @@ public final class InstanceRegistry {
     ) {
         final var instance = instances.computeIfAbsent(qualifier, (key) -> {
             final var creator = creators.get(key);
-            if (creator == null) {
-                throw new IllegalArgumentException("No instance registered for qualifier: " + qualifier);
-            }
+            if (creator == null) throw new NoCreatorException(qualifier);
             return creator.create(this);
         });
         return (T) instance;
