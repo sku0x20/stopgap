@@ -1,4 +1,4 @@
-package com.example.stopgap;
+package com.example.stopgap.instanceregistry;
 
 import java.util.HashMap;
 import java.util.Map;
