@@ -52,20 +52,21 @@ jar {
 }
 
 testing {
+    //noinspection GroovyAssignabilityCheck
     suites {
-        configureEach {
-            targets.configureEach {
-                testTask.configure {
-                    testLogging {
-                        events(TestLogEvent.STANDARD_ERROR)
-                        exceptionFormat = TestExceptionFormat.FULL
-                    }
-                }
-            }
-        }
-
         test {
             useJUnitJupiter(junitVersion)
+        }
+    }
+}
+
+testing.suites.configureEach {
+    targets.configureEach {
+        testTask.configure {
+            testLogging {
+                events(TestLogEvent.STANDARD_ERROR)
+                exceptionFormat = TestExceptionFormat.FULL
+            }
         }
     }
 }
