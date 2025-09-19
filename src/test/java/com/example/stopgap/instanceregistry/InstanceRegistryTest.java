@@ -37,8 +37,8 @@ final class InstanceRegistryTest {
 
         final var t2 = registry.getInstance("t2", T2.class);
         assertThat(t2).isInstanceOf(T2.class);
-//        final var t2
-//        assertThat(i1).isInstanceOf(TestClass.class);
+        final var t1 = registry.getInstance("t1", TestClass.class);
+        assertThat(t1).isSameAs(t2.t1);
     }
 
     private static TestClass createTestInstance(final InstanceRegistry registry) {
@@ -54,9 +54,7 @@ final class InstanceRegistryTest {
         return new T2(t1);
     }
 
-    private static final class T2 {
-        private T2(final TestClass t1) {
-        }
+    private record T2(TestClass t1) {
     }
 
 }
