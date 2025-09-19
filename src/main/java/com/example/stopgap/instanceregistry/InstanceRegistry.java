@@ -28,11 +28,15 @@ public final class InstanceRegistry {
         final String qualifier,
         final Class<T> clazz
     ) {
-        final var instance = instances.computeIfAbsent(qualifier, (key) -> {
-            final var creator = creators.get(key);
-            if (creator == null) throw new NoCreatorException(qualifier);
-            return creator.create(this);
-        });
-        return (T) instance;
+        final var instance = instances.get(qualifier);
+        return instance == null ? (T) createInstance(qualifier) : (T) instance;
+    }
+
+    private Object createInstance(final String qualifier) {
+        final var creator = creators.get(qualifier);
+        if (creator == null) throw new NoCreatorException(qualifier);
+        final var instance = creator.create(this);
+        instances.put(qualifier, instance);
+        return instance;
     }
 }

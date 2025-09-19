@@ -7,7 +7,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 
 final class InstanceRegistryTest {
 
-    final InstanceRegistry registry = new InstanceRegistry();
+    private final InstanceRegistry registry = new InstanceRegistry();
 
     @Test
     void returnsSameInstance() {
@@ -30,13 +30,33 @@ final class InstanceRegistryTest {
         });
     }
 
-    // multilevel
+    @Test
+    void dependencyHandling() {
+        registry.register("t2", InstanceRegistryTest::createT2);
+        registry.register("t1", InstanceRegistryTest::createTestInstance);
 
-    private static TestClass createTestInstance(InstanceRegistry registry) {
+        final var t2 = registry.getInstance("t2", T2.class);
+        assertThat(t2).isInstanceOf(T2.class);
+//        final var t2
+//        assertThat(i1).isInstanceOf(TestClass.class);
+    }
+
+    private static TestClass createTestInstance(final InstanceRegistry registry) {
         return new TestClass();
     }
 
+    @SuppressWarnings("EmptyClass")
     private static class TestClass {
+    }
+
+    private static T2 createT2(final InstanceRegistry registry) {
+        final var t1 = registry.getInstance("t1", TestClass.class);
+        return new T2(t1);
+    }
+
+    private static final class T2 {
+        private T2(final TestClass t1) {
+        }
     }
 
 }
