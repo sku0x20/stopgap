@@ -2,7 +2,6 @@ package com.example.stopgap.instanceregistry;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * A registry for managing and retrieving singleton-like instances. This class facilitates the creation
@@ -14,11 +13,11 @@ import java.util.function.Function;
 public final class InstanceRegistry {
 
     private final Map<String, Object> instances = new HashMap<>();
-    private final Map<String, Function<InstanceRegistry, Object>> creators = new HashMap<>();
+    private final Map<String, InstanceCreator> creators = new HashMap<>();
 
     public void register(
         final String qualifier,
-        final Function<InstanceRegistry, Object> creator
+        final InstanceCreator creator
     ) {
         creators.put(qualifier, creator);
     }
@@ -33,7 +32,7 @@ public final class InstanceRegistry {
             if (creator == null) {
                 throw new IllegalArgumentException("No instance registered for qualifier: " + qualifier);
             }
-            return creator.apply(this);
+            return creator.create(this);
         });
         return (T) instance;
     }
