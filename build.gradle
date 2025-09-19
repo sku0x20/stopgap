@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id 'java'
     id 'application'
@@ -41,20 +44,28 @@ jar {
     archiveFileName.set("${project.name}.jar")
     manifest {
         attributes(
-                "Main-Class": "${application.mainClass.get()}",
-                "Class-Path": configurations.named("runtimeClasspath").get().collect { "libs/${it.name}" }.join(" ")
+            "Main-Class": "${application.mainClass.get()}",
+            "Class-Path": configurations.named("runtimeClasspath").get().collect { "libs/${it.name}" }.join(" ")
         )
     }
     dependsOn(tasks.named("copyLibs"))
 }
 
 testing {
-    //noinspection GroovyAssignabilityCheck
     suites {
-        test {
-            //noinspection GrUnresolvedAccess
-            useJUnitJupiter(junitVersion)
+        configureEach {
+            targets.configureEach {
+                testTask.configure {
+                    testLogging {
+                        events(TestLogEvent.STANDARD_ERROR)
+                        exceptionFormat = TestExceptionFormat.FULL
+                    }
+                }
+            }
         }
 
+        test {
+            useJUnitJupiter(junitVersion)
+        }
     }
 }
