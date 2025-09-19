@@ -19,6 +19,7 @@ public final class InstanceRegistry {
         final String qualifier,
         final InstanceCreator creator
     ) {
+        if (creators.containsKey(qualifier)) throw new CreatorExistsException(qualifier);
         creators.put(qualifier, creator);
     }
 

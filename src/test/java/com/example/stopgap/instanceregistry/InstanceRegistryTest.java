@@ -3,6 +3,7 @@ package com.example.stopgap.instanceregistry;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 final class InstanceRegistryTest {
 
@@ -20,9 +21,16 @@ final class InstanceRegistryTest {
         assertThat(i1).isSameAs(i2);
     }
 
-    // multilevel
+    @Test
+    void onlyRegisterOnce() {
+        final var qualifier = TestClass.class.getSimpleName();
+        registry.register(qualifier, InstanceRegistryTest::createTestInstance);
+        assertThatExceptionOfType(CreatorExistsException.class).isThrownBy(() -> {
+            registry.register(qualifier, InstanceRegistryTest::createTestInstance);
+        });
+    }
 
-    // only register once
+    // multilevel
 
     private static TestClass createTestInstance(InstanceRegistry registry) {
         return new TestClass();
