@@ -12,7 +12,7 @@ final class InstanceRegistryTest {
     @Test
     void returnsSameInstance() {
         final var qualifier = T1.class.getSimpleName();
-        registry.register(qualifier, InstanceRegistryTest::createTestInstance);
+        registry.register(qualifier, InstanceRegistryTest::createT1);
 
         final var i1 = registry.getInstance(qualifier, T1.class);
         final var i2 = registry.getInstance(qualifier, T1.class);
@@ -24,16 +24,16 @@ final class InstanceRegistryTest {
     @Test
     void onlyRegisterOnce() {
         final var qualifier = T1.class.getSimpleName();
-        registry.register(qualifier, InstanceRegistryTest::createTestInstance);
+        registry.register(qualifier, InstanceRegistryTest::createT1);
         assertThatExceptionOfType(CreatorExistsException.class).isThrownBy(() -> {
-            registry.register(qualifier, InstanceRegistryTest::createTestInstance);
+            registry.register(qualifier, InstanceRegistryTest::createT1);
         });
     }
 
     @Test
     void dependencyHandling() {
         registry.register("t2", InstanceRegistryTest::createT2);
-        registry.register("t1", InstanceRegistryTest::createTestInstance);
+        registry.register("t1", InstanceRegistryTest::createT1);
 
         final var t2 = registry.getInstance("t2", T2.class);
         assertThat(t2).isInstanceOf(T2.class);
@@ -41,7 +41,7 @@ final class InstanceRegistryTest {
         assertThat(t1).isSameAs(t2.t1);
     }
 
-    private static T1 createTestInstance(final InstanceRegistry registry) {
+    private static T1 createT1(final InstanceRegistry registry) {
         return new T1();
     }
 
