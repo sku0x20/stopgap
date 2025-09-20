@@ -17,15 +17,14 @@ public final class InstanceRegistry {
     private final Map<String, Object> instances = new HashMap<>();
     private final Map<String, InstanceCreator<?>> creators = new HashMap<>();
 
-    public <T> void registerType(
+    public <T> void registerForType(
         final Class<T> clazz,
         final InstanceCreator<T> creator
     ) {
-        registerQualifier(clazz.getName(), creator);
+        registerForQualifier(clazz.getName(), creator);
     }
 
-    // todo: rename to forQualifier
-    public void registerQualifier(
+    public void registerForQualifier(
         final String qualifier,
         final InstanceCreator<?> creator
     ) {
@@ -36,12 +35,11 @@ public final class InstanceRegistry {
     public <T> T getInstanceForType(
         final Class<T> clazz
     ) {
-        return getInstance(clazz.getName(), clazz);
+        return getInstanceForQualifier(clazz.getName(), clazz);
     }
 
-    // todo: rename to forType
     @SuppressWarnings("unchecked")
-    public <T> T getInstance(
+    public <T> T getInstanceForQualifier(
         final String qualifier,
         final Class<T> clazz
     ) {
