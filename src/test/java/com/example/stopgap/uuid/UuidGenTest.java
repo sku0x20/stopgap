@@ -1,4 +1,4 @@
-package com.example.stopgap;
+package com.example.stopgap.uuid;
 
 import org.junit.jupiter.api.Test;
 

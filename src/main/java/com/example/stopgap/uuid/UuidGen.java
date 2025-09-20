@@ -1,4 +1,6 @@
-package com.example.stopgap;
+package com.example.stopgap.uuid;
+
+// todo: make it non static
 
 public final class UuidGen {
 
