@@ -1,6 +1,6 @@
-package com.example.stopgap.generators;
+package com.example.stopgap.generator;
 
-import com.example.stopgap.generators.web.GeneratorEndpoint;
+import com.example.stopgap.generator.web.GeneratorEndpoint;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
 
 public final class GeneratorIRSetup {

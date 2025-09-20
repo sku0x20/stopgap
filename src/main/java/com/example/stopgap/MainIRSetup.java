@@ -1,6 +1,6 @@
 package com.example.stopgap;
 
-import com.example.stopgap.generators.GeneratorIRSetup;
+import com.example.stopgap.generator.GeneratorIRSetup;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
 
 final class MainIRSetup {

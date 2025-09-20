@@ -1,4 +1,4 @@
-package com.example.stopgap.generators.web;
+package com.example.stopgap.generator.web;
 
 import com.example.stopgap.Endpoint;
 import com.example.stopgap.instanceregistry.InstanceRegistry;

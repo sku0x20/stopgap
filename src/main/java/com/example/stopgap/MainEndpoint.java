@@ -1,6 +1,6 @@
 package com.example.stopgap;
 
-import com.example.stopgap.generators.web.GeneratorEndpoint;
+import com.example.stopgap.generator.web.GeneratorEndpoint;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
 import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.http.HttpRules;
