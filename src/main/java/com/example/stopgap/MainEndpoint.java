@@ -1,9 +1,15 @@
 package com.example.stopgap;
 
+import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.HttpService;
 
-public final class MainEndpoint implements Endpoint {
+final class MainEndpoint implements Endpoint {
+
+    HttpRouting.Builder routing() {
+        return HttpRouting.builder()
+            .register("/", routes());
+    }
 
     @Override
     public HttpService routes() {
