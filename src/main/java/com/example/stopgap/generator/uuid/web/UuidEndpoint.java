@@ -1,8 +1,8 @@
-package com.example.stopgap.uuid.web;
+package com.example.stopgap.generator.uuid.web;
 
 import com.example.stopgap.Endpoint;
+import com.example.stopgap.generator.uuid.UuidGen;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
-import com.example.stopgap.uuid.UuidGen;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.HttpService;
 import io.helidon.webserver.http.ServerRequest;

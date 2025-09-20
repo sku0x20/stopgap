@@ -1,4 +1,4 @@
-package com.example.stopgap.uuid;
+package com.example.stopgap.generator.uuid;
 
 public final class UuidGen {
 
