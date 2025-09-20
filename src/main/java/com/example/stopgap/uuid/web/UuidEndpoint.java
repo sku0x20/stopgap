@@ -1,6 +1,7 @@
 package com.example.stopgap.uuid.web;
 
 import com.example.stopgap.Endpoint;
+import com.example.stopgap.instanceregistry.InstanceRegistry;
 import com.example.stopgap.uuid.UuidGen;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.HttpService;
@@ -18,7 +19,7 @@ public final class UuidEndpoint implements Endpoint {
     }
 
     @Override
-    public HttpService routes() {
+    public HttpService routes(final InstanceRegistry registry) {
         return (final HttpRules rules) -> rules
             .get("/", this::generateUuid);
     }

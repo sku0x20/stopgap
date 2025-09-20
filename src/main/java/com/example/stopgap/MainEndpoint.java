@@ -1,20 +1,21 @@
 package com.example.stopgap;
 
+import com.example.stopgap.instanceregistry.InstanceRegistry;
 import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.HttpService;
 
 final class MainEndpoint implements Endpoint {
 
-    HttpRouting.Builder routing() {
+    HttpRouting.Builder routing(final InstanceRegistry registry) {
         return HttpRouting.builder()
-            .register("/", routes());
+            .register("/", routes(registry));
     }
 
     @Override
-    public HttpService routes() {
+    public HttpService routes(final InstanceRegistry registry) {
         return (final HttpRules rules) -> rules
-            .get("/i", (req, res) -> res.send("2nd"))
+//            .register("/generate", )
             .get("/2", (req, res) -> res.send("2nd"));
     }
 
