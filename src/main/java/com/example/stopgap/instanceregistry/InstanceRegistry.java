@@ -15,11 +15,11 @@ import java.util.Map;
 public final class InstanceRegistry {
 
     private final Map<String, Object> instances = new HashMap<>();
-    private final Map<String, InstanceCreator> creators = new HashMap<>();
+    private final Map<String, InstanceCreator<?>> creators = new HashMap<>();
 
     public void register(
         final String qualifier,
-        final InstanceCreator creator
+        final InstanceCreator<?> creator
     ) {
         if (creators.containsKey(qualifier)) throw new CreatorExistsException(qualifier);
         creators.put(qualifier, creator);

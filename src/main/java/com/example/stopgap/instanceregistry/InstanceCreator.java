@@ -1,6 +1,6 @@
 package com.example.stopgap.instanceregistry;
 
 @FunctionalInterface
-public interface InstanceCreator {
-    Object create(InstanceRegistry registry);
+public interface InstanceCreator<T> {
+    T create(InstanceRegistry registry);
 }
