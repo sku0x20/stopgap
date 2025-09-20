@@ -13,9 +13,9 @@ public final class Main {
         final var config = Config.create();
 
         final var instanceRegistry = new InstanceRegistry();
-        setupInstanceRegistry(instanceRegistry);
+        MainIRSetup.setup(instanceRegistry);
 
-        final var mainEndpoint = new MainEndpoint();
+        final var mainEndpoint = instanceRegistry.getInstanceForType(MainEndpoint.class);
 
         final var server = WebServer.builder()
             .config(config.get("server"))
@@ -23,10 +23,6 @@ public final class Main {
             .routing(mainEndpoint.routing(instanceRegistry))
             .build();
         server.start();
-    }
-
-    private static void setupInstanceRegistry(final InstanceRegistry registry) {
-
     }
 
 }
