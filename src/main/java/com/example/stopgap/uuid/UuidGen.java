@@ -1,13 +1,12 @@
 package com.example.stopgap.uuid;
 
-// todo: make it non static
-
 public final class UuidGen {
 
-    private UuidGen() {
+    public UuidGen() {
     }
 
-    public static String generate() {
+    @SuppressWarnings("MethodMayBeStatic")
+    public String generate() {
         return java.util.UUID.randomUUID().toString();
     }
 }

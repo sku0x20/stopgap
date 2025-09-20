@@ -8,8 +8,9 @@ final class UuidGenTest {
 
     @Test
     void differentUuids() {
-        final var uuid1 = UuidGen.generate();
-        final var uuid2 = UuidGen.generate();
+        final var uuidGen = new UuidGen();
+        final var uuid1 = uuidGen.generate();
+        final var uuid2 = uuidGen.generate();
         assertThat(uuid1).isNotEqualTo(uuid2);
     }
 
