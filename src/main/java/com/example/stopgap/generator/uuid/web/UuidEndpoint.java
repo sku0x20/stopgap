@@ -10,12 +10,12 @@ import io.helidon.webserver.http.ServerResponse;
 
 public final class UuidEndpoint implements Endpoint {
 
-    private final UuidGen uudiGen;
+    private final UuidGen uuidGen;
 
     public UuidEndpoint(
         final UuidGen uuidGen
     ) {
-        this.uudiGen = uuidGen;
+        this.uuidGen = uuidGen;
     }
 
     @Override
@@ -28,7 +28,7 @@ public final class UuidEndpoint implements Endpoint {
         final ServerRequest req,
         final ServerResponse res
     ) {
-        res.send(uudiGen.generate());
+        res.send(uuidGen.generate());
     }
 
 }

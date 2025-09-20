@@ -1,6 +1,7 @@
 package com.example.stopgap.generator.web;
 
 import com.example.stopgap.Endpoint;
+import com.example.stopgap.generator.uuid.web.UuidEndpoint;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.HttpService;
@@ -15,8 +16,11 @@ public final class GeneratorEndpoint implements Endpoint {
 
     @Override
     public HttpService routes(final InstanceRegistry registry) {
+        final var uuidEndpoint = registry.getInstanceForType(UuidEndpoint.class);
+
         return (final HttpRules rules) -> rules
-            .get("/number", this::randomNumber);
+            .get("/number", this::randomNumber)
+            .register("/uuid", uuidEndpoint.routes(registry));
     }
 
     private void randomNumber(
