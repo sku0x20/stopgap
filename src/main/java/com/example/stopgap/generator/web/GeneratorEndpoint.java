@@ -23,7 +23,7 @@ public final class GeneratorEndpoint implements Endpoint {
         final ServerRequest req,
         final ServerResponse res
     ) {
-        res.send(random.nextLong());
+        res.send(Long.toString(random.nextLong()));
     }
 
 }
