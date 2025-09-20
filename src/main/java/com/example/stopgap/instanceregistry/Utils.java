@@ -7,7 +7,7 @@ public final class Utils {
     private Utils() {
     }
 
-    public static void getCreatorType(
+    public static void getCreatorTypeViaGenericInterface(
         final InstanceCreator<?> creator
     ) {
         final var clazz = creator.getClass();
@@ -16,6 +16,15 @@ public final class Utils {
         final var typeArguments = parameterizedType.getActualTypeArguments();
         final var typeClazz = (Class<?>) typeArguments[0];
         System.err.println(typeClazz.toGenericString());
+    }
+
+    public static void getCreatorTypeViaMethod(
+        final InstanceCreator<?> creator
+    ) throws NoSuchMethodException {
+        final var clazz = creator.getClass();
+        final var method = clazz.getMethod("create", InstanceRegistry.class);
+        final var type = (Class<?>) method.getGenericReturnType();
+        System.err.println(type.toGenericString());
     }
 
 }
