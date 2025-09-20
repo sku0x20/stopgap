@@ -1,5 +1,6 @@
 package com.example.stopgap;
 
+import com.example.stopgap.generators.web.GeneratorEndpoint;
 import com.example.stopgap.instanceregistry.InstanceRegistry;
 import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.http.HttpRules;
@@ -14,9 +15,11 @@ final class MainEndpoint implements Endpoint {
 
     @Override
     public HttpService routes(final InstanceRegistry registry) {
+        final var generator = registry.getInstanceForType(GeneratorEndpoint.class);
+
         return (final HttpRules rules) -> rules
-//            .register("/generate", )
-            .get("/2", (req, res) -> res.send("2nd"));
+            .register("/generate", generator.routes(registry))
+            .get("/ping", (req, res) -> res.send("pong"));
     }
 
 }
