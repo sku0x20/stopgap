@@ -10,6 +10,13 @@ final class InstanceRegistryTest {
     private final InstanceRegistry registry = new InstanceRegistry();
 
     @Test
+    void registerByType() {
+        registry.registerType(T1.class, InstanceRegistryTest::createT1);
+        final var t1 = registry.getInstanceForType(T1.class);
+        assertThat(t1).isInstanceOf(T1.class);
+    }
+
+    @Test
     void returnsSameInstance() {
         final var qualifier = T1.class.getSimpleName();
         registry.registerQualifier(qualifier, InstanceRegistryTest::createT1);
