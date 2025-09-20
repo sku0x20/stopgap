@@ -13,7 +13,7 @@ public final class Main {
         final var config = Config.create();
 
         final var instanceRegistry = new InstanceRegistry();
-        MainIRSetup.setup(instanceRegistry);
+        MainConfig.setup(instanceRegistry);
 
         final var mainEndpoint = instanceRegistry.getInstanceForType(MainEndpoint.class);
 
