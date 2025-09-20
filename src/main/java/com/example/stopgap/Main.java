@@ -15,11 +15,10 @@ public final class Main {
     public static void main(final String[] args) {
         final var config = Config.create();
 
-        final var r2 = new HttpService() {
-            @Override
-            public void routing(final HttpRules rules) {
-                rules.get("/i", (req, res) -> res.send("2nd"));
-            }
+        final HttpService r2 = (final HttpRules rules) -> {
+            rules
+                .get("/i", (req, res) -> res.send("2nd"))
+                .get("/2", (req, res) -> res.send("2nd"));
         };
 
         final var routing = HttpRouting.builder()
