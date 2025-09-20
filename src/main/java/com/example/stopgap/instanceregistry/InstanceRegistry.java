@@ -17,7 +17,7 @@ public final class InstanceRegistry {
     private final Map<String, Object> instances = new HashMap<>();
     private final Map<String, InstanceCreator<?>> creators = new HashMap<>();
 
-    public void register(
+    public void registerQualifier(
         final String qualifier,
         final InstanceCreator<?> creator
     ) {
