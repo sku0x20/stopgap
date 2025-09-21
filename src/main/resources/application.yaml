@@ -3,3 +3,7 @@ server:
   host: localhost
   protocols:
     http_1_1:
+
+generator:
+  static:
+    value: "from static generator"

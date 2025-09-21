@@ -20,9 +20,9 @@ public final class GeneratorConfig {
     }
 
     private static StaticGenerator staticGenerator(final InstanceRegistry registry) {
-//        final var config = registry.getConfig();
-//        final var string = config.get("static");
-        return new StaticGenerator("static");
+        final var config = registry.getConfig();
+        final var staticValue = config.get("generator.static.value");
+        return new StaticGenerator(staticValue);
     }
 
 }
