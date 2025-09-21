@@ -24,6 +24,8 @@ dependencies {
 
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.mockito:mockito-core:5.20.0")
+
+    testImplementation("io.helidon.webserver.testing.junit5:helidon-webserver-testing-junit5:${helidonVersion}")
 }
 
 java {
@@ -61,6 +63,9 @@ testing {
         //noinspection GroovyAssignabilityCheck
         integrationTest(JvmTestSuite) {
             useJUnitJupiter(junitVersion)
+            dependencies {
+                implementation project()
+            }
             configurations {
                 integrationTestImplementation.extendsFrom(testImplementation)
                 integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
