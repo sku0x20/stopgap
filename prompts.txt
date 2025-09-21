@@ -1,0 +1,8 @@
+generate readme.md. these are some details.
+- this is a spike project i am using to test helidon.io.
+- helidon.io uses loom, ie. virtual threads. their helidon nima webserver. which is rewritten from scratch to take advantage of virtual threads.
+- no async mess.
+- another thing i am using Helidon SE which is bare minimum, custom DI if we can say that, and in short depending on bare minimum dependencies.
+- no magic. or as little as possible. trying to keep it minimum.
+- also using latest JDK 25 which is release only a week back.
+
