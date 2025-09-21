@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A registry for managing singleton instances of objects by their associated qualifiers.
- * This class allows registering instance creators and retrieving or creating instances as needed.
- * Once a creator is registered for a specific qualifier, it cannot be re-registered.
- * Instances are lazily created upon the first request and are cached for subsequent requests.
+ * A registry for managing instance creation and retrieval. This class allows for registering
+ * instance creators by type or qualifier and retrieving instances as needed. Instances are
+ * instantiated lazily and cached for subsequent access.
  * <p>
- * This registry supports dependency injection by allowing instance creators to request other instances
- * from the registry while creating their own instance.
+ * Thread-safety is not guaranteed, and it is up to the caller to ensure appropriate usage in
+ * multithreaded environments.
  */
 public final class InstanceRegistry {
 
