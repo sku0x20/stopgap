@@ -16,6 +16,16 @@ public final class InstanceRegistry {
     private final Map<String, Object> instances = new HashMap<>();
     private final Map<String, InstanceCreator<?>> creators = new HashMap<>();
 
+    private final Config config;
+
+    public InstanceRegistry(final Config config) {
+        this.config = config;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
     public <T> void registerForType(
         final Class<T> clazz,
         final InstanceCreator<T> creator

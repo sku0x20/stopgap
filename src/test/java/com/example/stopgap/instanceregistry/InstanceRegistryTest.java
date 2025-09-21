@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 
 final class InstanceRegistryTest {
 
-    private final InstanceRegistry registry = new InstanceRegistry();
+    private final Config config = mock(Config.class);
+    private final InstanceRegistry registry = new InstanceRegistry(config);
 
     @Test
     void forType() {
