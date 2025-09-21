@@ -27,6 +27,3 @@ Notes & caveats
 - Targeting JDK 25: ensure your tooling (IDE, Gradle, Docker base image) matches.
 - Helidon 4.x API is evolving; this spike aims to stay minimal and explicit to make upgrades simple.
 
-License
-
-- Spike/experimental code; use at your own discretion.
