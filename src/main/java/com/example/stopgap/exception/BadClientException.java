@@ -5,6 +5,6 @@ import io.helidon.http.Status;
 
 public class BadClientException extends HttpException {
     public BadClientException() {
-        super("Bad client request", Status.BAD_REQUEST_400);
+        super("Bad client request by extending", Status.BAD_REQUEST_400);
     }
 }
