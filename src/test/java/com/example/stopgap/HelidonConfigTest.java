@@ -23,6 +23,8 @@ final class HelidonConfigTest {
         final var config = new HelidonConfig(source);
         assertThat(config.get("a")).isEqualTo("a");
         assertThat(config.get("b.b1")).isEqualTo("b1");
+
+        assertThat(config.getConfig("b")).isInstanceOf(Config.class);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.example.stopgap;
 
 import com.example.stopgap.instanceregistry.InstanceRegistry;
-import io.helidon.config.Config;
 import io.helidon.webserver.WebServer;
 
 public final class Main {
@@ -10,16 +9,15 @@ public final class Main {
     }
 
     static void main(final String[] args) {
-        final var config = Config.create();
 
-        final com.example.stopgap.instanceregistry.Config config1 = (key) -> "test";
-        final var instanceRegistry = new InstanceRegistry(config1);
+        final var config = HelidonConfig.loadDefault();
+        final var instanceRegistry = new InstanceRegistry(config);
         MainConfig.setup(instanceRegistry);
 
         final var mainEndpoint = instanceRegistry.getInstanceForType(MainEndpoint.class);
 
         final var server = WebServer.builder()
-            .config(config.get("server"))
+            .config(config.getConfig("server"))
             .protocolsDiscoverServices(false)
             .routing(mainEndpoint.routing(instanceRegistry))
             .build();
