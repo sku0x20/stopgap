@@ -63,8 +63,9 @@ testing {
         //noinspection GroovyAssignabilityCheck
         integrationTest(JvmTestSuite) {
             useJUnitJupiter(junitVersion)
-            dependencies {
-                implementation project()
+            sources {
+                compileClasspath += sourceSets.main.output
+                runtimeClasspath += sourceSets.main.output
             }
             configurations {
                 integrationTestImplementation.extendsFrom(testImplementation)
