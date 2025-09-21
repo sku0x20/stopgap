@@ -12,7 +12,8 @@ public final class Main {
     static void main(final String[] args) {
         final var config = Config.create();
 
-        final var instanceRegistry = new InstanceRegistry();
+        final com.example.stopgap.instanceregistry.Config config1 = (key) -> "test";
+        final var instanceRegistry = new InstanceRegistry(config1);
         MainConfig.setup(instanceRegistry);
 
         final var mainEndpoint = instanceRegistry.getInstanceForType(MainEndpoint.class);
