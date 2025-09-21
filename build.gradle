@@ -58,6 +58,14 @@ testing {
         test {
             useJUnitJupiter(junitVersion)
         }
+        //noinspection GroovyAssignabilityCheck
+        integrationTest(JvmTestSuite) {
+            useJUnitJupiter(junitVersion)
+            configurations {
+                integrationTestImplementation.extendsFrom(testImplementation)
+                integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
+            }
+        }
     }
 }
 
