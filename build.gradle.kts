@@ -3,7 +3,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     kotlin("jvm") version ("2.2.0")
-    java
     application
 }
 
@@ -27,10 +26,8 @@ dependencies {
     testImplementation("io.helidon.webserver.testing.junit5:helidon-webserver-testing-junit5:${helidonVersion}")
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+kotlin {
+    jvmToolchain(25)
 }
 
 application {
