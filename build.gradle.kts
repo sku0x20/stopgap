@@ -31,7 +31,7 @@ kotlin {
 }
 
 application {
-    mainClass = "com.example.stopgap.Main"
+    mainClass = "com.example.stopgap.MainKt"
 }
 
 tasks.register<Copy>("copyLibs") {
