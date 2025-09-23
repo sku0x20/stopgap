@@ -5,7 +5,7 @@ COPY gradlew ./
 COPY gradle gradle
 RUN sed -i 's@-all\.zip@-bin\.zip@' gradle/wrapper/gradle-wrapper.properties && \
     ./gradlew --status
-COPY build.gradle settings.gradle gradle.properties  ./
+COPY build.gradle.kts settings.gradle.kts gradle.properties  ./
 RUN ./gradlew dependencies --refresh-dependencies
 COPY src src
 RUN ./gradlew jar

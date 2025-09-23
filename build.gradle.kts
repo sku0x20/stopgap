@@ -2,8 +2,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id 'java'
-    id 'application'
+    java
+    application
 }
 
 repositories {
@@ -13,10 +13,8 @@ repositories {
 group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
-ext {
-    helidonVersion = '4.2.7'
-    junitVersion = "6.0.0-RC3"
-}
+val helidonVersion = "4.2.7"
+val junitVersion = "6.0.0-RC3"
 
 dependencies {
     implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
@@ -38,38 +36,38 @@ application {
     mainClass = "com.example.stopgap.Main"
 }
 
-tasks.register('copyLibs', Copy) {
-    from(configurations.named("runtimeClasspath"))
+tasks.register<Copy>("copyLibs") {
+    from(configurations.runtimeClasspath)
     into("build/libs/libs")
 }
 
-jar {
-    archiveFileName.set("${project.name}.jar")
+tasks.jar {
+    archiveFileName = "${project.name}.jar"
+    val configuration = configurations.runtimeClasspath.get()
+    val files = configuration.joinToString(" ") { "libs/${it.name}" }
     manifest {
         attributes(
-            "Main-Class": "${application.mainClass.get()}",
-            "Class-Path": configurations.named("runtimeClasspath").get().collect { "libs/${it.name}" }.join(" ")
+            "Main-Class" to application.mainClass.get(),
+            "Class-Path" to files
         )
     }
     dependsOn(tasks.named("copyLibs"))
 }
 
 testing {
-    //noinspection GroovyAssignabilityCheck
     suites {
-        test {
+        named<JvmTestSuite>("test") {
             useJUnitJupiter(junitVersion)
         }
-        //noinspection GroovyAssignabilityCheck
-        integrationTest(JvmTestSuite) {
+        register<JvmTestSuite>("integrationTest") {
             useJUnitJupiter(junitVersion)
             sources {
-                compileClasspath += sourceSets.main.output
-                runtimeClasspath += sourceSets.main.output
+                compileClasspath += sourceSets.main.get().output
+                runtimeClasspath += sourceSets.main.get().output
             }
             configurations {
-                integrationTestImplementation.extendsFrom(testImplementation)
-                integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
+                named("integrationTestImplementation").get().extendsFrom(testImplementation.get())
+                named("integrationTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
             }
         }
     }
@@ -77,6 +75,7 @@ testing {
 
 testing.suites.configureEach {
     targets.configureEach {
+        this as JvmTestSuiteTarget
         testTask.configure {
             testLogging {
                 events(TestLogEvent.STANDARD_ERROR)
