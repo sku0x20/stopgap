@@ -1,49 +1,43 @@
-package com.example.stopgap.generator.web;
+package com.example.stopgap.generator.web
 
-import com.example.stopgap.Endpoint;
-import com.example.stopgap.generator.StaticGenerator;
-import com.example.stopgap.generator.uuid.web.UuidEndpoint;
-import com.example.stopgap.instanceregistry.InstanceRegistry;
-import io.helidon.webserver.http.HttpRules;
-import io.helidon.webserver.http.HttpService;
-import io.helidon.webserver.http.ServerRequest;
-import io.helidon.webserver.http.ServerResponse;
+import com.example.stopgap.Endpoint
+import com.example.stopgap.generator.StaticGenerator
+import com.example.stopgap.generator.uuid.web.UuidEndpoint
+import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.webserver.http.HttpRules
+import io.helidon.webserver.http.HttpService
+import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
+import java.security.SecureRandom
 
-import java.security.SecureRandom;
+class GeneratorEndpoint(
+    private val staticGenerator: StaticGenerator
+) : Endpoint {
 
-public final class GeneratorEndpoint implements Endpoint {
+    private val random = SecureRandom()
 
-    private final SecureRandom random = new SecureRandom();
-    private final StaticGenerator staticGenerator;
+    override fun routes(registry: InstanceRegistry): HttpService {
+        val uuidEndpoint = registry.getInstanceForType(UuidEndpoint::class.java)
 
-    public GeneratorEndpoint(
-        final StaticGenerator staticGenerator
+        return HttpService { rules: HttpRules ->
+            rules
+                .get("/number", ::randomNumber)
+                .get("/static", ::staticGen)
+                .register("/uuid", uuidEndpoint.routes(registry))
+        }
+    }
+
+    private fun randomNumber(
+        req: ServerRequest,
+        res: ServerResponse
     ) {
-        this.staticGenerator = staticGenerator;
+        res.send(random.nextLong().toString())
     }
 
-    @Override
-    public HttpService routes(final InstanceRegistry registry) {
-        final var uuidEndpoint = registry.getInstanceForType(UuidEndpoint.class);
-
-        return (final HttpRules rules) -> rules
-            .get("/number", this::randomNumber)
-            .get("/static", this::staticGen)
-            .register("/uuid", uuidEndpoint.routes(registry));
-    }
-
-    private void randomNumber(
-        final ServerRequest req,
-        final ServerResponse res
+    private fun staticGen(
+        req: ServerRequest,
+        res: ServerResponse
     ) {
-        res.send(Long.toString(random.nextLong()));
+        res.send(staticGenerator.value)
     }
-
-    private void staticGen(
-        final ServerRequest req,
-        final ServerResponse res
-    ) {
-        res.send(staticGenerator.value());
-    }
-
 }

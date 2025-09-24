@@ -1,28 +1,27 @@
-package com.example.stopgap;
+package com.example.stopgap
 
-import com.example.stopgap.exception.ExceptionEndpoint;
-import com.example.stopgap.generator.web.GeneratorEndpoint;
-import com.example.stopgap.instanceregistry.InstanceRegistry;
-import io.helidon.webserver.http.HttpRouting;
-import io.helidon.webserver.http.HttpRules;
-import io.helidon.webserver.http.HttpService;
+import com.example.stopgap.exception.ExceptionEndpoint
+import com.example.stopgap.generator.web.GeneratorEndpoint
+import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.webserver.http.*
 
-final class MainEndpoint implements Endpoint {
+class MainEndpoint : Endpoint {
 
-    HttpRouting.Builder routing(final InstanceRegistry registry) {
+    fun routing(registry: InstanceRegistry): HttpRouting.Builder? {
         return HttpRouting.builder()
-            .register("/", routes(registry));
+            .register("/", routes(registry))
     }
 
-    @Override
-    public HttpService routes(final InstanceRegistry registry) {
-        final var generator = registry.getInstanceForType(GeneratorEndpoint.class);
-        final var exception = registry.getInstanceForType(ExceptionEndpoint.class);
+    override fun routes(registry: InstanceRegistry): HttpService {
+        val generator = registry.getInstanceForType(GeneratorEndpoint::class.java)
+        val exception = registry.getInstanceForType(ExceptionEndpoint::class.java)
 
-        return (final HttpRules rules) -> rules
-            .register("/generate", generator.routes(registry))
-            .register("/exception", exception.routes(registry))
-            .get("/ping", (req, res) -> res.send("pong"));
+        return HttpService { rules: HttpRules ->
+            rules
+                .register("/generate", generator.routes(registry))
+                .register("/exception", exception.routes(registry))
+                .get("/ping", { req: ServerRequest, res: ServerResponse -> res.send("pong") })
+        }
     }
 
 }

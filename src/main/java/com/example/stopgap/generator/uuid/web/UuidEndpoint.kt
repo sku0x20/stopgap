@@ -1,34 +1,29 @@
-package com.example.stopgap.generator.uuid.web;
+package com.example.stopgap.generator.uuid.web
 
-import com.example.stopgap.Endpoint;
-import com.example.stopgap.generator.uuid.UuidGen;
-import com.example.stopgap.instanceregistry.InstanceRegistry;
-import io.helidon.webserver.http.HttpRules;
-import io.helidon.webserver.http.HttpService;
-import io.helidon.webserver.http.ServerRequest;
-import io.helidon.webserver.http.ServerResponse;
+import com.example.stopgap.Endpoint
+import com.example.stopgap.generator.uuid.UuidGen
+import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.webserver.http.HttpRules
+import io.helidon.webserver.http.HttpService
+import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 
-public final class UuidEndpoint implements Endpoint {
+class UuidEndpoint(
+    private val uuidGen: UuidGen
+) : Endpoint {
 
-    private final UuidGen uuidGen;
-
-    public UuidEndpoint(
-        final UuidGen uuidGen
-    ) {
-        this.uuidGen = uuidGen;
+    override fun routes(registry: InstanceRegistry): HttpService {
+        return HttpService { rules: HttpRules ->
+            rules
+                .get("/", ::generateUuid)
+        }
     }
 
-    @Override
-    public HttpService routes(final InstanceRegistry registry) {
-        return (final HttpRules rules) -> rules
-            .get("/", this::generateUuid);
-    }
-
-    private void generateUuid(
-        final ServerRequest req,
-        final ServerResponse res
+    private fun generateUuid(
+        req: ServerRequest,
+        res: ServerResponse
     ) {
-        res.send(uuidGen.generate());
+        res.send(uuidGen.generate())
     }
 
 }
