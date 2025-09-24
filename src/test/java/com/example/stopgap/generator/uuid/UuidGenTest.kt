@@ -1,17 +1,14 @@
-package com.example.stopgap.generator.uuid;
+package com.example.stopgap.generator.uuid
 
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-final class UuidGenTest {
-
+class UuidGenTest {
     @Test
-    void differentUuids() {
-        final var uuidGen = new UuidGen();
-        final var uuid1 = uuidGen.generate();
-        final var uuid2 = uuidGen.generate();
-        assertThat(uuid1).isNotEqualTo(uuid2);
+    fun differentUuids() {
+        val uuidGen = UuidGen()
+        val uuid1 = uuidGen.generate()
+        val uuid2 = uuidGen.generate()
+        assertThat(uuid1).isNotEqualTo(uuid2)
     }
-
 }

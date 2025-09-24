@@ -1,68 +1,73 @@
-package com.example.stopgap.instanceregistry;
+package com.example.stopgap.instanceregistry
 
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.mock;
+class InstanceRegistryTest {
 
-final class InstanceRegistryTest {
-
-    private final Config config = mock(Config.class);
-    private final InstanceRegistry registry = new InstanceRegistry(config);
-
-    @Test
-    void forType() {
-        registry.registerForType(T1.class, InstanceRegistryTest::createT1);
-        final var t1 = registry.getInstanceForType(T1.class);
-        assertThat(t1).isInstanceOf(T1.class);
-    }
+    private val config = mock(Config::class.java)
+    private val registry = InstanceRegistry(config)
 
     @Test
-    void returnsSameInstance() {
-        final var qualifier = T1.class.getSimpleName();
-        registry.registerForQualifier(qualifier, InstanceRegistryTest::createT1);
-
-        final var i1 = registry.getInstanceForQualifier(qualifier, T1.class);
-        final var i2 = registry.getInstanceForQualifier(qualifier, T1.class);
-
-        assertThat(i1).isInstanceOf(T1.class);
-        assertThat(i1).isSameAs(i2);
+    fun forType() {
+        registry.registerForType(
+            T1::class.java,
+            ::createT1
+        )
+        val t1 = registry.getInstanceForType(T1::class.java)
+        assertThat(t1).isInstanceOf(T1::class.java)
     }
 
     @Test
-    void onlyRegisterOnce() {
-        final var qualifier = T1.class.getSimpleName();
-        registry.registerForQualifier(qualifier, InstanceRegistryTest::createT1);
-        assertThatExceptionOfType(CreatorExistsException.class).isThrownBy(() -> {
-            registry.registerForQualifier(qualifier, InstanceRegistryTest::createT1);
-        });
+    fun returnsSameInstance() {
+        val qualifier = T1::class.java.getSimpleName()
+        registry.registerForQualifier(qualifier, ::createT1)
+
+        val i1 = registry.getInstanceForQualifier(qualifier, T1::class.java)
+        val i2 = registry.getInstanceForQualifier(qualifier, T1::class.java)
+
+        assertThat(i1).isInstanceOf(T1::class.java)
+        assertThat(i1).isSameAs(i2)
     }
 
     @Test
-    void dependencyHandling() {
-        registry.registerForQualifier("t2", InstanceRegistryTest::createT2);
-        registry.registerForQualifier("t1", InstanceRegistryTest::createT1);
-
-        final var t2 = registry.getInstanceForQualifier("t2", T2.class);
-        assertThat(t2).isInstanceOf(T2.class);
-        final var t1 = registry.getInstanceForQualifier("t1", T1.class);
-        assertThat(t1).isSameAs(t2.t1);
+    fun onlyRegisterOnce() {
+        val qualifier = T1::class.java.getSimpleName()
+        registry.registerForQualifier(qualifier, ::createT1)
+        assertThatExceptionOfType(CreatorExistsException::class.java).isThrownBy {
+            registry.registerForQualifier(
+                qualifier,
+                ::createT1
+            )
+        }
     }
 
-    private static T1 createT1(final InstanceRegistry registry) {
-        return new T1();
+    @Test
+    fun dependencyHandling() {
+        registry.registerForQualifier("t2", ::createT2)
+        registry.registerForQualifier("t1", ::createT1)
+
+        val t2 = registry.getInstanceForQualifier("t2", T2::class.java)
+        assertThat(t2).isInstanceOf(T2::class.java)
+        val t1 = registry.getInstanceForQualifier("t1", T1::class.java)
+        assertThat(t1).isSameAs(t2.t1)
     }
 
-    private record T1() {
-    }
+    private class T1
 
-    private static T2 createT2(final InstanceRegistry registry) {
-        final var t1 = registry.getInstanceForQualifier("t1", T1.class);
-        return new T2(t1);
-    }
+    @JvmRecord
+    private data class T2(val t1: T1)
 
-    private record T2(T1 t1) {
-    }
+    companion object {
+        private fun createT1(registry: InstanceRegistry): T1 {
+            return T1()
+        }
 
+        private fun createT2(registry: InstanceRegistry): T2 {
+            val t1 = registry.getInstanceForQualifier<T1>("t1", T1::class.java)
+            return T2(t1)
+        }
+    }
 }

@@ -1,30 +1,31 @@
-package com.example.stopgap;
+package com.example.stopgap
 
-import io.helidon.config.Config;
-import io.helidon.config.ConfigSources;
-import io.helidon.config.spi.ConfigNode;
-import org.junit.jupiter.api.Test;
+import io.helidon.config.Config
+import io.helidon.config.ConfigSources
+import io.helidon.config.spi.ConfigNode
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
-final class HelidonConfigTest {
+class HelidonConfigTest {
 
     @Test
-    void get() {
-        final var objectNode = ConfigNode.ObjectNode.builder()
+    fun get() {
+        val objectNode = ConfigNode.ObjectNode.builder()
             .addValue("a", "a")
-            .addObject("b", ConfigNode.ObjectNode.builder()
-                .addValue("b1", "b1")
-                .build())
-            .build();
-        final var configSource = ConfigSources.create(objectNode);
-        final var source = Config.create(configSource);
+            .addObject(
+                "b", ConfigNode.ObjectNode.builder()
+                    .addValue("b1", "b1")
+                    .build()
+            )
+            .build()
+        val configSource = ConfigSources.create(objectNode)
+        val source = Config.create(configSource)
 
-        final var config = new HelidonConfig(source);
-        assertThat(config.get("a")).isEqualTo("a");
-        assertThat(config.get("b.b1")).isEqualTo("b1");
+        val config = HelidonConfig(source)
+        assertThat(config.get("a")).isEqualTo("a")
+        assertThat(config.get("b.b1")).isEqualTo("b1")
 
-        assertThat(config.getConfig("b")).isInstanceOf(Config.class);
+        assertThat(config.getConfig("b")).isInstanceOf(Config::class.java)
     }
 
 }
