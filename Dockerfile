@@ -3,8 +3,7 @@ WORKDIR /build/app/stopgap
 ENV GRADLE_USER_HOME=/build/.gradle
 COPY gradlew ./
 COPY gradle gradle
-RUN sed -i 's@-all\.zip@-bin\.zip@' gradle/wrapper/gradle-wrapper.properties && \
-    ./gradlew --status
+RUN ./gradlew --status
 COPY build.gradle.kts settings.gradle.kts gradle.properties  ./
 RUN ./gradlew dependencies --refresh-dependencies
 COPY src src
