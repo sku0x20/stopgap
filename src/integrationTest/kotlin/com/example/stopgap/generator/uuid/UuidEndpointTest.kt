@@ -10,7 +10,7 @@ import io.helidon.webserver.testing.junit5.RoutingTest
 import io.helidon.webserver.testing.junit5.SetUpRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 
 @RoutingTest
 class UuidEndpointTest(
@@ -25,7 +25,7 @@ class UuidEndpointTest(
     }
 
     companion object {
-        private val config: Config = mock<Config>(Config::class.java)
+        private val config: Config = mock<Config>()
         private val registry = InstanceRegistry(config)
 
         private val endpoint = UuidEndpoint(UuidGen())

@@ -21,7 +21,7 @@ dependencies {
     implementation("io.helidon.config:helidon-config-yaml:${helidonVersion}")
 
     testImplementation("org.assertj:assertj-core:3.27.3")
-    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.0")
 
     testImplementation("io.helidon.webserver.testing.junit5:helidon-webserver-testing-junit5:${helidonVersion}")
 }
