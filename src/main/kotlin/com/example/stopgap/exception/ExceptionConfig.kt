@@ -5,10 +5,7 @@ import com.example.stopgap.instanceregistry.InstanceRegistry
 object ExceptionConfig {
 
     fun setup(registry: InstanceRegistry) {
-        registry.registerForType(
-            ExceptionEndpoint::class.java,
-            ::exceptionEndpoint
-        )
+        registry.registerForType(::exceptionEndpoint)
     }
 
     private fun exceptionEndpoint(registry: InstanceRegistry): ExceptionEndpoint {

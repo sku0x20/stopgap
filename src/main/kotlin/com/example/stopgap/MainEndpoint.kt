@@ -13,8 +13,8 @@ class MainEndpoint : Endpoint {
     }
 
     override fun routes(registry: InstanceRegistry): HttpService {
-        val generator = registry.getInstanceForType(GeneratorEndpoint::class.java)
-        val exception = registry.getInstanceForType(ExceptionEndpoint::class.java)
+        val generator = registry.getInstanceForType<GeneratorEndpoint>()
+        val exception = registry.getInstanceForType<ExceptionEndpoint>()
 
         return HttpService { rules: HttpRules ->
             rules

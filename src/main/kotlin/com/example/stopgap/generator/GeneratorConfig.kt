@@ -7,19 +7,13 @@ import com.example.stopgap.instanceregistry.InstanceRegistry
 object GeneratorConfig {
 
     fun setup(registry: InstanceRegistry) {
-        registry.registerForType(
-            GeneratorEndpoint::class.java,
-            ::generator
-        )
-        registry.registerForType(
-            StaticGenerator::class.java,
-            ::staticGenerator
-        )
+        registry.registerForType(::generator)
+        registry.registerForType(::staticGenerator)
         UuidConfig.setup(registry)
     }
 
     private fun generator(registry: InstanceRegistry): GeneratorEndpoint {
-        val staticGenerator = registry.getInstanceForType(StaticGenerator::class.java)
+        val staticGenerator = registry.getInstanceForType<StaticGenerator>()
         return GeneratorEndpoint(staticGenerator)
     }
 

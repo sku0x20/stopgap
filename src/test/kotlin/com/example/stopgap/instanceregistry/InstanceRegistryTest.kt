@@ -12,11 +12,8 @@ class InstanceRegistryTest {
 
     @Test
     fun forType() {
-        registry.registerForType(
-            T1::class.java,
-            ::createT1
-        )
-        val t1 = registry.getInstanceForType(T1::class.java)
+        registry.registerForType(::createT1)
+        val t1 = registry.getInstanceForType<T1>()
         assertThat(t1).isInstanceOf(T1::class.java)
     }
 
@@ -25,8 +22,8 @@ class InstanceRegistryTest {
         val qualifier = T1::class.java.getSimpleName()
         registry.registerForQualifier(qualifier, ::createT1)
 
-        val i1 = registry.getInstanceForQualifier(qualifier, T1::class.java)
-        val i2 = registry.getInstanceForQualifier(qualifier, T1::class.java)
+        val i1 = registry.getInstanceForQualifier<T1>(qualifier)
+        val i2 = registry.getInstanceForQualifier<T1>(qualifier)
 
         assertThat(i1).isInstanceOf(T1::class.java)
         assertThat(i1).isSameAs(i2)
@@ -49,9 +46,9 @@ class InstanceRegistryTest {
         registry.registerForQualifier("t2", ::createT2)
         registry.registerForQualifier("t1", ::createT1)
 
-        val t2 = registry.getInstanceForQualifier("t2", T2::class.java)
+        val t2 = registry.getInstanceForQualifier<T2>("t2")
         assertThat(t2).isInstanceOf(T2::class.java)
-        val t1 = registry.getInstanceForQualifier("t1", T1::class.java)
+        val t1 = registry.getInstanceForQualifier<T1>("t1")
         assertThat(t1).isSameAs(t2.t1)
     }
 
@@ -66,7 +63,7 @@ class InstanceRegistryTest {
         }
 
         private fun createT2(registry: InstanceRegistry): T2 {
-            val t1 = registry.getInstanceForQualifier("t1", T1::class.java)
+            val t1 = registry.getInstanceForQualifier<T1>("t1")
             return T2(t1)
         }
     }

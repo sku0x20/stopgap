@@ -16,11 +16,14 @@ class InstanceRegistry(
     private val instances: MutableMap<String, Any> = HashMap()
     private val creators: MutableMap<String, InstanceCreator<*>> = HashMap()
 
-    fun <T> registerForType(
-        clazz: Class<T>,
+    inline fun <reified T> registerForType(
         creator: InstanceCreator<T>
     ) {
-        registerForQualifier(clazz.getName(), creator)
+        registerForQualifier(T::class.qualifiedName!!, creator)
+    }
+
+    inline fun <reified T> getInstanceForType(): T {
+        return getInstanceForQualifier(T::class.qualifiedName!!)
     }
 
     fun registerForQualifier(
@@ -31,17 +34,8 @@ class InstanceRegistry(
         creators[qualifier] = creator
     }
 
-    fun <T> getInstanceForType(
-        clazz: Class<T>
-    ): T {
-        return getInstanceForQualifier<T>(clazz.getName(), clazz)
-    }
-
     @Suppress("UNCHECKED_CAST")
-    fun <T> getInstanceForQualifier(
-        qualifier: String,
-        clazz: Class<T>
-    ): T {
+    fun <T> getInstanceForQualifier(qualifier: String): T {
         val instance = instances[qualifier] ?: createInstance(qualifier)
         return instance as T
     }

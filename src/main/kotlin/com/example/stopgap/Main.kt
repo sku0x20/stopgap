@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
     val instanceRegistry = InstanceRegistry(config)
     MainConfig.setup(instanceRegistry)
 
-    val mainEndpoint = instanceRegistry.getInstanceForType(MainEndpoint::class.java)
+    val mainEndpoint = instanceRegistry.getInstanceForType<MainEndpoint>()
 
     val server = WebServer.builder()
         .config(config.getConfig("server"))

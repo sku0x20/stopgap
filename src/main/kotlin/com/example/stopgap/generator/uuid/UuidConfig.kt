@@ -6,18 +6,12 @@ import com.example.stopgap.instanceregistry.InstanceRegistry
 object UuidConfig {
 
     fun setup(registry: InstanceRegistry) {
-        registry.registerForType(
-            UuidEndpoint::class.java,
-            ::endpoint
-        )
-        registry.registerForType(
-            UuidGen::class.java,
-            ::gen
-        )
+        registry.registerForType(::endpoint)
+        registry.registerForType(::gen)
     }
 
     private fun endpoint(registry: InstanceRegistry): UuidEndpoint {
-        val uuidGen = registry.getInstanceForType(UuidGen::class.java)
+        val uuidGen = registry.getInstanceForType<UuidGen>()
         return UuidEndpoint(uuidGen)
     }
 

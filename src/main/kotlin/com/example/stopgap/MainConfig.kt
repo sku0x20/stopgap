@@ -7,10 +7,7 @@ import com.example.stopgap.instanceregistry.InstanceRegistry
 object MainConfig {
 
     fun setup(registry: InstanceRegistry) {
-        registry.registerForType(
-            MainEndpoint::class.java,
-            ::mainEndpoint
-        )
+        registry.registerForType(::mainEndpoint)
         GeneratorConfig.setup(registry)
         ExceptionConfig.setup(registry)
     }

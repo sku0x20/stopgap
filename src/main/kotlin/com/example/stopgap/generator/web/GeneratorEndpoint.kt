@@ -17,7 +17,7 @@ class GeneratorEndpoint(
     private val random = SecureRandom()
 
     override fun routes(registry: InstanceRegistry): HttpService {
-        val uuidEndpoint = registry.getInstanceForType(UuidEndpoint::class.java)
+        val uuidEndpoint = registry.getInstanceForType<UuidEndpoint>()
 
         return HttpService { rules: HttpRules ->
             rules
