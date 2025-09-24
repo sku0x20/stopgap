@@ -1,12 +1,9 @@
-package com.example.stopgap.generator.uuid;
+package com.example.stopgap.generator.uuid
 
-public final class UuidGen {
+import java.util.*
 
-    public UuidGen() {
-    }
-
-    @SuppressWarnings("MethodMayBeStatic")
-    public String generate() {
-        return java.util.UUID.randomUUID().toString();
+class UuidGen {
+    fun generate(): String {
+        return UUID.randomUUID().toString()
     }
 }

@@ -1,6 +1,6 @@
-package com.example.stopgap.generator;
+package com.example.stopgap.generator
 
-public record StaticGenerator(
-    String value
-) {
-}
+@JvmRecord
+data class StaticGenerator(
+    val value: String
+)
