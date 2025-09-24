@@ -1,20 +1,22 @@
-package com.example.stopgap;
+package com.example.stopgap
 
-import com.example.stopgap.exception.ExceptionConfig;
-import com.example.stopgap.generator.GeneratorConfig;
-import com.example.stopgap.instanceregistry.InstanceRegistry;
+import com.example.stopgap.exception.ExceptionConfig
+import com.example.stopgap.generator.GeneratorConfig
+import com.example.stopgap.instanceregistry.InstanceRegistry
 
-final class MainConfig {
-    private MainConfig() {
+object MainConfig {
+
+    fun setup(registry: InstanceRegistry) {
+        registry.registerForType(
+            MainEndpoint::class.java,
+            ::mainEndpoint
+        )
+        GeneratorConfig.setup(registry)
+        ExceptionConfig.setup(registry)
     }
 
-    static void setup(final InstanceRegistry registry) {
-        registry.registerForType(MainEndpoint.class, MainConfig::mainEndpoint);
-        GeneratorConfig.setup(registry);
-        ExceptionConfig.setup(registry);
+    private fun mainEndpoint(registry: InstanceRegistry): MainEndpoint {
+        return MainEndpoint()
     }
 
-    private static MainEndpoint mainEndpoint(final InstanceRegistry registry) {
-        return new MainEndpoint();
-    }
 }

@@ -1,24 +1,27 @@
-package com.example.stopgap.generator.uuid;
+package com.example.stopgap.generator.uuid
 
-import com.example.stopgap.generator.uuid.web.UuidEndpoint;
-import com.example.stopgap.instanceregistry.InstanceRegistry;
+import com.example.stopgap.generator.uuid.web.UuidEndpoint
+import com.example.stopgap.instanceregistry.InstanceRegistry
 
-public final class UuidConfig {
-    private UuidConfig() {
+object UuidConfig {
+
+    fun setup(registry: InstanceRegistry) {
+        registry.registerForType(
+            UuidEndpoint::class.java,
+            ::endpoint
+        )
+        registry.registerForType(
+            UuidGen::class.java,
+            ::gen
+        )
     }
 
-    public static void setup(final InstanceRegistry registry) {
-        registry.registerForType(UuidEndpoint.class, UuidConfig::endpoint);
-        registry.registerForType(UuidGen.class, UuidConfig::gen);
+    private fun endpoint(registry: InstanceRegistry): UuidEndpoint {
+        val uuidGen = registry.getInstanceForType(UuidGen::class.java)
+        return UuidEndpoint(uuidGen)
     }
 
-    private static UuidEndpoint endpoint(final InstanceRegistry registry) {
-        final var uuidGen = registry.getInstanceForType(UuidGen.class);
-        return new UuidEndpoint(uuidGen);
+    private fun gen(registry: InstanceRegistry): UuidGen {
+        return UuidGen()
     }
-
-    private static UuidGen gen(final InstanceRegistry registry) {
-        return new UuidGen();
-    }
-
 }
