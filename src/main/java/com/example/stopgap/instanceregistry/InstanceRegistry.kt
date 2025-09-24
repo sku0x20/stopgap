@@ -1,66 +1,55 @@
-package com.example.stopgap.instanceregistry;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.example.stopgap.instanceregistry
 
 /**
  * A registry for managing instance creation and retrieval. This class allows for registering
  * instance creators by type or qualifier and retrieving instances as needed. Instances are
  * instantiated lazily and cached for subsequent access.
- * <p>
+ * 
+ * 
  * Thread-safety is not guaranteed, and it is up to the caller to ensure appropriate usage in
  * multithreaded environments.
  */
-public final class InstanceRegistry {
+class InstanceRegistry(
+    val config: Config
+) {
 
-    private final Map<String, Object> instances = new HashMap<>();
-    private final Map<String, InstanceCreator<?>> creators = new HashMap<>();
+    private val instances: MutableMap<String, Any> = HashMap()
+    private val creators: MutableMap<String, InstanceCreator<*>> = HashMap()
 
-    private final Config config;
-
-    public InstanceRegistry(final Config config) {
-        this.config = config;
-    }
-
-    public Config getConfig() {
-        return config;
-    }
-
-    public <T> void registerForType(
-        final Class<T> clazz,
-        final InstanceCreator<T> creator
+    fun <T> registerForType(
+        clazz: Class<T>,
+        creator: InstanceCreator<T>
     ) {
-        registerForQualifier(clazz.getName(), creator);
+        registerForQualifier(clazz.getName(), creator)
     }
 
-    public void registerForQualifier(
-        final String qualifier,
-        final InstanceCreator<?> creator
+    fun registerForQualifier(
+        qualifier: String,
+        creator: InstanceCreator<*>
     ) {
-        if (creators.containsKey(qualifier)) throw new CreatorExistsException(qualifier);
-        creators.put(qualifier, creator);
+        if (creators.containsKey(qualifier)) throw CreatorExistsException(qualifier)
+        creators[qualifier] = creator
     }
 
-    public <T> T getInstanceForType(
-        final Class<T> clazz
-    ) {
-        return getInstanceForQualifier(clazz.getName(), clazz);
+    fun <T> getInstanceForType(
+        clazz: Class<T>
+    ): T {
+        return getInstanceForQualifier<T>(clazz.getName(), clazz)
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getInstanceForQualifier(
-        final String qualifier,
-        final Class<T> clazz
-    ) {
-        final var instance = instances.get(qualifier);
-        return instance == null ? (T) createInstance(qualifier) : (T) instance;
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getInstanceForQualifier(
+        qualifier: String,
+        clazz: Class<T>
+    ): T {
+        val instance = instances[qualifier] ?: createInstance(qualifier)
+        return instance as T
     }
 
-    private Object createInstance(final String qualifier) {
-        final var creator = creators.get(qualifier);
-        if (creator == null) throw new NoCreatorException(qualifier);
-        final var instance = creator.create(this);
-        instances.put(qualifier, instance);
-        return instance;
+    private fun createInstance(qualifier: String): Any {
+        val creator = creators[qualifier] ?: throw NoCreatorException(qualifier)
+        val instance = creator.create(this)!!
+        instances[qualifier] = instance
+        return instance
     }
 }

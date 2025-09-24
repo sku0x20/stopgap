@@ -1,6 +1,5 @@
-package com.example.stopgap.instanceregistry;
+package com.example.stopgap.instanceregistry
 
-@FunctionalInterface
-public interface InstanceCreator<T> {
-    T create(InstanceRegistry registry);
+fun interface InstanceCreator<T> {
+    fun create(registry: InstanceRegistry): T
 }
