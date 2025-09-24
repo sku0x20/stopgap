@@ -1,26 +1,24 @@
-package com.example.stopgap;
+package com.example.stopgap
 
-import com.example.stopgap.instanceregistry.Config;
+import com.example.stopgap.instanceregistry.Config
+import io.helidon.config.Config as HeliconC
 
-public final class HelidonConfig implements Config {
 
-    public static HelidonConfig loadDefault() {
-        return new HelidonConfig(io.helidon.config.Config.create());
+class HelidonConfig(
+    private val source: HeliconC
+) : Config {
+
+    override fun get(key: String): String {
+        return source.get(key).asString().orElseThrow()
     }
 
-    private final io.helidon.config.Config source;
-
-    public HelidonConfig(final io.helidon.config.Config source) {
-        this.source = source;
+    fun getConfig(key: String): HeliconC {
+        return source.get(key)
     }
 
-    @Override
-    public String get(final String key) {
-        return source.get(key).asString().orElseThrow();
+    companion object {
+        fun loadDefault(): HelidonConfig {
+            return HelidonConfig(HeliconC.create())
+        }
     }
-
-    public io.helidon.config.Config getConfig(final String key) {
-        return source.get(key);
-    }
-
 }
