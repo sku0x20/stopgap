@@ -25,13 +25,13 @@ class UuidEndpointTest(
     }
 
     companion object {
-        private val config: Config = mock<Config>()
-        private val registry = InstanceRegistry(config)
-
-        private val endpoint = UuidEndpoint(UuidGen())
 
         @SetUpRoute
         fun setUpRoute(builder: HttpRouting.Builder) {
+            val config: Config = mock<Config>()
+            val registry = InstanceRegistry(config)
+            val endpoint = UuidEndpoint(UuidGen())
+
             builder.register(endpoint.routes(registry))
         }
     }
