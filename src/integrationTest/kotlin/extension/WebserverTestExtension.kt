@@ -8,15 +8,28 @@ import org.junit.jupiter.api.extension.ExtensionContext
 class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, AfterAllCallback {
 
     override fun beforeAll(context: ExtensionContext) {
-        System.err.println("before all extension")
+        val store = getStore(context)
+        store.put("test", "test2")
+        System.err.println("before all extension: ${store.get("test")}")
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        System.err.println("before each extension")
+        val store = getStore(context)
+        System.err.println("before each extension: ${store.get("test")}}")
     }
 
     override fun afterAll(context: ExtensionContext) {
-        System.err.println("after each extension")
+        val store = getStore(context)
+        System.err.println("after each extension ${store.get("test")}}")
+    }
+
+    private fun getStore(context: ExtensionContext): ExtensionContext.Store {
+        // scope to test class
+        val nameSpace = ExtensionContext.Namespace.create(
+            this::class.java,
+            context.requiredTestClass,
+        )
+        return context.getStore(nameSpace)
     }
 
 }
