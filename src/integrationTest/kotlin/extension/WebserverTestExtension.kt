@@ -1,11 +1,8 @@
 package extension
 
-import org.junit.jupiter.api.extension.AfterAllCallback
-import org.junit.jupiter.api.extension.BeforeAllCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
-import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.*
 
-class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, AfterAllCallback {
+class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
         private const val SERVER_INSTANCE = "webserver-instance-key"
@@ -15,6 +12,14 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, AfterAllCa
         val store = getStore(context)
         store.put(SERVER_INSTANCE, "some-value")
         System.err.println("before all extension: ${store.get(SERVER_INSTANCE)}")
+    }
+
+    override fun postProcessTestInstance(
+        testInstance: Any,
+        context: ExtensionContext
+    ) {
+        val store = getStore(context)
+        System.err.println("postProcessTestInstance extension: ${store.get(SERVER_INSTANCE)}")
     }
 
     override fun beforeEach(context: ExtensionContext) {
