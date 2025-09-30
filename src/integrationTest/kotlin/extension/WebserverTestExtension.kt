@@ -13,13 +13,14 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
     companion object {
         private const val SERVER_INSTANCE = "webserver-instance-key"
         private const val CONFIG = "config-key"
+        private const val IS_CONFIG_MOCKED = "is-config-mocked-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
     }
 
     override fun beforeAll(context: ExtensionContext) {
         val store = getStore(context)
 
-        val config = createConfig(context.requiredTestClass)
+        val config = createConfig(context.requiredTestClass, store)
 
         val registry = InstanceRegistry(config)
         setupInstanceRegistry(context.requiredTestClass, registry)
@@ -56,7 +57,10 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         return context.getStore(nameSpace)
     }
 
-    private fun createConfig(testClass: Class<*>): Config {
+    private fun createConfig(
+        testClass: Class<*>,
+        store: ExtensionContext.Store
+    ): Config {
         val methods = AnnotationSupport.findAnnotatedMethods(
             testClass,
             WebserverTest.CreateConfig::class.java,
@@ -66,12 +70,14 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
             throw IllegalStateException("Only one method can be annotated with @CreateConfig")
         }
         if (methods.isEmpty()) {
+            store.put(IS_CONFIG_MOCKED, true)
             return mock<Config>()
         }
         val member = methods[0]
         if (ModifierSupport.isNotStatic(member)) {
             throw IllegalStateException("@CreateConfig method must be static")
         }
+        store.put(IS_CONFIG_MOCKED, false)
         return member.invoke(null) as Config
     }
 
