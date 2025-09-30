@@ -20,10 +20,8 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
     override fun beforeAll(context: ExtensionContext) {
         val store = getStore(context)
 
-        val config = createConfig(context.requiredTestClass, store)
-
-        val registry = InstanceRegistry(config)
-        setupInstanceRegistry(context.requiredTestClass, registry)
+        val config = setupConfig(context.requiredTestClass, store)
+        val registry = setupInstanceRegistry(context.requiredTestClass, config)
 
         store.put(INSTANCE_REGISTRY, registry)
 //        store.put(SERVER_INSTANCE, "some-value")
@@ -56,7 +54,7 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         return context.getStore(nameSpace)
     }
 
-    private fun createConfig(
+    private fun setupConfig(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ): Config {
@@ -86,8 +84,8 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
 
     private fun setupInstanceRegistry(
         testClass: Class<*>,
-        registry: InstanceRegistry
-    ) {
+        config: Config
+    ): InstanceRegistry {
         val methods = AnnotationSupport.findAnnotatedMethods(
             testClass,
             WebserverTest.SetupInstanceRegistry::class.java,
@@ -100,7 +98,9 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         if (ModifierSupport.isNotStatic(member)) {
             throw IllegalStateException("@SetupInstanceRegistry method must be static")
         }
+        val registry = InstanceRegistry(config)
         member.invoke(null, registry)
+        return registry
     }
 
 }
