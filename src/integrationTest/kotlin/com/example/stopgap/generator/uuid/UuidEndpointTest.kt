@@ -19,6 +19,12 @@ class UuidEndpointTest {
     companion object {
 
         @JvmStatic
+        @WebserverTest.SetupInstanceRegistry
+        fun setupInstanceRegistry(registry: InstanceRegistry) {
+            System.err.println("Setting up instance registry")
+        }
+
+        @JvmStatic
         fun setUpRoute() {
             val config: Config = mock<Config>()
             val registry = InstanceRegistry(config)
