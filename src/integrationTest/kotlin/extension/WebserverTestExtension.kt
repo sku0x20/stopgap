@@ -25,7 +25,6 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         val registry = InstanceRegistry(config)
         setupInstanceRegistry(context.requiredTestClass, registry)
 
-        store.put(CONFIG, config)
         store.put(INSTANCE_REGISTRY, registry)
 //        store.put(SERVER_INSTANCE, "some-value")
     }
@@ -70,15 +69,19 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
             throw IllegalStateException("Only one method can be annotated with @CreateConfig")
         }
         if (methods.isEmpty()) {
+            val mock = mock<Config>()
             store.put(IS_CONFIG_MOCKED, true)
-            return mock<Config>()
+            store.put(CONFIG, mock)
+            return mock
         }
         val member = methods[0]
         if (ModifierSupport.isNotStatic(member)) {
             throw IllegalStateException("@CreateConfig method must be static")
         }
+        val config = member.invoke(null) as Config
         store.put(IS_CONFIG_MOCKED, false)
-        return member.invoke(null) as Config
+        store.put(CONFIG, config)
+        return config
     }
 
     private fun setupInstanceRegistry(
