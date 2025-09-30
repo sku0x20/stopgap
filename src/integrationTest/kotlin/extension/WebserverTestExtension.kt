@@ -21,9 +21,7 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         val store = getStore(context)
 
         val config = setupConfig(context.requiredTestClass, store)
-        val registry = setupInstanceRegistry(context.requiredTestClass, config)
-
-        store.put(INSTANCE_REGISTRY, registry)
+        val registry = setupInstanceRegistry(context.requiredTestClass, config, store)
 //        store.put(SERVER_INSTANCE, "some-value")
     }
 
@@ -84,7 +82,8 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
 
     private fun setupInstanceRegistry(
         testClass: Class<*>,
-        config: Config
+        config: Config,
+        store: ExtensionContext.Store
     ): InstanceRegistry {
         val methods = AnnotationSupport.findAnnotatedMethods(
             testClass,
@@ -100,6 +99,7 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         }
         val registry = InstanceRegistry(config)
         member.invoke(null, registry)
+        store.put(INSTANCE_REGISTRY, registry)
         return registry
     }
 
