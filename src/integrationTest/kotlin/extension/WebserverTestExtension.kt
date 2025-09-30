@@ -7,7 +7,6 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.mockito.kotlin.mock
-import java.lang.reflect.Method
 
 class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor, AfterAllCallback {
 
@@ -20,31 +19,14 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
     override fun beforeAll(context: ExtensionContext) {
         val store = getStore(context)
 
-        val config = mock<Config>()
-        val registry = InstanceRegistry(config)
+        val config = createConfig(context.requiredTestClass)
 
-        val setupInstanceRegistry = setupInstanceRegistryFunction(context)
-        setupInstanceRegistry.invoke(null, registry)
+        val registry = InstanceRegistry(config)
+        setupInstanceRegistry(context.requiredTestClass, registry)
 
         store.put(CONFIG, config)
         store.put(INSTANCE_REGISTRY, registry)
 //        store.put(SERVER_INSTANCE, "some-value")
-    }
-
-    private fun setupInstanceRegistryFunction(context: ExtensionContext): Method {
-        val setupInstanceRegistryFunctions = AnnotationSupport.findAnnotatedMethods(
-            context.requiredTestClass,
-            WebserverTest.SetupInstanceRegistry::class.java,
-            HierarchyTraversalMode.TOP_DOWN
-        )
-        if (setupInstanceRegistryFunctions.size > 1) {
-            throw IllegalStateException("Only one method can be annotated with @SetupInstanceRegistry")
-        }
-        val member = setupInstanceRegistryFunctions[0]
-        if (ModifierSupport.isNotStatic(member)) {
-            throw IllegalStateException("@SetupInstanceRegistry method must be static")
-        }
-        return member
     }
 
     override fun postProcessTestInstance(
@@ -72,6 +54,44 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
             context.requiredTestClass,
         )
         return context.getStore(nameSpace)
+    }
+
+    private fun createConfig(testClass: Class<*>): Config {
+        val methods = AnnotationSupport.findAnnotatedMethods(
+            testClass,
+            WebserverTest.CreateConfig::class.java,
+            HierarchyTraversalMode.TOP_DOWN
+        )
+        if (methods.size > 1) {
+            throw IllegalStateException("Only one method can be annotated with @CreateConfig")
+        }
+        if (methods.isEmpty()) {
+            return mock<Config>()
+        }
+        val member = methods[0]
+        if (ModifierSupport.isNotStatic(member)) {
+            throw IllegalStateException("@CreateConfig method must be static")
+        }
+        return member.invoke(null) as Config
+    }
+
+    private fun setupInstanceRegistry(
+        testClass: Class<*>,
+        registry: InstanceRegistry
+    ) {
+        val methods = AnnotationSupport.findAnnotatedMethods(
+            testClass,
+            WebserverTest.SetupInstanceRegistry::class.java,
+            HierarchyTraversalMode.TOP_DOWN
+        )
+        if (methods.size > 1) {
+            throw IllegalStateException("Only one method can be annotated with @SetupInstanceRegistry")
+        }
+        val member = methods[0]
+        if (ModifierSupport.isNotStatic(member)) {
+            throw IllegalStateException("@SetupInstanceRegistry method must be static")
+        }
+        member.invoke(null, registry)
     }
 
 }

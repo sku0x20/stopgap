@@ -11,4 +11,8 @@ annotation class WebserverTest {
     @Retention(AnnotationRetention.RUNTIME)
     annotation class SetupInstanceRegistry
 
+    @Target
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class CreateConfig
+
 }
