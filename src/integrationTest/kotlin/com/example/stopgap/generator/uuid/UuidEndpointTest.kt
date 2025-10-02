@@ -1,7 +1,10 @@
 package com.example.stopgap.generator.uuid
 
+import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
+import extension.InjectInstance
 import extension.WebserverTest
+import io.helidon.webserver.WebServer
 import io.helidon.webserver.WebServerConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -9,9 +12,21 @@ import org.junit.jupiter.api.Test
 @WebserverTest
 class UuidEndpointTest {
 
+
+    @InjectInstance
+    lateinit var config: Config
+
+    @InjectInstance
+    lateinit var registry: InstanceRegistry
+
+    @InjectInstance
+    lateinit var server: WebServer
+
     @Test
-    fun returnsUuid() {
-        assertThat(10).isEqualTo(20)
+    fun injectFields() {
+        assertThat(config).isNotNull()
+        assertThat(registry).isNotNull()
+        assertThat(server).isNotNull()
     }
 
     companion object {

@@ -33,6 +33,17 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         context: ExtensionContext
     ) {
         val store = getStore(context)
+        val injectableFields = AnnotationSupport.findAnnotatedFields(
+            context.requiredTestClass,
+            InjectInstance::class.java
+        )
+        for (field in injectableFields) {
+            when (field.type) {
+                Config::class.java -> field.set(testInstance, store.get(CONFIG))
+                InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
+                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+            }
+        }
     }
 
     override fun beforeEach(context: ExtensionContext) {
