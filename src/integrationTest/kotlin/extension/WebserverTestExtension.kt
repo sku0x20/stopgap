@@ -2,19 +2,21 @@ package extension
 
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.*
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.mockito.kotlin.mock
 
-class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor, AfterAllCallback {
+class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor,
+    AfterAllCallback {
 
     companion object {
-        private const val SERVER_INSTANCE = "webserver-instance-key"
-        private const val CONFIG = "config-key"
         private const val IS_CONFIG_MOCKED = "is-config-mocked-key"
+        private const val CONFIG = "config-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
+        private const val SERVER_INSTANCE = "webserver-instance-key"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -22,7 +24,7 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
 
         val config = setupConfig(context.requiredTestClass, store)
         val registry = setupInstanceRegistry(context.requiredTestClass, config, store)
-//        store.put(SERVER_INSTANCE, "some-value")
+        setupServer(context.requiredTestClass, registry, store)
     }
 
     override fun postProcessTestInstance(
@@ -40,7 +42,7 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
 
     override fun afterAll(context: ExtensionContext) {
         val store = getStore(context)
-        System.err.println("after each extension ${store.get(SERVER_INSTANCE)}")
+        stopServer(store)
     }
 
     private fun getStore(context: ExtensionContext): ExtensionContext.Store {
@@ -101,6 +103,26 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         member.invoke(null, registry)
         store.put(INSTANCE_REGISTRY, registry)
         return registry
+    }
+
+    private fun setupServer(
+        testClass: Class<*>,
+        registry: InstanceRegistry,
+        store: ExtensionContext.Store
+    ) {
+        val server = WebServer.builder()
+            .port(0)
+            .host("localhost")
+            .protocolsDiscoverServices(false)
+//            .routing(mainEndpoint.routing(instanceRegistry))
+            .build()
+        server.start()
+        store.put(SERVER_INSTANCE, server)
+    }
+
+    private fun stopServer(store: ExtensionContext.Store) {
+        val server = store.get(SERVER_INSTANCE) as WebServer
+        server.stop()
     }
 
 }
