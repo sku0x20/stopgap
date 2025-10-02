@@ -94,13 +94,18 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         registry: InstanceRegistry,
         store: ExtensionContext.Store
     ) {
-        val server = WebServer.builder()
+        val builder = WebServer.builder()
             .port(0)
             .host("localhost")
             .protocolsDiscoverServices(false)
 //            .routing(mainEndpoint.routing(instanceRegistry))
+        findStaticMethod(
+            testClass,
+            WebserverTest.ConfigServer::class.java
+        )?.invoke(null, builder)
+        val server = builder
             .build()
-        server.start()
+            .start()
         store.put(SERVER_INSTANCE, server)
     }
 
