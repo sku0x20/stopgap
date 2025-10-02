@@ -8,6 +8,7 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.mockito.kotlin.mock
+import java.lang.reflect.Method
 
 class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor,
     AfterAllCallback {
@@ -32,12 +33,10 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         context: ExtensionContext
     ) {
         val store = getStore(context)
-        System.err.println("postProcessTestInstance extension: ${store.get(SERVER_INSTANCE)}")
     }
 
     override fun beforeEach(context: ExtensionContext) {
         val store = getStore(context)
-        System.err.println("before each extension: ${store.get(SERVER_INSTANCE)}")
     }
 
     override fun afterAll(context: ExtensionContext) {
@@ -58,26 +57,20 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         testClass: Class<*>,
         store: ExtensionContext.Store
     ): Config {
-        val methods = AnnotationSupport.findAnnotatedMethods(
+        val method = findStaticMethod(
             testClass,
-            WebserverTest.CreateConfig::class.java,
-            HierarchyTraversalMode.TOP_DOWN
+            WebserverTest.CreateConfig::class.java
         )
-        if (methods.size > 1) {
-            throw IllegalStateException("Only one method can be annotated with @CreateConfig")
+        val config: Config
+        val isMock: Boolean
+        if (method == null) {
+            config = mock<Config>()
+            isMock = true
+        } else {
+            config = method.invoke(null) as Config
+            isMock = false
         }
-        if (methods.isEmpty()) {
-            val mock = mock<Config>()
-            store.put(IS_CONFIG_MOCKED, true)
-            store.put(CONFIG, mock)
-            return mock
-        }
-        val member = methods[0]
-        if (ModifierSupport.isNotStatic(member)) {
-            throw IllegalStateException("@CreateConfig method must be static")
-        }
-        val config = member.invoke(null) as Config
-        store.put(IS_CONFIG_MOCKED, false)
+        store.put(IS_CONFIG_MOCKED, isMock)
         store.put(CONFIG, config)
         return config
     }
@@ -87,20 +80,11 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
         config: Config,
         store: ExtensionContext.Store
     ): InstanceRegistry {
-        val methods = AnnotationSupport.findAnnotatedMethods(
-            testClass,
-            WebserverTest.SetupInstanceRegistry::class.java,
-            HierarchyTraversalMode.TOP_DOWN
-        )
-        if (methods.size > 1) {
-            throw IllegalStateException("Only one method can be annotated with @SetupInstanceRegistry")
-        }
-        val member = methods[0]
-        if (ModifierSupport.isNotStatic(member)) {
-            throw IllegalStateException("@SetupInstanceRegistry method must be static")
-        }
         val registry = InstanceRegistry(config)
-        member.invoke(null, registry)
+        findStaticMethod(
+            testClass,
+            WebserverTest.SetupInstanceRegistry::class.java
+        )?.invoke(null, registry)
         store.put(INSTANCE_REGISTRY, registry)
         return registry
     }
@@ -123,6 +107,28 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
     private fun stopServer(store: ExtensionContext.Store) {
         val server = store.get(SERVER_INSTANCE) as WebServer
         server.stop()
+    }
+
+    private fun findStaticMethod(
+        testClass: Class<*>,
+        annotation: Class<out Annotation>
+    ): Method? {
+        val methods = AnnotationSupport.findAnnotatedMethods(
+            testClass,
+            annotation,
+            HierarchyTraversalMode.TOP_DOWN
+        )
+        if (methods.size > 1) {
+            throw IllegalStateException("Only one method can be annotated with ${annotation.name}")
+        }
+        if (methods.isEmpty()) {
+            return null
+        }
+        val member = methods[0]
+        if (ModifierSupport.isNotStatic(member)) {
+            throw IllegalStateException("${annotation.name} method must be static")
+        }
+        return member
     }
 
 }
