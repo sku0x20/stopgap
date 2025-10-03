@@ -5,6 +5,7 @@ import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import io.helidon.webserver.WebServer
+import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -13,6 +14,7 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
@@ -99,6 +101,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         return registry
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun setupServer(
         testClass: Class<*>,
         registry: InstanceRegistry,
@@ -108,7 +111,16 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
             .protocolsDiscoverServices(false)
-//            .routing(mainEndpoint.routing(instanceRegistry))
+
+        val endpointClazz = store.get(ENDPOINT) as? KClass<out Endpoint>
+        if (endpointClazz != null) {
+            // todo: make InstanceRegistry take KClass
+            val endpoint = registry.getInstanceForQualifier<Endpoint>(endpointClazz.qualifiedName!!)
+            val routing = HttpRouting.builder()
+                .register("/", endpoint.routes(registry))
+            builder.routing(routing)
+        }
+
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
