@@ -35,13 +35,14 @@ class UuidEndpointTest {
         @JvmStatic
         @WebserverTest.SetupInstanceRegistry(UuidEndpoint::class)
         fun setupInstanceRegistry(registry: InstanceRegistry) {
-            System.err.println("Setting up instance registry")
+            registry.registerForType { UuidGen() }
+            registry.registerForType { UuidEndpoint(it.getInstanceForType()) }
         }
 
         @JvmStatic
         @WebserverTest.ConfigServer
         fun configServer(builder: WebServerConfig.Builder) {
-            System.err.println("configuring server")
+            // config server
         }
 
     }
