@@ -4,6 +4,7 @@ import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.webclient.api.WebClient
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -23,6 +24,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         private const val INSTANCE_REGISTRY = "instance-registry-key"
         private const val ENDPOINT = "endpoint-key"
         private const val SERVER_INSTANCE = "webserver-instance-key"
+        private const val CLIENT_INSTANCE = "webclient-instance-key"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -30,7 +32,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         val config = setupConfig(context.requiredTestClass, store)
         val registry = setupInstanceRegistry(context.requiredTestClass, config, store)
-        setupServer(context.requiredTestClass, registry, store)
+        val server = setupServer(context.requiredTestClass, registry, store)
+        setupClient(server, store)
     }
 
     override fun postProcessTestInstance(
@@ -47,12 +50,14 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
                 Config::class.java -> field.set(testInstance, store.get(CONFIG))
                 InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+                WebClient::class.java -> field.set(testInstance, store.get(CLIENT_INSTANCE))
             }
         }
     }
 
     override fun afterAll(context: ExtensionContext) {
         val store = getStore(context)
+        closeClient(store)
         stopServer(store)
     }
 
@@ -106,7 +111,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testClass: Class<*>,
         registry: InstanceRegistry,
         store: ExtensionContext.Store
-    ) {
+    ): WebServer {
         val builder = WebServer.builder()
             .port(0)
             .host("localhost")
@@ -129,6 +134,22 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .build()
             .start()
         store.put(SERVER_INSTANCE, server)
+        return server
+    }
+
+    private fun setupClient(
+        server: WebServer,
+        store: ExtensionContext.Store
+    ) {
+        val client = WebClient.builder()
+            .baseUri("http://${server.prototype().host()}:${server.port()}")
+            .build()
+        store.put(CLIENT_INSTANCE, client)
+    }
+
+    private fun closeClient(store: ExtensionContext.Store) {
+        val client = store.get(CLIENT_INSTANCE) as WebClient
+        client.closeResource()
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
