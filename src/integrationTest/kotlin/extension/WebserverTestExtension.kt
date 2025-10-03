@@ -1,5 +1,6 @@
 package extension
 
+import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import io.helidon.webserver.WebServer
@@ -10,13 +11,11 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
-import org.mockito.kotlin.mock
 import java.lang.reflect.Method
 
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
-        private const val IS_CONFIG_MOCKED = "is-config-mocked-key"
         private const val CONFIG = "config-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
         private const val SERVER_INSTANCE = "webserver-instance-key"
@@ -70,16 +69,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             testClass,
             WebserverTest.CreateConfig::class.java
         )
-        val config: Config
-        val isMock: Boolean
-        if (method == null) {
-            config = mock<Config>()
-            isMock = true
-        } else {
-            config = method.invoke(null) as Config
-            isMock = false
-        }
-        store.put(IS_CONFIG_MOCKED, isMock)
+        val config = if (method == null) HelidonConfig.loadDefault() else method.invoke(null) as Config
         store.put(CONFIG, config)
         return config
     }
