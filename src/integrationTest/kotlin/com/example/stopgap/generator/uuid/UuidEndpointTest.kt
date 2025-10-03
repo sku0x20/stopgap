@@ -37,6 +37,12 @@ class UuidEndpointTest {
     }
 
     @Test
+    fun notFound() {
+        val response = client.get().uri("/not-found").request()
+        assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
+    }
+
+    @Test
     fun testUuidGeneration() {
         val response = client.get().uri("/").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
