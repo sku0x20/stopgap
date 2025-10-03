@@ -3,15 +3,17 @@ package extension
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import io.helidon.webserver.WebServer
-import org.junit.jupiter.api.extension.*
+import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.BeforeAllCallback
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.mockito.kotlin.mock
 import java.lang.reflect.Method
 
-class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstancePostProcessor,
-    AfterAllCallback {
+class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
         private const val IS_CONFIG_MOCKED = "is-config-mocked-key"
@@ -44,10 +46,6 @@ class WebserverTestExtension : BeforeAllCallback, BeforeEachCallback, TestInstan
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
             }
         }
-    }
-
-    override fun beforeEach(context: ExtensionContext) {
-        val store = getStore(context)
     }
 
     override fun afterAll(context: ExtensionContext) {
