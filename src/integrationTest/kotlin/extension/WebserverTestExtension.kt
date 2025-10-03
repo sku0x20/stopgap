@@ -1,5 +1,6 @@
 package extension
 
+import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
@@ -18,6 +19,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     companion object {
         private const val CONFIG = "config-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
+        private const val ENDPOINT = "endpoint-key"
         private const val SERVER_INSTANCE = "webserver-instance-key"
     }
 
@@ -80,10 +82,19 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         store: ExtensionContext.Store
     ): InstanceRegistry {
         val registry = InstanceRegistry(config)
-        findStaticMethod(
+        val method = findStaticMethod(
             testClass,
             WebserverTest.SetupInstanceRegistry::class.java
-        )?.invoke(null, registry)
+        )
+        if (method != null) {
+            val endpoint = method
+                .getAnnotation(WebserverTest.SetupInstanceRegistry::class.java)
+                .endpoint
+            if (endpoint != Endpoint::class) {
+                store.put(ENDPOINT, endpoint)
+            }
+            method.invoke(null, registry)
+        }
         store.put(INSTANCE_REGISTRY, registry)
         return registry
     }

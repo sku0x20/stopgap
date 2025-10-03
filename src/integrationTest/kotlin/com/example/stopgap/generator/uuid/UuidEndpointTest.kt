@@ -1,5 +1,6 @@
 package com.example.stopgap.generator.uuid
 
+import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import extension.InjectInstance
@@ -32,7 +33,7 @@ class UuidEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.SetupInstanceRegistry
+        @WebserverTest.SetupInstanceRegistry(UuidEndpoint::class)
         fun setupInstanceRegistry(registry: InstanceRegistry) {
             System.err.println("Setting up instance registry")
         }
