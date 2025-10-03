@@ -112,10 +112,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         registry: InstanceRegistry,
         store: ExtensionContext.Store
     ): WebServer {
+        val helidonConfig = HelidonConfig.loadDefault()
         val builder = WebServer.builder()
+            .config(helidonConfig.getConfig("server"))
+            .protocolsDiscoverServices(false)
             .port(0)
             .host("localhost")
-            .protocolsDiscoverServices(false)
 
         val endpointClazz = store.get(ENDPOINT) as? KClass<out Endpoint>
         if (endpointClazz != null) {

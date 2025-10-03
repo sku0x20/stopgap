@@ -38,10 +38,10 @@ class UuidEndpointTest {
 
     @Test
     fun testUuidGeneration() {
-        val response = client.get().uri("/uuid").request()
+        val response = client.get().uri("/").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         val contentType = response.headers().contentType().get()
-        assertThat(contentType as Any).isEqualTo(HttpMediaTypes.JSON_UTF_8)
+        assertThat(contentType as Any).isEqualTo(HttpMediaTypes.PLAINTEXT_UTF_8)
         val body = response.`as`(String::class.java)
         assertThat(body).matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
     }
