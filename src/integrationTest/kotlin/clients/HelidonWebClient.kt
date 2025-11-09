@@ -12,7 +12,7 @@ class HelidonWebClient : WebserverClient<WebClient> {
         return client
     }
 
-    override fun stop(client: WebClient) {
+    override fun close(client: WebClient) {
         client.closeResource()
     }
 
