@@ -7,7 +7,7 @@ class ClientHolder(
 
     val type = client::class.java
 
-    fun stop() {
+    fun close() {
         webserverClient.close(client)
     }
 }

@@ -30,7 +30,7 @@ class Clients {
 
     fun closeClients() {
         for (clientHolder in clients.values) {
-            clientHolder.stop()
+            clientHolder.close()
         }
     }
 
