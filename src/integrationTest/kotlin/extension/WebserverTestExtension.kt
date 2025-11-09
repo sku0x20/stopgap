@@ -4,7 +4,6 @@ import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
-import io.helidon.webclient.api.WebClient
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
+import org.junit.platform.commons.support.ReflectionSupport
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -29,7 +29,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         private const val INSTANCE_REGISTRY = "instance-registry-key"
         private const val ENDPOINT = "endpoint-key"
         private const val SERVER_INSTANCE = "webserver-instance-key"
-        private const val CLIENT_INSTANCE = "webclient-instance-key"
         private const val CLIENTS = "clients-key"
     }
 
@@ -44,6 +43,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         setupClient(testClass, server, store)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun postProcessTestInstance(
         testInstance: Any,
         context: ExtensionContext
@@ -53,12 +53,18 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             context.requiredTestClass,
             InjectInstance::class.java
         )
+        val clients = store.get(CLIENTS) as Map<Class<*>, Any>
         for (field in injectableFields) {
             when (field.type) {
                 Config::class.java -> field.set(testInstance, store.get(CONFIG))
                 InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
-                WebClient::class.java -> field.set(testInstance, store.get(CLIENT_INSTANCE))
+                else -> {
+                    val client = clients[field.type]
+                    if (client != null) {
+                        field.set(testInstance, client)
+                    }
+                }
             }
         }
     }
@@ -152,22 +158,43 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         server: WebServer,
         store: ExtensionContext.Store
     ) {
+        // todo: do it only once put it in static.
         val webserverAnnotation = testClass.getAnnotation(WebserverTest::class.java)!!
-        if (webserverAnnotation.client.isEmpty()) return
+        val clientAnnotation = webserverAnnotation.client
+        val roots = this::class.java.classLoader.getResources("")
+        val allMethods = mutableListOf<Method>()
+        for (root in roots) {
+            ReflectionSupport.findAllClassesInClasspathRoot(root.toURI(), { clazz ->
+                val methods = AnnotationSupport.findAnnotatedMethods(
+                    clazz,
+                    clientAnnotation.java,
+                    HierarchyTraversalMode.TOP_DOWN
+                )
+                var added = false
+                for (method in methods) {
+                    if (ModifierSupport.isStatic(method)) {
+                        allMethods.add(method)
+                        added = true
+                    }
+                }
+                added
+            }, { true })
+        }
 
-        val clazzName = webserverAnnotation.client.substringBeforeLast('.')
-        val clazz = Class.forName(clazzName)
-        val methodName = webserverAnnotation.client.substringAfterLast('.')
-        val method = clazz.declaredMethods.find { it.name == methodName }!!
-        val host = server.prototype().host()
-        val port = server.port()
-        val client = method.invoke(null, host, port)
-        store.put(CLIENT_INSTANCE, client)
+        val clients = mutableMapOf<Class<*>, Any>()
+        for (method in allMethods) {
+            val host = server.prototype().host()
+            val port = server.port()
+            val client = method.invoke(null, host, port)
+            clients[method.returnType] = client
+        }
+        store.put(CLIENTS, clients)
     }
 
     private fun closeClient(store: ExtensionContext.Store) {
-        val client = store.get(CLIENT_INSTANCE) as WebClient
-        client.closeResource()
+        // todo: not supported
+//        val client = store.get(CLIENT_INSTANCE) as WebClient
+//        client.closeResource()
     }
 
     private fun stopServer(store: ExtensionContext.Store) {

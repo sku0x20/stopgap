@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-@WebserverTest(client = "common.Common.helidonClient")
+@WebserverTest()
 class ExceptionEndpointTest {
 
     @InjectInstance
