@@ -1,10 +1,11 @@
-package extension
+package extension.webservertest
 
 import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
-import extension.webserverclient.Clients
+import extension.InjectInstance
+import extension.SharedStore
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -28,19 +29,16 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         private const val CONFIG = "config-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
         private const val ENDPOINT = "endpoint-key"
-        private const val SERVER_INSTANCE = "webserver-instance-key"
-        private const val CLIENTS = "clients-key"
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        val store = getStore(context)
+        val store = SharedStore.getStoreScopedToTestClass(context)
 
         val testClass = context.requiredTestClass
 
         val config = setupConfig(testClass, store)
         val registry = setupInstanceRegistry(testClass, config, store)
-        val server = setupServer(testClass, registry, store)
-        setupClients(server, store)
+        setupServer(testClass, registry, store)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -48,40 +46,23 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testInstance: Any,
         context: ExtensionContext
     ) {
-        val store = getStore(context)
         val injectableFields = AnnotationSupport.findAnnotatedFields(
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val clients = store.get(CLIENTS) as Clients
+        val store = SharedStore.getStoreScopedToTestClass(context)
         for (field in injectableFields) {
             when (field.type) {
                 Config::class.java -> field.set(testInstance, store.get(CONFIG))
                 InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
-                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
-                else -> {
-                    val client = clients.findClient(field.type)
-                    if (client != null) {
-                        field.set(testInstance, client)
-                    }
-                }
+                WebServer::class.java -> field.set(testInstance, store.get(SharedStore.Keys.SERVER_INSTANCE))
             }
         }
     }
 
     override fun afterAll(context: ExtensionContext) {
-        val store = getStore(context)
-        closeClient(store)
+        val store = SharedStore.getStoreScopedToTestClass(context)
         stopServer(store)
-    }
-
-    private fun getStore(context: ExtensionContext): ExtensionContext.Store {
-        // scope to test class
-        val nameSpace = ExtensionContext.Namespace.create(
-            this::class.java,
-            context.requiredTestClass,
-        )
-        return context.getStore(nameSpace)
     }
 
     private fun setupConfig(
@@ -149,28 +130,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val server = builder
             .build()
             .start()
-        store.put(SERVER_INSTANCE, server)
+        store.put(SharedStore.Keys.SERVER_INSTANCE, server)
         return server
     }
 
-    private fun setupClients(
-        server: WebServer,
-        store: ExtensionContext.Store
-    ) {
-        val host = server.prototype().host()
-        val port = server.port()
-        val clients = Clients()
-        clients.setup(host, port)
-        store.put(CLIENTS, clients)
-    }
-
-    private fun closeClient(store: ExtensionContext.Store) {
-        val clients = store.get(CLIENTS) as Clients
-        clients.closeClients()
-    }
-
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SERVER_INSTANCE) as WebServer
+        val server = store.get(SharedStore.Keys.SERVER_INSTANCE) as WebServer
         server.stop()
     }
 

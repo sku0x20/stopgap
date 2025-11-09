@@ -1,12 +1,13 @@
-package extension
+package extension.webservertest
 
 import com.example.stopgap.Endpoint
+import extension.webserverclient.ClientExtension
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ExtendWith(WebserverTestExtension::class)
+@ExtendWith(WebserverTestExtension::class, ClientExtension::class)
 annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
