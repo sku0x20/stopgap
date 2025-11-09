@@ -14,7 +14,7 @@ group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
 val helidonVersion = "4.3.0"
-val junitVersion = "6.0.0-RC3"
+val junitVersion = "6.0.1"
 
 dependencies {
     implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
