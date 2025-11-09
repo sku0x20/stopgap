@@ -7,9 +7,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(WebserverTestExtension::class)
-annotation class WebserverTest(
-    val client: KClass<out Annotation> = Client::class
-) {
+annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
@@ -22,9 +20,5 @@ annotation class WebserverTest(
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
     annotation class ConfigServer
-
-    @Target(AnnotationTarget.FUNCTION)
-    @Retention(AnnotationRetention.RUNTIME)
-    annotation class Client
 
 }
