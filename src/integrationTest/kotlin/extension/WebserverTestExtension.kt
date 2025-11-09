@@ -17,6 +17,11 @@ import org.junit.platform.commons.support.ModifierSupport
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
+/**
+ * WebserverTestExtension runs once per test class.
+ * It doesn't care if the test launch is per class or per methods, it behaves the same.
+ * Junit Extensions also try to abstract that out, so it does not affect extensions.
+ */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
