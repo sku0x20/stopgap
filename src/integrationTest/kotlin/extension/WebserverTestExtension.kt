@@ -30,15 +30,18 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         private const val ENDPOINT = "endpoint-key"
         private const val SERVER_INSTANCE = "webserver-instance-key"
         private const val CLIENT_INSTANCE = "webclient-instance-key"
+        private const val CLIENTS = "clients-key"
     }
 
     override fun beforeAll(context: ExtensionContext) {
         val store = getStore(context)
 
-        val config = setupConfig(context.requiredTestClass, store)
-        val registry = setupInstanceRegistry(context.requiredTestClass, config, store)
-        val server = setupServer(context.requiredTestClass, registry, store)
-        setupClient(server, store)
+        val testClass = context.requiredTestClass
+
+        val config = setupConfig(testClass, store)
+        val registry = setupInstanceRegistry(testClass, config, store)
+        val server = setupServer(testClass, registry, store)
+        setupClient(testClass, server, store)
     }
 
     override fun postProcessTestInstance(
@@ -145,12 +148,20 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     }
 
     private fun setupClient(
+        testClass: Class<*>,
         server: WebServer,
         store: ExtensionContext.Store
     ) {
-        val client = WebClient.builder()
-            .baseUri("http://${server.prototype().host()}:${server.port()}")
-            .build()
+        val webserverAnnotation = testClass.getAnnotation(WebserverTest::class.java)!!
+        if (webserverAnnotation.client.isEmpty()) return
+
+        val clazzName = webserverAnnotation.client.substringBeforeLast('.')
+        val clazz = Class.forName(clazzName)
+        val methodName = webserverAnnotation.client.substringAfterLast('.')
+        val method = clazz.declaredMethods.find { it.name == methodName }!!
+        val host = server.prototype().host()
+        val port = server.port()
+        val client = method.invoke(null, host, port)
         store.put(CLIENT_INSTANCE, client)
     }
 

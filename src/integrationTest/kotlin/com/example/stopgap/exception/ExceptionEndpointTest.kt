@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-@WebserverTest
+@WebserverTest(client = "common.Common.helidonClient")
 class ExceptionEndpointTest {
 
     @InjectInstance
@@ -18,6 +18,12 @@ class ExceptionEndpointTest {
     @Test
     fun badClient1() {
         val response = client.get("/bad-client-1").request()
+        assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
+    }
+
+    @Test
+    fun badClient2() {
+        val response = client.get("/bad-client-2").request()
         assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
     }
 

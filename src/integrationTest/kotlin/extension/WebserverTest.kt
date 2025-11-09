@@ -7,7 +7,9 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(WebserverTestExtension::class)
-annotation class WebserverTest {
+annotation class WebserverTest(
+    val client: String = ""
+) {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
