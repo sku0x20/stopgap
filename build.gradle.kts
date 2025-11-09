@@ -13,7 +13,7 @@ repositories {
 group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
-val helidonVersion = "4.2.7"
+val helidonVersion = "4.3.0"
 val junitVersion = "6.0.0-RC3"
 
 dependencies {
