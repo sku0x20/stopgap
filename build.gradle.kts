@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -52,28 +54,44 @@ tasks.jar {
     dependsOn(tasks.named("copyLibs"))
 }
 
+tasks.register<Exec>("buildImage") {
+    commandLine("docker", "build", "-t", "stopgap:latest", ".")
+}
+
+tasks.register<Exec>("buildImageE2e") {
+    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", ".")
+}
+
 testing {
     suites {
-        named<JvmTestSuite>("test") {
-            useJUnitJupiter(junitVersion)
-        }
-        register<JvmTestSuite>("integrationTest") {
-            useJUnitJupiter(junitVersion)
+        register<JvmTestSuite>("intTest") {
             sources {
                 compileClasspath += sourceSets.main.get().output
                 runtimeClasspath += sourceSets.main.get().output
             }
             configurations {
-                named("integrationTestImplementation").get().extendsFrom(testImplementation.get())
-                named("integrationTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+                named("intTestImplementation").get().extendsFrom(testImplementation.get())
+                named("intTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+            }
+        }
+        register<JvmTestSuite>("e2eTest") {
+            configurations {
+                named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
+                named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+            }
+            targets.register("e2eTestImage") {
+                testTask.configure {
+                    dependsOn("buildImageE2e")
+                }
             }
         }
     }
 }
 
 testing.suites.configureEach {
+    this as JvmTestSuite
+    useJUnitJupiter(junitVersion)
     targets.configureEach {
-        this as JvmTestSuiteTarget
         testTask.configure {
             testLogging {
                 events(TestLogEvent.STANDARD_ERROR)
