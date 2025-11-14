@@ -26,6 +26,8 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
 
     testImplementation("io.helidon.webclient:helidon-webclient:${helidonVersion}")
+
+    testImplementation("org.testcontainers:testcontainers:2.0.2")
 }
 
 kotlin {
