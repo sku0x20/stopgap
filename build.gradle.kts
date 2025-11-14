@@ -62,31 +62,29 @@ tasks.register<Exec>("buildImageE2e") {
     commandLine("docker", "build", "-q", "-t", "stopgap:e2e", ".")
 }
 
-testing {
-    suites {
-        register<JvmTestSuite>("intTest") {
-            sources {
-                compileClasspath += sourceSets.main.get().output
-                runtimeClasspath += sourceSets.main.get().output
-            }
-            configurations {
-                named("intTestImplementation").get().extendsFrom(testImplementation.get())
-                named("intTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
-            }
-        }
-        register<JvmTestSuite>("e2eTest") {
-            dependencies {
-                implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
-            }
-            configurations {
-                named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
-                named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
-            }
-            targets.register("e2eTestImage") {
-                testTask.configure {
-                    dependsOn("buildImageE2e")
-                }
-            }
+
+testing.suites.register<JvmTestSuite>("intTest") {
+    sources {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+    configurations {
+        named("intTestImplementation").get().extendsFrom(testImplementation.get())
+        named("intTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
+}
+
+testing.suites.register<JvmTestSuite>("e2eTest") {
+    dependencies {
+        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+    }
+    configurations {
+        named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
+        named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
+    targets.register("e2eTestImage") {
+        testTask.configure {
+            dependsOn("buildImageE2e")
         }
     }
 }
