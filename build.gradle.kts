@@ -75,6 +75,9 @@ testing {
             }
         }
         register<JvmTestSuite>("e2eTest") {
+            dependencies {
+                implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+            }
             configurations {
                 named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
                 named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
