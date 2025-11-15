@@ -5,7 +5,7 @@ import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.GenericContainer
 
 
-class DockerSessionListener : LauncherSessionListener {
+class DockerImageRunner : LauncherSessionListener {
 
     companion object {
         private const val DOCKER_IMAGE_NAME = "stopgap:e2e"
