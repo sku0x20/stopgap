@@ -12,9 +12,11 @@ class DockerSessionListener : LauncherSessionListener {
     }
 
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
+        .withExposedPorts(8080)
 
     override fun launcherSessionOpened(session: LauncherSession) {
         container.start()
+        System.setProperty("container.server.port", container.getMappedPort(8080).toString())
         System.err.println("container started: ${container.containerId}")
     }
 

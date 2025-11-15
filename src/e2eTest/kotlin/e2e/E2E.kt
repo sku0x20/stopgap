@@ -9,8 +9,10 @@ class E2E {
 
     @Test
     fun ping() {
+        val port = System.getProperty("container.server.port")
+
         val client = WebClient.builder()
-            .baseUri("http://localhost:8080")
+            .baseUri("http://localhost:${port}")
             .build()
 
         val response = client.get("/ping").request()
