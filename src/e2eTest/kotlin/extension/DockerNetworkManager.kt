@@ -19,7 +19,6 @@ class DockerNetworkManager : LauncherSessionListener {
             NETWORK_ID,
             network
         )
-        System.err.println("network-created: ${network.id}")
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {

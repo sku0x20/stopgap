@@ -23,12 +23,10 @@ class DockerImageRunner : LauncherSessionListener {
         container.start()
 
         System.setProperty("container.server.port", container.getMappedPort(8080).toString())
-        System.err.println("container started: ${container.containerId}")
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
         container.stop()
-        System.err.println("container stopped")
 
     }
 
