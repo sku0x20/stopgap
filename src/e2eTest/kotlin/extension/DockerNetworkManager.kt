@@ -7,13 +7,18 @@ import org.testcontainers.containers.Network
 class DockerNetworkManager : LauncherSessionListener {
 
     companion object {
-        private const val NETWORK_ID = "network.name"
+        const val NETWORK_ID = "network.name"
     }
 
     private lateinit var network: Network
 
     override fun launcherSessionOpened(session: LauncherSession) {
         network = Network.newNetwork()
+        session.store.put(
+            SharedStore.GLOBAL_STORE_NAMESPACE,
+            NETWORK_ID,
+            network
+        )
         System.err.println("network-created: ${network.id}")
     }
 
