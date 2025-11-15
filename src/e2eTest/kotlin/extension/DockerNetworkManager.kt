@@ -15,7 +15,7 @@ class DockerNetworkManager : LauncherSessionListener {
     override fun launcherSessionOpened(session: LauncherSession) {
         network = Network.newNetwork()
         session.store.put(
-            SharedStore.GLOBAL_STORE_NAMESPACE,
+            SharedStore.GLOBAL_NAMESPACE,
             NETWORK_ID,
             network
         )

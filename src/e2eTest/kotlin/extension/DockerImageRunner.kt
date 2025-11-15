@@ -32,7 +32,7 @@ class DockerImageRunner : LauncherSessionListener {
 
     private fun setupContainerNetwork(store: NamespacedHierarchicalStore<Namespace>) {
         val network = store.get(
-            SharedStore.GLOBAL_STORE_NAMESPACE,
+            SharedStore.GLOBAL_NAMESPACE,
             DockerNetworkManager.NETWORK_ID
         ) as Network
 
