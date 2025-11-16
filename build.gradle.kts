@@ -65,10 +65,14 @@ tasks.register<Exec>("buildImageE2e") {
 }
 
 
+// just for sharing code between e2eTest and intTest
+testing.suites.register<JvmTestSuite>("sharedTest") {
+}
+
 testing.suites.register<JvmTestSuite>("intTest") {
     sources {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
+        compileClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
     }
     configurations {
         named("intTestImplementation").get().extendsFrom(testImplementation.get())
@@ -79,6 +83,10 @@ testing.suites.register<JvmTestSuite>("intTest") {
 testing.suites.register<JvmTestSuite>("e2eTest") {
     dependencies {
         implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+    }
+    sources {
+        compileClasspath += sourceSets.named("sharedTest").get().output
+        runtimeClasspath += sourceSets.named("sharedTest").get().output
     }
     configurations {
         named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
