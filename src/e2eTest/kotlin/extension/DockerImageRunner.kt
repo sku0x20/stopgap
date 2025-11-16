@@ -19,7 +19,7 @@ class DockerImageRunner : LauncherSessionListener {
 
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
         .withExposedPorts(8080)
-        .withLogConsumer { System.err.print(it.utf8String) }
+//        .withLogConsumer { System.err.print(it.utf8String) }
 
     override fun launcherSessionOpened(session: LauncherSession) {
         setupContainerNetwork(session.store)
