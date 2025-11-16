@@ -14,6 +14,7 @@ class DockerImageRunner : LauncherSessionListener {
         private const val DOCKER_IMAGE_NAME = "stopgap:e2e"
         private const val ENV_FILE = "application.env"
         const val SERVICE_NAME = "stopgap"
+        const val SERVER_PORT_ID = "server.port"
     }
 
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
@@ -25,6 +26,11 @@ class DockerImageRunner : LauncherSessionListener {
         setupEnv()
         container.start()
 
+        session.store.put(
+            SharedStore.GLOBAL_NAMESPACE,
+            SERVER_PORT_ID,
+            container.getMappedPort(8080)
+        )
         System.setProperty("container.server.port", container.getMappedPort(8080).toString())
     }
 
