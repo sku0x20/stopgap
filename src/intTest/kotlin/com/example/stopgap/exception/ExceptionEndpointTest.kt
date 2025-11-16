@@ -1,6 +1,7 @@
 package com.example.stopgap.exception
 
 import com.example.stopgap.instanceregistry.InstanceRegistry
+import extension.InjectInstance
 import extension.webservertest.WebserverTest
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
