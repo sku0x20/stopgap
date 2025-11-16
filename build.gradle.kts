@@ -68,6 +68,8 @@ tasks.register<Exec>("buildImageE2e") {
 // just for sharing code between e2eTest and intTest
 testing.suites.register<JvmTestSuite>("sharedTest") {
     dependencies {
+        // should not be needed but to extract out SharedStore
+        // org.junit.platform.engine.support.store.Namespace is here
         implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
     }
     configurations {
