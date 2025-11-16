@@ -1,3 +1,5 @@
+package extension
+
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.engine.support.store.Namespace
 

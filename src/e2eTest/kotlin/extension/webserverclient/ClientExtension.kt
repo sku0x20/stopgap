@@ -1,7 +1,7 @@
 package extension.webserverclient
 
-import SharedStore
 import extension.InjectInstance
+import extension.SharedStore
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport

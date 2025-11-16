@@ -1,7 +1,7 @@
 package extension.webserverclient
 
-import SharedStore
 import extension.DockerImageRunner
+import extension.SharedStore
 import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 
