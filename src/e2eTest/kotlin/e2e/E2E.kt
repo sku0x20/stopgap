@@ -1,10 +1,13 @@
 package e2e
 
+import extension.webserverclient.ClientExtension
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(ClientExtension::class)
 class E2E {
 
     @Test

@@ -7,6 +7,10 @@ import org.junit.platform.launcher.LauncherSessionListener
 
 class ClientsManager : LauncherSessionListener {
 
+    companion object {
+        const val CLIENTS_ID = "clients"
+    }
+
     private lateinit var clients: Clients
 
     override fun launcherSessionOpened(session: LauncherSession) {
@@ -17,6 +21,12 @@ class ClientsManager : LauncherSessionListener {
         ) as Int
         clients = Clients()
         clients.setup(host, port)
+
+        session.store.put(
+            SharedStore.GLOBAL_NAMESPACE,
+            CLIENTS_ID,
+            clients
+        )
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
