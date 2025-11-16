@@ -31,7 +31,6 @@ class DockerImageRunner : LauncherSessionListener {
             SERVER_PORT_ID,
             container.getMappedPort(8080)
         )
-        System.setProperty("container.server.port", container.getMappedPort(8080).toString())
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
