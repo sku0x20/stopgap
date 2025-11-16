@@ -1,6 +1,5 @@
 package clients
 
-import extension.webserverclient.WebserverClient
 import io.helidon.webclient.api.WebClient
 
 class HelidonWebClient : WebserverClient<WebClient> {

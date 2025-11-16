@@ -1,5 +1,6 @@
 package extension.webserverclient
 
+import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
