@@ -19,11 +19,11 @@ class E2E {
     }
 
     @Test
-    fun exceptions() {
-        val response = client.get("/exceptions/bad-client-1").request()
+    fun exception() {
+        val response = client.get("/exception/bad-client-1").request()
         assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
 
-        val response2 = client.get("/exceptions/bad-client-2").request()
+        val response2 = client.get("/exception/bad-client-2").request()
         assertThat(response2.status()).isEqualTo(Status.BAD_REQUEST_400)
     }
 
