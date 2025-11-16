@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -24,6 +26,8 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
 
     testImplementation("io.helidon.webclient:helidon-webclient:${helidonVersion}")
+
+    testImplementation("org.testcontainers:testcontainers:2.0.2")
 }
 
 kotlin {
@@ -52,28 +56,64 @@ tasks.jar {
     dependsOn(tasks.named("copyLibs"))
 }
 
-testing {
-    suites {
-        named<JvmTestSuite>("test") {
-            useJUnitJupiter(junitVersion)
-        }
-        register<JvmTestSuite>("integrationTest") {
-            useJUnitJupiter(junitVersion)
-            sources {
-                compileClasspath += sourceSets.main.get().output
-                runtimeClasspath += sourceSets.main.get().output
-            }
-            configurations {
-                named("integrationTestImplementation").get().extendsFrom(testImplementation.get())
-                named("integrationTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
-            }
+tasks.register<Exec>("buildImage") {
+    commandLine("docker", "build", "-t", "stopgap:latest", ".")
+}
+
+tasks.register<Exec>("buildImageE2e") {
+    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", ".")
+}
+
+
+// just for sharing code between e2eTest and intTest
+testing.suites.register<JvmTestSuite>("sharedTest") {
+    dependencies {
+        // should not be needed but to extract out SharedStore
+        // org.junit.platform.engine.support.store.Namespace is here
+        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+    }
+    configurations {
+        named("sharedTestImplementation").get().extendsFrom(testImplementation.get())
+        named("sharedTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
+}
+
+testing.suites.register<JvmTestSuite>("intTest") {
+    sources {
+        compileClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
+    }
+    configurations {
+        named("intTestImplementation").get().extendsFrom(testImplementation.get())
+        named("intTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
+}
+
+testing.suites.register<JvmTestSuite>("e2eTest") {
+    dependencies {
+        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+    }
+    sources {
+        compileClasspath += sourceSets.named("sharedTest").get().output
+        runtimeClasspath += sourceSets.named("sharedTest").get().output
+    }
+    configurations {
+        named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
+        named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
+    targets.register("e2eTestImage") {
+        testTask.configure {
+            dependsOn("buildImageE2e")
+            // todo: make it depend on output of task
+            outputs.upToDateWhen { false }
         }
     }
 }
 
 testing.suites.configureEach {
+    this as JvmTestSuite
+    useJUnitJupiter(junitVersion)
     targets.configureEach {
-        this as JvmTestSuiteTarget
         testTask.configure {
             testLogging {
                 events(TestLogEvent.STANDARD_ERROR)
