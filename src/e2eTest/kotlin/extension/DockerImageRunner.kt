@@ -13,9 +13,6 @@ class DockerImageRunner : LauncherSessionListener {
     companion object {
         private const val DOCKER_IMAGE_NAME = "stopgap:e2e"
         private const val ENV_FILE = "application.env"
-        private const val RUN_DIR = "/app/stopgap"
-
-        //        private const val CONFIG_DIR = "$RUN_DIR/config"
         const val SERVICE_NAME = "stopgap"
     }
 
