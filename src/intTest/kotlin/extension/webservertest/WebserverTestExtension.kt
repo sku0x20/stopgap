@@ -4,7 +4,6 @@ import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
 import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
-import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
