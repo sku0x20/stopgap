@@ -67,6 +67,10 @@ tasks.register<Exec>("buildImageE2e") {
 
 // just for sharing code between e2eTest and intTest
 testing.suites.register<JvmTestSuite>("sharedTest") {
+    configurations {
+        named("sharedTestImplementation").get().extendsFrom(testImplementation.get())
+        named("sharedTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
+    }
 }
 
 testing.suites.register<JvmTestSuite>("intTest") {
