@@ -26,6 +26,7 @@ import kotlin.reflect.KClass
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
+        const val SERVER_INSTANCE_ID = "server-instance-key"
         private const val CONFIG = "config-key"
         private const val INSTANCE_REGISTRY = "instance-registry-key"
         private const val ENDPOINT = "endpoint-key"
@@ -55,7 +56,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             when (field.type) {
                 Config::class.java -> field.set(testInstance, store.get(CONFIG))
                 InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
-                WebServer::class.java -> field.set(testInstance, store.get(SharedStore.Keys.SERVER_INSTANCE))
+                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
             }
         }
     }
@@ -130,12 +131,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val server = builder
             .build()
             .start()
-        store.put(SharedStore.Keys.SERVER_INSTANCE, server)
+        store.put(SERVER_INSTANCE_ID, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SharedStore.Keys.SERVER_INSTANCE) as WebServer
+        val server = store.get(SERVER_INSTANCE_ID) as WebServer
         server.stop()
     }
 

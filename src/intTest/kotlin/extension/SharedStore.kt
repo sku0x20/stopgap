@@ -12,8 +12,4 @@ object SharedStore {
         return context.getStore(nameSpace)
     }
 
-    object Keys {
-        const val SERVER_INSTANCE = "server-instance-key"
-    }
-
 }
