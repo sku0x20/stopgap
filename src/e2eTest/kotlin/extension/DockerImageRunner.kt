@@ -1,5 +1,6 @@
 package extension
 
+import SharedStore
 import org.junit.platform.engine.support.store.Namespace
 import org.junit.platform.engine.support.store.NamespacedHierarchicalStore
 import org.junit.platform.launcher.LauncherSession

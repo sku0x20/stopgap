@@ -1,5 +1,6 @@
 package extension
 
+import SharedStore
 import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.Network
