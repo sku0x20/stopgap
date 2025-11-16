@@ -6,20 +6,24 @@ import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
+import org.testcontainers.utility.MountableFile
 
 
 class DockerImageRunner : LauncherSessionListener {
 
     companion object {
         private const val DOCKER_IMAGE_NAME = "stopgap:e2e"
+        private const val RUN_DIR = "/app/stopgap"
         const val SERVICE_NAME = "stopgap"
     }
 
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
         .withExposedPorts(8080)
+        .withLogConsumer { System.err.print(it.utf8String) }
 
     override fun launcherSessionOpened(session: LauncherSession) {
         setupContainerNetwork(session.store)
+        setupApplicationProperties()
         container.start()
 
         System.setProperty("container.server.port", container.getMappedPort(8080).toString())
@@ -27,7 +31,13 @@ class DockerImageRunner : LauncherSessionListener {
 
     override fun launcherSessionClosed(session: LauncherSession) {
         container.stop()
+    }
 
+    private fun setupApplicationProperties() {
+        container.withCopyFileToContainer(
+            MountableFile.forClasspathResource("application.yaml"),
+            "$RUN_DIR/application.yaml"
+        )
     }
 
     private fun setupContainerNetwork(store: NamespacedHierarchicalStore<Namespace>) {
