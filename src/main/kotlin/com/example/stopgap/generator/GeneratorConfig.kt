@@ -5,7 +5,7 @@ import com.example.stopgap.instanceregistry.InstanceRegistry
 
 object GeneratorConfig {
 
-    fun generator(registry: InstanceRegistry): GeneratorEndpoint {
+    fun generatorEndpoint(registry: InstanceRegistry): GeneratorEndpoint {
         val staticGenerator = registry.getInstanceForType<StaticGenerator>()
         return GeneratorEndpoint(staticGenerator)
     }
