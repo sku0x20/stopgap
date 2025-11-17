@@ -9,13 +9,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-ci
-      - name: Build with Gradle
-        run: ./gradlew test --no-daemon
+      - run: ./gradlew test --no-daemon
 
   intTest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-ci
-      - name: Build with Gradle
-        run: ./gradlew intTest --no-daemon
+      - run: ./gradlew intTest --no-daemon
+
+  # any way to use docker cache?
+  e2eTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-ci
+      - run: ./gradlew e2eTestImage --no-daemon
