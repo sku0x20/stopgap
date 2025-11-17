@@ -8,7 +8,6 @@ fun main(args: Array<String>) {
     InstanceRegistryInit.init(config)
 
     val registry = InstanceRegistryInit.registry
-    MainConfig.setup(registry)
 
     val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
 
