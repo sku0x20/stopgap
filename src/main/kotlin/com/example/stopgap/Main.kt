@@ -3,13 +3,12 @@ package com.example.stopgap
 import io.helidon.webserver.WebServer
 
 fun main(args: Array<String>) {
-    val config = HelidonConfig.loadDefault()
-
-    InstanceRegistryInit.init(config)
+    InstanceRegistryInit.init()
 
     val registry = InstanceRegistryInit.registry
-
     val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
+
+    val config = registry.getInstanceForType<Config>() as HelidonConfig
 
     val server = WebServer.builder()
         .config(config.getConfig("server"))

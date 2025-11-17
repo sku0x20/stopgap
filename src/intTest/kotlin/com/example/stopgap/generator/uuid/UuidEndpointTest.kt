@@ -1,7 +1,7 @@
 package com.example.stopgap.generator.uuid
 
+import com.example.stopgap.Config
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import extension.InjectInstance
 import extension.webservertest.WebserverTest

@@ -1,8 +1,8 @@
 package extension.webservertest
 
+import com.example.stopgap.Config
 import com.example.stopgap.Endpoint
 import com.example.stopgap.HelidonConfig
-import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import extension.InjectInstance
 import extension.SharedStore
@@ -84,7 +84,9 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         config: Config,
         store: ExtensionContext.Store
     ): InstanceRegistry {
-        val registry = InstanceRegistry(config)
+        val registry = InstanceRegistry()
+        registry.registerForType { config }
+
         val method = findStaticMethod(
             testClass,
             WebserverTest.SetupInstanceRegistry::class.java

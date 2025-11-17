@@ -1,5 +1,4 @@
-package com.example.stopgap.instanceregistry
-
+package com.example.stopgap
 
 /**
  * it follows property syntax for now.

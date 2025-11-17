@@ -1,6 +1,5 @@
 package com.example.stopgap
 
-import com.example.stopgap.instanceregistry.Config
 import io.helidon.config.Config as HeliconC
 
 

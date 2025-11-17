@@ -3,12 +3,10 @@ package com.example.stopgap.instanceregistry
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 
 class InstanceRegistryTest {
 
-    private val config = mock<Config>()
-    private val registry = InstanceRegistry(config)
+    private val registry = InstanceRegistry()
 
     @Test
     fun forType() {

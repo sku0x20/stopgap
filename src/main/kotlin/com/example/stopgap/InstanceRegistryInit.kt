@@ -3,19 +3,19 @@ package com.example.stopgap
 import com.example.stopgap.exception.ExceptionConfig
 import com.example.stopgap.generator.GeneratorConfig
 import com.example.stopgap.generator.uuid.UuidConfig
-import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 
 object InstanceRegistryInit {
 
     lateinit var registry: InstanceRegistry
 
-    fun init(config: Config) {
-        registry = InstanceRegistry(config)
+    fun init() {
+        registry = InstanceRegistry()
         registerCreators()
     }
 
     private fun registerCreators() {
+        registry.registerForType(MainConfig::config)
         registry.registerForType(MainConfig::mainEndpoint)
 
         registry.registerForType(GeneratorConfig::generatorEndpoint)
