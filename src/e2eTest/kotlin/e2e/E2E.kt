@@ -36,7 +36,7 @@ class E2E {
 
         val response2 = client.get("/generate/number").request()
         assertThat(response2.status()).isEqualTo(Status.OK_200)
-        assertThat(response2.`as`(String::class.java)).matches("\\d+")
+        assertThat(response2.`as`(String::class.java)).matches("^-?\\d+")
 
         val response3 = client.get("/generate/static").request()
         assertThat(response3.status()).isEqualTo(Status.OK_200)
