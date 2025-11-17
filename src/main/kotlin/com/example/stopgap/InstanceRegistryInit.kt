@@ -15,6 +15,7 @@ object InstanceRegistryInit {
     }
 
     private fun registerCreators() {
+        registry.registerForType(MainConfig::server)
         registry.registerForType(MainConfig::config)
         registry.registerForType(MainConfig::mainEndpoint)
 
