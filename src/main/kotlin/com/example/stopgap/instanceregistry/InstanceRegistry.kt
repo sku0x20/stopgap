@@ -9,9 +9,7 @@ package com.example.stopgap.instanceregistry
  * Thread-safety is not guaranteed, and it is up to the caller to ensure appropriate usage in
  * multithreaded environments.
  */
-class InstanceRegistry(
-    val config: Config
-) {
+class InstanceRegistry {
 
     private val instances: MutableMap<String, Any> = HashMap()
     private val creators: MutableMap<String, InstanceCreator<*>> = HashMap()

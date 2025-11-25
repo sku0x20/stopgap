@@ -1,11 +1,10 @@
 package extension.webservertest
 
 import com.example.stopgap.Endpoint
-import com.example.stopgap.HelidonConfig
-import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import extension.InjectInstance
 import extension.SharedStore
+import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -74,7 +73,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             testClass,
             WebserverTest.CreateConfig::class.java
         )
-        val config = if (method == null) HelidonConfig.loadDefault() else method.invoke(null) as Config
+        val config = if (method == null) Config.create() else method.invoke(null) as Config
         store.put(CONFIG, config)
         return config
     }
@@ -84,7 +83,9 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         config: Config,
         store: ExtensionContext.Store
     ): InstanceRegistry {
-        val registry = InstanceRegistry(config)
+        val registry = InstanceRegistry()
+        registry.registerForType { config }
+
         val method = findStaticMethod(
             testClass,
             WebserverTest.SetupInstanceRegistry::class.java
@@ -108,9 +109,9 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         registry: InstanceRegistry,
         store: ExtensionContext.Store
     ): WebServer {
-        val helidonConfig = HelidonConfig.loadDefault()
+        val config = store.get(CONFIG) as Config
         val builder = WebServer.builder()
-            .config(helidonConfig.getConfig("server"))
+            .config(config.get("server"))
             .protocolsDiscoverServices(false)
             .port(0)
             .host("localhost")

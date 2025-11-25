@@ -1,19 +1,20 @@
 package com.example.stopgap
 
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 
 fun main(args: Array<String>) {
-    val config = HelidonConfig.loadDefault()
-    val instanceRegistry = InstanceRegistry(config)
-    MainConfig.setup(instanceRegistry)
+    InstanceRegistryInit.init()
 
-    val mainEndpoint = instanceRegistry.getInstanceForType<MainEndpoint>()
+    val registry = InstanceRegistryInit.registry
+    val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
+
+    val config = registry.getInstanceForType<Config>()
 
     val server = WebServer.builder()
-        .config(config.getConfig("server"))
+        .config(config.get("server"))
         .protocolsDiscoverServices(false)
-        .routing(mainEndpoint.routing(instanceRegistry))
+        .routing(mainEndpoint.routing(registry))
         .build()
     server.start()
 }

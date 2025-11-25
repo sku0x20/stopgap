@@ -1,10 +1,10 @@
 package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import com.example.stopgap.instanceregistry.Config
 import com.example.stopgap.instanceregistry.InstanceRegistry
 import extension.InjectInstance
 import extension.webservertest.WebserverTest
+import io.helidon.config.Config
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
