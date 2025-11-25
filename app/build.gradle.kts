@@ -30,7 +30,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(libs.versions.jvm.get().toInt())
 }
 
 application {
