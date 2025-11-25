@@ -4,7 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    kotlin("jvm") version "2.3.0-Beta2"
+    alias(libs.plugins.kotlin.jvm)
     application
 }
 
@@ -15,23 +15,18 @@ repositories {
 group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
-val helidonVersion = "4.3.0"
-val junitVersion = "6.0.1"
-
 dependencies {
-    implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
-    implementation("io.helidon.config:helidon-config-yaml:${helidonVersion}")
+    implementation(libs.bundles.helidon)
 
-    testImplementation("org.assertj:assertj-core:3.27.3")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
 
-    testImplementation("io.helidon.webclient:helidon-webclient:${helidonVersion}")
-
-    testImplementation("org.testcontainers:testcontainers:2.0.2")
+    testImplementation(libs.helidon.webclient)
+    testImplementation(libs.testcontainers)
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(libs.versions.jvm.get().toInt())
 }
 
 application {
@@ -40,11 +35,11 @@ application {
 
 tasks.register<Copy>("copyLibs") {
     from(configurations.runtimeClasspath)
-    into("build/libs/libs")
+    into(layout.buildDirectory.dir("libs/libs"))
 }
 
 tasks.jar {
-    archiveFileName = "${project.name}.jar"
+    archiveFileName = "${rootProject.name}-${project.name}.jar"
     val configuration = configurations.runtimeClasspath.get()
     val files = configuration.joinToString(" ") { "libs/${it.name}" }
     manifest {
@@ -57,11 +52,15 @@ tasks.jar {
 }
 
 tasks.register<Exec>("buildImage") {
-    commandLine("docker", "build", "-t", "stopgap:latest", ".")
+    val context = rootProject.layout.projectDirectory.toString()
+    val file = layout.projectDirectory.file("Dockerfile").toString()
+    commandLine("docker", "build", "-t", "stopgap:latest", "-f", file, context)
 }
 
 tasks.register<Exec>("buildImageE2e") {
-    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", ".")
+    val context = rootProject.layout.projectDirectory.toString()
+    val file = layout.projectDirectory.file("Dockerfile").toString()
+    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", "-f", file, context)
 }
 
 
@@ -70,7 +69,7 @@ testing.suites.register<JvmTestSuite>("sharedTest") {
     dependencies {
         // should not be needed but to extract out SharedStore
         // org.junit.platform.engine.support.store.Namespace is here
-        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+        implementation(libs.junit.platform.launcher)
     }
     configurations {
         named("sharedTestImplementation").get().extendsFrom(testImplementation.get())
@@ -91,7 +90,7 @@ testing.suites.register<JvmTestSuite>("intTest") {
 
 testing.suites.register<JvmTestSuite>("e2eTest") {
     dependencies {
-        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+        implementation(libs.junit.platform.launcher)
     }
     sources {
         compileClasspath += sourceSets.named("sharedTest").get().output
@@ -112,7 +111,7 @@ testing.suites.register<JvmTestSuite>("e2eTest") {
 
 testing.suites.configureEach {
     this as JvmTestSuite
-    useJUnitJupiter(junitVersion)
+    useJUnitJupiter(libs.versions.junit)
     targets.configureEach {
         testTask.configure {
             testLogging {
