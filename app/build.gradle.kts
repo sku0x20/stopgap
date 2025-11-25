@@ -44,7 +44,7 @@ tasks.register<Copy>("copyLibs") {
 }
 
 tasks.jar {
-    archiveFileName = "${project.name}.jar"
+    archiveFileName = "${rootProject.name}-${project.name}.jar"
     val configuration = configurations.runtimeClasspath.get()
     val files = configuration.joinToString(" ") { "libs/${it.name}" }
     manifest {
