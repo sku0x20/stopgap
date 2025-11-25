@@ -22,7 +22,6 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
 
     testImplementation(libs.helidon.webclient)
-
     testImplementation(libs.testcontainers)
 }
 
