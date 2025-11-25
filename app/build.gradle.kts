@@ -57,11 +57,15 @@ tasks.jar {
 }
 
 tasks.register<Exec>("buildImage") {
-    commandLine("docker", "build", "-t", "stopgap:latest", ".")
+    val context = rootProject.layout.projectDirectory.toString()
+    val file = layout.projectDirectory.file("Dockerfile").toString()
+    commandLine("docker", "build", "-t", "stopgap:latest", "-f", file, context)
 }
 
 tasks.register<Exec>("buildImageE2e") {
-    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", ".")
+    val context = rootProject.layout.projectDirectory.toString()
+    val file = layout.projectDirectory.file("Dockerfile").toString()
+    commandLine("docker", "build", "-q", "-t", "stopgap:e2e", "-f", file, context)
 }
 
 
