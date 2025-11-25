@@ -22,11 +22,11 @@ dependencies {
     implementation(libs.bundles.helidon)
 
     testImplementation(libs.assertj.core)
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
+    testImplementation(libs.mockito.kotlin)
 
     testImplementation(libs.helidon.webclient)
 
-    testImplementation("org.testcontainers:testcontainers:2.0.2")
+    testImplementation(libs.testcontainers)
 }
 
 kotlin {

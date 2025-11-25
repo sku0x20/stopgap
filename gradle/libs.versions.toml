@@ -2,6 +2,8 @@
 kotlin = "2.3.0-Beta2"
 helidon = "4.3.0"
 assertj = "3.27.3"
+mockito-kotlin = "6.1.0"
+testcontainers = "2.0.2"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -11,6 +13,8 @@ helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver"
 helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
+testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
 
 [bundles]
 helidon = [
