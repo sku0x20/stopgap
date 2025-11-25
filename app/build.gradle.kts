@@ -15,9 +15,6 @@ repositories {
 group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
-val helidonVersion = "4.3.0"
-val junitVersion = "6.0.1"
-
 dependencies {
     implementation(libs.bundles.helidon)
 
@@ -73,7 +70,7 @@ testing.suites.register<JvmTestSuite>("sharedTest") {
     dependencies {
         // should not be needed but to extract out SharedStore
         // org.junit.platform.engine.support.store.Namespace is here
-        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+        implementation(libs.junit.platform.launcher)
     }
     configurations {
         named("sharedTestImplementation").get().extendsFrom(testImplementation.get())
@@ -94,7 +91,7 @@ testing.suites.register<JvmTestSuite>("intTest") {
 
 testing.suites.register<JvmTestSuite>("e2eTest") {
     dependencies {
-        implementation("org.junit.platform:junit-platform-launcher:${junitVersion}")
+        implementation(libs.junit.platform.launcher)
     }
     sources {
         compileClasspath += sourceSets.named("sharedTest").get().output
@@ -115,7 +112,7 @@ testing.suites.register<JvmTestSuite>("e2eTest") {
 
 testing.suites.configureEach {
     this as JvmTestSuite
-    useJUnitJupiter(junitVersion)
+    useJUnitJupiter(libs.versions.junit)
     targets.configureEach {
         testTask.configure {
             testLogging {

@@ -2,6 +2,7 @@
 jvm = "25"
 kotlin = "2.3.0-Beta2"
 helidon = "4.3.0"
+junit = "6.0.1"
 assertj = "3.27.3"
 mockito-kotlin = "6.1.0"
 testcontainers = "2.0.2"
@@ -15,6 +16,7 @@ helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
 
 [bundles]
