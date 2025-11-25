@@ -40,7 +40,7 @@ application {
 
 tasks.register<Copy>("copyLibs") {
     from(configurations.runtimeClasspath)
-    into("build/libs/libs")
+    into(layout.buildDirectory.dir("libs/libs"))
 }
 
 tasks.jar {
