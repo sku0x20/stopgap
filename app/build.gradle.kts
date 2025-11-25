@@ -19,8 +19,7 @@ val helidonVersion = "4.3.0"
 val junitVersion = "6.0.1"
 
 dependencies {
-    implementation("io.helidon.webserver:helidon-webserver:${helidonVersion}")
-    implementation("io.helidon.config:helidon-config-yaml:${helidonVersion}")
+    implementation(libs.bundles.helidon)
 
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")

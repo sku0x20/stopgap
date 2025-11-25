@@ -1,5 +1,16 @@
 [versions]
 kotlin = "2.3.0-Beta2"
+helidon = "4.3.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+[libraries]
+helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
+helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
+
+[bundles]
+helidon = [
+    "helidon-webserver",
+    "helidon-config-yaml"
+]
