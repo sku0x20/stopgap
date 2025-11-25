@@ -24,7 +24,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.0")
 
-    testImplementation("io.helidon.webclient:helidon-webclient:${helidonVersion}")
+    testImplementation(libs.helidon.webclient)
 
     testImplementation("org.testcontainers:testcontainers:2.0.2")
 }
