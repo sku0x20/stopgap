@@ -1,6 +1,6 @@
 [versions]
 jvm = "25"
-kotlin = "2.3.0-Beta2"
+kotlin = "2.3.0"
 helidon = "4.3.0"
 junit = "6.0.1"
 assertj = "3.27.3"
