@@ -8,10 +8,6 @@ plugins {
     application
 }
 
-repositories {
-    mavenCentral()
-}
-
 group = "com.example.stopgap"
 version = "1.0-SNAPSHOT"
 
@@ -23,10 +19,6 @@ dependencies {
 
     testImplementation(libs.helidon.webclient)
     testImplementation(libs.testcontainers)
-}
-
-kotlin {
-    jvmToolchain(libs.versions.jvm.get().toInt())
 }
 
 application {
@@ -109,6 +101,12 @@ testing.suites.register<JvmTestSuite>("e2eTest") {
     }
 }
 
+
+// -- COMMON CONFIGS --
+kotlin {
+    jvmToolchain(libs.versions.jvm.get().toInt())
+}
+
 testing.suites.configureEach {
     this as JvmTestSuite
     useJUnitJupiter(libs.versions.junit)
@@ -121,3 +119,4 @@ testing.suites.configureEach {
         }
     }
 }
+// --
