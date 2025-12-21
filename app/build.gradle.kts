@@ -1,8 +1,15 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
-    id("common-conventions")
+    alias(libs.plugins.kotlin.jvm)
     application
+}
+
+repositories {
+    mavenCentral()
 }
 
 group = "com.example.stopgap"
@@ -11,8 +18,15 @@ version = "1.0-SNAPSHOT"
 dependencies {
     implementation(libs.bundles.helidon)
 
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
+
     testImplementation(libs.helidon.webclient)
     testImplementation(libs.testcontainers)
+}
+
+kotlin {
+    jvmToolchain(libs.versions.jvm.get().toInt())
 }
 
 application {
@@ -91,6 +105,19 @@ testing.suites.register<JvmTestSuite>("e2eTest") {
             dependsOn("buildImageE2e")
             // todo: make it depend on output of task
             outputs.upToDateWhen { false }
+        }
+    }
+}
+
+testing.suites.configureEach {
+    this as JvmTestSuite
+    useJUnitJupiter(libs.versions.junit)
+    targets.configureEach {
+        testTask.configure {
+            testLogging {
+                events(TestLogEvent.STANDARD_ERROR)
+                exceptionFormat = TestExceptionFormat.FULL
+            }
         }
     }
 }
