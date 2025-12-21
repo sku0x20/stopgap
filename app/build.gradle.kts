@@ -13,6 +13,7 @@ version = "1.0-SNAPSHOT"
 
 dependencies {
     implementation(libs.bundles.helidon)
+    implementation(project(":ir"))
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)

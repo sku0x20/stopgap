@@ -2,7 +2,7 @@ package com.example.stopgap
 
 import com.example.stopgap.exception.ExceptionEndpoint
 import com.example.stopgap.generator.web.GeneratorEndpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 import io.helidon.webserver.http.*
 
 class MainEndpoint : Endpoint {

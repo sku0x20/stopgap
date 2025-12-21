@@ -1,4 +1,4 @@
-package com.example.stopgap.instanceregistry
+package dev.sku20.ir
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType

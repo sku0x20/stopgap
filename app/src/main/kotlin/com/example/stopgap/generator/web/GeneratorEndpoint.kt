@@ -3,7 +3,7 @@ package com.example.stopgap.generator.web
 import com.example.stopgap.Endpoint
 import com.example.stopgap.generator.StaticGenerator
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 import io.helidon.webserver.http.HttpRules
 import io.helidon.webserver.http.HttpService
 import io.helidon.webserver.http.ServerRequest

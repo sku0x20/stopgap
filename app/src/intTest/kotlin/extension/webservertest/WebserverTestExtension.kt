@@ -1,7 +1,7 @@
 package extension.webservertest
 
 import com.example.stopgap.Endpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
