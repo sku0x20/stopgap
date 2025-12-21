@@ -2,6 +2,7 @@
 
 rootProject.name = "stopgap"
 include("app")
+include("ir")
 
 gradle.allprojects {
     if (project != project.rootProject) {
