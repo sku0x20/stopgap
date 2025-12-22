@@ -1,4 +1,4 @@
-package com.example.stopgap.instanceregistry
+package dev.sku20.ir
 
 /**
  * A registry for managing instance creation and retrieval. This class allows for registering

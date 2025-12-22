@@ -1,7 +1,7 @@
 package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 
 object UuidConfig {
 

@@ -1,7 +1,7 @@
 package com.example.stopgap.generator
 
 import com.example.stopgap.generator.web.GeneratorEndpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 import io.helidon.config.Config
 
 object GeneratorConfig {

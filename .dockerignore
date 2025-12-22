@@ -1,11 +1,8 @@
+.github
 .gradle
-build/
-
-### IntelliJ IDEA ###
 .idea
-
-### Kotlin ###
 .kotlin
+build/
 
 ### Eclipse ###
 .apt_generated

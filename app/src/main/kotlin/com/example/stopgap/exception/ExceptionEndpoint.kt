@@ -1,7 +1,7 @@
 package com.example.stopgap.exception
 
 import com.example.stopgap.Endpoint
-import com.example.stopgap.instanceregistry.InstanceRegistry
+import dev.sku20.ir.InstanceRegistry
 import io.helidon.http.HttpException
 import io.helidon.http.Status
 import io.helidon.webserver.http.HttpRules
