@@ -10,6 +10,12 @@ plugins {
 
 subprojects {
 
+    layout.buildDirectory = rootProject.layout.buildDirectory.dir(project.name)
+
+    repositories {
+        mavenCentral()
+    }
+
     apply(plugin = rootProject.libs.plugins.kotlin.jvm.get().pluginId)
 
     // kotlin {}
