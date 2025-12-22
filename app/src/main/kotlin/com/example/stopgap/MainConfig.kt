@@ -12,6 +12,7 @@ object MainConfig {
         return config
     }
 
+    @Creates
     fun mainEndpoint(registry: InstanceRegistry): MainEndpoint {
         return MainEndpoint()
     }

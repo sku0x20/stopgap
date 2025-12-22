@@ -10,6 +10,8 @@ class IrSymbolProcessor(
     private val logger: KSPLogger
 ) : SymbolProcessor {
 
+    private val packageName = "dev.sku20.ir.generated"
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation(Creates::class.qualifiedName!!)
         val symbolsList = symbols.toList()
@@ -20,15 +22,17 @@ class IrSymbolProcessor(
                 true,
                 *symbolsList.map { it.containingFile!! }.toTypedArray()
             ),
-            "dev.sku20.ir.generated",
+            packageName,
             "IrInitCreators",
             "kt"
         )
+        val writer = file.bufferedWriter()
+
         for (symbol in symbols) {
             logger.info("Processing symbol: ${symbol.location}")
         }
 
-        file.close()
+        writer.close()
 
         return emptyList()
     }
