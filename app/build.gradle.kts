@@ -5,6 +5,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ksp)
     application
 }
 
@@ -14,6 +15,7 @@ version = "1.0-SNAPSHOT"
 dependencies {
     implementation(libs.bundles.helidon)
     implementation(project(":ir"))
+    ksp(project(":ir"))
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
