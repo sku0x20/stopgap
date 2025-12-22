@@ -6,6 +6,6 @@ group = "dev.sku20"
 version = "rolling"
 
 dependencies {
-    implementation(libs.ksp.api)
+    compileOnly(libs.ksp.api)
     testImplementation(libs.assertj.core)
 }
