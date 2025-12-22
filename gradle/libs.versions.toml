@@ -1,6 +1,7 @@
 [versions]
 jvm = "25"
 kotlin = "2.3.0"
+ksp = "2.3.4"
 helidon = "4.3.0"
 junit = "6.0.1"
 assertj = "3.27.3"
@@ -9,6 +10,7 @@ testcontainers = "2.0.2"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
 helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
@@ -18,6 +20,7 @@ assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "as
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
+ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 
 [bundles]
 helidon = [
