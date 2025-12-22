@@ -1,10 +1,9 @@
 package dev.sku20.ir.ksp
 
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.containingFile
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
+import dev.sku20.ir.Creates
 
 class IrSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -12,7 +11,25 @@ class IrSymbolProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        logger.info("Hello from IrSymbolProcessor!")
+        val symbols = resolver.getSymbolsWithAnnotation(Creates::class.qualifiedName!!)
+        val symbolsList = symbols.toList()
+        if (symbolsList.isEmpty()) return emptyList()
+
+        val file = codeGenerator.createNewFile(
+            Dependencies(
+                true,
+                *symbolsList.map { it.containingFile!! }.toTypedArray()
+            ),
+            "dev.sku20.ir.generated",
+            "IrInitCreators",
+            "kt"
+        )
+        for (symbol in symbols) {
+            logger.info("Processing symbol: ${symbol.location}")
+        }
+
+        file.close()
+
         return emptyList()
     }
 
