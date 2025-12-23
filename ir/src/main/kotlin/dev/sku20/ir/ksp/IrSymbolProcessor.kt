@@ -27,14 +27,14 @@ class IrSymbolProcessor(
             .toList()
         if (symbols.isEmpty()) return emptyList()
 
-        val writer = file.bufferedWriter()
-
         codeGenerator.associateWithFunctions(
             symbols as List<KSFunctionDeclaration>,
             packageName,
             fileName,
             "txt"
         )
+
+        val writer = file.bufferedWriter()
 
         for (symbol in symbols) {
             logger.info("Processing symbol: ${symbol.location}")
