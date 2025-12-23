@@ -4,7 +4,6 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.ir.Creates
-import java.time.Instant
 
 class IrSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -17,31 +16,35 @@ class IrSymbolProcessor(
         Dependencies(true),
         packageName,
         fileName,
-        "txt"
+        "kt"
     )
+
+//    private val initGen = InitCreatorsGen(
+//        packageName,
+//        fileName,
+//        file
+//    )
 
     @Suppress("UNCHECKED_CAST")
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver
             .getSymbolsWithAnnotation(Creates::class.qualifiedName!!)
-            .toList()
-        if (symbols.isEmpty()) return emptyList()
+            .toList() as List<KSFunctionDeclaration>
 
-        codeGenerator.associateWithFunctions(
-            symbols as List<KSFunctionDeclaration>,
-            packageName,
-            fileName,
-            "txt"
-        )
-
-        val writer = file.bufferedWriter()
-
-        for (symbol in symbols) {
-            logger.info("Processing symbol: ${symbol.location}")
-            writer.write("${Instant.now()} Processing symbol: ${symbol.location} \n")
+        if (symbols.isEmpty()) {
+            val writer = file.bufferedWriter()
+            writer.write("// no IrInitCreators")
+//            writer.close()
+//            initGen.finish()
+            return emptyList()
         }
 
-        writer.close()
+        codeGenerator.associateWithFunctions(
+            symbols,
+            packageName,
+            fileName,
+            "kt"
+        )
 
         return emptyList()
     }
