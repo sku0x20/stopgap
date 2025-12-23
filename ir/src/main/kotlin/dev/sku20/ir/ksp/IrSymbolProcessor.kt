@@ -10,29 +10,20 @@ class IrSymbolProcessor(
     private val logger: KSPLogger
 ) : SymbolProcessor {
 
-    private val symbolsCapturer = SymbolsCapturer<KSFunctionDeclaration>()
-
     @Suppress("UNCHECKED_CAST")
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver
             .getSymbolsWithAnnotation(Creates::class.qualifiedName!!)
             .toList() as List<KSFunctionDeclaration>
-
-        symbolsCapturer.capture(symbols)
-
-        if (symbols.isEmpty()) {
-            generateFile()
-            return emptyList()
-        }
-
+        if (symbols.isEmpty()) return emptyList()
+        generateFile(symbols)
         return emptyList()
     }
 
     private val packageName = "dev.sku20.ir.generated"
     private val fileName = "IrInitCreators"
 
-    private fun generateFile() {
-        val symbols = symbolsCapturer.getSymbols()
+    private fun generateFile(symbols: List<KSFunctionDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
             packageName,
