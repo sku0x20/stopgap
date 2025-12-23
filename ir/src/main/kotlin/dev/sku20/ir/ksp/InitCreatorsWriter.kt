@@ -12,8 +12,28 @@ class InitCreatorsWriter(
     private val writer = file.bufferedWriter()
 
     fun write() {
-        writer.appendLine("package $packageName")
+        writeHeader()
+        symbols.forEach { symbol ->
+            writer.appendLine("registry.registerForType {")
+            writer.appendLine("${symbol.qualifiedName!!.asString()}(registry)")
+            writer.appendLine("}")
+        }
+        writeFooter()
         writer.close()
+    }
+
+    private fun writeHeader() {
+        writer.appendLine("package $packageName")
+        writer.appendLine()
+        writer.appendLine("import dev.sku20.ir.InstanceRegistry")
+        writer.appendLine()
+        writer.appendLine("object $fileName {")
+        writer.appendLine("fun init(registry: InstanceRegistry) {")
+    }
+
+    private fun writeFooter() {
+        writer.appendLine("}")
+        writer.appendLine("}")
     }
 
 }
