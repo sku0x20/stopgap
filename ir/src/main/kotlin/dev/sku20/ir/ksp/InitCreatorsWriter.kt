@@ -17,6 +17,12 @@ class InitCreatorsWriter(
 
     fun write() {
         writeHeader()
+        registerCreators()
+        writeFooter()
+        writer.close()
+    }
+
+    private fun registerCreators() {
         for (symbol in symbols) {
             setIndent(8)
             writeLine("registry.registerForType {")
@@ -25,8 +31,6 @@ class InitCreatorsWriter(
             setIndent(8)
             writeLine("}")
         }
-        writeFooter()
-        writer.close()
     }
 
     private fun writeHeader() {
