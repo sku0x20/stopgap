@@ -3,6 +3,10 @@ package dev.sku20.ir.ksp
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import java.io.OutputStream
 
+// todo: rename to InitRegistry.init(registry)
+// - registerCreators
+// - createInstancesEagerly
+
 class InitCreatorsWriter(
     file: OutputStream,
     private val symbols: List<KSFunctionDeclaration>,
