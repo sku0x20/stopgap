@@ -2,4 +2,6 @@ package dev.sku20.ir
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Creates()
+annotation class Creates(
+    val eagerly: Boolean = false
+)
