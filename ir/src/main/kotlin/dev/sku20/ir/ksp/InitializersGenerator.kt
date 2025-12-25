@@ -1,6 +1,7 @@
 package dev.sku20.ir.ksp
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import dev.sku20.ir.Creates
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -15,6 +16,7 @@ class InitializersGenerator(
         writeImports()
         writeFunInitRegistry()
         writePrivateFunRegisterCreators()
+        writePrivateFunCreateInstancesEagerly()
         w.close()
     }
 
@@ -22,7 +24,7 @@ class InitializersGenerator(
         writeLine("fun initRegistry(registry: InstanceRegistry) {")
         withRelativeIndent(4) {
             writeLine("registerCreators(registry)")
-            writeLine("// createInstancesEagerly(registry)")
+            writeLine("createInstancesEagerly(registry)")
         }
         writeLine("}")
     }
@@ -33,6 +35,27 @@ class InitializersGenerator(
             writeRegistrations()
         }
         writeLine("}")
+    }
+
+    private fun writePrivateFunCreateInstancesEagerly() = w.withRelativeIndent {
+        writeLine("private fun createInstancesEagerly(registry: InstanceRegistry) {")
+        withRelativeIndent(4) {
+            writeCreateInstancesEagerly()
+        }
+        writeLine("}")
+    }
+
+    private fun writeCreateInstancesEagerly() = w.withRelativeIndent {
+        for (symbol in symbols) {
+            val annotation = symbol.annotations.first { it.shortName.asString() == Creates::class.simpleName }
+            val eagerly = annotation.arguments.first { it.name?.getShortName() == "eagerly" }
+            val value = eagerly.value as Boolean
+            if (value) {
+                val returnType = symbol.returnType!!.resolve()
+                val qualifiedName = returnType.declaration.qualifiedName!!.asString()
+                writeLine("registry.getInstanceForType<${qualifiedName}>()")
+            }
+        }
     }
 
     private fun writeRegistrations() = w.withRelativeIndent {
