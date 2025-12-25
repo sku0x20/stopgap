@@ -21,7 +21,7 @@ class IrSymbolProcessor(
     }
 
     private val packageName = "dev.sku20.ir.generated"
-    private val fileName = "IrInitCreators"
+    private val fileName = "Initializers"
 
     private fun generateFile(symbols: List<KSFunctionDeclaration>) {
         val file = codeGenerator.createNewFile(
@@ -36,11 +36,10 @@ class IrSymbolProcessor(
             fileName,
             "kt"
         )
-        val initWriter = InitCreatorsWriter(
+        val initWriter = InitializersGenerator(
             file,
             symbols,
-            packageName,
-            fileName
+            packageName
         )
         initWriter.write()
     }

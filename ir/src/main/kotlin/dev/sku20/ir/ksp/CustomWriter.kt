@@ -17,7 +17,7 @@ class CustomWriter(
         writer.write("\n")
     }
 
-    fun withRelativeIndent(n: Int, block: CustomWriter.() -> Unit) {
+    fun withRelativeIndent(n: Int = 0, block: CustomWriter.() -> Unit) {
         increaseIndentBy(n)
         block()
         decreaseIndentBy(n)
