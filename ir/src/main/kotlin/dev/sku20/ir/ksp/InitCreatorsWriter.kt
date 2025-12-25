@@ -3,7 +3,7 @@ package dev.sku20.ir.ksp
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import java.io.OutputStream
 
-// todo: rename to InitRegistry.init(registry)
+// todo: rename file to Initializers with fun InitRegistry(registry)
 // - registerCreators
 // - createInstancesEagerly
 
