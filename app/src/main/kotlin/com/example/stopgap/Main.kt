@@ -1,14 +1,14 @@
 package com.example.stopgap
 
 import dev.sku20.ir.InstanceRegistry
-import dev.sku20.ir.generated.IrInitCreators
+import dev.sku20.ir.generated.initRegistry
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 
 fun main(args: Array<String>) {
     val registry = InstanceRegistry()
 
-    IrInitCreators.init(registry)
+    initRegistry(registry)
 
     val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
 
