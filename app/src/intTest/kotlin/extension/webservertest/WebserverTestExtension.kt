@@ -4,6 +4,7 @@ import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
+import io.helidon.webserver.http.HttpRouting
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -21,9 +22,10 @@ import java.lang.reflect.Method
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
-        const val SERVER_INSTANCE_ID = "server-instance-key"
-        private const val ENDPOINT = "endpoint-key"
+        const val SERVER_INSTANCE = "server.instance"
+
         private val loadedConfig = Config.create()
+//        private const val EXTRA_INSTANCES = "server.extra.instances"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -60,25 +62,28 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testClass: Class<*>,
         store: ExtensionContext.Store
     ): WebServer {
-        val builder = WebServer.builder()
+        val serverBuilder = WebServer.builder()
             .config(loadedConfig.get("server"))
             .protocolsDiscoverServices(false)
             .port(0)
             .host("localhost")
 
+        val routes = HttpRouting.builder()
+        serverBuilder.routing(routes)
+
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invoke(null, builder)
-        val server = builder
+        )?.invoke(null, serverBuilder)
+        val server = serverBuilder
             .build()
             .start()
-        store.put(SERVER_INSTANCE_ID, server)
+        store.put(SERVER_INSTANCE, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SERVER_INSTANCE_ID) as WebServer
+        val server = store.get(SERVER_INSTANCE) as WebServer
         server.stop()
     }
 

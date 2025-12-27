@@ -10,7 +10,7 @@ annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class CreateEndpoint
+    annotation class ConfigRoutes
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
