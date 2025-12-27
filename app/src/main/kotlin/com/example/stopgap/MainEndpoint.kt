@@ -1,31 +1,12 @@
 package com.example.stopgap
 
-import com.example.stopgap.exception.ExceptionEndpoint
-import com.example.stopgap.generator.web.GeneratorEndpoint
-import dev.sku20.ir.InstanceRegistry
-import io.helidon.webserver.http.*
+import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 
 class MainEndpoint : Endpoint {
 
     fun ping(req: ServerRequest, res: ServerResponse) {
         res.send("pong")
-    }
-
-    fun routing(registry: InstanceRegistry): HttpRouting.Builder? {
-        return HttpRouting.builder()
-            .register("/", routes(registry))
-    }
-
-    override fun routes(registry: InstanceRegistry): HttpService {
-        val generator = registry.getInstanceForType<GeneratorEndpoint>()
-        val exception = registry.getInstanceForType<ExceptionEndpoint>()
-
-        return HttpService { rules: HttpRules ->
-            rules
-                .register("/generate", generator.routes(registry))
-                .register("/exception", exception.routes(registry))
-                .get("/ping", ::ping)
-        }
     }
 
 }
