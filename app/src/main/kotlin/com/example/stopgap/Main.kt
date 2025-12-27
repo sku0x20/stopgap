@@ -4,20 +4,20 @@ import dev.sku20.ir.InstanceRegistry
 import dev.sku20.ir.generated.initRegistry
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
+import io.helidon.webserver.http.HttpRouting
 
 fun main(args: Array<String>) {
     val registry = InstanceRegistry()
-
     initRegistry(registry)
 
-    val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
+    val routing = HttpRouting.builder()
+    initEndpointsRoutes(routing, registry)
 
     val config = registry.getInstanceForType<Config>()
-
     val server = WebServer.builder()
         .config(config.get("server"))
         .protocolsDiscoverServices(false)
-        .routing(mainEndpoint.routing(registry))
+        .routing(routing)
         .build()
     server.start()
 }

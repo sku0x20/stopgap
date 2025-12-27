@@ -1,7 +1,5 @@
 package extension.webservertest
 
-import com.example.stopgap.Endpoint
-import dev.sku20.ir.InstanceRegistry
 import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
@@ -15,33 +13,30 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import java.lang.reflect.Method
-import kotlin.reflect.KClass
 
 /**
  * WebserverTestExtension runs once per test class.
  * It doesn't care if the test launch is per class or per methods, it behaves the same.
- * Junit Extensions also try to abstract that out, so it does not affect extensions.
+ * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
+ * Via [WebserverTest.CreateInstances] and [WebserverTest.DestroyInstances] this allows test classes to manage instances.
+ * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
  */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
-        const val SERVER_INSTANCE_ID = "server-instance-key"
-        private const val CONFIG = "config-key"
-        private const val INSTANCE_REGISTRY = "instance-registry-key"
-        private const val ENDPOINT = "endpoint-key"
+        const val SERVER_INSTANCE = "server.instance"
+
+        private val loadedConfig = Config.create()
+        private const val USER_INSTANCES = "server.user.instances"
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        val store = SharedStore.getStoreScopedToTestClass(context)
-
         val testClass = context.requiredTestClass
-
-        val config = setupConfig(testClass, store)
-        val registry = setupInstanceRegistry(testClass, config, store)
-        setupServer(testClass, registry, store)
+        val store = SharedStore.getStoreScopedToTestClass(context)
+        createInstances(testClass, store)
+        startServer(testClass, store)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun postProcessTestInstance(
         testInstance: Any,
         context: ExtensionContext
@@ -53,92 +48,98 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val store = SharedStore.getStoreScopedToTestClass(context)
         for (field in injectableFields) {
             when (field.type) {
-                Config::class.java -> field.set(testInstance, store.get(CONFIG))
-                InstanceRegistry::class.java -> field.set(testInstance, store.get(INSTANCE_REGISTRY))
-                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
+                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+                else -> field.set(
+                    testInstance,
+                    (store.get(USER_INSTANCES) as Map<*, *>)[field.type]
+                )
             }
         }
     }
 
     override fun afterAll(context: ExtensionContext) {
+        val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
+        destroyInstances(testClass, store)
         stopServer(store)
     }
 
-    private fun setupConfig(
+    private fun createInstances(
         testClass: Class<*>,
         store: ExtensionContext.Store
-    ): Config {
-        val method = findStaticMethod(
+    ) {
+        val instances = mutableMapOf<Class<*>, Any>()
+        findStaticMethod(
             testClass,
-            WebserverTest.CreateConfig::class.java
-        )
-        val config = if (method == null) Config.create() else method.invoke(null) as Config
-        store.put(CONFIG, config)
-        return config
+            WebserverTest.CreateInstances::class.java
+        )?.invoke(null, instances)
+        store.put(USER_INSTANCES, instances)
     }
 
-    private fun setupInstanceRegistry(
+    private fun destroyInstances(
         testClass: Class<*>,
-        config: Config,
         store: ExtensionContext.Store
-    ): InstanceRegistry {
-        val registry = InstanceRegistry()
-        registry.registerForType { config }
-
-        val method = findStaticMethod(
+    ) {
+        val instances = store.get(USER_INSTANCES) as Map<*, *>?
+        findStaticMethod(
             testClass,
-            WebserverTest.SetupInstanceRegistry::class.java
-        )
-        if (method != null) {
-            val endpoint = method
-                .getAnnotation(WebserverTest.SetupInstanceRegistry::class.java)
-                .endpoint
-            if (endpoint != Endpoint::class) {
-                store.put(ENDPOINT, endpoint)
-            }
-            method.invoke(null, registry)
-        }
-        store.put(INSTANCE_REGISTRY, registry)
-        return registry
+            WebserverTest.DestroyInstances::class.java
+        )?.invoke(null, instances)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun setupServer(
+    private fun startServer(
         testClass: Class<*>,
-        registry: InstanceRegistry,
         store: ExtensionContext.Store
     ): WebServer {
-        val config = store.get(CONFIG) as Config
-        val builder = WebServer.builder()
-            .config(config.get("server"))
+        val serverBuilder = WebServer.builder()
+            .config(loadedConfig.get("server"))
             .protocolsDiscoverServices(false)
             .port(0)
             .host("localhost")
 
-        val endpointClazz = store.get(ENDPOINT) as? KClass<out Endpoint>
-        if (endpointClazz != null) {
-            // todo: make InstanceRegistry take KClass
-            val endpoint = registry.getInstanceForQualifier<Endpoint>(endpointClazz.qualifiedName!!)
-            val routing = HttpRouting.builder()
-                .register("/", endpoint.routes(registry))
-            builder.routing(routing)
-        }
+        val routes = HttpRouting.builder()
+        serverBuilder.routing(routes)
+        findStaticMethod(
+            testClass,
+            WebserverTest.ConfigRoutes::class.java
+        )?.invokeStaticMethodWithArgs(routes, store)
 
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invoke(null, builder)
-        val server = builder
+        )?.invokeStaticMethodWithArgs(serverBuilder, store)
+        val server = serverBuilder
             .build()
             .start()
-        store.put(SERVER_INSTANCE_ID, server)
+        store.put(SERVER_INSTANCE, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SERVER_INSTANCE_ID) as WebServer
+        val server = store.get(SERVER_INSTANCE) as WebServer
         server.stop()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun Method?.invokeStaticMethodWithArgs(
+        firstArg: Any,
+        store: ExtensionContext.Store
+    ) {
+        if (this == null) return
+        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val argsCount = this.parameterCount
+        if (argsCount == 1) {
+            this.invoke(null, firstArg); return
+        }
+        val args = Array(argsCount) { firstArg }
+        for (i in 1 until argsCount) {
+            val type = this.parameters[i].type
+            args[i] = instances[type]!!
+        }
+        this.invoke(
+            null,
+            *args
+        )
     }
 
     private fun findStaticMethod(
