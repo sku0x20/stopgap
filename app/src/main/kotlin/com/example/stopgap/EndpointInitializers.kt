@@ -15,9 +15,9 @@ fun initEndpointsRoutes(
         rules.get("/ping", rootEndpoint::ping)
     })
 
-    val generatorEndpoint = registry.getInstanceForType<GeneratorEndpoint>()
-    routes.register("/generate", generatorEndpoint.routes(registry))
-
     val exceptionEndpoint = registry.getInstanceForType<ExceptionEndpoint>()
     routes.register("/exception", exceptionEndpoint.routes(registry))
+
+    val generatorEndpoint = registry.getInstanceForType<GeneratorEndpoint>()
+    routes.register("/generate", generatorEndpoint.routes(registry))
 }
