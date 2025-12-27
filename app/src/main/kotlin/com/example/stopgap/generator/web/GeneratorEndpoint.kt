@@ -2,7 +2,6 @@ package com.example.stopgap.generator.web
 
 import com.example.stopgap.Endpoint
 import com.example.stopgap.generator.StaticGenerator
-import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import dev.sku20.ir.InstanceRegistry
 import io.helidon.webserver.http.HttpRules
 import io.helidon.webserver.http.HttpService
@@ -16,28 +15,26 @@ class GeneratorEndpoint(
 
     private val random = SecureRandom()
 
-    override fun routes(registry: InstanceRegistry): HttpService {
-        val uuidEndpoint = registry.getInstanceForType<UuidEndpoint>()
-
-        return HttpService { rules: HttpRules ->
-            rules
-                .get("/number", ::randomNumber)
-                .get("/static", ::staticGen)
-                .register("/uuid", uuidEndpoint.routes(registry))
-        }
-    }
-
-    private fun randomNumber(
+    fun randomNumber(
         req: ServerRequest,
         res: ServerResponse
     ) {
         res.send(random.nextLong().toString())
     }
 
-    private fun staticGen(
+    fun staticGen(
         req: ServerRequest,
         res: ServerResponse
     ) {
         res.send(staticGenerator.value)
+    }
+
+    override fun routes(registry: InstanceRegistry): HttpService {
+        return HttpService { rules: HttpRules ->
+            rules
+                .get("/number", ::randomNumber)
+                .get("/static", ::staticGen)
+
+        }
     }
 }
