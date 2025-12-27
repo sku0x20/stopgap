@@ -7,5 +7,8 @@ fun initEndpointPaths(
     routes: HttpRouting.Builder,
     registry: InstanceRegistry
 ) {
-    // todo:
+    val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
+    routes.register("/", { rules ->
+        rules.get("/ping", mainEndpoint::ping)
+    })
 }

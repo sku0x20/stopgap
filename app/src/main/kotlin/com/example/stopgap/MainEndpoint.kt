@@ -7,6 +7,10 @@ import io.helidon.webserver.http.*
 
 class MainEndpoint : Endpoint {
 
+    fun ping(req: ServerRequest, res: ServerResponse) {
+        res.send("pong")
+    }
+
     fun routing(registry: InstanceRegistry): HttpRouting.Builder? {
         return HttpRouting.builder()
             .register("/", routes(registry))
@@ -20,7 +24,7 @@ class MainEndpoint : Endpoint {
             rules
                 .register("/generate", generator.routes(registry))
                 .register("/exception", exception.routes(registry))
-                .get("/ping", { req: ServerRequest, res: ServerResponse -> res.send("pong") })
+                .get("/ping", ::ping)
         }
     }
 
