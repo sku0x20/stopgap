@@ -59,9 +59,7 @@ class UuidEndpointTest {
 
         @JvmStatic
         @WebserverTest.ConfigRoutes
-        fun configureRoutes(routes: HttpRouting.Builder) {
-            val uuidGen = UuidGen()
-            val endpoint = UuidEndpoint(uuidGen)
+        fun configureRoutes(routes: HttpRouting.Builder, endpoint: UuidEndpoint) {
             routes.get("/", endpoint::generateUuid)
         }
 

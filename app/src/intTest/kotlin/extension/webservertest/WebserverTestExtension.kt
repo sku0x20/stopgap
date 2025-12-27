@@ -35,7 +35,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         startServer(testClass, store)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun postProcessTestInstance(
         testInstance: Any,
         context: ExtensionContext
@@ -50,7 +49,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
                 else -> field.set(
                     testInstance,
-                    (store.get(USER_INSTANCES) as Map<Class<*>, Any>)[field.type]
+                    (store.get(USER_INSTANCES) as Map<*, *>)[field.type]
                 )
             }
         }
@@ -88,12 +87,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         findStaticMethod(
             testClass,
             WebserverTest.ConfigRoutes::class.java
-        )?.invoke(null, routes)
+        )?.invokeStaticMethodWithArgs(routes, store)
 
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invoke(null, serverBuilder)
+        )?.invokeStaticMethodWithArgs(serverBuilder, store)
         val server = serverBuilder
             .build()
             .start()
@@ -104,6 +103,28 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     private fun stopServer(store: ExtensionContext.Store) {
         val server = store.get(SERVER_INSTANCE) as WebServer
         server.stop()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun Method?.invokeStaticMethodWithArgs(
+        firstArg: Any,
+        store: ExtensionContext.Store
+    ) {
+        if (this == null) return
+        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val argsCount = this.parameterCount
+        if (argsCount == 1) {
+            this.invoke(null, firstArg); return
+        }
+        val args = Array(argsCount) { firstArg }
+        for (i in 1 until argsCount) {
+            val type = this.parameters[i].type
+            args[i] = instances[type]!!
+        }
+        this.invoke(
+            null,
+            *args
+        )
     }
 
     private fun findStaticMethod(
