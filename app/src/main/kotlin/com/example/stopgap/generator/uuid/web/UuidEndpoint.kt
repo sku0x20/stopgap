@@ -1,13 +1,12 @@
 package com.example.stopgap.generator.uuid.web
 
-import com.example.stopgap.Endpoint
 import com.example.stopgap.generator.uuid.UuidGen
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
 class UuidEndpoint(
     private val uuidGen: UuidGen
-) : Endpoint {
+) {
 
     fun generateUuid(
         req: ServerRequest,

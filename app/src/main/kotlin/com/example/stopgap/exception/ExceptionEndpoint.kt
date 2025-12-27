@@ -1,12 +1,11 @@
 package com.example.stopgap.exception
 
-import com.example.stopgap.Endpoint
 import io.helidon.http.HttpException
 import io.helidon.http.Status
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
-class ExceptionEndpoint : Endpoint {
+class ExceptionEndpoint {
 
     fun badClientException(req: ServerRequest, res: ServerResponse) {
         throw BadClientException()

@@ -1,6 +1,5 @@
 package com.example.stopgap.generator.web
 
-import com.example.stopgap.Endpoint
 import com.example.stopgap.generator.StaticGenerator
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
@@ -8,7 +7,7 @@ import java.security.SecureRandom
 
 class GeneratorEndpoint(
     private val staticGenerator: StaticGenerator
-) : Endpoint {
+) {
 
     private val random = SecureRandom()
 
