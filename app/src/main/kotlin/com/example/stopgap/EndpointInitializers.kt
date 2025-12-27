@@ -25,7 +25,11 @@ fun initEndpointsRoutes(
     })
 
     val generatorEndpoint = registry.getInstanceForType<GeneratorEndpoint>()
-    routes.register("/generate", generatorEndpoint.routes(registry))
+    routes.register("/generate", { rules: HttpRules ->
+        rules
+            .get("/number", generatorEndpoint::randomNumber)
+            .get("/static", generatorEndpoint::staticGen)
+    })
 
     val uuidEndpoint = registry.getInstanceForType<UuidEndpoint>()
     routes.register("/generate/uuid", uuidEndpoint.routes(registry))
