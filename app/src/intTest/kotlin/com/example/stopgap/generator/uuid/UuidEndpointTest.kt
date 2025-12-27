@@ -69,5 +69,12 @@ class UuidEndpointTest {
             // config server
         }
 
+        @JvmStatic
+        @WebserverTest.DestroyInstances
+        fun destroyInstances(instances: MutableMap<Class<*>, Any>) {
+            val uuidGen = instances[UuidGen::class.java] as UuidGen
+            // call close,clean,etc.
+        }
+
     }
 }
