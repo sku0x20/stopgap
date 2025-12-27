@@ -32,5 +32,8 @@ fun initEndpointsRoutes(
     })
 
     val uuidEndpoint = registry.getInstanceForType<UuidEndpoint>()
-    routes.register("/generate/uuid", uuidEndpoint.routes(registry))
+    routes.register("/generate/uuid", { rules: HttpRules ->
+        rules
+            .get("/", uuidEndpoint::generateUuid)
+    })
 }
