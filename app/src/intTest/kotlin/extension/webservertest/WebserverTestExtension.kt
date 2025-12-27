@@ -45,11 +45,11 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             InjectInstance::class.java
         )
         val store = SharedStore.getStoreScopedToTestClass(context)
-        // todo:
-//        for (field in injectableFields) {
-//            when (field.type) {
-//            }
-//        }
+        for (field in injectableFields) {
+            when (field.type) {
+                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+            }
+        }
     }
 
     override fun afterAll(context: ExtensionContext) {
@@ -57,7 +57,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         stopServer(store)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun startServer(
         testClass: Class<*>,
         store: ExtensionContext.Store

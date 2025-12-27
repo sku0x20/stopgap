@@ -1,5 +1,6 @@
 package com.example.stopgap.generator.uuid
 
+import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import extension.InjectInstance
 import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
@@ -7,6 +8,7 @@ import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.WebServerConfig
+import io.helidon.webserver.http.HttpRouting
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -41,6 +43,14 @@ class UuidEndpointTest {
     }
 
     companion object {
+
+        @JvmStatic
+        @WebserverTest.ConfigRoutes
+        fun configureRoutes(routes: HttpRouting.Builder) {
+            val uuidGen = UuidGen()
+            val endpoint = UuidEndpoint(uuidGen)
+            routes.get("/", endpoint::generateUuid)
+        }
 
         @JvmStatic
         @WebserverTest.ConfigServer
