@@ -70,6 +70,10 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         val routes = HttpRouting.builder()
         serverBuilder.routing(routes)
+        findStaticMethod(
+            testClass,
+            WebserverTest.ConfigRoutes::class.java
+        )?.invoke(null, routes)
 
         findStaticMethod(
             testClass,
