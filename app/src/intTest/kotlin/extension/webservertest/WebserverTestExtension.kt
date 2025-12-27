@@ -25,14 +25,14 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         const val SERVER_INSTANCE = "server.instance"
 
         private val loadedConfig = Config.create()
-//        private const val EXTRA_INSTANCES = "server.extra.instances"
+        private const val USER_INSTANCES = "server.user.instances"
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        startServer(
-            context.requiredTestClass,
-            SharedStore.getStoreScopedToTestClass(context)
-        )
+        val testClass = context.requiredTestClass
+        val store = SharedStore.getStoreScopedToTestClass(context)
+        createInstances(testClass, store)
+        startServer(testClass, store)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -48,6 +48,10 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         for (field in injectableFields) {
             when (field.type) {
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+                else -> field.set(
+                    testInstance,
+                    (store.get(USER_INSTANCES) as Map<Class<*>, Any>)[field.type]
+                )
             }
         }
     }
@@ -55,6 +59,18 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     override fun afterAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
         stopServer(store)
+    }
+
+    private fun createInstances(
+        testClass: Class<*>,
+        store: ExtensionContext.Store
+    ) {
+        val instances = mutableMapOf<Class<*>, Any>()
+        findStaticMethod(
+            testClass,
+            WebserverTest.CreateInstances::class.java
+        )?.invoke(null, instances)
+        store.put(USER_INSTANCES, instances)
     }
 
     private fun startServer(

@@ -16,13 +16,17 @@ import org.junit.jupiter.api.Test
 class UuidEndpointTest {
 
     @InjectInstance
+    lateinit var client: WebClient
+
+    @InjectInstance
     lateinit var server: WebServer
 
     @InjectInstance
-    lateinit var client: WebClient
+    lateinit var uuidGen: UuidGen
 
     @Test
     fun injectFields() {
+        assertThat(uuidGen).isNotNull()
         assertThat(server).isNotNull()
     }
 
@@ -43,6 +47,15 @@ class UuidEndpointTest {
     }
 
     companion object {
+
+        @JvmStatic
+        @WebserverTest.CreateInstances
+        fun createInstances(instances: MutableMap<Class<*>, Any>) {
+            val uuidGen = UuidGen()
+            val endpoint = UuidEndpoint(uuidGen)
+            instances[UuidGen::class.java] = uuidGen
+            instances[UuidEndpoint::class.java] = endpoint
+        }
 
         @JvmStatic
         @WebserverTest.ConfigRoutes
