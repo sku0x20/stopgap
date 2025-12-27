@@ -4,7 +4,7 @@ import dev.sku20.ir.Creates
 import dev.sku20.ir.InstanceRegistry
 import io.helidon.config.Config
 
-object MainConfig {
+object RootConfig {
 
     @Creates
     fun config(registry: InstanceRegistry): Config {
@@ -13,8 +13,8 @@ object MainConfig {
     }
 
     @Creates
-    fun mainEndpoint(registry: InstanceRegistry): MainEndpoint {
-        return MainEndpoint()
+    fun rootEndpoint(registry: InstanceRegistry): RootEndpoint {
+        return RootEndpoint()
     }
 
 }

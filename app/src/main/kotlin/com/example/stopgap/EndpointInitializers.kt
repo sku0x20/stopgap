@@ -10,9 +10,9 @@ fun initEndpointsRoutes(
     registry: InstanceRegistry
 ) {
 
-    val mainEndpoint = registry.getInstanceForType<MainEndpoint>()
+    val rootEndpoint = registry.getInstanceForType<RootEndpoint>()
     routes.register("/", { rules ->
-        rules.get("/ping", mainEndpoint::ping)
+        rules.get("/ping", rootEndpoint::ping)
     })
 
     val generatorEndpoint = registry.getInstanceForType<GeneratorEndpoint>()
