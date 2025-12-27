@@ -1,6 +1,5 @@
 package com.example.stopgap.exception
 
-import dev.sku20.ir.InstanceRegistry
 import extension.InjectInstance
 import extension.webservertest.WebserverTest
 import io.helidon.http.Status
@@ -29,11 +28,6 @@ class ExceptionEndpointTest {
 
     companion object {
 
-        @JvmStatic
-        @WebserverTest.SetupInstanceRegistry(ExceptionEndpoint::class)
-        fun setupInstanceRegistry(registry: InstanceRegistry) {
-            registry.registerForType { ExceptionEndpoint() }
-        }
     }
 
 }

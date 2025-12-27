@@ -1,10 +1,7 @@
 package com.example.stopgap.generator.uuid
 
-import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import dev.sku20.ir.InstanceRegistry
 import extension.InjectInstance
 import extension.webservertest.WebserverTest
-import io.helidon.config.Config
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
@@ -16,13 +13,6 @@ import org.junit.jupiter.api.Test
 @WebserverTest
 class UuidEndpointTest {
 
-
-    @InjectInstance
-    lateinit var config: Config
-
-    @InjectInstance
-    lateinit var registry: InstanceRegistry
-
     @InjectInstance
     lateinit var server: WebServer
 
@@ -31,8 +21,6 @@ class UuidEndpointTest {
 
     @Test
     fun injectFields() {
-        assertThat(config).isNotNull()
-        assertThat(registry).isNotNull()
         assertThat(server).isNotNull()
     }
 
@@ -53,13 +41,6 @@ class UuidEndpointTest {
     }
 
     companion object {
-
-        @JvmStatic
-        @WebserverTest.SetupInstanceRegistry(UuidEndpoint::class)
-        fun setupInstanceRegistry(registry: InstanceRegistry) {
-            registry.registerForType { UuidGen() }
-            registry.registerForType { UuidEndpoint(it.getInstanceForType()) }
-        }
 
         @JvmStatic
         @WebserverTest.ConfigServer
