@@ -20,6 +20,8 @@ annotation class WebserverTest {
     @Retention(AnnotationRetention.RUNTIME)
     annotation class CreateInstances
 
-    // todo: destroy instances
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class DestroyInstances
 
 }
