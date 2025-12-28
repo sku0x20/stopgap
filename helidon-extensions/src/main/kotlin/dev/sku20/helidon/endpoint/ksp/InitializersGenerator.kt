@@ -51,6 +51,8 @@ class InitializersGenerator(
         }
     }
 
+    // todo: add route support; which takes in Method
+
     private fun writeRules(
         variableName: String,
         functions: Sequence<KSFunctionDeclaration>
@@ -73,7 +75,7 @@ class InitializersGenerator(
             val method = mapping[shortName] ?: continue
             val path = annotation.arguments.first { it.name?.getShortName() == "path" }
             val pathValue = path.value as String
-            HttpMethodMapping(method, pathValue)
+            return HttpMethodMapping(method, pathValue)
         }
         return null
     }
