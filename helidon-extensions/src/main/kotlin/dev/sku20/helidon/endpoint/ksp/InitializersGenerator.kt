@@ -36,8 +36,18 @@ class InitializersGenerator(
             val pathValue = path.value as String
             writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
             writeLine("routes.register(\"${pathValue}\", { rules ->")
+            withRelativeIndent(4) {
+                writeLine("rules")
+                withRelativeIndent(4) {
+                    writeRules(variableName)
+                }
+            }
             writeLine("})")
         }
+    }
+
+    private fun writeRules(variableName: String) = w.withRelativeIndent {
+        writeLine(".get(\"/ping\", $variableName::ping)")
     }
 
     private fun writeFileSuppressors() = w.withRelativeIndent {
