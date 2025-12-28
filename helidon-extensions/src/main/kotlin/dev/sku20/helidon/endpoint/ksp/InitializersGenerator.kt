@@ -62,14 +62,6 @@ class InitializersGenerator(
         }
     }
 
-
-    // todo: make it more generic with inherited/meta annotation, etc.
-    // try to avoid updating here also when adding new method.
-    private val mapping = mapOf(
-        Get::class.simpleName!! to "get",
-        Post::class.simpleName!! to "post"
-    )
-
     data class HttpMethodMapping(
         val method: String,
         val path: String
@@ -101,5 +93,14 @@ class InitializersGenerator(
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
+    }
+
+    companion object {
+        // todo: make it more generic with inherited/meta annotation, etc.
+        // try to avoid updating here also when adding new method.
+        private val mapping = mapOf(
+            Get::class.simpleName!! to "get",
+            Post::class.simpleName!! to "post"
+        )
     }
 }
