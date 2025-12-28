@@ -1,6 +1,7 @@
 package dev.sku20.helidon.endpoint.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import dev.sku20.helidon.endpoint.Endpoint
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -30,7 +31,12 @@ class InitializersGenerator(
         for (clazz in symbols) {
             val variableName = clazz.simpleName.asString()
             val qualifiedName = clazz.qualifiedName!!.asString()
+            val endpointAnnotation = clazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+            val path = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
+            val pathValue = path.value as String
             writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
+            writeLine("routes.register(\"${pathValue}\", { rules ->")
+            writeLine("})")
         }
     }
 
