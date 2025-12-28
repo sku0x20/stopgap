@@ -29,6 +29,11 @@ class ExceptionEndpointTest {
 
     companion object {
 
+        // todo:
+        // createEndpoint(extras: Map<>): Endpoint
+        //  --> calls initEndpoint(endpoint)
+        // destroyEndpoint(endpoint: Endpoint, extras: Map<>)
+
         @JvmStatic
         @WebserverTest.ConfigRoutes
         fun configureRoutes(routes: HttpRouting.Builder) {
