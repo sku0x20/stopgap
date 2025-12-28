@@ -27,15 +27,16 @@ class InitializersGenerator(
     }
 
     private fun writeRoutesRegister() = w.withRelativeIndent {
-        for (symbol in symbols) {
-            val variableName = symbol.simpleName.asString()
-            val qualifiedName = symbol.qualifiedName!!.asString()
+        for (clazz in symbols) {
+            val variableName = clazz.simpleName.asString()
+            val qualifiedName = clazz.qualifiedName!!.asString()
             writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
         }
     }
 
     private fun writeFileSuppressors() = w.withRelativeIndent {
-        writeLine("@file:Suppress(\"UnusedVariable\")")
+        writeLine("@file:Suppress(\"LocalVariableName\")")
+        writeLine()
     }
 
     private fun writePackage() = w.withRelativeIndent {
