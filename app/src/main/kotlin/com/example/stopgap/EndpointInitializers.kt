@@ -7,7 +7,7 @@ import dev.sku20.ir.InstanceRegistry
 import io.helidon.webserver.http.HttpRouting
 import io.helidon.webserver.http.HttpRules
 
-fun initEndpointsRoutes(
+private fun initEndpointsRoutes(
     routes: HttpRouting.Builder,
     registry: InstanceRegistry
 ) {
