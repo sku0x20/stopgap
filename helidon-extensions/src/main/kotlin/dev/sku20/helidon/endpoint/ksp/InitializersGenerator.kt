@@ -1,7 +1,11 @@
 package dev.sku20.helidon.endpoint.ksp
 
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.Endpoint
+import dev.sku20.helidon.endpoint.Get
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -39,15 +43,45 @@ class InitializersGenerator(
             withRelativeIndent(4) {
                 writeLine("rules")
                 withRelativeIndent(4) {
-                    writeRules(variableName)
+                    writeRules(variableName, clazz.getDeclaredFunctions())
                 }
             }
             writeLine("})")
         }
     }
 
-    private fun writeRules(variableName: String) = w.withRelativeIndent {
-        writeLine(".get(\"/ping\", $variableName::ping)")
+    private fun writeRules(
+        variableName: String,
+        functions: Sequence<KSFunctionDeclaration>
+    ) = w.withRelativeIndent {
+        for (function in functions) {
+            if (!function.isPublic()) continue
+            val httpMethod = getHttpMethodMappingViaAnnotation(function) ?: continue
+            writeLine(".${httpMethod.method}(\"${httpMethod.path}\", $variableName::${function.simpleName.asString()})")
+        }
+    }
+
+
+    data class HttpMethodMapping(
+        val method: String,
+        val path: String
+    )
+
+    // todo: make it more generic with inherited/meta annotation, etc.
+    // try to avoid updating here also when adding new method.
+    private fun getHttpMethodMappingViaAnnotation(function: KSFunctionDeclaration): HttpMethodMapping? {
+        for (annotation in function.annotations) {
+            return when (annotation.shortName.asString()) {
+                Get::class.simpleName -> {
+                    val path = annotation.arguments.first { it.name?.getShortName() == "path" }
+                    val pathValue = path.value as String
+                    HttpMethodMapping("get", pathValue)
+                }
+
+                else -> continue
+            }
+        }
+        return null
     }
 
     private fun writeFileSuppressors() = w.withRelativeIndent {
