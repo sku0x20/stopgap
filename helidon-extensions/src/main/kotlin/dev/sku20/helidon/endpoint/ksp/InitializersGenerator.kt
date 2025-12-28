@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.Endpoint
 import dev.sku20.helidon.endpoint.Get
+import dev.sku20.helidon.endpoint.Post
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -62,24 +63,25 @@ class InitializersGenerator(
     }
 
 
+    // todo: make it more generic with inherited/meta annotation, etc.
+    // try to avoid updating here also when adding new method.
+    private val mapping = mapOf(
+        Get::class.simpleName!! to "get",
+        Post::class.simpleName!! to "post"
+    )
+
     data class HttpMethodMapping(
         val method: String,
         val path: String
     )
 
-    // todo: make it more generic with inherited/meta annotation, etc.
-    // try to avoid updating here also when adding new method.
     private fun getHttpMethodMappingViaAnnotation(function: KSFunctionDeclaration): HttpMethodMapping? {
         for (annotation in function.annotations) {
-            return when (annotation.shortName.asString()) {
-                Get::class.simpleName -> {
-                    val path = annotation.arguments.first { it.name?.getShortName() == "path" }
-                    val pathValue = path.value as String
-                    HttpMethodMapping("get", pathValue)
-                }
-
-                else -> continue
-            }
+            val shortName = annotation.shortName.asString()
+            val method = mapping[shortName] ?: continue
+            val path = annotation.arguments.first { it.name?.getShortName() == "path" }
+            val pathValue = path.value as String
+            HttpMethodMapping(method, pathValue)
         }
         return null
     }
