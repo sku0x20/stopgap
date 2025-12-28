@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.bundles.helidon)
     implementation(project(":ir"))
     ksp(project(":ir"))
+    ksp(project(":helidon-extensions"))
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
