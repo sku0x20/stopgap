@@ -1,4 +1,4 @@
 rootProject.name = "stopgap"
 include("app")
 include("ir")
-include("helidon-codegen")
+include("helidon-extensions")
