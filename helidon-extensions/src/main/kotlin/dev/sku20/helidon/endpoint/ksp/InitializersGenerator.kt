@@ -21,12 +21,12 @@ class InitializersGenerator(
     private fun writeFunInitEndpointRoutes() = w.withRelativeIndent {
         writeLine("fun initEndpointRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
         withRelativeIndent(4) {
-            writeRoutesRegister()
+            writeRegisterRoutes()
         }
         writeLine("}")
     }
 
-    private fun writeRoutesRegister() = w.withRelativeIndent {
+    private fun writeRegisterRoutes() = w.withRelativeIndent {
         for (clazz in symbols) {
             val variableName = clazz.simpleName.asString()
             val qualifiedName = clazz.qualifiedName!!.asString()
