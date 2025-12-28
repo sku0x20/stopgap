@@ -1,18 +1,48 @@
 package dev.sku20.helidon.endpoint.ksp
 
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import dev.sku20.helidon.endpoint.Endpoint
 
 class EndpointSymbolProcessor(
-    codeGenerator: CodeGenerator,
-    logger: KSPLogger
+    private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger
 ) : SymbolProcessor {
 
+    @Suppress("UNCHECKED_CAST")
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        TODO("Not yet implemented")
+        val symbols = resolver
+            .getSymbolsWithAnnotation(Endpoint::class.qualifiedName!!)
+            .toList() as List<KSClassDeclaration>
+        if (symbols.isEmpty()) return emptyList()
+        generateFile(symbols)
+        return emptyList()
+    }
+
+    private val packageName = "dev.sku20.helidon.endpoint.generated"
+    private val fileName = "Initializers"
+    private val extension = "kt"
+
+    private fun generateFile(symbols: List<KSClassDeclaration>) {
+        val file = codeGenerator.createNewFile(
+            Dependencies(true),
+            packageName,
+            fileName,
+            extension
+        )
+        codeGenerator.associateWithClasses(
+            symbols,
+            packageName,
+            fileName,
+            extension
+        )
+        val initGen = InitializersGenerator(
+            file,
+            symbols,
+            packageName
+        )
+        initGen.write()
     }
 
 }
