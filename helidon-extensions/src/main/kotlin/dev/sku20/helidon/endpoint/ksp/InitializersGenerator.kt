@@ -11,6 +11,7 @@ class InitializersGenerator(
     private val w = CustomWriter(file)
 
     fun write() {
+        writeFileSuppressors()
         writePackage()
         writeImports()
         writeFunInitEndpointRoutes()
@@ -31,6 +32,10 @@ class InitializersGenerator(
             val qualifiedName = symbol.qualifiedName!!.asString()
             writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
         }
+    }
+
+    private fun writeFileSuppressors() = w.withRelativeIndent {
+        writeLine("@file:Suppress(\"UnusedVariable\")")
     }
 
     private fun writePackage() = w.withRelativeIndent {
