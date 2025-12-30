@@ -2,6 +2,7 @@ package dev.sku20.helidon.endpoint.ksp
 
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isPublic
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.Endpoint
@@ -59,25 +60,40 @@ class InitializersGenerator(
     ) = w.withRelativeIndent {
         for (function in functions) {
             if (!function.isPublic()) continue
-            val httpMethod = getHttpMethodMappingViaAnnotation(function) ?: continue
-            writeLine(".${httpMethod.method}(\"${httpMethod.path}\", $variableName::${function.simpleName.asString()})")
+            val handler = "$variableName::${function.simpleName.asString()}"
+            writeRoute(function.annotations, handler)
         }
     }
 
-    data class HttpMethodMapping(
-        val method: String,
-        val path: String
-    )
-
-    private fun getHttpMethodMappingViaAnnotation(function: KSFunctionDeclaration): HttpMethodMapping? {
-        for (annotation in function.annotations) {
-            val shortName = annotation.shortName.asString()
-            val method = mapping[shortName] ?: continue
-            val path = annotation.arguments.first { it.name?.getShortName() == "path" }
-            val pathValue = path.value as String
-            return HttpMethodMapping(method, pathValue)
+    /**
+     * fine with switch here.
+     * - internal impl; decoupled from client annotations
+     * - flexible; enable easy change later if required
+     * - mapping needs to be somewhere, either
+     *  - raw switch;
+     *  - hashmap lookup;
+     *  - or some kind of indirection, via factory or other techniques.
+     */
+    fun writeRoute(
+        annotations: Sequence<KSAnnotation>,
+        handler: String
+    ) {
+        for (annotation in annotations) {
+            when (annotation.shortName.asString()) {
+                Get::class.simpleName -> writeDirectMethodCall("get", annotation, handler)
+                Post::class.simpleName -> writeDirectMethodCall("post", annotation, handler)
+            }
         }
-        return null
+    }
+
+    fun writeDirectMethodCall(
+        method: String,
+        annotation: KSAnnotation,
+        handler: String
+    ) = w.withRelativeIndent {
+        val path = annotation.arguments.first { it.name?.getShortName() == "path" }
+        val pathValue = path.value as String
+        writeLine(".${method}(\"${pathValue}\", ${handler})")
     }
 
     private fun writeFileSuppressors() = w.withRelativeIndent {
@@ -95,14 +111,5 @@ class InitializersGenerator(
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
-    }
-
-    companion object {
-        // todo: make it more generic with inherited/meta annotation, etc.
-        // try to avoid updating here also when adding new method.
-        private val mapping = mapOf(
-            Get::class.simpleName!! to "get",
-            Post::class.simpleName!! to "post"
-        )
     }
 }
