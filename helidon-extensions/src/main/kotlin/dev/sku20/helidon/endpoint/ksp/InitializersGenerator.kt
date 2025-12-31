@@ -29,15 +29,18 @@ class InitializersGenerator(
         writeLine("fun initEndpointsRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
         withRelativeIndent(4) {
             for (endpointClazz in symbols) {
-                val endpointInstance = endpointClazz.simpleName.asString()
-                val qualifiedName = endpointClazz.qualifiedName!!.asString()
-                writeLine("val $endpointInstance = registry.getInstanceForType<$qualifiedName>()")
-                val functions = endpointClazz.getDeclaredFunctions()
                 val endpointAnnotation =
                     endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
                 val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
                 val endpointPathValue = endpointPath.value as String
-                registerEndpoint(endpointPathValue, endpointInstance, functions)
+                val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+                val endpointInstance = endpointClazz.simpleName.asString()
+                writeLine("val $endpointInstance = registry.getInstanceForType<$endpointQualifiedName>()")
+                registerEndpoint(
+                    endpointPathValue,
+                    endpointInstance,
+                    endpointClazz.getDeclaredFunctions()
+                )
             }
         }
         writeLine("}")
