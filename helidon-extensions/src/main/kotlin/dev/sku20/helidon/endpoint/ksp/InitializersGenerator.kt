@@ -67,6 +67,7 @@ class InitializersGenerator(
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun registerEndpoint(
         endpointPath: String,
         endpointInstance: String,
