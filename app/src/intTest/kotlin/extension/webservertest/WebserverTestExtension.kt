@@ -38,7 +38,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
         createEndpoint(testClass, store)
-        createInstances(testClass, store)
         startServer(testClass, store)
     }
 
@@ -65,7 +64,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     override fun afterAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
-        destroyInstances(testClass, store)
+        // todo: destroy endpoint
         stopServer(store)
     }
 
@@ -82,29 +81,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         instances[endpoint::class.java] = endpoint
         store.put(USER_INSTANCES, instances)
         store.put(ENDPOINT_CLAZZ, endpoint::class.java)
-    }
-
-    private fun createInstances(
-        testClass: Class<*>,
-        store: ExtensionContext.Store
-    ) {
-        val instances = mutableMapOf<Class<*>, Any>()
-        findStaticMethod(
-            testClass,
-            WebserverTest.CreateInstances::class.java
-        )?.invoke(null, instances)
-        store.put(USER_INSTANCES, instances)
-    }
-
-    private fun destroyInstances(
-        testClass: Class<*>,
-        store: ExtensionContext.Store
-    ) {
-        val instances = store.get(USER_INSTANCES) as Map<*, *>?
-        findStaticMethod(
-            testClass,
-            WebserverTest.DestroyInstances::class.java
-        )?.invoke(null, instances)
     }
 
     @Suppress("UNCHECKED_CAST")
