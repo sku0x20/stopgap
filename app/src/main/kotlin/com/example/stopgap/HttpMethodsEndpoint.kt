@@ -47,9 +47,4 @@ class HttpMethodsEndpoint {
         res.send("TRACE request received")
     }
 
-    @Connect("/connect")
-    fun connect(req: ServerRequest, res: ServerResponse) {
-        res.send("CONNECT request received")
-    }
-
 }
