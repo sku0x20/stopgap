@@ -28,6 +28,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         const val SERVER_INSTANCE = "server.instance"
 
+        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
+
         private const val USER_INSTANCES = "server.user.instances"
         private const val ENDPOINT_CLAZZ = "server.endpoint.clazz"
     }
@@ -105,6 +107,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         )?.invoke(null, instances)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun startServer(
         testClass: Class<*>,
         store: ExtensionContext.Store
@@ -115,12 +118,19 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
+        val endpointClazz = store.get(ENDPOINT_CLAZZ) as Class<*>
+        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val endpoint = instances[endpointClazz]
+
+        val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val routes = HttpRouting.builder()
+        val method = clazz.getDeclaredMethod(
+            "registerRoutesFor",
+            endpointClazz,
+            HttpRouting.Builder::class.java
+        )
+        method.invoke(null, endpoint, routes)
         serverBuilder.routing(routes)
-        findStaticMethod(
-            testClass,
-            WebserverTest.ConfigRoutes::class.java
-        )?.invokeStaticMethodWithArgs(routes, store)
 
         findStaticMethod(
             testClass,
