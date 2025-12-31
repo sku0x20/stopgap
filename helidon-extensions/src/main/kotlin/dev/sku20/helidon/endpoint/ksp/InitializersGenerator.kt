@@ -32,9 +32,12 @@ class InitializersGenerator(
         withRelativeIndent(4) {
             for (endpointClazz in endpointClazzez) {
                 val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
-                val endpointInstance = endpointClazz.simpleName.asString()
-                writeLine("val $endpointInstance = registry.getInstanceForType<$endpointQualifiedName>()")
-                writeLine("registerRoutesFor($endpointInstance, routes)")
+                writeLine("registerRoutesFor(")
+                withRelativeIndent(4) {
+                    writeLine("registry.getInstanceForType<$endpointQualifiedName>(),")
+                    writeLine("routes")
+                }
+                writeLine(")")
             }
         }
         writeLine("}")
