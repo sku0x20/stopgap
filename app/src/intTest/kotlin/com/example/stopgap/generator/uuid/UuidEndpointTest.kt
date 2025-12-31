@@ -32,13 +32,13 @@ class UuidEndpointTest {
 
     @Test
     fun notFound() {
-        val response = client.get().uri("/not-found").request()
+        val response = client.get().uri("/generate/uuid/not-found").request()
         assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
     }
 
     @Test
     fun testUuidGeneration() {
-        val response = client.get().uri("/").request()
+        val response = client.get().uri("/generate/uuid/").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         val contentType = response.headers().contentType().get()
         assertThat(contentType as Any).isEqualTo(HttpMediaTypes.PLAINTEXT_UTF_8)
@@ -49,18 +49,12 @@ class UuidEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.CreateInstances
-        fun createInstances(instances: MutableMap<Class<*>, Any>) {
+        @WebserverTest.CreateEndpoint
+        fun createEndpoint(instances: MutableMap<Class<*>, Any>): UuidEndpoint {
             val uuidGen = UuidGen()
-            val endpoint = UuidEndpoint(uuidGen)
             instances[UuidGen::class.java] = uuidGen
-            instances[UuidEndpoint::class.java] = endpoint
-        }
-
-        @JvmStatic
-        @WebserverTest.ConfigRoutes
-        fun configureRoutes(routes: HttpRouting.Builder, endpoint: UuidEndpoint) {
-            routes.get("/", endpoint::generateUuid)
+            val endpoint = UuidEndpoint(uuidGen)
+            return endpoint
         }
 
         @JvmStatic
@@ -70,8 +64,8 @@ class UuidEndpointTest {
         }
 
         @JvmStatic
-        @WebserverTest.DestroyInstances
-        fun destroyInstances(instances: MutableMap<Class<*>, Any>) {
+        @WebserverTest.DestroyEndpoint
+        fun destroyInstances(endpoint: UuidEndpoint, instances: MutableMap<Class<*>, Any>) {
             val uuidGen = instances[UuidGen::class.java] as UuidGen
             // call close,clean,etc.
         }
