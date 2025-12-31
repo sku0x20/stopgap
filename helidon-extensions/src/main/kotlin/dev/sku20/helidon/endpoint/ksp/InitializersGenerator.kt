@@ -5,9 +5,7 @@ import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.helidon.endpoint.Endpoint
-import dev.sku20.helidon.endpoint.Get
-import dev.sku20.helidon.endpoint.Post
+import dev.sku20.helidon.endpoint.*
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -82,8 +80,6 @@ class InitializersGenerator(
         writeLine("})")
     }
 
-    // todo: add route support; which takes in Method
-
     private fun writeRulesFromFunctions(
         endpointInstance: String,
         functions: Sequence<KSFunctionDeclaration>
@@ -110,20 +106,41 @@ class InitializersGenerator(
     ) {
         for (annotation in annotations) {
             when (annotation.shortName.asString()) {
-                Get::class.simpleName -> writeDirectMethodCall("get", annotation, handler)
-                Post::class.simpleName -> writeDirectMethodCall("post", annotation, handler)
+                Get::class.simpleName -> writeViaFunctionName("get", annotation, handler)
+                Post::class.simpleName -> writeViaFunctionName("post", annotation, handler)
+                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, handler)
+                Put::class.simpleName -> writeViaFunctionName("put", annotation, handler)
+                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, handler)
+                Head::class.simpleName -> writeViaFunctionName("head", annotation, handler)
+                Options::class.simpleName -> writeViaFunctionName("options", annotation, handler)
+                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, handler)
+                Connect::class.simpleName -> writeViaRouteFunction(
+                    "io.helidon.http.Method.CONNECT",
+                    annotation,
+                    handler
+                )
             }
         }
     }
 
-    fun writeDirectMethodCall(
+    fun writeViaFunctionName(
+        functionName: String,
+        annotation: KSAnnotation,
+        handler: String
+    ) = w.withRelativeIndent {
+        val path = annotation.arguments.first { it.name?.getShortName() == "path" }
+        val pathValue = path.value as String
+        writeLine(".${functionName}(\"${pathValue}\", ${handler})")
+    }
+
+    fun writeViaRouteFunction(
         method: String,
         annotation: KSAnnotation,
         handler: String
     ) = w.withRelativeIndent {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         val pathValue = path.value as String
-        writeLine(".${method}(\"${pathValue}\", ${handler})")
+        writeLine(".route(${method},\"${pathValue}\", ${handler})")
     }
 
     private fun writePackage() = w.withRelativeIndent {
