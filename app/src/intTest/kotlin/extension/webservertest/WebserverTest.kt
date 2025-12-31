@@ -24,4 +24,12 @@ annotation class WebserverTest {
     @Retention(AnnotationRetention.RUNTIME)
     annotation class DestroyInstances
 
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class CreateEndpoint
+
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class DestroyEndpoint
+
 }
