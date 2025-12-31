@@ -18,7 +18,6 @@ class InitializersGenerator(
     private val w = CustomWriter(file)
 
     fun write() {
-        writeFileSuppressors()
         writePackage()
         writeImports()
         writeFunInitEndpointsRoutes()
@@ -125,11 +124,6 @@ class InitializersGenerator(
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         val pathValue = path.value as String
         writeLine(".${method}(\"${pathValue}\", ${handler})")
-    }
-
-    private fun writeFileSuppressors() = w.withRelativeIndent {
-        writeLine("@file:Suppress(\"LocalVariableName\")")
-        writeLine()
     }
 
     private fun writePackage() = w.withRelativeIndent {
