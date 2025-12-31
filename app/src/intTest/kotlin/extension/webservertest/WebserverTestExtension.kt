@@ -33,6 +33,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
+        createEndpoint(testClass, store)
         createInstances(testClass, store)
         startServer(testClass, store)
     }
@@ -62,6 +63,20 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val store = SharedStore.getStoreScopedToTestClass(context)
         destroyInstances(testClass, store)
         stopServer(store)
+    }
+
+    private fun createEndpoint(
+        testClass: Class<*>,
+        store: ExtensionContext.Store
+    ) {
+        val instances = mutableMapOf<Class<*>, Any>()
+        val endpoint = findStaticMethod(
+            testClass,
+            WebserverTest.CreateEndpoint::class.java
+        )?.invoke(null, instances)
+            ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
+        instances[endpoint::class.java] = endpoint
+        store.put(USER_INSTANCES, instances)
     }
 
     private fun createInstances(
