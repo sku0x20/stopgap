@@ -42,7 +42,7 @@ class EndpointSymbolProcessor(
             file,
             symbols,
             packageName,
-            !options["noRegistry"].toBoolean()
+            !options["endpoint.codegen.registry.skip"].toBoolean()
         )
         initGen.write()
     }

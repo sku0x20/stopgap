@@ -27,6 +27,10 @@ application {
     mainClass = "com.example.stopgap.MainKt"
 }
 
+ksp {
+    arg("endpoint.codegen.registry.skip", "false")
+}
+
 tasks.register<Copy>("copyLibs") {
     from(configurations.runtimeClasspath)
     into(layout.buildDirectory.dir("libs/libs"))
