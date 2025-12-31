@@ -21,35 +21,39 @@ class InitializersGenerator(
         writeFileSuppressors()
         writePackage()
         writeImports()
-        writeFunInitEndpointRoutes()
+        writeFunInitEndpointsRoutes()
         w.close()
     }
 
-    private fun writeFunInitEndpointRoutes() = w.withRelativeIndent {
-        writeLine("fun initEndpointRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
+    private fun writeFunInitEndpointsRoutes() = w.withRelativeIndent {
+        writeLine("fun initEndpointsRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
         withRelativeIndent(4) {
-            writeRegisterRoutes()
+            for (endpointClazz in symbols) {
+                writeEndpointsRegisterCalls(endpointClazz)
+            }
         }
         writeLine("}")
     }
 
-    private fun writeRegisterRoutes() = w.withRelativeIndent {
-        for (endpointClazz in symbols) {
-            val variableName = endpointClazz.simpleName.asString()
-            val qualifiedName = endpointClazz.qualifiedName!!.asString()
-            val endpointAnnotation = endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
-            val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
-            val endpointPathValue = endpointPath.value as String
-            writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
-            writeLine("routes.register(\"${endpointPathValue}\", { rules ->")
+    private fun writeEndpointsRegisterCalls(
+        endpointClazz: KSClassDeclaration
+    ) = w.withRelativeIndent {
+        val variableName = endpointClazz.simpleName.asString()
+        val qualifiedName = endpointClazz.qualifiedName!!.asString()
+        writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
+
+        val endpointAnnotation =
+            endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+        val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
+        val endpointPathValue = endpointPath.value as String
+        writeLine("routes.register(\"${endpointPathValue}\", { rules ->")
+        withRelativeIndent(4) {
+            writeLine("rules")
             withRelativeIndent(4) {
-                writeLine("rules")
-                withRelativeIndent(4) {
-                    writeRules(variableName, endpointClazz.getDeclaredFunctions())
-                }
+                writeRules(variableName, endpointClazz.getDeclaredFunctions())
             }
-            writeLine("})")
         }
+        writeLine("})")
     }
 
     // todo: add route support; which takes in Method
