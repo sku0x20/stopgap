@@ -34,18 +34,18 @@ class InitializersGenerator(
     }
 
     private fun writeRegisterRoutes() = w.withRelativeIndent {
-        for (clazz in symbols) {
-            val variableName = clazz.simpleName.asString()
-            val qualifiedName = clazz.qualifiedName!!.asString()
-            val endpointAnnotation = clazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
-            val path = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
-            val pathValue = path.value as String
+        for (endpointClazz in symbols) {
+            val variableName = endpointClazz.simpleName.asString()
+            val qualifiedName = endpointClazz.qualifiedName!!.asString()
+            val endpointAnnotation = endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+            val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
+            val endpointPathValue = endpointPath.value as String
             writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
-            writeLine("routes.register(\"${pathValue}\", { rules ->")
+            writeLine("routes.register(\"${endpointPathValue}\", { rules ->")
             withRelativeIndent(4) {
                 writeLine("rules")
                 withRelativeIndent(4) {
-                    writeRules(variableName, clazz.getDeclaredFunctions())
+                    writeRules(variableName, endpointClazz.getDeclaredFunctions())
                 }
             }
             writeLine("})")
