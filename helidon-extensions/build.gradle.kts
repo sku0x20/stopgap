@@ -7,7 +7,6 @@ version = "rolling"
 
 dependencies {
     implementation(libs.ksp.api)
-    implementation(libs.helidon.webserver)
 }
 
 configurations {
