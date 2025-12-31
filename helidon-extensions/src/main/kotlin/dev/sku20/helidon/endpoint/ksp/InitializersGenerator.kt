@@ -55,7 +55,7 @@ class InitializersGenerator(
             val endpointPathValue = endpointPath.value as String
             val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
             val endpointInstance = "endpoint"
-            writeLine("fun registerRoutesFor($endpointInstance: ${endpointQualifiedName}){")
+            writeLine("fun registerRoutesFor($endpointInstance: ${endpointQualifiedName}, routes: HttpRouting.Builder){")
             withRelativeIndent(4) {
                 registerEndpoint(
                     endpointPathValue,
