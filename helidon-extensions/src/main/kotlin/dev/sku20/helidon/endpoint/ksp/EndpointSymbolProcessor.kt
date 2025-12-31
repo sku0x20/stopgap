@@ -7,7 +7,8 @@ import dev.sku20.helidon.endpoint.Endpoint
 
 class EndpointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger
+    private val logger: KSPLogger,
+    private val options: Map<String, String>
 ) : SymbolProcessor {
 
     @Suppress("UNCHECKED_CAST")
@@ -40,7 +41,8 @@ class EndpointSymbolProcessor(
         val initGen = InitializersGenerator(
             file,
             symbols,
-            packageName
+            packageName,
+            !options["noRegistry"].toBoolean()
         )
         initGen.write()
     }

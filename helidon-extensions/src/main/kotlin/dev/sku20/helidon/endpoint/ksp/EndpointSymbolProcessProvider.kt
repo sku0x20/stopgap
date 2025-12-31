@@ -11,7 +11,8 @@ class EndpointSymbolProcessProvider : SymbolProcessorProvider {
     ): SymbolProcessor {
         return EndpointSymbolProcessor(
             environment.codeGenerator,
-            environment.logger
+            environment.logger,
+            environment.options
         )
     }
 

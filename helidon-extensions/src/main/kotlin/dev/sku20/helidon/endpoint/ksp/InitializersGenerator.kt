@@ -11,14 +11,15 @@ import java.io.OutputStream
 class InitializersGenerator(
     file: OutputStream,
     private val endpointClazzez: List<KSClassDeclaration>,
-    private val packageName: String
+    private val packageName: String,
+    private val useRegistry: Boolean
 ) {
     private val w = CustomWriter(file)
 
     fun write() {
         writePackage()
         writeImports()
-        writeInitEndpointsRoutesViaRegistry()
+        if (useRegistry) writeInitEndpointsRoutesViaRegistry()
         writeRegisterRoutesFor()
         w.close()
     }
