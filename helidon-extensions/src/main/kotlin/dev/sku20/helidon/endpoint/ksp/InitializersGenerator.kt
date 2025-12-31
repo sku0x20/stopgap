@@ -43,8 +43,6 @@ class InitializersGenerator(
         for (endpointClazz in endpointClazzez) {
             val endpointAnnotation =
                 endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
-            val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
-            val endpointPathValue = endpointPath.value as String
             val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
             val endpointInstance = "endpoint"
             writeLine("fun registerRoutesFor(")
@@ -55,7 +53,7 @@ class InitializersGenerator(
             writeLine("){")
             withRelativeIndent(4) {
                 registerEndpoint(
-                    endpointPathValue,
+                    path(endpointAnnotation),
                     endpointInstance,
                     endpointClazz.getDeclaredFunctions()
                 )
@@ -128,9 +126,7 @@ class InitializersGenerator(
         annotation: KSAnnotation,
         handler: String
     ) = w.withRelativeIndent {
-        val path = annotation.arguments.first { it.name?.getShortName() == "path" }
-        val pathValue = path.value as String
-        writeLine(".${functionName}(\"${pathValue}\", ${handler})")
+        writeLine(".${functionName}(\"${path(annotation)}\", ${handler})")
     }
 
     fun writeViaRouteFunction(
@@ -138,9 +134,13 @@ class InitializersGenerator(
         annotation: KSAnnotation,
         handler: String
     ) = w.withRelativeIndent {
+        writeLine(".route(${method},\"${path(annotation)}\", ${handler})")
+    }
+
+    private fun path(annotation: KSAnnotation): String {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         val pathValue = path.value as String
-        writeLine(".route(${method},\"${pathValue}\", ${handler})")
+        return pathValue
     }
 
     private fun writePackage() = w.withRelativeIndent {
