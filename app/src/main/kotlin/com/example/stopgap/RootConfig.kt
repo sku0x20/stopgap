@@ -17,4 +17,9 @@ object RootConfig {
         return RootEndpoint()
     }
 
+    @Creates
+    fun httpMethodsEndpoint(registry: InstanceRegistry): HttpMethodsEndpoint {
+        return HttpMethodsEndpoint()
+    }
+
 }
