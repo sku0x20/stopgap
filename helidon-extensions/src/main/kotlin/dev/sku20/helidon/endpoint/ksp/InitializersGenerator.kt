@@ -98,6 +98,7 @@ class InitializersGenerator(
      *  - hashmap lookup;
      *  - or some kind of indirection, via factory or other techniques.
      */
+    // @formatter:off
     fun writeRoute(
         annotations: Sequence<KSAnnotation>,
         handler: String
@@ -112,14 +113,11 @@ class InitializersGenerator(
                 Head::class.simpleName -> writeViaFunctionName("head", annotation, handler)
                 Options::class.simpleName -> writeViaFunctionName("options", annotation, handler)
                 Trace::class.simpleName -> writeViaFunctionName("trace", annotation, handler)
-                Connect::class.simpleName -> writeViaRouteFunction(
-                    "io.helidon.http.Method.CONNECT",
-                    annotation,
-                    handler
-                )
+                Connect::class.simpleName -> writeViaRouteFunction("io.helidon.http.Method.CONNECT", annotation, handler)
             }
         }
     }
+    // @formatter:on
 
     fun writeViaFunctionName(
         functionName: String,
