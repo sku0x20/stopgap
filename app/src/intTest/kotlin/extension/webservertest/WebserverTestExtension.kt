@@ -24,10 +24,12 @@ import java.lang.reflect.Method
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
+        private val loadedConfig = Config.create()
+
         const val SERVER_INSTANCE = "server.instance"
 
-        private val loadedConfig = Config.create()
         private const val USER_INSTANCES = "server.user.instances"
+        private const val ENDPOINT_CLAZZ = "server.endpoint.clazz"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -77,6 +79,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
         instances[endpoint::class.java] = endpoint
         store.put(USER_INSTANCES, instances)
+        store.put(ENDPOINT_CLAZZ, endpoint::class.java)
     }
 
     private fun createInstances(
