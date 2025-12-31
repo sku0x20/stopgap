@@ -1,5 +1,6 @@
 package com.example.stopgap
 
+import dev.sku20.helidon.endpoint.generated.initEndpointsRoutesViaRegistry
 import dev.sku20.ir.InstanceRegistry
 import dev.sku20.ir.generated.initRegistry
 import io.helidon.config.Config
@@ -11,7 +12,7 @@ fun main(args: Array<String>) {
     initRegistry(registry)
 
     val routing = HttpRouting.builder()
-    initEndpointsRoutes(routing, registry)
+    initEndpointsRoutesViaRegistry(registry, routing)
 
     val config = registry.getInstanceForType<Config>()
     val server = WebServer.builder()

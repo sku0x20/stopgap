@@ -13,6 +13,8 @@ dependencies {
     implementation(libs.bundles.helidon)
     implementation(project(":ir"))
     ksp(project(":ir"))
+    implementation(project(":helidon-extensions"))
+    ksp(project(":helidon-extensions"))
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
@@ -23,6 +25,10 @@ dependencies {
 
 application {
     mainClass = "com.example.stopgap.MainKt"
+}
+
+ksp {
+    arg("endpoint.codegen.registry.skip", "false")
 }
 
 tasks.register<Copy>("copyLibs") {

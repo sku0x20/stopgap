@@ -4,7 +4,6 @@ import extension.InjectInstance
 import extension.webservertest.WebserverTest
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
-import io.helidon.webserver.http.HttpRouting
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,24 +16,22 @@ class ExceptionEndpointTest {
 
     @Test
     fun badClient1() {
-        val response = client.get("/bad-client-1").request()
+        val response = client.get("/exception/bad-client-1").request()
         assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
     }
 
     @Test
     fun badClient2() {
-        val response = client.get("/bad-client-2").request()
+        val response = client.get("/exception/bad-client-2").request()
         assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
     }
 
     companion object {
 
         @JvmStatic
-        @WebserverTest.ConfigRoutes
-        fun configureRoutes(routes: HttpRouting.Builder) {
-            val endpoint = ExceptionEndpoint()
-            routes.get("/bad-client-1", endpoint::badClientException)
-            routes.get("/bad-client-2", endpoint::viaHttpException)
+        @WebserverTest.CreateEndpoint
+        fun createEndpoint(extras: MutableMap<Class<*>, Any>): ExceptionEndpoint {
+            return ExceptionEndpoint()
         }
 
     }

@@ -18,22 +18,26 @@ import java.lang.reflect.Method
  * WebserverTestExtension runs once per test class.
  * It doesn't care if the test launch is per class or per methods, it behaves the same.
  * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
- * Via [WebserverTest.CreateInstances] and [WebserverTest.DestroyInstances] this allows test classes to manage instances.
+ * Via [WebserverTest.CreateEndpoint] and [WebserverTest.DestroyEndpoint] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
  */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
+        private val loadedConfig = Config.create()
+
         const val SERVER_INSTANCE = "server.instance"
 
-        private val loadedConfig = Config.create()
+        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
+
         private const val USER_INSTANCES = "server.user.instances"
+        private const val ENDPOINT_CLAZZ = "server.endpoint.clazz"
     }
 
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
-        createInstances(testClass, store)
+        createEndpoint(testClass, store)
         startServer(testClass, store)
     }
 
@@ -60,33 +64,40 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     override fun afterAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
-        destroyInstances(testClass, store)
         stopServer(store)
+        destroyEndpoint(testClass, store)
     }
 
-    private fun createInstances(
+    private fun createEndpoint(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
         val instances = mutableMapOf<Class<*>, Any>()
-        findStaticMethod(
+        val endpoint = findStaticMethod(
             testClass,
-            WebserverTest.CreateInstances::class.java
+            WebserverTest.CreateEndpoint::class.java
         )?.invoke(null, instances)
+            ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
+        instances[endpoint::class.java] = endpoint
         store.put(USER_INSTANCES, instances)
+        store.put(ENDPOINT_CLAZZ, endpoint::class.java)
     }
 
-    private fun destroyInstances(
+    @Suppress("UNCHECKED_CAST")
+    private fun destroyEndpoint(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val instances = store.get(USER_INSTANCES) as Map<*, *>?
+        val endpointClazz = store.get(ENDPOINT_CLAZZ) as Class<*>
+        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val endpoint = instances[endpointClazz]
         findStaticMethod(
             testClass,
-            WebserverTest.DestroyInstances::class.java
-        )?.invoke(null, instances)
+            WebserverTest.DestroyEndpoint::class.java
+        )?.invoke(null, endpoint, instances)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun startServer(
         testClass: Class<*>,
         store: ExtensionContext.Store
@@ -97,12 +108,19 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
+        val endpointClazz = store.get(ENDPOINT_CLAZZ) as Class<*>
+        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val endpoint = instances[endpointClazz]
+
+        val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val routes = HttpRouting.builder()
+        val method = clazz.getDeclaredMethod(
+            "registerRoutesFor",
+            endpointClazz,
+            HttpRouting.Builder::class.java
+        )
+        method.invoke(null, endpoint, routes)
         serverBuilder.routing(routes)
-        findStaticMethod(
-            testClass,
-            WebserverTest.ConfigRoutes::class.java
-        )?.invokeStaticMethodWithArgs(routes, store)
 
         findStaticMethod(
             testClass,

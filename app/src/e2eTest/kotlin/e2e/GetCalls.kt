@@ -6,7 +6,7 @@ import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class E2E {
+class GetCalls {
 
     @InjectInstance
     lateinit var client: WebClient
