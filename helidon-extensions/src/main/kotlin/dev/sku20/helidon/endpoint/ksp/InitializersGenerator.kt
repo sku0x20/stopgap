@@ -29,28 +29,30 @@ class InitializersGenerator(
         writeLine("fun initEndpointsRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
         withRelativeIndent(4) {
             for (endpointClazz in symbols) {
-                writeEndpointsRegisterCalls(endpointClazz)
+                val endpointInstance = endpointClazz.simpleName.asString()
+                val qualifiedName = endpointClazz.qualifiedName!!.asString()
+                writeLine("val $endpointInstance = registry.getInstanceForType<$qualifiedName>()")
+                val functions = endpointClazz.getDeclaredFunctions()
+                val endpointAnnotation =
+                    endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+                val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
+                val endpointPathValue = endpointPath.value as String
+                registerEndpoint(endpointPathValue, endpointInstance, functions)
             }
         }
         writeLine("}")
     }
 
-    private fun writeEndpointsRegisterCalls(
-        endpointClazz: KSClassDeclaration
+    private fun registerEndpoint(
+        endpointPath: String,
+        endpointInstance: String,
+        functions: Sequence<KSFunctionDeclaration>
     ) = w.withRelativeIndent {
-        val variableName = endpointClazz.simpleName.asString()
-        val qualifiedName = endpointClazz.qualifiedName!!.asString()
-        writeLine("val $variableName = registry.getInstanceForType<$qualifiedName>()")
-
-        val endpointAnnotation =
-            endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
-        val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
-        val endpointPathValue = endpointPath.value as String
-        writeLine("routes.register(\"${endpointPathValue}\", { rules ->")
+        writeLine("routes.register(\"${endpointPath}\", { rules ->")
         withRelativeIndent(4) {
             writeLine("rules")
             withRelativeIndent(4) {
-                writeRules(variableName, endpointClazz.getDeclaredFunctions())
+                writeRulesFromFunctions(endpointInstance, functions)
             }
         }
         writeLine("})")
@@ -58,13 +60,13 @@ class InitializersGenerator(
 
     // todo: add route support; which takes in Method
 
-    private fun writeRules(
-        variableName: String,
+    private fun writeRulesFromFunctions(
+        endpointInstance: String,
         functions: Sequence<KSFunctionDeclaration>
     ) = w.withRelativeIndent {
         for (function in functions) {
             if (!function.isPublic()) continue
-            val handler = "$variableName::${function.simpleName.asString()}"
+            val handler = "$endpointInstance::${function.simpleName.asString()}"
             writeRoute(function.annotations, handler)
         }
     }
