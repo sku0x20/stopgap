@@ -12,7 +12,7 @@ import java.io.OutputStream
 
 class InitializersGenerator(
     file: OutputStream,
-    private val symbols: List<KSClassDeclaration>,
+    private val endpointClazzez: List<KSClassDeclaration>,
     private val packageName: String
 ) {
     private val w = CustomWriter(file)
@@ -22,13 +22,14 @@ class InitializersGenerator(
         writePackage()
         writeImports()
         writeFunInitEndpointsRoutes()
+        writeRegisterRoutesFor()
         w.close()
     }
 
     private fun writeFunInitEndpointsRoutes() = w.withRelativeIndent {
         writeLine("fun initEndpointsRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
         withRelativeIndent(4) {
-            for (endpointClazz in symbols) {
+            for (endpointClazz in endpointClazzez) {
                 val endpointAnnotation =
                     endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
                 val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
@@ -44,6 +45,26 @@ class InitializersGenerator(
             }
         }
         writeLine("}")
+    }
+
+    private fun writeRegisterRoutesFor() = w.withRelativeIndent {
+        for (endpointClazz in endpointClazzez) {
+            val endpointAnnotation =
+                endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+            val endpointPath = endpointAnnotation.arguments.first { it.name?.getShortName() == "path" }
+            val endpointPathValue = endpointPath.value as String
+            val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+            val endpointInstance = "endpoint"
+            writeLine("fun registerRoutesFor($endpointInstance: ${endpointQualifiedName}){")
+            withRelativeIndent(4) {
+                registerEndpoint(
+                    endpointPathValue,
+                    endpointInstance,
+                    endpointClazz.getDeclaredFunctions()
+                )
+            }
+            writeLine("}")
+        }
     }
 
     private fun registerEndpoint(
