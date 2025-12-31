@@ -20,14 +20,13 @@ class InitializersGenerator(
     fun write() {
         writePackage()
         writeImports()
-        writeFunInitEndpointsRoutes()
+        writeInitEndpointsRoutesViaRegistry()
         writeRegisterRoutesFor()
         w.close()
     }
 
-    // todo: rename to initEndpointsRoutesViaRegistry
-    private fun writeFunInitEndpointsRoutes() = w.withRelativeIndent {
-        writeLine("fun initEndpointsRoutes(routes: HttpRouting.Builder, registry: InstanceRegistry) {")
+    private fun writeInitEndpointsRoutesViaRegistry() = w.withRelativeIndent {
+        writeLine("fun initEndpointsRoutesViaRegistry(registry: InstanceRegistry, routes: HttpRouting.Builder) {")
         withRelativeIndent(4) {
             for (endpointClazz in endpointClazzez) {
                 val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
