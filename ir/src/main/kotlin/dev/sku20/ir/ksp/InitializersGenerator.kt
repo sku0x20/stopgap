@@ -7,7 +7,7 @@ import java.io.OutputStream
 
 class InitializersGenerator(
     file: OutputStream,
-    private val symbols: List<KSFunctionDeclaration>,
+    private val creators: List<KSFunctionDeclaration>,
     private val packageName: String
 ) {
     private val w = CustomWriter(file)
@@ -47,12 +47,12 @@ class InitializersGenerator(
     }
 
     private fun writeCreateInstancesEagerly() = w.withRelativeIndent {
-        for (symbol in symbols) {
-            val annotation = symbol.annotations.first { it.shortName.asString() == Creates::class.simpleName }
+        for (create in creators) {
+            val annotation = create.annotations.first { it.shortName.asString() == Creates::class.simpleName }
             val eagerly = annotation.arguments.first { it.name?.getShortName() == "eagerly" }
             val value = eagerly.value as Boolean
             if (value) {
-                val returnType = symbol.returnType!!.resolve()
+                val returnType = create.returnType!!.resolve()
                 val qualifiedName = returnType.declaration.qualifiedName!!.asString()
                 writeLine("registry.getInstanceForType<${qualifiedName}>()")
             }
@@ -60,19 +60,17 @@ class InitializersGenerator(
     }
 
     private fun writeRegistrations() = w.withRelativeIndent {
-        for (symbol in symbols) {
+        for (create in creators) {
             writeLine("registry.registerForType {")
             withRelativeIndent(4) {
                 val parameters = StringBuilder()
-                for (param in symbol.parameters) {
-                    // any way to avoid resolve??
+                for (param in create.parameters) {
                     val paramType = param.type.resolve().declaration
-                    if (InstanceRegistry::class.qualifiedName!! == paramType.qualifiedName!!.asString()) {
-                        parameters.append("registry,")
-                        continue
-                    }
+                    val paramQualifiedType = paramType.qualifiedName!!.asString()
+                    if (InstanceRegistry::class.qualifiedName!! == paramQualifiedType) parameters.append("registry,")
+                    else parameters.append("registry.getInstanceForType<$paramQualifiedType>(),")
                 }
-                writeLine("${symbol.qualifiedName!!.asString()}(${parameters})")
+                writeLine("${create.qualifiedName!!.asString()}(${parameters})")
             }
             writeLine("}")
         }
