@@ -6,7 +6,10 @@ import dev.sku20.ir.Creates
 object UuidConfig {
 
     @Creates
-    fun uuidEndpoint(uuidGen: UuidGen): UuidEndpoint {
+    fun uuidEndpoint(
+        @Qualifier("uuidGen.v4")
+        uuidGen: UuidGen
+    ): UuidEndpoint {
         return UuidEndpoint(uuidGen)
     }
 
