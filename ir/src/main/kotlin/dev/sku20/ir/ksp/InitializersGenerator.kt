@@ -59,23 +59,31 @@ class InitializersGenerator(
         }
     }
 
-    private fun writeRegistrations() = w.withRelativeIndent {
+    private fun writeRegistrations() {
         for (create in creators) {
-            writeLine("registry.registerForType {")
-            withRelativeIndent(4) {
-                writeLine("${create.qualifiedName!!.asString()}(")
-                withRelativeIndent(4) {
-                    for (param in create.parameters) {
-                        val paramType = param.type.resolve().declaration
-                        val paramQualifiedType = paramType.qualifiedName!!.asString()
-                        if (InstanceRegistry::class.qualifiedName!! == paramQualifiedType) writeLine("registry,")
-                        else writeLine("registry.getInstanceForType<$paramQualifiedType>(),")
-                    }
-                }
-                writeLine(")")
-            }
-            writeLine("}")
+            registerViaType(create)
         }
+    }
+
+    private fun registerViaType(create: KSFunctionDeclaration) = w.withRelativeIndent {
+        writeLine("registry.registerForType {")
+        withRelativeIndent(4) {
+            callCreateFun(create)
+        }
+        writeLine("}")
+    }
+
+    private fun callCreateFun(create: KSFunctionDeclaration) = w.withRelativeIndent {
+        writeLine("${create.qualifiedName!!.asString()}(")
+        withRelativeIndent(4) {
+            for (param in create.parameters) {
+                val paramType = param.type.resolve().declaration
+                val paramQualifiedType = paramType.qualifiedName!!.asString()
+                if (InstanceRegistry::class.qualifiedName!! == paramQualifiedType) writeLine("registry,")
+                else writeLine("registry.getInstanceForType<$paramQualifiedType>(),")
+            }
+        }
+        writeLine(")")
     }
 
     private fun writePackage() = w.withRelativeIndent {
