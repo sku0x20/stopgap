@@ -62,7 +62,11 @@ class InitializersGenerator(
         for (symbol in symbols) {
             writeLine("registry.registerForType {")
             withRelativeIndent(4) {
-                writeLine("${symbol.qualifiedName!!.asString()}(registry)")
+                writeLine("${symbol.qualifiedName!!.asString()}(")
+                withRelativeIndent(4) {
+                    writeLine("registry,")
+                }
+                writeLine(")")
             }
             writeLine("}")
         }
