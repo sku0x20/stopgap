@@ -67,8 +67,10 @@ class InitializersGenerator(
                 for (param in symbol.parameters) {
                     // any way to avoid resolve??
                     val paramType = param.type.resolve().declaration
-                    if (paramType.qualifiedName!!.asString() == InstanceRegistry::class.qualifiedName!!)
+                    if (InstanceRegistry::class.qualifiedName!! == paramType.qualifiedName!!.asString()) {
                         parameters.append("registry,")
+                        continue
+                    }
                 }
                 writeLine("${symbol.qualifiedName!!.asString()}(${parameters})")
             }
