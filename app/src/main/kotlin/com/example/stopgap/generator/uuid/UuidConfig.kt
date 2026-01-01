@@ -2,18 +2,21 @@ package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import dev.sku20.ir.Creates
-import dev.sku20.ir.InstanceRegistry
+import dev.sku20.ir.Qualifier
 
 object UuidConfig {
 
     @Creates
-    fun uuidEndpoint(registry: InstanceRegistry): UuidEndpoint {
-        val uuidGen = registry.getInstanceForType<UuidGen>()
+    fun uuidEndpoint(
+        @Qualifier("uuidGen.v4")
+        uuidGen: UuidGen
+    ): UuidEndpoint {
         return UuidEndpoint(uuidGen)
     }
 
     @Creates
-    fun uuidGen(registry: InstanceRegistry): UuidGen {
+    @Qualifier("uuidGen.v4")
+    fun uuidGen(): UuidGen {
         return UuidGen()
     }
 }
