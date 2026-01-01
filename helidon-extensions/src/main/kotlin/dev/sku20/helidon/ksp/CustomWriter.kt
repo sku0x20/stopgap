@@ -1,4 +1,4 @@
-package dev.sku20.helidon.endpoint.ksp
+package dev.sku20.helidon.ksp
 
 import java.io.OutputStream
 

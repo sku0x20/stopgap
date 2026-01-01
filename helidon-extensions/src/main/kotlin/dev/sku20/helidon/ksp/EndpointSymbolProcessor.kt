@@ -1,4 +1,4 @@
-package dev.sku20.helidon.endpoint.ksp
+package dev.sku20.helidon.ksp
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
