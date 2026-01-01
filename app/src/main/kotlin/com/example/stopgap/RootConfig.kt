@@ -1,7 +1,6 @@
 package com.example.stopgap
 
 import dev.sku20.ir.Creates
-import dev.sku20.ir.InstanceRegistry
 import io.helidon.config.Config
 
 object RootConfig {
@@ -13,12 +12,12 @@ object RootConfig {
     }
 
     @Creates
-    fun rootEndpoint(registry: InstanceRegistry): RootEndpoint {
+    fun rootEndpoint(): RootEndpoint {
         return RootEndpoint()
     }
 
     @Creates
-    fun httpMethodsEndpoint(registry: InstanceRegistry): HttpMethodsEndpoint {
+    fun httpMethodsEndpoint(): HttpMethodsEndpoint {
         return HttpMethodsEndpoint()
     }
 

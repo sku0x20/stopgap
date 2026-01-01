@@ -13,7 +13,7 @@ object UuidConfig {
     }
 
     @Creates
-    fun uuidGen(registry: InstanceRegistry): UuidGen {
+    fun uuidGen(): UuidGen {
         return UuidGen()
     }
 }
