@@ -2,7 +2,7 @@ package extension.webserverclient
 
 import extension.InjectInstance
 import extension.SharedStore
-import extension.webservertest.WebserverTestExtension.Companion.SERVER_INSTANCE
+import extension.webservertest.WebserverTestExtension.Companion.SERVER_INSTANCE_ID
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -18,7 +18,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
 
     override fun beforeAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val server = store.get(SERVER_INSTANCE) as WebServer
+        val server = store.get(SERVER_INSTANCE_ID) as WebServer
         setupClients(server, store)
     }
 
