@@ -7,7 +7,7 @@ import io.helidon.config.Config
 object RootConfig {
 
     @Creates
-    fun config(registry: InstanceRegistry): Config {
+    fun config(): Config {
         val config = Config.create()
         return config
     }

@@ -2,6 +2,7 @@ package dev.sku20.ir.ksp
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.ir.Creates
+import dev.sku20.ir.InstanceRegistry
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -62,11 +63,14 @@ class InitializersGenerator(
         for (symbol in symbols) {
             writeLine("registry.registerForType {")
             withRelativeIndent(4) {
-                writeLine("${symbol.qualifiedName!!.asString()}(")
-                withRelativeIndent(4) {
-                    writeLine("registry,")
+                val parameters = StringBuilder()
+                for (param in symbol.parameters) {
+                    // any way to avoid resolve??
+                    val paramType = param.type.resolve().declaration
+                    if (paramType.qualifiedName!!.asString() == InstanceRegistry::class.qualifiedName!!)
+                        parameters.append("registry,")
                 }
-                writeLine(")")
+                writeLine("${symbol.qualifiedName!!.asString()}(${parameters})")
             }
             writeLine("}")
         }
