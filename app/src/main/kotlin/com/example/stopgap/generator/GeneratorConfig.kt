@@ -8,14 +8,12 @@ import io.helidon.config.Config
 object GeneratorConfig {
 
     @Creates
-    fun generatorEndpoint(registry: InstanceRegistry): GeneratorEndpoint {
-        val staticGenerator = registry.getInstanceForType<StaticGenerator>()
+    fun generatorEndpoint(staticGenerator: StaticGenerator): GeneratorEndpoint {
         return GeneratorEndpoint(staticGenerator)
     }
 
     @Creates
-    fun staticGenerator(registry: InstanceRegistry): StaticGenerator {
-        val config = registry.getInstanceForType<Config>()
+    fun staticGenerator(config: Config): StaticGenerator {
         val staticValue = config.get("generator.static.value").asString().get()
         return StaticGenerator(staticValue)
     }
