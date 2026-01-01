@@ -13,7 +13,7 @@ import org.junit.platform.commons.support.AnnotationSupport
 class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
-        private val CLIENTS = "${::javaClass}::clients-key"
+        private const val CLIENTS_ID = "clients"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -31,7 +31,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
             InjectInstance::class.java
         )
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val clients = store.get(CLIENTS) as Clients
+        val clients = store.get(CLIENTS_ID) as Clients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) {
@@ -53,11 +53,11 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
         val port = server.port()
         val clients = Clients()
         clients.setup(host, port)
-        store.put(CLIENTS, clients)
+        store.put(CLIENTS_ID, clients)
     }
 
     private fun closeClient(store: ExtensionContext.Store) {
-        val clients = store.get(CLIENTS) as Clients
+        val clients = store.get(CLIENTS_ID) as Clients
         clients.closeClients()
     }
 
