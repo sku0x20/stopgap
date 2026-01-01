@@ -26,12 +26,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     companion object {
         private val loadedConfig = Config.create()
 
-        const val SERVER_INSTANCE = "server.instance"
+        const val SERVER_INSTANCE_ID = "server.instance"
 
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
 
-        private const val USER_INSTANCES = "server.user.instances"
-        private const val ENDPOINT_CLAZZ = "server.endpoint.clazz"
+        private const val USER_INSTANCES_ID = "user.instances"
+        private const val ENDPOINT_CLAZZ_ID = "endpoint.clazz"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -52,10 +52,10 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val store = SharedStore.getStoreScopedToTestClass(context)
         for (field in injectableFields) {
             when (field.type) {
-                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE))
+                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
                 else -> field.set(
                     testInstance,
-                    (store.get(USER_INSTANCES) as Map<*, *>)[field.type]
+                    (store.get(USER_INSTANCES_ID) as Map<*, *>)[field.type]
                 )
             }
         }
@@ -79,8 +79,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         )?.invoke(null, instances)
             ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
         instances[endpoint::class.java] = endpoint
-        store.put(USER_INSTANCES, instances)
-        store.put(ENDPOINT_CLAZZ, endpoint::class.java)
+        store.put(USER_INSTANCES_ID, instances)
+        store.put(ENDPOINT_CLAZZ_ID, endpoint::class.java)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -88,8 +88,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val endpointClazz = store.get(ENDPOINT_CLAZZ) as Class<*>
-        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
+        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
         val endpoint = instances[endpointClazz]
         findStaticMethod(
             testClass,
@@ -108,8 +108,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
-        val endpointClazz = store.get(ENDPOINT_CLAZZ) as Class<*>
-        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
+        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
         val endpoint = instances[endpointClazz]
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
@@ -129,12 +129,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val server = serverBuilder
             .build()
             .start()
-        store.put(SERVER_INSTANCE, server)
+        store.put(SERVER_INSTANCE_ID, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SERVER_INSTANCE) as WebServer
+        val server = store.get(SERVER_INSTANCE_ID) as WebServer
         server.stop()
     }
 
@@ -144,7 +144,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         store: ExtensionContext.Store
     ) {
         if (this == null) return
-        val instances = store.get(USER_INSTANCES) as Map<Class<*>, Any>
+        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
         val argsCount = this.parameterCount
         if (argsCount == 1) {
             this.invoke(null, firstArg); return
