@@ -1,8 +1,10 @@
 package dev.sku20.ir.ksp
 
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.ir.Creates
 import dev.sku20.ir.InstanceRegistry
+import dev.sku20.ir.Qualifier
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -61,12 +63,24 @@ class InitializersGenerator(
 
     private fun writeRegistrations() {
         for (create in creators) {
-            registerViaType(create)
+            val qualifierAnnotation =
+                create.annotations.firstOrNull { it.shortName.asString() == Qualifier::class.simpleName }
+            if (qualifierAnnotation != null) registerViaQualifier(create, qualifierAnnotation)
+            else registerViaType(create)
         }
     }
 
     private fun registerViaType(create: KSFunctionDeclaration) = w.withRelativeIndent {
         writeLine("registry.registerForType {")
+        withRelativeIndent(4) {
+            callCreateFun(create)
+        }
+        writeLine("}")
+    }
+
+    private fun registerViaQualifier(create: KSFunctionDeclaration, qualifier: KSAnnotation) = w.withRelativeIndent {
+        val qualifierValue = qualifier.arguments.first { it.name?.getShortName() == "value" }.value as String
+        writeLine("registry.registerForQualifier(\"$qualifierValue\") {")
         withRelativeIndent(4) {
             callCreateFun(create)
         }
