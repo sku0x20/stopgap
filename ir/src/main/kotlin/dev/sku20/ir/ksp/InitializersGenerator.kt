@@ -2,6 +2,8 @@ package dev.sku20.ir.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueArgument
+import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.ir.Creates
 import dev.sku20.ir.InstanceRegistry
 import dev.sku20.ir.Qualifier
@@ -63,8 +65,7 @@ class InitializersGenerator(
 
     private fun writeRegistrations() {
         for (create in creators) {
-            val qualifierAnnotation =
-                create.annotations.firstOrNull { it.shortName.asString() == Qualifier::class.simpleName }
+            val qualifierAnnotation = qualifierAnnotation(create.annotations)
             if (qualifierAnnotation != null) registerViaQualifier(create, qualifierAnnotation)
             else registerViaType(create)
         }
@@ -79,7 +80,7 @@ class InitializersGenerator(
     }
 
     private fun registerViaQualifier(create: KSFunctionDeclaration, qualifier: KSAnnotation) = w.withRelativeIndent {
-        val qualifierValue = qualifier.arguments.first { it.name?.getShortName() == "value" }.value as String
+        val qualifierValue = getQualifierValue(qualifier)
         writeLine("registry.registerForQualifier(\"$qualifierValue\") {")
         withRelativeIndent(4) {
             callCreateFun(create)
@@ -91,14 +92,31 @@ class InitializersGenerator(
         writeLine("${create.qualifiedName!!.asString()}(")
         withRelativeIndent(4) {
             for (param in create.parameters) {
-                val paramType = param.type.resolve().declaration
-                val paramQualifiedType = paramType.qualifiedName!!.asString()
-                if (InstanceRegistry::class.qualifiedName!! == paramQualifiedType) writeLine("registry,")
-                else writeLine("registry.getInstanceForType<$paramQualifiedType>(),")
+                val qualifierAnnotation = qualifierAnnotation(param.annotations)
+                if (qualifierAnnotation != null) getInstanceViaQualifier(qualifierAnnotation)
+                else getInstanceViaType(param)
             }
         }
         writeLine(")")
     }
+
+    private fun getInstanceViaQualifier(qualifier: KSAnnotation) = w.withRelativeIndent {
+        val qualifierValue = getQualifierValue(qualifier)
+        writeLine("registry.getInstanceForQualifier(\"$qualifierValue\"),")
+    }
+
+    private fun getInstanceViaType(param: KSValueParameter) = w.withRelativeIndent {
+        val paramType = param.type.resolve().declaration
+        val paramQualifiedType = paramType.qualifiedName!!.asString()
+        if (InstanceRegistry::class.qualifiedName!! == paramQualifiedType) writeLine("registry,")
+        else writeLine("registry.getInstanceForType<$paramQualifiedType>(),")
+    }
+
+    private fun qualifierAnnotation(annotations: Sequence<KSAnnotation>): KSAnnotation? =
+        annotations.firstOrNull { it.shortName.asString() == Qualifier::class.simpleName }
+
+    private fun getQualifierValue(qualifier: KSAnnotation): String =
+        qualifier.arguments.first { it.name?.getShortName() == "value" }.value as String
 
     private fun writePackage() = w.withRelativeIndent {
         writeLine("package $packageName")
