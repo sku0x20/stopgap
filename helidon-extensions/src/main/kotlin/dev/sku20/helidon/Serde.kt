@@ -1,6 +1,6 @@
 package dev.sku20.helidon
 
 interface Serde {
-    fun serialize(obj: Any): String
-    fun deserialize(str: String): Any
+    fun <T> serialize(obj: T): String
+    fun <T> deserialize(str: String): T
 }
