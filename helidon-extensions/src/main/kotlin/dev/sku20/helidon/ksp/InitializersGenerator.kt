@@ -86,7 +86,7 @@ class InitializersGenerator(
     ) = w.withRelativeIndent {
         for (function in functions) {
             if (!function.isPublic()) continue
-            val handler = formHandler(endpointInstance, function.simpleName.asString())
+            val handler = "$endpointInstance::${function.simpleName.asString()}"
             writeRoute(function.annotations, handler)
         }
     }
@@ -130,24 +130,6 @@ class InitializersGenerator(
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         val pathValue = path.value as String
         return pathValue
-    }
-
-    private var fh = CustomStringBuilder()
-    private fun formHandler(
-        endpointInstance: String,
-        functionName: String
-    ): String {
-        writeFormHandlerToSb(endpointInstance, functionName)
-        return fh.toString()
-    }
-
-    private fun writeFormHandlerToSb(
-        endpointInstance: String,
-        functionName: String
-    ) = fh.withRelativeIndent(w.) {
-        writeLine("{")
-        writeLine("$endpointInstance.${functionName}()")
-        writeLine("}")
     }
 
     private fun writePackage() = w.withRelativeIndent {
