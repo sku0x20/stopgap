@@ -125,7 +125,7 @@ class InitializersGenerator(
         endpointFunction: KSFunctionDeclaration,
         endpointInstance: String
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", handler@{req, res ->")
+        writeLine(".${functionName}(\"${path(annotation)}\", h@{req, res ->")
         withRelativeIndent(4) {
             writeHandler(endpointFunction, endpointInstance)
         }
@@ -136,7 +136,7 @@ class InitializersGenerator(
         function: KSFunctionDeclaration,
         endpointInstance: String
     ) = w.withRelativeIndent {
-        writeLine("if (serde == null) $endpointInstance.${function.simpleName.asString()}(req, res); return@handler")
+        writeLine("if (serde == null) $endpointInstance.${function.simpleName.asString()}(req, res); return@h")
         writeLine("TODO()")
     }
 
