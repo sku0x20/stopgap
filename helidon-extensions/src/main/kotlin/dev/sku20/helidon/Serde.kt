@@ -1,6 +1,8 @@
 package dev.sku20.helidon
 
+import kotlin.reflect.KClass
+
 interface Serde {
-    fun <T> serialize(obj: T): String
-    fun <T> deserialize(str: String): T
+    fun <T : Any> serialize(obj: T): String
+    fun <T : Any> deserialize(str: String, kClazz: KClass<T>): T
 }
