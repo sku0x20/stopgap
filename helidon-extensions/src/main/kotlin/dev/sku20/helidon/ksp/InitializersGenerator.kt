@@ -86,8 +86,7 @@ class InitializersGenerator(
     ) = w.withRelativeIndent {
         for (function in functions) {
             if (!function.isPublic()) continue
-            val handler = "$endpointInstance::${function.simpleName.asString()}"
-            writeRoute(function.annotations, handler)
+            writeRoute(function, endpointInstance)
         }
     }
 
@@ -100,30 +99,34 @@ class InitializersGenerator(
      *  - hashmap lookup;
      *  - or some kind of indirection, via factory or other techniques.
      */
+    // @formatter:off
     fun writeRoute(
-        annotations: Sequence<KSAnnotation>,
-        handler: String
+        function: KSFunctionDeclaration,
+        endpointInstance: String
     ) {
-        for (annotation in annotations) {
+        val endpointFunctionName = function.simpleName.asString()
+        for (annotation in function.annotations) {
             when (annotation.shortName.asString()) {
-                Get::class.simpleName -> writeViaFunctionName("get", annotation, handler)
-                Post::class.simpleName -> writeViaFunctionName("post", annotation, handler)
-                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, handler)
-                Put::class.simpleName -> writeViaFunctionName("put", annotation, handler)
-                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, handler)
-                Head::class.simpleName -> writeViaFunctionName("head", annotation, handler)
-                Options::class.simpleName -> writeViaFunctionName("options", annotation, handler)
-                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, handler)
+                Get::class.simpleName -> writeViaFunctionName("get", annotation, endpointInstance, endpointFunctionName)
+                Post::class.simpleName -> writeViaFunctionName("post", annotation, endpointInstance, endpointFunctionName)
+                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, endpointInstance, endpointFunctionName)
+                Put::class.simpleName -> writeViaFunctionName("put", annotation, endpointInstance, endpointFunctionName)
+                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, endpointInstance, endpointFunctionName)
+                Head::class.simpleName -> writeViaFunctionName("head", annotation, endpointInstance, endpointFunctionName)
+                Options::class.simpleName -> writeViaFunctionName("options", annotation, endpointInstance, endpointFunctionName)
+                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, endpointInstance, endpointFunctionName)
             }
         }
     }
+    // @formatter:on
 
     fun writeViaFunctionName(
         functionName: String,
         annotation: KSAnnotation,
-        handler: String
+        endpointInstance: String,
+        endpointFunctionName: String
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", ${handler})")
+        writeLine(".${functionName}(\"${path(annotation)}\", ${endpointInstance}::${endpointFunctionName})")
     }
 
     private fun path(annotation: KSAnnotation): String {
