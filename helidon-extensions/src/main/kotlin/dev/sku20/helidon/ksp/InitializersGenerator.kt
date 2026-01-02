@@ -104,17 +104,16 @@ class InitializersGenerator(
         function: KSFunctionDeclaration,
         endpointInstance: String
     ) {
-        val endpointFunctionName = function.simpleName.asString()
         for (annotation in function.annotations) {
             when (annotation.shortName.asString()) {
-                Get::class.simpleName -> writeViaFunctionName("get", annotation, endpointInstance, endpointFunctionName)
-                Post::class.simpleName -> writeViaFunctionName("post", annotation, endpointInstance, endpointFunctionName)
-                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, endpointInstance, endpointFunctionName)
-                Put::class.simpleName -> writeViaFunctionName("put", annotation, endpointInstance, endpointFunctionName)
-                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, endpointInstance, endpointFunctionName)
-                Head::class.simpleName -> writeViaFunctionName("head", annotation, endpointInstance, endpointFunctionName)
-                Options::class.simpleName -> writeViaFunctionName("options", annotation, endpointInstance, endpointFunctionName)
-                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, endpointInstance, endpointFunctionName)
+                Get::class.simpleName -> writeViaFunctionName("get", annotation, function, endpointInstance)
+                Post::class.simpleName -> writeViaFunctionName("post", annotation, function, endpointInstance)
+                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, function, endpointInstance)
+                Put::class.simpleName -> writeViaFunctionName("put", annotation, function, endpointInstance)
+                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, function, endpointInstance)
+                Head::class.simpleName -> writeViaFunctionName("head", annotation, function, endpointInstance)
+                Options::class.simpleName -> writeViaFunctionName("options", annotation, function, endpointInstance)
+                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, function, endpointInstance)
             }
         }
     }
@@ -123,14 +122,22 @@ class InitializersGenerator(
     fun writeViaFunctionName(
         functionName: String,
         annotation: KSAnnotation,
-        endpointInstance: String,
-        endpointFunctionName: String
+        endpointFunction: KSFunctionDeclaration,
+        endpointInstance: String
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", {req, res ->")
+        writeLine(".${functionName}(\"${path(annotation)}\", handler@{req, res ->")
         withRelativeIndent(4) {
-            writeLine("$endpointInstance.$endpointFunctionName(req, res)")
+            writeHandler(endpointFunction, endpointInstance)
         }
         writeLine("})")
+    }
+
+    fun writeHandler(
+        function: KSFunctionDeclaration,
+        endpointInstance: String
+    ) = w.withRelativeIndent {
+        writeLine("if (serde == null) $endpointInstance.${function.simpleName.asString()}(req, res); return@handler")
+        writeLine("TODO()")
     }
 
     private fun path(annotation: KSAnnotation): String {
