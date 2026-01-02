@@ -49,7 +49,8 @@ class InitializersGenerator(
             writeLine("fun registerRoutesFor(")
             withRelativeIndent(4) {
                 writeLine("$endpointInstance: ${endpointQualifiedName},")
-                writeLine("routes: HttpRouting.Builder")
+                writeLine("routes: HttpRouting.Builder,")
+                writeLine("serde: Serde? = null,")
             }
             writeLine("){")
             withRelativeIndent(4) {
@@ -85,9 +86,16 @@ class InitializersGenerator(
     ) = w.withRelativeIndent {
         for (function in functions) {
             if (!function.isPublic()) continue
-            val handler = "$endpointInstance::${function.simpleName.asString()}"
+            val handler = formHandler(endpointInstance, function.simpleName.asString())
             writeRoute(function.annotations, handler)
         }
+    }
+
+    private fun formHandler(
+        endpointInstance: String,
+        functionName: String
+    ): String {
+        return "$endpointInstance::${functionName}"
     }
 
     /**
@@ -138,6 +146,7 @@ class InitializersGenerator(
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
+        writeLine("import dev.sku20.helidon.Serde")
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
