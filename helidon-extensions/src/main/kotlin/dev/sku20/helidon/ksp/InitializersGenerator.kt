@@ -126,7 +126,11 @@ class InitializersGenerator(
         endpointInstance: String,
         endpointFunctionName: String
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", ${endpointInstance}::${endpointFunctionName})")
+        writeLine(".${functionName}(\"${path(annotation)}\", {req, res ->")
+        withRelativeIndent(4) {
+            writeLine("$endpointInstance.$endpointFunctionName(req, res)")
+        }
+        writeLine("})")
     }
 
     private fun path(annotation: KSAnnotation): String {
