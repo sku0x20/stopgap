@@ -137,7 +137,12 @@ class InitializersGenerator(
         endpointInstance: String
     ) = w.withRelativeIndent {
         writeLine("if (serde == null) $endpointInstance.${function.simpleName.asString()}(req, res); return@h")
-        writeLine("TODO()")
+        writeLine("$endpointInstance.${function.simpleName.asString()}(")
+        withRelativeIndent(4) {
+            writeLine("req,")
+            writeLine("res")
+        }
+        writeLine(")")
     }
 
     private fun path(annotation: KSAnnotation): String {
