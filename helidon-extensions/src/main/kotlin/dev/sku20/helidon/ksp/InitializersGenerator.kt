@@ -50,7 +50,6 @@ class InitializersGenerator(
             withRelativeIndent(4) {
                 writeLine("$endpointInstance: ${endpointQualifiedName},")
                 writeLine("routes: HttpRouting.Builder,")
-                writeLine("serde: Serde? = null,")
             }
             writeLine("){")
             withRelativeIndent(4) {
@@ -125,7 +124,7 @@ class InitializersGenerator(
         endpointFunction: KSFunctionDeclaration,
         endpointInstance: String
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", h@{req, res ->")
+        writeLine(".${functionName}(\"${path(annotation)}\", {req, res ->")
         withRelativeIndent(4) {
             writeHandler(endpointFunction, endpointInstance)
         }
@@ -136,7 +135,6 @@ class InitializersGenerator(
         function: KSFunctionDeclaration,
         endpointInstance: String
     ) = w.withRelativeIndent {
-        writeLine("if (serde == null) $endpointInstance.${function.simpleName.asString()}(req, res); return@h")
         writeLine("$endpointInstance.${function.simpleName.asString()}(")
         withRelativeIndent(4) {
             writeLine("req,")
