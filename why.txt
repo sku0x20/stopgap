@@ -1,0 +1,7 @@
+independent version management of the libs. no bom bs like in those frameworks.
+as little magic as possible around tests.
+transparency.
+minimalism, no bundling, a http framework is a http framework not a bussiness framework.
+in this case, just minimal wrapper around the http server library.
+developer always have full control over the server, over the control flow.
+full control in production code and test code.
