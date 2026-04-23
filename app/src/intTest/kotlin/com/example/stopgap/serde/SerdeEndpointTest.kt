@@ -24,6 +24,8 @@ class SerdeEndpointTest {
             .submit(data)
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo(random.toString())
     }
 
     companion object {

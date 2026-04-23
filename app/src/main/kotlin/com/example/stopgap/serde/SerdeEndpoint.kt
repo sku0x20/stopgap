@@ -1,5 +1,6 @@
 package com.example.stopgap.serde
 
+import com.alibaba.fastjson2.to
 import dev.sku20.helidon.endpoint.Endpoint
 import dev.sku20.helidon.endpoint.Post
 import io.helidon.webserver.http.ServerRequest
@@ -13,7 +14,9 @@ class SerdeEndpoint {
         req: ServerRequest,
         res: ServerResponse
     ) {
-        res.send("des")
+        val bytes = req.content().inputStream().readAllBytes()
+        val obj = bytes.to<ReqDto>()
+        res.send(obj.expected)
     }
 
 }
