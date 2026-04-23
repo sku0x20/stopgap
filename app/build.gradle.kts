@@ -16,6 +16,8 @@ dependencies {
     implementation(project(":helidon-extensions"))
     ksp(project(":helidon-extensions"))
 
+    implementation(libs.fastjson2.kotlin)
+
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
 
