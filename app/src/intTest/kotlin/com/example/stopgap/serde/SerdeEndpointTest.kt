@@ -20,7 +20,7 @@ class SerdeEndpointTest {
         val random = Random.nextLong()
         val data = """{"expected": "$random"}"""
 
-        val response = client.post("/serde/des")
+        val response = client.post("/serde/desObj")
             .submit(data)
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)

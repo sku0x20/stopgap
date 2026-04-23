@@ -9,8 +9,8 @@ import io.helidon.webserver.http.ServerResponse
 @Endpoint("/serde")
 class SerdeEndpoint {
 
-    @Post("/des")
-    fun des(
+    @Post("/desObj")
+    fun desObj(
         req: ServerRequest,
         res: ServerResponse
     ) {
