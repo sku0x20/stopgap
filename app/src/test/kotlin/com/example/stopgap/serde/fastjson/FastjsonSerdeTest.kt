@@ -23,7 +23,8 @@ class FastjsonSerdeTest {
     @Test
     fun deserializesGeneric() {
         val bytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
-        val result = serde.deserialize<Wrapper<SamplePayload>>(bytes, typeOf<Wrapper<SamplePayload>>())
+        val type = typeOf<Wrapper<SamplePayload>>()
+        val result = serde.deserialize<Wrapper<SamplePayload>>(bytes, type)
         assertThat(result).isEqualTo(Wrapper(SamplePayload(1, "alice")))
     }
 
