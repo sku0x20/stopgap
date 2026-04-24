@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON
 import dev.sku20.helidon.serde.Serde
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.jvm.javaType
 
 class FastjsonSerde : Serde {
 
@@ -12,7 +13,7 @@ class FastjsonSerde : Serde {
     }
 
     override fun <T> deserialize(bytes: ByteArray, type: KType): T {
-        throw UnsupportedOperationException("FastjsonSerde does not support generic types, use FastjsonSerdeGeneric")
+        return JSON.parseObject(bytes, type.javaType)
     }
 
     override fun <T> serialize(obj: T): ByteArray {
