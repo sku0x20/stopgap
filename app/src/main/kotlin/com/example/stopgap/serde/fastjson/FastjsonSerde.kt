@@ -5,7 +5,6 @@ import dev.sku20.helidon.serde.Serde
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-// only supports non-generic types; faster than generic impl as it avoids one if check.
 class FastjsonSerde : Serde {
 
     override fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T {
