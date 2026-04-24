@@ -1,7 +1,6 @@
 package com.example.stopgap.serde.fastjson
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import kotlin.reflect.typeOf
 
@@ -22,10 +21,10 @@ class FastjsonSerdeTest {
     }
 
     @Test
-    fun failsOnGenericType() {
+    fun deserializesGeneric() {
         val bytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
-        assertThatThrownBy { serde.deserialize<Wrapper<SamplePayload>>(bytes, typeOf<Wrapper<SamplePayload>>()) }
-            .isInstanceOf(UnsupportedOperationException::class.java)
+        val result = serde.deserialize<Wrapper<SamplePayload>>(bytes, typeOf<Wrapper<SamplePayload>>())
+        assertThat(result).isEqualTo(Wrapper(SamplePayload(1, "alice")))
     }
 
     data class SamplePayload(val id: Int, val name: String)
