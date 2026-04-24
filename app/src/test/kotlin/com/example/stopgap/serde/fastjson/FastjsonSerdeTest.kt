@@ -8,6 +8,7 @@ class FastjsonSerdeTest {
     private val serde = FastjsonSerde()
 
     data class SamplePayload(val id: Int, val name: String)
+    data class Wrapper<T>(val data: T)
 
     @Test
     fun serializes() {
@@ -19,5 +20,12 @@ class FastjsonSerdeTest {
     fun deserializes() {
         val bytes = """{"id":1,"name":"alice"}""".toByteArray()
         assertThat(serde.deserialize(bytes, SamplePayload::class)).isEqualTo(SamplePayload(1, "alice"))
+    }
+
+    @Test
+    fun failsOnGenericType() {
+        val bytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
+        val result = serde.deserialize(bytes, Wrapper::class) as Wrapper<SamplePayload>
+        assertThat(result.data).isEqualTo(SamplePayload(1, "alice"))
     }
 }
