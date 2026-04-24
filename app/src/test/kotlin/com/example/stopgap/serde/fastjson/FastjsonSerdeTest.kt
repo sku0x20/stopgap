@@ -7,9 +7,6 @@ class FastjsonSerdeTest {
 
     private val serde = FastjsonSerde()
 
-    data class SamplePayload(val id: Int, val name: String)
-    data class Wrapper<T>(val data: T)
-
     @Test
     fun serializes() {
         val bytes = serde.serialize(SamplePayload(1, "alice"))
@@ -28,4 +25,7 @@ class FastjsonSerdeTest {
         val result = serde.deserialize(bytes, Wrapper::class)
         assertThat(result.data).isNotInstanceOf(SamplePayload::class.java)
     }
+
+    data class SamplePayload(val id: Int, val name: String)
+    data class Wrapper<T>(val data: T)
 }
