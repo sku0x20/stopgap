@@ -156,7 +156,7 @@ class InitializersGenerator(
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
-        writeLine("import dev.sku20.helidon.Serde")
+//        writeLine("import dev.sku20.helidon.serde.Serde")
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
