@@ -1,9 +1,0 @@
-package dev.sku20.helidon.serde
-
-import kotlin.reflect.KType
-
-// KType carries full generic type info (e.g. List<Foo>) unlike KClass which loses type args to erasure.
-interface SerdeGeneric {
-    fun <T> deserialize(bytes: ByteArray, type: KType): T
-    fun <T> serialize(obj: T): ByteArray
-}
