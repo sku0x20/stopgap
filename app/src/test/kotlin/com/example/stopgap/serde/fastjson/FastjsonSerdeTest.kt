@@ -10,16 +10,14 @@ class FastjsonSerdeTest {
     data class SamplePayload(val id: Int, val name: String)
 
     @Test
-    fun serializeNonEmpty() {
-        val bytes = serde.serialize(SamplePayload(1, "test"))
-        assertThat(bytes).isNotEmpty()
+    fun serializes() {
+        val bytes = serde.serialize(SamplePayload(1, "alice"))
+        assertThat(String(bytes)).isEqualTo("""{"id":1,"name":"alice"}""")
     }
 
     @Test
-    fun serializeDeserializeRoundtrip() {
-        val original = SamplePayload(42, "hello")
-        val bytes = serde.serialize(original)
-        val result = serde.deserialize(bytes, SamplePayload::class)
-        assertThat(result).isEqualTo(original)
+    fun deserializes() {
+        val bytes = """{"id":1,"name":"alice"}""".toByteArray()
+        assertThat(serde.deserialize(bytes, SamplePayload::class)).isEqualTo(SamplePayload(1, "alice"))
     }
 }
