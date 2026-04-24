@@ -8,5 +8,5 @@ import kotlin.reflect.KType
 interface Serde {
     fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
-    fun <T : Any> serialize(obj: T): ByteArray
+    fun <T> serialize(obj: T): ByteArray
 }
