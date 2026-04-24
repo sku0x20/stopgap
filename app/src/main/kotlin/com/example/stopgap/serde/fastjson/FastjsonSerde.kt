@@ -12,6 +12,7 @@ class FastjsonSerde : Serde {
         return JSON.parseObject(bytes, kClazz.java)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     override fun <T> deserialize(bytes: ByteArray, type: KType): T {
         return JSON.parseObject(bytes, type.javaType)
     }
