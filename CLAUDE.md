@@ -8,6 +8,10 @@
 
 ## Token Efficiency
 - Skip unnecessary `git diff`, `git log`, `git status` reads unless directly needed.
+- Don't re-read files after writing or editing them.
+- No preamble ("I'll now do X") or trailing summaries — just make the change.
+- Use `Grep`/`Glob` directly for simple searches; avoid spawning subagents unnecessarily.
+- Use `offset`/`limit` when only a section of a file is needed.
 
 ## External Commands
 - Never run heavy external commands (e.g. `./gradlew`). Ask me to run them and share the output.
