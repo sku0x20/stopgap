@@ -28,6 +28,18 @@ class SerdeEndpointTest {
         assertThat(text).isEqualTo(random.toString())
     }
 
+    @Test
+    fun ser() {
+        val random = Random.nextLong()
+        val response = client.get("/serde/serObj")
+            .queryParam("data", random.toString())
+            .request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"$random"}""")
+    }
+
     companion object {
         @JvmStatic
         @WebserverTest.CreateEndpoint
