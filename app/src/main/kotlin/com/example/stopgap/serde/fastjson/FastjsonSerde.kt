@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON
 import dev.sku20.helidon.serde.Serde
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.jvm.javaType
+import kotlin.reflect.javaType
 
 class FastjsonSerde : Serde {
 
