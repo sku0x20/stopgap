@@ -25,7 +25,7 @@ class FastjsonSerdeTest {
     @Test
     fun failsOnGenericType() {
         val bytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
-        val result = serde.deserialize(bytes, Wrapper::class) as Wrapper<*>
+        val result = serde.deserialize(bytes, Wrapper::class)
         assertThat(result.data).isNotInstanceOf(SamplePayload::class.java)
     }
 }
