@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+data class SampleString(val data: String)
+data class SampleWrapper<T>(val data: T)
+data class SampleList(val items: List<String>)
 data class SampleMap(val entries: Map<String, String>)
 data class SampleMapAny(val entries: Map<String, Any>)
 
@@ -82,7 +85,4 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
     }
 
-    data class SampleString(val data: String)
-    data class SampleWrapper<T>(val data: T)
-    data class SampleList(val items: List<String>)
 }
