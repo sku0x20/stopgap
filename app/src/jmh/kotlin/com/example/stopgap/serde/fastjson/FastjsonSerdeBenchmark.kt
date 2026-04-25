@@ -10,7 +10,6 @@ data class SampleString(val data: String)
 data class SampleWrapper<T>(val data: T)
 data class SampleList(val items: List<String>)
 data class SampleMap(val entries: Map<String, String>)
-data class SampleMapAny(val entries: Map<String, Any>)
 
 // Findings:
 // - KClass and KType (cached) perform identically — fastjson2 cache is keyed by Type, and
@@ -35,9 +34,10 @@ open class FastjsonSerdeBenchmark {
     private lateinit var sampleStringBytes: ByteArray
     private lateinit var sampleListBytes: ByteArray
     private lateinit var sampleMapBytes: ByteArray
+    private lateinit var rawMapBytes: ByteArray
     private lateinit var sampleStringKType: KType
     private lateinit var sampleWrapperKType: KType
-    private lateinit var sampleMapAnyKType: KType
+    private lateinit var mapAnyKType: KType
 
     @Setup
     fun setup() {
@@ -45,9 +45,10 @@ open class FastjsonSerdeBenchmark {
         sampleStringBytes = """{"data":"alice"}""".toByteArray()
         sampleListBytes = """{"items":["alice"]}""".toByteArray()
         sampleMapBytes = """{"entries":{"key":"alice"}}""".toByteArray()
+        rawMapBytes = """{"key":"alice"}""".toByteArray()
         sampleStringKType = typeOf<SampleString>()
         sampleWrapperKType = typeOf<SampleWrapper<String>>()
-        sampleMapAnyKType = typeOf<SampleMapAny>()
+        mapAnyKType = typeOf<Map<String, Any>>()
     }
 
     @Benchmark
@@ -82,7 +83,7 @@ open class FastjsonSerdeBenchmark {
 
     @Benchmark
     fun deserializeMapAny(bh: Blackhole) {
-        bh.consume(serde.deserialize<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
+        bh.consume(serde.deserialize<Map<String, Any>>(rawMapBytes, mapAnyKType))
     }
 
 }
