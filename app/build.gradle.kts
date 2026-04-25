@@ -34,6 +34,10 @@ ksp {
     arg("endpoint.codegen.registry.skip", "false")
 }
 
+jmh {
+    includes.add(".*")  // replace with benchmark name to filter, e.g. "deserializeMap"
+}
+
 tasks.register<Copy>("copyLibs") {
     from(configurations.runtimeClasspath)
     into(layout.buildDirectory.dir("libs/libs"))
