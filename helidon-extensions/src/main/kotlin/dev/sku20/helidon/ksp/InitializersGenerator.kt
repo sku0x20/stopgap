@@ -134,14 +134,8 @@ class InitializersGenerator(
     fun writeHandler(
         function: KSFunctionDeclaration,
         endpointInstance: String
-    ) = w.withRelativeIndent {
-        writeLine("$endpointInstance.${function.simpleName.asString()}(")
-        withRelativeIndent(4) {
-            writeLine("req,")
-            writeLine("res")
-        }
-        writeLine(")")
-    }
+    ) = HandlerGenerator(function, endpointInstance, w)
+        .write()
 
     private fun path(annotation: KSAnnotation): String {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
