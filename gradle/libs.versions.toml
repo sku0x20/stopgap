@@ -2,6 +2,7 @@
 jvm = "25"
 kotlin = "2.3.0"
 ksp = "2.3.4"
+jmh-plugin = "0.7.2"
 helidon = "4.3.0"
 junit = "6.0.1"
 assertj = "3.27.3"
@@ -12,6 +13,7 @@ fastjson2 = "2.0.61"
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmh-plugin" }
 
 [libraries]
 helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
