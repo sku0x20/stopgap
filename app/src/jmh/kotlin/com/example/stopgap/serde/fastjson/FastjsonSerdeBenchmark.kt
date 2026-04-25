@@ -16,6 +16,7 @@ open class FastjsonSerdeBenchmark {
 
     private lateinit var serde: FastjsonSerde
     private lateinit var sampleStringBytes: ByteArray
+    private lateinit var sampleListBytes: ByteArray
     private lateinit var sampleStringKType: KType
     private lateinit var sampleWrapperKType: KType
 
@@ -23,6 +24,7 @@ open class FastjsonSerdeBenchmark {
     fun setup() {
         serde = FastjsonSerde()
         sampleStringBytes = """{"data":"alice"}""".toByteArray()
+        sampleListBytes = """{"items":["alice"]}""".toByteArray()
         sampleStringKType = typeOf<SampleString>()
         sampleWrapperKType = typeOf<SampleWrapper<String>>()
     }
@@ -54,6 +56,12 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
     }
 
+    @Benchmark
+    fun deserializeList(bh: Blackhole) {
+        bh.consume(serde.deserialize(sampleListBytes, SampleList::class))
+    }
+
     data class SampleString(val data: String)
     data class SampleWrapper<T>(val data: T)
+    data class SampleList(val items: List<String>)
 }
