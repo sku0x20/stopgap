@@ -8,7 +8,7 @@ import kotlin.reflect.typeOf
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 @Fork(1)
@@ -16,13 +16,17 @@ open class FastjsonSerdeBenchmark {
 
     private lateinit var serde: FastjsonSerde
     private lateinit var bytes: ByteArray
+    private lateinit var wrappedBytes: ByteArray
     private lateinit var samplePayloadKType: KType
+    private lateinit var wrappedKType: KType
 
     @Setup
     fun setup() {
         serde = FastjsonSerde()
         bytes = """{"id":1,"name":"alice"}""".toByteArray()
+        wrappedBytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
         samplePayloadKType = typeOf<SamplePayload>()
+        wrappedKType = typeOf<Wrapper<SamplePayload>>()
     }
 
     @Benchmark
@@ -40,5 +44,11 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SamplePayload>(bytes, typeOf<SamplePayload>()))
     }
 
+    @Benchmark
+    fun deserializeGeneric(bh: Blackhole) {
+        bh.consume(serde.deserialize<Wrapper<SamplePayload>>(wrappedBytes, wrappedKType))
+    }
+
     data class SamplePayload(val id: Int, val name: String)
+    data class Wrapper<T>(val data: T)
 }
