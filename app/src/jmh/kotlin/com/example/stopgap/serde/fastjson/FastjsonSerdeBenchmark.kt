@@ -29,6 +29,9 @@ data class SampleMapAny(val entries: Map<String, Any>)
 //   (2) Any value type — runtime type detection per map entry.
 //   Result: ~5.7k ops/ms, worse than either penalty alone.
 //
+// Bottomline: avoid generics in hot deserialization paths — penalties stack. Prefer concrete
+// types with known fields so fastjson2 can generate optimized ASM readers.
+//
 // TODO: verify all flow paths above — none confirmed by reading fastjson2 source directly.
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
