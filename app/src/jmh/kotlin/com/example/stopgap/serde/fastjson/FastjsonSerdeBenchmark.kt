@@ -35,6 +35,7 @@ open class FastjsonSerdeBenchmark {
     private lateinit var sampleListBytes: ByteArray
     private lateinit var sampleMapBytes: ByteArray
     private lateinit var rawMapBytes: ByteArray
+    private lateinit var wrappedMapAnyBytes: ByteArray
     private lateinit var sampleStringKType: KType
     private lateinit var sampleWrapperKType: KType
     private lateinit var sampleWrapperAnyKType: KType
@@ -47,9 +48,10 @@ open class FastjsonSerdeBenchmark {
         sampleListBytes = """{"items":["alice"]}""".toByteArray()
         sampleMapBytes = """{"entries":{"key":"alice"}}""".toByteArray()
         rawMapBytes = """{"key":"alice"}""".toByteArray()
+        wrappedMapAnyBytes = """{"data":{"key":"alice"}}""".toByteArray()
         sampleStringKType = typeOf<SampleString>()
         sampleWrapperKType = typeOf<SampleWrapper<String>>()
-        sampleWrapperAnyKType = typeOf<SampleWrapper<Any>>()
+        sampleWrapperAnyKType = typeOf<SampleWrapper<Map<String, Any>>>()
         mapAnyKType = typeOf<Map<String, Any>>()
     }
 
@@ -85,7 +87,7 @@ open class FastjsonSerdeBenchmark {
 
     @Benchmark
     fun deserializeGenericAny(bh: Blackhole) {
-        bh.consume(serde.deserialize<SampleWrapper<Any>>(sampleStringBytes, sampleWrapperAnyKType))
+        bh.consume(serde.deserialize<SampleWrapper<Map<String, Any>>>(wrappedMapAnyBytes, sampleWrapperAnyKType))
     }
 
     @Benchmark
