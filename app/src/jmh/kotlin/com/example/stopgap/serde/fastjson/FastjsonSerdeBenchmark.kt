@@ -15,14 +15,21 @@ data class SampleMapAny(val entries: Map<String, Any>)
 // Findings:
 // - KClass and KType (cached) perform identically — fastjson2 cache is keyed by Type, and
 //   for non-generic types javaType returns the same Class object, hitting the same code path.
-// - typeOf() called per iteration costs ~4x vs cached KType — it's the KType creation overhead.
-// - User-defined generic classes (SampleWrapper<T>) are ~7.5x slower than plain classes.
-//   Hypothesis (not verified by human — TODO: verify this flow/explanation is correct):
-//   fastjson2's ASM codegen doesn't monomorphize ParameterizedType — it stores a resolved
-//   ObjectReader<String> in the FieldReader and delegates through it (virtual dispatch) rather
-//   than emitting readString() directly, even though T=String is known at reader creation time.
+//   ~65-70k ops/ms.
+// - typeOf() called per iteration costs ~4x vs cached KType (~17k ops/ms) — KType creation overhead.
+// - User-defined generic classes (SampleWrapper<T>) are ~7.5x slower (~8.5k ops/ms).
+//   Hypothesis: fastjson2's ASM codegen doesn't monomorphize ParameterizedType — it stores a
+//   resolved ObjectReader<String> in the FieldReader and delegates through it (virtual dispatch)
+//   rather than emitting readString() directly, even though T=String is known at reader creation time.
 // - Standard collections (List, Map) bypass this: fastjson2 has dedicated readers
 //   (ObjectReaderImplList, ObjectReaderImplMap) — verified: List ~51k, Map ~40k ops/ms.
+// - Map<String, Any> requires runtime type detection per value — ~10k ops/ms.
+// - Concrete class with a Map<String, Any> field (SampleMapAny) stacks two penalties:
+//   (1) ParameterizedType field reader — virtual dispatch for the entries field itself,
+//   (2) Any value type — runtime type detection per map entry.
+//   Result: ~5.7k ops/ms, worse than either penalty alone.
+//
+// TODO: verify all flow paths above — none confirmed by reading fastjson2 source directly.
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
