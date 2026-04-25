@@ -28,12 +28,6 @@ data class SampleMapAny(val entries: Map<String, Any>)
 //   (1) ParameterizedType field reader — virtual dispatch for the entries field itself,
 //   (2) Any value type — runtime type detection per map entry.
 //   Result: ~5.7k ops/ms, worse than either penalty alone.
-// - User-defined generic class with Map<String, Any> inside (SampleWrapper<Map<String, Any>>)
-//   stacks all three penalties: generic class dispatch + ParameterizedType field + Any value detection.
-//   Expected to be the worst performer.
-//
-// Bottomline: avoid generics in hot deserialization paths. Prefer concrete types with known
-// fields — fastjson2 can generate optimized ASM readers only for those.
 //
 // TODO: verify all flow paths above — none confirmed by reading fastjson2 source directly.
 @State(Scope.Benchmark)
@@ -52,7 +46,7 @@ open class FastjsonSerdeBenchmark {
     private lateinit var sampleAnyMapBytes: ByteArray
     private lateinit var sampleStringKType: KType
     private lateinit var sampleWrapperKType: KType
-    private lateinit var sampleWrapperMapAnyKType: KType
+    private lateinit var sampleWrapperAnyKType: KType
     private lateinit var mapAnyKType: KType
 
     @Setup
@@ -65,7 +59,7 @@ open class FastjsonSerdeBenchmark {
         sampleAnyMapBytes = """{"data":{"key":"alice"}}""".toByteArray()
         sampleStringKType = typeOf<SampleString>()
         sampleWrapperKType = typeOf<SampleWrapper<String>>()
-        sampleWrapperMapAnyKType = typeOf<SampleWrapper<Map<String, Any>>>()
+        sampleWrapperAnyKType = typeOf<SampleWrapper<Map<String, Any>>>()
         mapAnyKType = typeOf<Map<String, Any>>()
     }
 
@@ -100,8 +94,8 @@ open class FastjsonSerdeBenchmark {
     }
 
     @Benchmark
-    fun deserializeGenericMapAny(bh: Blackhole) {
-        bh.consume(serde.deserialize<SampleWrapper<Map<String, Any>>>(sampleAnyMapBytes, sampleWrapperMapAnyKType))
+    fun deserializeSampleMapAny(bh: Blackhole) {
+        bh.consume(serde.deserialize<SampleMapAny>(sampleAnyMapBytes, sampleWrapperAnyKType))
     }
 
     @Benchmark
