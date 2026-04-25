@@ -39,7 +39,7 @@ data class SampleMapAny(val entries: Map<String, Any>)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 @Fork(2)
-open class FastjsonSerdeBenchmark {
+open class FastjsonDeserializeBenchmark {
 
     private lateinit var serde: FastjsonSerde
     private lateinit var sampleStringBytes: ByteArray
