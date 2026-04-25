@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+data class SampleMap(val entries: Map<String, String>)
+data class SampleMapAny(val entries: Map<String, Any>)
+
 // Findings:
 // - KClass and KType (cached) perform identically — fastjson2 cache is keyed by Type, and
 //   for non-generic types javaType returns the same Class object, hitting the same code path.
@@ -31,6 +34,7 @@ open class FastjsonSerdeBenchmark {
     private lateinit var sampleMapBytes: ByteArray
     private lateinit var sampleStringKType: KType
     private lateinit var sampleWrapperKType: KType
+    private lateinit var sampleMapAnyKType: KType
 
     @Setup
     fun setup() {
@@ -40,6 +44,7 @@ open class FastjsonSerdeBenchmark {
         sampleMapBytes = """{"entries":{"key":"alice"}}""".toByteArray()
         sampleStringKType = typeOf<SampleString>()
         sampleWrapperKType = typeOf<SampleWrapper<String>>()
+        sampleMapAnyKType = typeOf<SampleMapAny>()
     }
 
     @Benchmark
@@ -72,8 +77,12 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize(sampleMapBytes, SampleMap::class))
     }
 
+    @Benchmark
+    fun deserializeMapAny(bh: Blackhole) {
+        bh.consume(serde.deserialize<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
+    }
+
     data class SampleString(val data: String)
     data class SampleWrapper<T>(val data: T)
     data class SampleList(val items: List<String>)
-    data class SampleMap(val entries: Map<String, String>)
 }
