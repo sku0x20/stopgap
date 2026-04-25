@@ -9,9 +9,9 @@ import kotlin.reflect.typeOf
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Warmup(iterations = 5, time = 1)
-@Measurement(iterations = 10, time = 1)
-@Fork(1)
+@Warmup(iterations = 10, time = 2)
+@Measurement(iterations = 20, time = 2)
+@Fork(3)
 open class FastjsonSerdeBenchmark {
 
     private lateinit var serde: FastjsonSerde
