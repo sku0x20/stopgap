@@ -12,6 +12,16 @@ data class SampleList(val items: List<String>)
 data class SampleMap(val entries: Map<String, String>)
 data class SampleMapAny(val entries: Map<String, Any>)
 
+// Results (thrpt, ops/ms, 2 forks x 10 iterations x 1s):
+//   deserializeKType         72865  ± 222
+//   deserializeKClass        65704  ± 1003
+//   deserializeList          51523  ± 448
+//   deserializeMap           38996  ± 117
+//   deserializeKTypeInline   17044  ± 354
+//   deserializeGeneric       11303  ± 367
+//   deserializeMapAny         9728  ± 62
+//   deserializeSampleMapAny   5752  ± 38
+//
 // Findings:
 // - KClass and KType (cached) perform identically — fastjson2 cache is keyed by Type, and
 //   for non-generic types javaType returns the same Class object, hitting the same code path.
