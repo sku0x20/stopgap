@@ -17,16 +17,24 @@ open class FastjsonSerdeBenchmark {
     private lateinit var serde: FastjsonSerde
     private lateinit var bytes: ByteArray
     private lateinit var wrappedBytes: ByteArray
+    private lateinit var sampleStringBytes: ByteArray
+    private lateinit var sampleWrappedBytes: ByteArray
     private lateinit var samplePayloadKType: KType
     private lateinit var wrappedKType: KType
+    private lateinit var sampleStringKType: KType
+    private lateinit var sampleWrapperKType: KType
 
     @Setup
     fun setup() {
         serde = FastjsonSerde()
         bytes = """{"id":1,"name":"alice"}""".toByteArray()
         wrappedBytes = """{"data":{"id":1,"name":"alice"}}""".toByteArray()
+        sampleStringBytes = """{"data":"alice"}""".toByteArray()
+        sampleWrappedBytes = """{"data":{"data":"alice"}}""".toByteArray()
         samplePayloadKType = typeOf<SamplePayload>()
         wrappedKType = typeOf<Wrapper<SamplePayload>>()
+        sampleStringKType = typeOf<SampleString>()
+        sampleWrapperKType = typeOf<SampleWrapper<SampleString>>()
     }
 
     @Benchmark
@@ -49,6 +57,19 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<Wrapper<SamplePayload>>(wrappedBytes, wrappedKType))
     }
 
+    // Compensated: equivalent single-field payload for fair KClass vs KType comparison
+    @Benchmark
+    fun deserializeSampleStringKClass(bh: Blackhole) {
+        bh.consume(serde.deserialize(sampleStringBytes, SampleString::class))
+    }
+
+    @Benchmark
+    fun deserializeSampleWrapperKType(bh: Blackhole) {
+        bh.consume(serde.deserialize<SampleWrapper<SampleString>>(sampleWrappedBytes, sampleWrapperKType))
+    }
+
     data class SamplePayload(val id: Int, val name: String)
     data class Wrapper<T>(val data: T)
+    data class SampleString(val data: String)
+    data class SampleWrapper<T>(val data: T)
 }
