@@ -6,6 +6,17 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+// Findings:
+// - KClass and KType (cached) perform identically — fastjson2 cache is keyed by Type, and
+//   for non-generic types javaType returns the same Class object, hitting the same code path.
+// - typeOf() called per iteration costs ~4x vs cached KType — it's the KType creation overhead.
+// - User-defined generic classes (SampleWrapper<T>) are ~7.5x slower than plain classes.
+//   Hypothesis (not verified by human — TODO: verify this flow/explanation is correct):
+//   fastjson2's ASM codegen doesn't monomorphize ParameterizedType — it stores a resolved
+//   ObjectReader<String> in the FieldReader and delegates through it (virtual dispatch) rather
+//   than emitting readString() directly, even though T=String is known at reader creation time.
+// - Standard collections (List, Map) bypass this: fastjson2 has dedicated readers
+//   (ObjectReaderImplList, ObjectReaderImplMap) — verified: List ~51k, Map ~40k ops/ms.
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -46,16 +57,6 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SampleString>(sampleStringBytes, typeOf<SampleString>()))
     }
 
-    // ~7.5x slower than KClass/KType despite cache being hot.
-    // Hypothesis (not verified by human — TODO: verify this flow/explanation is correct):
-    // fastjson2's ASM codegen for ParameterizedType doesn't specialize field readers per concrete
-    // type argument. Instead it stores a resolved ObjectReader<String> in the FieldReader and
-    // delegates through it (virtual dispatch) rather than emitting readString() directly.
-    // It could monomorphize — T=String is known at reader creation time — but it doesn't.
-    // The extra virtual dispatch per field, being less JIT-friendly, accounts for the throughput gap.
-    // Note: this slow path applies to user-defined generic classes only. Standard collections
-    // have dedicated readers in fastjson2 (ObjectReaderImplList, ObjectReaderImplMap) and bypass it —
-    // verified: deserializeList ~51k ops/ms, deserializeMap ~40k ops/ms, vs ~8.5k here.
     @Benchmark
     fun deserializeGeneric(bh: Blackhole) {
         bh.consume(serde.deserialize<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
