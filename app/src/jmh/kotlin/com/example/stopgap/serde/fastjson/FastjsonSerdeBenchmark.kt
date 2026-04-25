@@ -9,9 +9,9 @@ import kotlin.reflect.typeOf
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Warmup(iterations = 10, time = 2)
-@Measurement(iterations = 20, time = 2)
-@Fork(3)
+@Warmup(iterations = 5, time = 2)
+@Measurement(iterations = 10, time = 2)
+@Fork(2)
 open class FastjsonSerdeBenchmark {
 
     private lateinit var serde: FastjsonSerde
@@ -42,6 +42,13 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SampleString>(sampleStringBytes, typeOf<SampleString>()))
     }
 
+    // ~7.5x slower than KClass/KType despite cache being hot.
+    // Hypothesis (not verified by human — TODO: verify this flow/explanation is correct):
+    // fastjson2's ASM codegen for ParameterizedType doesn't specialize field readers per concrete
+    // type argument. Instead it stores a resolved ObjectReader<String> in the FieldReader and
+    // delegates through it (virtual dispatch) rather than emitting readString() directly.
+    // It could monomorphize — T=String is known at reader creation time — but it doesn't.
+    // The extra virtual dispatch per field, being less JIT-friendly, accounts for the throughput gap.
     @Benchmark
     fun deserializeGeneric(bh: Blackhole) {
         bh.consume(serde.deserialize<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
