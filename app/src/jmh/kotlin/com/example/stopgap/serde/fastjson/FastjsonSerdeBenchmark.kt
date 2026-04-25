@@ -54,8 +54,8 @@ open class FastjsonSerdeBenchmark {
     // It could monomorphize — T=String is known at reader creation time — but it doesn't.
     // The extra virtual dispatch per field, being less JIT-friendly, accounts for the throughput gap.
     // Note: this slow path applies to user-defined generic classes only. Standard collections
-    // (List, Map) have dedicated readers in fastjson2 (e.g. ObjectReaderImplList) and bypass it —
-    // verified by deserializeList benchmark which runs at ~51k ops/ms, not ~8.5k.
+    // have dedicated readers in fastjson2 (ObjectReaderImplList, ObjectReaderImplMap) and bypass it —
+    // verified: deserializeList ~51k ops/ms, deserializeMap ~40k ops/ms, vs ~8.5k here.
     @Benchmark
     fun deserializeGeneric(bh: Blackhole) {
         bh.consume(serde.deserialize<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
