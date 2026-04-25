@@ -12,10 +12,20 @@ class HandlerGenerator(
     fun write() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
         if (isUnit(returnType)) writeUnitResp()
+        else writeResp()
     }
 
     fun writeUnitResp() = w.withRelativeIndent {
         writeLine("$endpointInstance.${function.simpleName.asString()}(")
+        withRelativeIndent(4) {
+            writeLine("req,")
+            writeLine("res")
+        }
+        writeLine(")")
+    }
+
+    fun writeResp() = w.withRelativeIndent {
+        writeLine("val resp = $endpointInstance.${function.simpleName.asString()}(")
         withRelativeIndent(4) {
             writeLine("req,")
             writeLine("res")
