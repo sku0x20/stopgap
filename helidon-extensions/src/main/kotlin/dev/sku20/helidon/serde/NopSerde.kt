@@ -3,7 +3,7 @@ package dev.sku20.helidon.serde
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class NopSerde : Serde {
+object NopSerde : Serde {
     override fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T {
         throw UnsupportedOperationException("NopSerde does not support deserialization")
     }
