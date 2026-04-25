@@ -35,5 +35,10 @@ open class FastjsonSerdeBenchmark {
         bh.consume(serde.deserialize<SamplePayload>(bytes, samplePayloadKType))
     }
 
+    @Benchmark
+    fun deserializeKTypeInline(bh: Blackhole) {
+        bh.consume(serde.deserialize<SamplePayload>(bytes, typeOf<SamplePayload>()))
+    }
+
     data class SamplePayload(val id: Int, val name: String)
 }
