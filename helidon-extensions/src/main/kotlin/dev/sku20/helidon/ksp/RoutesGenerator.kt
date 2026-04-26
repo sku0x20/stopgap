@@ -35,22 +35,24 @@ class RoutesGenerator(
         writeLine("){")
     }
 
+    private val rulesField = "rules"
+
     private fun writeFunctionBody() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
-        writeLine("$routesField.register(\"${endpointPath}\", { rules ->")
+        writeLine("$routesField.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
-            writeLine("rules")
-            withRelativeIndent(4) {
-                writeRulesFromFunctions()
-            }
+            writeRules()
         }
         writeLine("})")
     }
 
-    private fun writeRulesFromFunctions() = w.withRelativeIndent {
-        for (function in endpointClazz.getDeclaredFunctions()) {
-            if (!function.isPublic()) continue
-            writeRoute(function)
+    private fun writeRules() = w.withRelativeIndent {
+        writeLine(rulesField)
+        withRelativeIndent(4) {
+            for (function in endpointClazz.getDeclaredFunctions()) {
+                if (!function.isPublic()) continue
+                writeRoute(function)
+            }
         }
     }
 
