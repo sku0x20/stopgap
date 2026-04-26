@@ -1,11 +1,8 @@
 package dev.sku20.helidon.ksp
 
-import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.helidon.endpoint.*
+import dev.sku20.helidon.endpoint.Endpoint
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -13,16 +10,17 @@ class RoutesGenerator(
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
 
+    private val endpoint = "endpoint"
+    private val routes = "routes"
+    private val defaultSerde = "serde"
+
     fun write() = w.withRelativeIndent {
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            writeFunctionBody()
+            RoutesBodyGenerator(endpointClazz, endpointAnnotation, endpoint, routes, defaultSerde, w).write()
         }
         writeLine("}")
     }
-
-    private val endpoint = "endpoint"
-    private val routes = "routes"
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
@@ -33,77 +31,6 @@ class RoutesGenerator(
             writeLine("$defaultSerde: Serde = NopSerde,")
         }
         writeLine("){")
-    }
-
-    private val rulesField = "rules"
-
-    private fun writeFunctionBody() = w.withRelativeIndent {
-        val endpointPath = pathValue(endpointAnnotation)
-        writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
-        withRelativeIndent(4) {
-            writeRulesLambda()
-        }
-        writeLine("})")
-    }
-
-    private fun writeRulesLambda() = w.withRelativeIndent {
-        writeLine(rulesField)
-        withRelativeIndent(4) {
-            for (function in endpointClazz.getDeclaredFunctions()) {
-                if (!function.isPublic()) continue
-                writeRule(function)
-            }
-        }
-    }
-
-    private val reqField = "req"
-    private val resField = "res"
-    private val defaultSerde = "serde"
-
-    private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
-        val (methodFn, path) = httpMethodFor(function)
-        writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
-        withRelativeIndent(4) {
-            RuleLambdaGenerator(function, endpoint, reqField, resField, defaultSerde, w).write()
-        }
-        writeLine("})")
-    }
-
-    private fun httpMethodFor(function: KSFunctionDeclaration): Pair<String, String> {
-        for (annotation in function.annotations) {
-            val methodFn = httpMethodFnName(annotation) ?: continue
-            return Pair(methodFn, pathValue(annotation))
-        }
-        throw IllegalArgumentException("No Http Method annotation found on function: ${function.simpleName.asString()}")
-    }
-
-    /**
-     * fine with switch here.
-     * - internal impl; decoupled from client annotations
-     * - flexible; enable easy change later if required
-     * - mapping needs to be somewhere, either
-     *  - raw switch;
-     *  - hashmap lookup;
-     *  - or some kind of indirection, via factory or other techniques.
-     */
-    private fun httpMethodFnName(
-        annotation: KSAnnotation
-    ) = when (annotation.shortName.asString()) {
-        Get::class.simpleName -> "get"
-        Post::class.simpleName -> "post"
-        Delete::class.simpleName -> "delete"
-        Put::class.simpleName -> "put"
-        Patch::class.simpleName -> "patch"
-        Head::class.simpleName -> "head"
-        Options::class.simpleName -> "options"
-        Trace::class.simpleName -> "trace"
-        else -> null
-    }
-
-    private fun pathValue(annotation: KSAnnotation): String {
-        val path = annotation.arguments.first { it.name?.getShortName() == "path" }
-        val pathValue = path.value as String
-        return pathValue
     }
 
     private fun findEndpointAnnotationOnClazz(): KSAnnotation =
