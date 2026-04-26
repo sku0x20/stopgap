@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSType
 
 class RuleLambdaGenerator(
     private val function: KSFunctionDeclaration,
-    private val endpointInstance: String,
+    private val endpoint: String,
     private val w: CustomWriter
 ) {
 
@@ -15,8 +15,8 @@ class RuleLambdaGenerator(
         else writeResp()
     }
 
-    fun writeUnitResp() = w.withRelativeIndent {
-        writeLine("$endpointInstance.${function.simpleName.asString()}(")
+    private fun writeUnitResp() = w.withRelativeIndent {
+        writeLine("$endpoint.${function.simpleName.asString()}(")
         withRelativeIndent(4) {
             writeLine("req,")
             writeLine("res")
@@ -24,8 +24,8 @@ class RuleLambdaGenerator(
         writeLine(")")
     }
 
-    fun writeResp() = w.withRelativeIndent {
-        writeLine("val resp = $endpointInstance.${function.simpleName.asString()}(")
+    private fun writeResp() = w.withRelativeIndent {
+        writeLine("val resp = $endpoint.${function.simpleName.asString()}(")
         withRelativeIndent(4) {
             writeLine("req,")
             writeLine("res")
