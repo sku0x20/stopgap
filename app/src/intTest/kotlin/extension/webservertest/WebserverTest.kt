@@ -18,6 +18,7 @@ annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class CleanupEndpoint
+    // Use Cleanup to cleanup mocks/release test-specific resources.
+    annotation class Cleanup
 
 }
