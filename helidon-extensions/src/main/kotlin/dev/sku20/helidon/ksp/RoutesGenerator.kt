@@ -60,7 +60,7 @@ class RoutesGenerator(
     private val resField = "res"
 
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
-        val (methodFn, path) = findHttpMethod(function)
+        val (methodFn, path) = httpMethodFor(function)
         writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
         withRelativeIndent(4) {
             RuleLambdaGenerator(function, endpoint, w).write()
@@ -68,7 +68,7 @@ class RoutesGenerator(
         writeLine("})")
     }
 
-    private fun findHttpMethod(function: KSFunctionDeclaration): Pair<String, String> {
+    private fun httpMethodFor(function: KSFunctionDeclaration): Pair<String, String> {
         for (annotation in function.annotations) {
             val methodFn = httpMethodFnName(annotation) ?: continue
             return Pair(methodFn, pathValue(annotation))
