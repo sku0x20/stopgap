@@ -56,13 +56,19 @@ class RoutesGenerator(
         }
     }
 
+    private val reqField = "req"
+    private val resField = "res"
+
     private fun writeRoute(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (annotation in function.annotations) {
             val methodFn = httpMethodFnName(annotation) ?: continue
-            writeLine(".${methodFn}(\"${pathValue(annotation)}\", {req, res ->")
+            writeLine(".${methodFn}(\"${pathValue(annotation)}\", {$reqField, $resField ->")
             withRelativeIndent(4) {
-                HandlerGenerator(function, endpointField, w)
-                    .write()
+                HandlerGenerator(
+                    function,
+                    endpointField,
+                    w
+                ).write()
             }
             writeLine("})")
             return@withRelativeIndent
