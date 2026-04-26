@@ -50,6 +50,7 @@ class InitializersGenerator(
             withRelativeIndent(4) {
                 writeLine("$endpointInstance: ${endpointQualifiedName},")
                 writeLine("routes: HttpRouting.Builder,")
+                writeLine("serde: Serde = NopSerde,")
             }
             writeLine("){")
             withRelativeIndent(4) {
@@ -150,7 +151,8 @@ class InitializersGenerator(
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
-//        writeLine("import dev.sku20.helidon.serde.Serde")
+        writeLine("import dev.sku20.helidon.serde.NopSerde")
+        writeLine("import dev.sku20.helidon.serde.Serde")
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()

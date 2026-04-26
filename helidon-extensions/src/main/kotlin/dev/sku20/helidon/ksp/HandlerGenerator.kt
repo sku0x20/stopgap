@@ -31,6 +31,7 @@ class HandlerGenerator(
             writeLine("res")
         }
         writeLine(")")
+        writeLine("res.send(serde.serialize(resp))")
     }
 
     private fun isUnit(type: KSType): Boolean =

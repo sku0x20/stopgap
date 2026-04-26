@@ -1,7 +1,6 @@
 package com.example.stopgap.serde
 
 import com.alibaba.fastjson2.to
-import com.alibaba.fastjson2.toJSONByteArray
 import dev.sku20.helidon.endpoint.Endpoint
 import dev.sku20.helidon.endpoint.Get
 import dev.sku20.helidon.endpoint.Post
@@ -27,13 +26,13 @@ class SerdeEndpoint {
     fun serObj(
         req: ServerRequest,
         res: ServerResponse
-    ) {
+    ): ResDto {
         val query = req.query()
         val data = query.get("data")
 
-        val obj = ResDto(data)
         res.header(HeaderNames.CONTENT_TYPE, HttpMediaTypes.JSON_UTF_8.text())
-        res.send(obj.toJSONByteArray())
+
+        return ResDto(data)
     }
 
 }

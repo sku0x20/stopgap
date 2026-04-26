@@ -1,5 +1,7 @@
 package extension.webservertest
 
+import dev.sku20.helidon.serde.NopSerde
+import dev.sku20.helidon.serde.Serde
 import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
@@ -117,9 +119,10 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val method = clazz.getDeclaredMethod(
             "registerRoutesFor",
             endpointClazz,
-            HttpRouting.Builder::class.java
+            HttpRouting.Builder::class.java,
+            Serde::class.java
         )
-        method.invoke(null, endpoint, routes)
+        method.invoke(null, endpoint, routes, NopSerde)
         serverBuilder.routing(routes)
 
         findStaticMethod(
