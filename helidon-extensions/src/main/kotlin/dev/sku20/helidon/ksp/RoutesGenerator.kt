@@ -6,7 +6,6 @@ import dev.sku20.helidon.endpoint.Endpoint
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
-    private val w: CustomWriter
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
 
@@ -14,8 +13,8 @@ class RoutesGenerator(
     private val routes = "routes"
     private val defaultSerde = "serde"
 
-    fun write() = w.withRelativeIndent {
-        writeFunctionDefinition()
+    fun write(w: CustomWriter) = w.withRelativeIndent {
+        writeFunctionDefinition(w)
         withRelativeIndent(4) {
             RoutesBodyGenerator(
                 endpointClazz,
@@ -23,13 +22,12 @@ class RoutesGenerator(
                 endpoint,
                 routes,
                 defaultSerde,
-                w
-            ).write()
+            ).write(w)
         }
         writeLine("}")
     }
 
-    private fun writeFunctionDefinition() = w.withRelativeIndent {
+    private fun writeFunctionDefinition(w: CustomWriter) = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {

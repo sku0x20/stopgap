@@ -13,36 +13,35 @@ class RoutesBodyGenerator(
     private val endpoint: String,
     private val routes: String,
     private val defaultSerde: String,
-    private val w: CustomWriter
 ) {
     private val rulesField = "rules"
     private val reqField = "req"
     private val resField = "res"
 
-    fun write() = w.withRelativeIndent {
+    fun write(w: CustomWriter) = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
-            writeRulesLambda()
+            writeRulesLambda(w)
         }
         writeLine("})")
     }
 
-    private fun writeRulesLambda() = w.withRelativeIndent {
+    private fun writeRulesLambda(w: CustomWriter) = w.withRelativeIndent {
         writeLine(rulesField)
         withRelativeIndent(4) {
             for (function in endpointClazz.getDeclaredFunctions()) {
                 if (!function.isPublic()) continue
-                writeRule(function)
+                writeRule(function, w)
             }
         }
     }
 
-    private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
+    private fun writeRule(function: KSFunctionDeclaration, w: CustomWriter) = w.withRelativeIndent {
         val (methodFn, path) = httpMethodFor(function)
         writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
         withRelativeIndent(4) {
-            RuleLambdaGenerator(function, endpoint, reqField, resField, defaultSerde, w).write()
+            RuleLambdaGenerator(function, endpoint, reqField, resField, defaultSerde).write(w)
         }
         writeLine("})")
     }
