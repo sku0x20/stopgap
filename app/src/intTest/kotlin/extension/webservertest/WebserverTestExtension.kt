@@ -38,7 +38,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         private const val USER_INSTANCES_ID = "user.instances"
         private const val ENDPOINT_INSTANCE_ID = "endpoint.instance"
-        private const val ENDPOINT_CLAZZ_ID = "endpoint.clazz"
         private const val SERDE_INSTANCE_ID = "serde.instance"
     }
 
@@ -88,7 +87,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
         store.put(USER_INSTANCES_ID, instances)
         store.put(ENDPOINT_INSTANCE_ID, setup.endpoint)
-        store.put(ENDPOINT_CLAZZ_ID, setup.endpoint::class.java)
         store.put(SERDE_INSTANCE_ID, setup.serde)
     }
 
@@ -115,8 +113,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
-        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
         val endpoint = store.get(ENDPOINT_INSTANCE_ID)
+        val endpointClazz = endpoint::class.java
         val serde = store.get(SERDE_INSTANCE_ID) as Serde
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
