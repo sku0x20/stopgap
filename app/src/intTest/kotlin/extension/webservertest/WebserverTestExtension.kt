@@ -23,6 +23,7 @@ import java.lang.reflect.Method
  * Via [WebserverTest.CreateEndpoint] and [WebserverTest.Cleanup] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
  * Use [WebserverTest.Cleanup] to cleanup mocks/release test-specific resources.
+ * The endpoint is also available in instances, so it can be retrieved from there if needed.
  */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
