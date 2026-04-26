@@ -1,6 +1,7 @@
 package dev.sku20.helidon.ksp
 
 import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -34,6 +35,7 @@ class RoutesBodyGenerator(
         writeLine(rulesField)
         withRelativeIndent(4) {
             for (function in endpointClazz.getDeclaredFunctions()) {
+                if (function.isConstructor()) continue
                 if (!function.isPublic()) continue
                 writeRule(function)
             }

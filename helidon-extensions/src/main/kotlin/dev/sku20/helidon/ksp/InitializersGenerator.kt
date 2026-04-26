@@ -37,8 +37,8 @@ class InitializersGenerator(
 
     private fun writeRegisterRoutesFor() = w.withRelativeIndent {
         for (endpointClazz in endpointClazzez) {
-            RoutesGenerator(endpointClazz, w)
-                .write()
+            RoutesGenerator(endpointClazz)
+                .write(w)
         }
     }
 
