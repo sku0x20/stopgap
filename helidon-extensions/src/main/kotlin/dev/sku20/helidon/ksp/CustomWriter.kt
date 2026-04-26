@@ -1,11 +1,16 @@
 package dev.sku20.helidon.ksp
 
+import java.io.InputStream
 import java.io.OutputStream
 
 class CustomWriter(
     output: OutputStream
 ) {
     private val writer = output.bufferedWriter()
+
+    fun write(input: InputStream) {
+        input.bufferedReader().forEachLine { writeLine(it) }
+    }
 
     fun close() {
         writer.close()
