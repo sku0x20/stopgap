@@ -69,7 +69,7 @@ class RoutesGenerator(
      *  - or some kind of indirection, via factory or other techniques.
      */
     // @formatter:off
-    fun getRouteName(annotation: KSAnnotation): String? = when (annotation.shortName.asString()) {
+    private fun getRouteName(annotation: KSAnnotation): String? = when (annotation.shortName.asString()) {
         Get::class.simpleName -> "get"
         Post::class.simpleName -> "post"
         Delete::class.simpleName -> "delete"
