@@ -16,6 +16,14 @@ class RoutesGenerator(
     fun write() = w.withRelativeIndent {
         val endpointAnnotation =
             endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+        writeFunctionDefinition()
+        withRelativeIndent(4) {
+            writeFunctionBody(path(endpointAnnotation))
+        }
+        writeLine("}")
+    }
+
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
@@ -24,14 +32,10 @@ class RoutesGenerator(
             writeLine("serde: Serde = NopSerde,")
         }
         writeLine("){")
-        withRelativeIndent(4) {
-            registerEndpoint(path(endpointAnnotation))
-        }
-        writeLine("}")
     }
 
     @Suppress("SameParameterValue")
-    private fun registerEndpoint(endpointPath: String) = w.withRelativeIndent {
+    private fun writeFunctionBody(endpointPath: String) = w.withRelativeIndent {
         writeLine("routes.register(\"${endpointPath}\", { rules ->")
         withRelativeIndent(4) {
             writeLine("rules")
