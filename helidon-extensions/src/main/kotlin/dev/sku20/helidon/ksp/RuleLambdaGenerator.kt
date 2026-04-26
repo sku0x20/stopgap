@@ -11,6 +11,8 @@ class RuleLambdaGenerator(
     private val w: CustomWriter
 ) {
 
+    private val functionName = functionName
+
     fun write() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
         if (isUnit(returnType)) writeUnitResp()
@@ -18,7 +20,7 @@ class RuleLambdaGenerator(
     }
 
     private fun writeUnitResp() = w.withRelativeIndent {
-        writeLine("$endpoint.${function.simpleName.asString()}(")
+        writeLine("$endpoint.${functionName}(")
         withRelativeIndent(4) {
             writeLine("$req,")
             writeLine(res)
@@ -27,7 +29,7 @@ class RuleLambdaGenerator(
     }
 
     private fun writeResp() = w.withRelativeIndent {
-        writeLine("val resp = $endpoint.${function.simpleName.asString()}(")
+        writeLine("val resp = $endpoint.${functionName}(")
         withRelativeIndent(4) {
             writeLine("$req,")
             writeLine(res)
