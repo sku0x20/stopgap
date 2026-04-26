@@ -5,12 +5,13 @@ import java.io.OutputStream
 
 
 class CustomWriter(
-    output: OutputStream
+    private val output: OutputStream
 ) {
     private val writer = output.bufferedWriter()
 
     fun write(input: InputStream) {
-        input.reader().copyTo(writer)
+        writer.flush()
+        input.transferTo(output)
     }
 
     fun close() {
