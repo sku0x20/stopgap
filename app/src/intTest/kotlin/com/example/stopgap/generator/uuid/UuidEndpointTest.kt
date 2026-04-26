@@ -49,7 +49,7 @@ class UuidEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.CreateEndpoint
+        @WebserverTest.Setup
         fun createEndpoint(instances: MutableMap<Class<*>, Any>): UuidEndpoint {
             val uuidGen = UuidGen()
             instances[UuidGen::class.java] = uuidGen

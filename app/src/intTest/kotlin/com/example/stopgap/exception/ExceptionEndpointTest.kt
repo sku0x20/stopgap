@@ -29,7 +29,7 @@ class ExceptionEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.CreateEndpoint
+        @WebserverTest.Setup
         fun createEndpoint(extras: MutableMap<Class<*>, Any>): ExceptionEndpoint {
             return ExceptionEndpoint()
         }

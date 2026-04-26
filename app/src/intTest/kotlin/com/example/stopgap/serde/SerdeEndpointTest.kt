@@ -42,7 +42,7 @@ class SerdeEndpointTest {
 
     companion object {
         @JvmStatic
-        @WebserverTest.CreateEndpoint
+        @WebserverTest.Setup
         fun createEndpoint(extras: MutableMap<Class<*>, Any>): SerdeEndpoint {
             return SerdeEndpoint()
         }
