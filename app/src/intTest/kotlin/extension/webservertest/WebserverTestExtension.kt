@@ -44,7 +44,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
-        createEndpoint(testClass, store)
+        setup(testClass, store)
         startServer(testClass, store)
     }
 
@@ -75,7 +75,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         cleanup(testClass, store)
     }
 
-    private fun createEndpoint(
+    private fun setup(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
