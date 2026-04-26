@@ -91,13 +91,11 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
         val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
-        val endpoint = instances[endpointClazz]
         findStaticMethod(
             testClass,
             WebserverTest.Cleanup::class.java
-        )?.invoke(null, endpoint, instances)
+        )?.invoke(null, instances)
     }
 
     @Suppress("UNCHECKED_CAST")
