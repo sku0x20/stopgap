@@ -58,15 +58,16 @@ class RoutesGenerator(
 
     private fun writeRoute(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (annotation in function.annotations) {
-            val routeName = routeName(annotation) ?: continue
-            writeLine(".${routeName}(\"${pathValue(annotation)}\", {req, res ->")
+            val methodFn = httpMethodFnName(annotation) ?: continue
+            writeLine(".${methodFn}(\"${pathValue(annotation)}\", {req, res ->")
             withRelativeIndent(4) {
-                writeHandler(function)
+                HandlerGenerator(function, endpointField, w)
+                    .write()
             }
             writeLine("})")
             return@withRelativeIndent
         }
-        throw IllegalArgumentException("No route annotation found on function: ${function.simpleName.asString()}")
+        throw IllegalArgumentException("No Http Method annotation found on function: ${function.simpleName.asString()}")
     }
 
     /**
@@ -78,7 +79,7 @@ class RoutesGenerator(
      *  - hashmap lookup;
      *  - or some kind of indirection, via factory or other techniques.
      */
-    private fun routeName(
+    private fun httpMethodFnName(
         annotation: KSAnnotation
     ) = when (annotation.shortName.asString()) {
         Get::class.simpleName -> "get"
@@ -91,10 +92,6 @@ class RoutesGenerator(
         Trace::class.simpleName -> "trace"
         else -> null
     }
-
-    private fun writeHandler(function: KSFunctionDeclaration) =
-        HandlerGenerator(function, endpointField, w)
-            .write()
 
     private fun pathValue(annotation: KSAnnotation): String {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
