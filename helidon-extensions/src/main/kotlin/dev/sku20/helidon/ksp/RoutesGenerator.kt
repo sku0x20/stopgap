@@ -15,21 +15,19 @@ class RoutesGenerator(
 
     private lateinit var w: CustomWriter
 
-    fun write(w: CustomWriter) {
-        this.w = w
-        w.withRelativeIndent {
-            writeFunctionDefinition()
-            withRelativeIndent(4) {
-                RoutesBodyGenerator(
-                    endpointClazz,
-                    endpointAnnotation,
-                    endpoint,
-                    routes,
-                    defaultSerde,
-                ).write(w)
-            }
-            writeLine("}")
+    fun write(w: CustomWriter) = w.withRelativeIndent {
+        this@RoutesGenerator.w = w
+        writeFunctionDefinition()
+        withRelativeIndent(4) {
+            RoutesBodyGenerator(
+                endpointClazz,
+                endpointAnnotation,
+                endpoint,
+                routes,
+                defaultSerde,
+            ).write(w)
         }
+        writeLine("}")
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {

@@ -15,13 +15,11 @@ class RuleLambdaGenerator(
 
     private lateinit var w: CustomWriter
 
-    fun write(w: CustomWriter) {
-        this.w = w
-        w.withRelativeIndent {
-            val returnType = function.returnType!!.resolve()
-            if (isUnit(returnType)) writeUnitResp()
-            else writeResp()
-        }
+    fun write(w: CustomWriter) = w.withRelativeIndent {
+        this@RuleLambdaGenerator.w = w
+        val returnType = function.returnType!!.resolve()
+        if (isUnit(returnType)) writeUnitResp()
+        else writeResp()
     }
 
     private fun writeUnitResp() = w.withRelativeIndent {
