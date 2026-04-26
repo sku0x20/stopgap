@@ -22,7 +22,7 @@ import java.lang.reflect.Method
  * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
  * Via [WebserverTest.CreateEndpoint] and [WebserverTest.Cleanup] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
- * Instances are opaque to the extension — it only puts the endpoint in instances and passes them through.
+ * Instances are opaque to the extension — it only passes them through.
  * Use [WebserverTest.Cleanup] to cleanup mocks/release test-specific resources.
  * If anything needs lifecycle management, e.g. endpoint/serde, add it to instances in [WebserverTest.CreateEndpoint]
  * and retrieve it in [WebserverTest.Cleanup].
@@ -37,6 +37,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
 
         private const val USER_INSTANCES_ID = "user.instances"
+        private const val ENDPOINT_INSTANCE_ID = "endpoint.instance"
         private const val ENDPOINT_CLAZZ_ID = "endpoint.clazz"
     }
 
@@ -84,8 +85,8 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             WebserverTest.CreateEndpoint::class.java
         )?.invoke(null, instances)
             ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
-        instances[endpoint::class.java] = endpoint
         store.put(USER_INSTANCES_ID, instances)
+        store.put(ENDPOINT_INSTANCE_ID, endpoint)
         store.put(ENDPOINT_CLAZZ_ID, endpoint::class.java)
     }
 
@@ -113,8 +114,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .host("localhost")
 
         val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
-        val endpoint = instances[endpointClazz]
+        val endpoint = store.get(ENDPOINT_INSTANCE_ID)
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val routes = HttpRouting.builder()
