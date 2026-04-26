@@ -14,6 +14,9 @@
 - Use `Grep`/`Glob` directly for simple searches; avoid spawning subagents unnecessarily.
 - Use `offset`/`limit` when only a section of a file is needed.
 
+## Tests
+- Name test functions in camelCase, no backtick-quoted strings or spaces. Keep them short and crisp (e.g. `serializeNonEmpty` not `"serialize produces non-empty bytes"`).
+
 ## External Commands
 - Never run heavy external commands (e.g. `./gradlew`). Ask me to run them and share the output.
 
