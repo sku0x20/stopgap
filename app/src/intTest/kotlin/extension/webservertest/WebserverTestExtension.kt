@@ -22,6 +22,7 @@ import java.lang.reflect.Method
  * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
  * Via [WebserverTest.CreateEndpoint] and [WebserverTest.Cleanup] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
+ * Instances are opaque to the extension — it only puts the endpoint in instances and passes them through.
  * Use [WebserverTest.Cleanup] to cleanup mocks/release test-specific resources.
  * If anything needs lifecycle management, e.g. endpoint/serde, add it to instances in [WebserverTest.CreateEndpoint]
  * and retrieve it in [WebserverTest.Cleanup].
