@@ -11,11 +11,12 @@ class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val w: CustomWriter
 ) {
+    private val endpointInstance = "endpoint"
+
     fun write() = w.withRelativeIndent {
         val endpointAnnotation =
             endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
-        val endpointInstance = "endpoint"
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
             writeLine("$endpointInstance: ${endpointQualifiedName},")
@@ -24,38 +25,27 @@ class RoutesGenerator(
         }
         writeLine("){")
         withRelativeIndent(4) {
-            registerEndpoint(
-                path(endpointAnnotation),
-                endpointInstance,
-                endpointClazz.getDeclaredFunctions()
-            )
+            registerEndpoint(path(endpointAnnotation))
         }
         writeLine("}")
     }
 
     @Suppress("SameParameterValue")
-    private fun registerEndpoint(
-        endpointPath: String,
-        endpointInstance: String,
-        functions: Sequence<KSFunctionDeclaration>
-    ) = w.withRelativeIndent {
+    private fun registerEndpoint(endpointPath: String) = w.withRelativeIndent {
         writeLine("routes.register(\"${endpointPath}\", { rules ->")
         withRelativeIndent(4) {
             writeLine("rules")
             withRelativeIndent(4) {
-                writeRulesFromFunctions(endpointInstance, functions)
+                writeRulesFromFunctions()
             }
         }
         writeLine("})")
     }
 
-    private fun writeRulesFromFunctions(
-        endpointInstance: String,
-        functions: Sequence<KSFunctionDeclaration>
-    ) = w.withRelativeIndent {
-        for (function in functions) {
+    private fun writeRulesFromFunctions() = w.withRelativeIndent {
+        for (function in endpointClazz.getDeclaredFunctions()) {
             if (!function.isPublic()) continue
-            writeRoute(function, endpointInstance)
+            writeRoute(function)
         }
     }
 
@@ -69,20 +59,17 @@ class RoutesGenerator(
      *  - or some kind of indirection, via factory or other techniques.
      */
     // @formatter:off
-    fun writeRoute(
-        function: KSFunctionDeclaration,
-        endpointInstance: String
-    ) {
+    fun writeRoute(function: KSFunctionDeclaration) {
         for (annotation in function.annotations) {
             when (annotation.shortName.asString()) {
-                Get::class.simpleName -> writeViaFunctionName("get", annotation, function, endpointInstance)
-                Post::class.simpleName -> writeViaFunctionName("post", annotation, function, endpointInstance)
-                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, function, endpointInstance)
-                Put::class.simpleName -> writeViaFunctionName("put", annotation, function, endpointInstance)
-                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, function, endpointInstance)
-                Head::class.simpleName -> writeViaFunctionName("head", annotation, function, endpointInstance)
-                Options::class.simpleName -> writeViaFunctionName("options", annotation, function, endpointInstance)
-                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, function, endpointInstance)
+                Get::class.simpleName -> writeViaFunctionName("get", annotation, function)
+                Post::class.simpleName -> writeViaFunctionName("post", annotation, function)
+                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, function)
+                Put::class.simpleName -> writeViaFunctionName("put", annotation, function)
+                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, function)
+                Head::class.simpleName -> writeViaFunctionName("head", annotation, function)
+                Options::class.simpleName -> writeViaFunctionName("options", annotation, function)
+                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, function)
             }
         }
     }
@@ -92,20 +79,17 @@ class RoutesGenerator(
         functionName: String,
         annotation: KSAnnotation,
         endpointFunction: KSFunctionDeclaration,
-        endpointInstance: String
     ) = w.withRelativeIndent {
         writeLine(".${functionName}(\"${path(annotation)}\", {req, res ->")
         withRelativeIndent(4) {
-            writeHandler(endpointFunction, endpointInstance)
+            writeHandler(endpointFunction)
         }
         writeLine("})")
     }
 
-    fun writeHandler(
-        function: KSFunctionDeclaration,
-        endpointInstance: String
-    ) = HandlerGenerator(function, endpointInstance, w)
-        .write()
+    fun writeHandler(function: KSFunctionDeclaration) =
+        HandlerGenerator(function, endpointInstance, w)
+            .write()
 
     private fun path(annotation: KSAnnotation): String {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
