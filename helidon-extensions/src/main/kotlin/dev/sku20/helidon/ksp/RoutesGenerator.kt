@@ -11,23 +11,22 @@ class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val w: CustomWriter
 ) {
-    private val endpointInstance = "endpoint"
+    private val endpointAnnotation = findEndpointAnnotationOnClazz()
 
     fun write() = w.withRelativeIndent {
-        val endpointAnnotation =
-            endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            writeFunctionBody(path(endpointAnnotation))
+            writeFunctionBody()
         }
         writeLine("}")
     }
 
+    private val endpointFieldName = "endpoint"
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
-            writeLine("$endpointInstance: ${endpointQualifiedName},")
+            writeLine("$endpointFieldName: ${endpointQualifiedName},")
             writeLine("routes: HttpRouting.Builder,")
             writeLine("serde: Serde = NopSerde,")
         }
@@ -35,7 +34,8 @@ class RoutesGenerator(
     }
 
     @Suppress("SameParameterValue")
-    private fun writeFunctionBody(endpointPath: String) = w.withRelativeIndent {
+    private fun writeFunctionBody() = w.withRelativeIndent {
+        val endpointPath = pathValue(endpointAnnotation)
         writeLine("routes.register(\"${endpointPath}\", { rules ->")
         withRelativeIndent(4) {
             writeLine("rules")
@@ -84,7 +84,7 @@ class RoutesGenerator(
         annotation: KSAnnotation,
         endpointFunction: KSFunctionDeclaration,
     ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${path(annotation)}\", {req, res ->")
+        writeLine(".${functionName}(\"${pathValue(annotation)}\", {req, res ->")
         withRelativeIndent(4) {
             writeHandler(endpointFunction)
         }
@@ -92,12 +92,15 @@ class RoutesGenerator(
     }
 
     fun writeHandler(function: KSFunctionDeclaration) =
-        HandlerGenerator(function, endpointInstance, w)
+        HandlerGenerator(function, endpointFieldName, w)
             .write()
 
-    private fun path(annotation: KSAnnotation): String {
+    private fun pathValue(annotation: KSAnnotation): String {
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         val pathValue = path.value as String
         return pathValue
     }
+
+    private fun findEndpointAnnotationOnClazz(): KSAnnotation =
+        endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
 }
