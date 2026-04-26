@@ -13,21 +13,26 @@ class RoutesGenerator(
     private val routes = "routes"
     private val defaultSerde = "serde"
 
-    fun write(w: CustomWriter) = w.withRelativeIndent {
-        writeFunctionDefinition(w)
-        withRelativeIndent(4) {
-            RoutesBodyGenerator(
-                endpointClazz,
-                endpointAnnotation,
-                endpoint,
-                routes,
-                defaultSerde,
-            ).write(w)
+    private lateinit var w: CustomWriter
+
+    fun write(w: CustomWriter) {
+        this.w = w
+        w.withRelativeIndent {
+            writeFunctionDefinition()
+            withRelativeIndent(4) {
+                RoutesBodyGenerator(
+                    endpointClazz,
+                    endpointAnnotation,
+                    endpoint,
+                    routes,
+                    defaultSerde,
+                ).write(w)
+            }
+            writeLine("}")
         }
-        writeLine("}")
     }
 
-    private fun writeFunctionDefinition(w: CustomWriter) = w.withRelativeIndent {
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
