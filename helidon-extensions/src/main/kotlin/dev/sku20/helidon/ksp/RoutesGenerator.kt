@@ -22,21 +22,22 @@ class RoutesGenerator(
     }
 
     private val endpointField = "endpoint"
+    private val routesField = "routes"
+
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
             writeLine("$endpointField: ${endpointQualifiedName},")
-            writeLine("routes: HttpRouting.Builder,")
+            writeLine("$routesField: HttpRouting.Builder,")
             writeLine("serde: Serde = NopSerde,")
         }
         writeLine("){")
     }
 
-    @Suppress("SameParameterValue")
     private fun writeFunctionBody() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
-        writeLine("routes.register(\"${endpointPath}\", { rules ->")
+        writeLine("$routesField.register(\"${endpointPath}\", { rules ->")
         withRelativeIndent(4) {
             writeLine("rules")
             withRelativeIndent(4) {
