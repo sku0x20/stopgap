@@ -41,21 +41,29 @@ class RoutesGenerator(
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routesField.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
-            writeRules()
+            writeRulesLambda()
         }
         writeLine("})")
     }
 
-    private fun writeRules() = w.withRelativeIndent {
+    private fun writeRulesLambda() = w.withRelativeIndent {
         writeLine(rulesField)
         withRelativeIndent(4) {
             for (function in endpointClazz.getDeclaredFunctions()) {
                 if (!function.isPublic()) continue
-                for (annotation in function.annotations) {
-                    val routeName = getRouteName(annotation) ?: continue
-                    writeViaFunctionName(routeName, annotation, function)
-                }
+                writeRoute(function)
             }
+        }
+    }
+
+    private fun writeRoute(function: KSFunctionDeclaration) = w.withRelativeIndent {
+        for (annotation in function.annotations) {
+            val routeName = routeName(annotation) ?: continue
+            writeLine(".${routeName}(\"${pathValue(annotation)}\", {req, res ->")
+            withRelativeIndent(4) {
+                writeHandler(function)
+            }
+            writeLine("})")
         }
     }
 
@@ -68,8 +76,9 @@ class RoutesGenerator(
      *  - hashmap lookup;
      *  - or some kind of indirection, via factory or other techniques.
      */
-    // @formatter:off
-    private fun getRouteName(annotation: KSAnnotation): String? = when (annotation.shortName.asString()) {
+    private fun routeName(
+        annotation: KSAnnotation
+    ) = when (annotation.shortName.asString()) {
         Get::class.simpleName -> "get"
         Post::class.simpleName -> "post"
         Delete::class.simpleName -> "delete"
@@ -79,19 +88,6 @@ class RoutesGenerator(
         Options::class.simpleName -> "options"
         Trace::class.simpleName -> "trace"
         else -> null
-    }
-    // @formatter:on
-
-    private fun writeViaFunctionName(
-        functionName: String,
-        annotation: KSAnnotation,
-        endpointFunction: KSFunctionDeclaration,
-    ) = w.withRelativeIndent {
-        writeLine(".${functionName}(\"${pathValue(annotation)}\", {req, res ->")
-        withRelativeIndent(4) {
-            writeHandler(endpointFunction)
-        }
-        writeLine("})")
     }
 
     private fun writeHandler(function: KSFunctionDeclaration) =
