@@ -64,7 +64,7 @@ class RoutesGenerator(
             val methodFn = httpMethodFnName(annotation) ?: continue
             writeLine(".${methodFn}(\"${pathValue(annotation)}\", {$reqField, $resField ->")
             withRelativeIndent(4) {
-                HandlerGenerator(
+                RuleLambdaGenerator(
                     function,
                     endpoint,
                     w

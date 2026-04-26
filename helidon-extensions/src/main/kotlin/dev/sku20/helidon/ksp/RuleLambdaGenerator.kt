@@ -3,7 +3,7 @@ package dev.sku20.helidon.ksp
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 
-class HandlerGenerator(
+class RuleLambdaGenerator(
     private val function: KSFunctionDeclaration,
     private val endpointInstance: String,
     private val w: CustomWriter
