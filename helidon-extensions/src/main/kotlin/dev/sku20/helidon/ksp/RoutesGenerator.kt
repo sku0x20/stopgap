@@ -64,7 +64,9 @@ class RoutesGenerator(
                 writeHandler(function)
             }
             writeLine("})")
+            return@withRelativeIndent
         }
+        throw IllegalArgumentException("No route annotation found on function: ${function.simpleName.asString()}")
     }
 
     /**
