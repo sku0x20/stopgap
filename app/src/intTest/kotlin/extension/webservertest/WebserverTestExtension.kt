@@ -72,7 +72,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
         stopServer(store)
-        destroyEndpoint(testClass, store)
+        cleanup(testClass, store)
     }
 
     private fun createEndpoint(
@@ -91,7 +91,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun destroyEndpoint(
+    private fun cleanup(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
