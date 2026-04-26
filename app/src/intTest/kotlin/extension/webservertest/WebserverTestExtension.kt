@@ -1,7 +1,6 @@
 package extension.webservertest
 
 import dev.sku20.helidon.serde.NopSerde
-import dev.sku20.helidon.serde.Serde
 import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
+import org.junit.platform.commons.support.ReflectionSupport
 import java.lang.reflect.Method
 
 /**
@@ -117,13 +117,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val endpoint = store.get(ENDPOINT_INSTANCE_ID)
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
-        val routes = HttpRouting.builder()
-        val method = clazz.getDeclaredMethod(
+        val method = findMethodWith(
+            clazz,
             "registerRoutesFor",
-            endpointClazz,
-            HttpRouting.Builder::class.java,
-            Serde::class.java
+            endpointClazz, HttpRouting.Builder::class.java
         )
+        val routes = HttpRouting.builder()
         method.invoke(null, endpoint, routes, NopSerde)
         serverBuilder.routing(routes)
 
@@ -185,6 +184,23 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             throw IllegalStateException("${annotation.name} method must be static")
         }
         return member
+    }
+
+    @Suppress("SameParameterValue")
+    private fun findMethodWith(
+        clazz: Class<*>,
+        methodName: String,
+        vararg params: Class<*>,
+    ): Method {
+        val methods = ReflectionSupport.findMethods(clazz, {
+            if (it.name != methodName) return@findMethods false
+            val parameters = it.parameters
+            for (i in params.indices) {
+                if (parameters[i] != params[i]) return@findMethods false
+            }
+            return@findMethods true
+        }, HierarchyTraversalMode.BOTTOM_UP)
+        return methods[0]
     }
 
 }
