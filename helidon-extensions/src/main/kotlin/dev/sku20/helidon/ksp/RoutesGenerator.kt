@@ -21,12 +21,12 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    private val endpointFieldName = "endpoint"
+    private val endpointField = "endpoint"
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
-            writeLine("$endpointFieldName: ${endpointQualifiedName},")
+            writeLine("$endpointField: ${endpointQualifiedName},")
             writeLine("routes: HttpRouting.Builder,")
             writeLine("serde: Serde = NopSerde,")
         }
@@ -92,7 +92,7 @@ class RoutesGenerator(
     }
 
     fun writeHandler(function: KSFunctionDeclaration) =
-        HandlerGenerator(function, endpointFieldName, w)
+        HandlerGenerator(function, endpointField, w)
             .write()
 
     private fun pathValue(annotation: KSAnnotation): String {
