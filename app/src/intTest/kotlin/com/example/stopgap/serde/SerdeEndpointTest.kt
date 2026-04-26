@@ -1,6 +1,5 @@
 package com.example.stopgap.serde
 
-import dev.sku20.helidon.serde.NopSerde
 import extension.InjectInstance
 import extension.webservertest.EndpointSetup
 import extension.webservertest.WebserverTest
@@ -46,7 +45,7 @@ class SerdeEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun createEndpoint(extras: MutableMap<Class<*>, Any>): EndpointSetup {
-            return EndpointSetup(SerdeEndpoint(), NopSerde)
+            return EndpointSetup(SerdeEndpoint())
         }
     }
 }

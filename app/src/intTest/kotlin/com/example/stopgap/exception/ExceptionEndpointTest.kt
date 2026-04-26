@@ -1,6 +1,5 @@
 package com.example.stopgap.exception
 
-import dev.sku20.helidon.serde.NopSerde
 import extension.InjectInstance
 import extension.webservertest.EndpointSetup
 import extension.webservertest.WebserverTest
@@ -33,7 +32,7 @@ class ExceptionEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun createEndpoint(extras: MutableMap<Class<*>, Any>): EndpointSetup {
-            return EndpointSetup(ExceptionEndpoint(), NopSerde)
+            return EndpointSetup(ExceptionEndpoint())
         }
 
     }

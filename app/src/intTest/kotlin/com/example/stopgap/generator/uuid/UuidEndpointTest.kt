@@ -1,7 +1,6 @@
 package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import dev.sku20.helidon.serde.NopSerde
 import extension.InjectInstance
 import extension.webservertest.EndpointSetup
 import extension.webservertest.WebserverTest
@@ -56,7 +55,7 @@ class UuidEndpointTest {
             val uuidGen = UuidGen()
             instances[UuidGen::class.java] = uuidGen
             val endpoint = UuidEndpoint(uuidGen)
-            return EndpointSetup(endpoint, NopSerde)
+            return EndpointSetup(endpoint)
         }
 
         @JvmStatic
