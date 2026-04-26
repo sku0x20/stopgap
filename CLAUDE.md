@@ -9,7 +9,7 @@
 ## Token Efficiency
 - Skip unnecessary `git diff`, `git log`, `git status` reads unless directly needed.
 - Don't re-read files after writing or editing them.
-- Before reading a file you've seen earlier in the session, check its mtime (`stat` or `ls -la`) to see if it changed. Only re-read if the timestamp is newer than your last read.
+- File changes are pushed via `<system-reminder>` tags — trust those. If no notification arrived, the cached view is still valid. Only fall back to `stat` if there's reason to doubt (e.g. a long conversation gap).
 - No preamble ("I'll now do X") or trailing summaries — just make the change.
 - Use `Grep`/`Glob` directly for simple searches; avoid spawning subagents unnecessarily.
 - Use `offset`/`limit` when only a section of a file is needed.
