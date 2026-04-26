@@ -113,15 +113,14 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
-        val endpoint = store.get(ENDPOINT_INSTANCE_ID)
-        val endpointClazz = endpoint::class.java
+        val endpoint = store.get(ENDPOINT_INSTANCE_ID)!!
         val serde = store.get(SERDE_INSTANCE_ID) as Serde
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val method = findMethodWith(
             clazz,
             "registerRoutesFor",
-            endpointClazz, HttpRouting.Builder::class.java
+            endpoint::class.java, HttpRouting.Builder::class.java
         )
         val routes = HttpRouting.builder()
         method.invoke(null, endpoint, routes, serde)
