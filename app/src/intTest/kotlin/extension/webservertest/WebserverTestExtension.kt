@@ -20,8 +20,10 @@ import java.lang.reflect.Method
  * WebserverTestExtension runs once per test class.
  * It doesn't care if the test launch is per class or per methods, it behaves the same.
  * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
- * Via [WebserverTest.CreateEndpoint] and [WebserverTest.DestroyEndpoint] this allows test classes to manage instances.
+ * Via [WebserverTest.CreateEndpoint] and [WebserverTest.CleanupEndpoint] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
+ * [WebserverTest.CleanupEndpoint] is optional — in production, endpoints are never explicitly destroyed,
+ * so most tests won't need it. Only use it to release test-specific resources (e.g. closing mocks or fakes).
  */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
@@ -95,7 +97,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val endpoint = instances[endpointClazz]
         findStaticMethod(
             testClass,
-            WebserverTest.DestroyEndpoint::class.java
+            WebserverTest.CleanupEndpoint::class.java
         )?.invoke(null, endpoint, instances)
     }
 

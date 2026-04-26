@@ -18,6 +18,6 @@ annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class DestroyEndpoint
+    annotation class CleanupEndpoint
 
 }
