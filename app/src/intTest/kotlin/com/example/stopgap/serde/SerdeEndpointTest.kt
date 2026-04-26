@@ -1,6 +1,8 @@
 package com.example.stopgap.serde
 
+import dev.sku20.helidon.serde.NopSerde
 import extension.InjectInstance
+import extension.webservertest.EndpointSetup
 import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
@@ -43,8 +45,8 @@ class SerdeEndpointTest {
     companion object {
         @JvmStatic
         @WebserverTest.Setup
-        fun createEndpoint(extras: MutableMap<Class<*>, Any>): SerdeEndpoint {
-            return SerdeEndpoint()
+        fun createEndpoint(extras: MutableMap<Class<*>, Any>): EndpointSetup {
+            return EndpointSetup(SerdeEndpoint(), NopSerde)
         }
     }
 }
