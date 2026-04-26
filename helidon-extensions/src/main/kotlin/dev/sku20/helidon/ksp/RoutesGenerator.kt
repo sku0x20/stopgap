@@ -60,18 +60,18 @@ class RoutesGenerator(
     private val resField = "res"
 
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
+        val (methodFn, annotation) = findHttpMethodAnnotation(function)
+        writeLine(".${methodFn}(\"${pathValue(annotation)}\", {$reqField, $resField ->")
+        withRelativeIndent(4) {
+            RuleLambdaGenerator(function, endpoint, w).write()
+        }
+        writeLine("})")
+    }
+
+    private fun findHttpMethodAnnotation(function: KSFunctionDeclaration): Pair<String, KSAnnotation> {
         for (annotation in function.annotations) {
             val methodFn = httpMethodFnName(annotation) ?: continue
-            writeLine(".${methodFn}(\"${pathValue(annotation)}\", {$reqField, $resField ->")
-            withRelativeIndent(4) {
-                RuleLambdaGenerator(
-                    function,
-                    endpoint,
-                    w
-                ).write()
-            }
-            writeLine("})")
-            return@withRelativeIndent
+            return Pair(methodFn, annotation)
         }
         throw IllegalArgumentException("No Http Method annotation found on function: ${function.simpleName.asString()}")
     }
