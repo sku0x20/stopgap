@@ -14,6 +14,9 @@
 - Use `Grep`/`Glob` directly for simple searches; avoid spawning subagents unnecessarily.
 - Use `offset`/`limit` when only a section of a file is needed.
 
+## Refactoring
+- Prefer `private` visibility by default. Only make something public if it cannot be private.
+
 ## Tests
 - Name test functions in camelCase, no backtick-quoted strings or spaces. Keep them short and crisp (e.g. `serializeNonEmpty` not `"serialize produces non-empty bytes"`).
 

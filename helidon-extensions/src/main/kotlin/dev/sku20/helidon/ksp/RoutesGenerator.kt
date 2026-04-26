@@ -82,7 +82,7 @@ class RoutesGenerator(
     }
     // @formatter:on
 
-    fun writeViaFunctionName(
+    private fun writeViaFunctionName(
         functionName: String,
         annotation: KSAnnotation,
         endpointFunction: KSFunctionDeclaration,
@@ -94,7 +94,7 @@ class RoutesGenerator(
         writeLine("})")
     }
 
-    fun writeHandler(function: KSFunctionDeclaration) =
+    private fun writeHandler(function: KSFunctionDeclaration) =
         HandlerGenerator(function, endpointField, w)
             .write()
 
