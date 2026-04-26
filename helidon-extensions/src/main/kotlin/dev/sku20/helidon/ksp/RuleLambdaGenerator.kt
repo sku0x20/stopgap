@@ -11,7 +11,7 @@ class RuleLambdaGenerator(
     private val w: CustomWriter
 ) {
 
-    private val functionName = functionName
+    private val functionName = function.simpleName.asString()
 
     fun write() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
