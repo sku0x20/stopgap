@@ -195,11 +195,13 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val methods = ReflectionSupport.findMethods(clazz, {
             if (it.name != methodName) return@findMethods false
             val parameters = it.parameters
+            if (params.size > parameters.size) return@findMethods false
             for (i in params.indices) {
-                if (parameters[i] != params[i]) return@findMethods false
+                if (parameters[i].type != params[i]) return@findMethods false
             }
             return@findMethods true
         }, HierarchyTraversalMode.BOTTOM_UP)
+        if (methods.isEmpty()) throw IllegalStateException("No method found with name $methodName and parameters ${params.joinToString { it.name }}")
         return methods[0]
     }
 
