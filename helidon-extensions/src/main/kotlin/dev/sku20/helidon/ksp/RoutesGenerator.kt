@@ -30,7 +30,7 @@ class RoutesGenerator(
         withRelativeIndent(4) {
             writeLine("$endpoint: ${endpointQualifiedName},")
             writeLine("$routes: HttpRouting.Builder,")
-            writeLine("serde: Serde = NopSerde,")
+            writeLine("$defaultSerde: Serde = NopSerde,")
         }
         writeLine("){")
     }
@@ -58,12 +58,13 @@ class RoutesGenerator(
 
     private val reqField = "req"
     private val resField = "res"
+    private val defaultSerde = "serde"
 
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
         val (methodFn, path) = httpMethodFor(function)
         writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
         withRelativeIndent(4) {
-            RuleLambdaGenerator(function, endpoint, reqField, resField, w).write()
+            RuleLambdaGenerator(function, endpoint, reqField, resField, defaultSerde, w).write()
         }
         writeLine("})")
     }

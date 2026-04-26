@@ -8,6 +8,7 @@ class RuleLambdaGenerator(
     private val endpoint: String,
     private val req: String,
     private val res: String,
+    private val defaultSerde: String,
     private val w: CustomWriter
 ) {
 
@@ -35,7 +36,7 @@ class RuleLambdaGenerator(
             writeLine(res)
         }
         writeLine(")")
-        writeLine("$res.send(serde.serialize(resp))")
+        writeLine("$res.send($defaultSerde.serialize(resp))")
     }
 
     private fun isUnit(type: KSType): Boolean =
