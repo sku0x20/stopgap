@@ -83,7 +83,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val setup = findStaticMethod(
             testClass,
             WebserverTest.Setup::class.java
-        )?.invoke(null, instances) as EndpointSetup?
+        )?.invoke(null, instances) as? EndpointSetup
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
         store.put(USER_INSTANCES_ID, instances)
         store.put(ENDPOINT_INSTANCE_ID, setup.endpoint)
