@@ -1,8 +1,6 @@
 package dev.sku20.helidon.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -17,14 +15,14 @@ class RoutesGenerator(
         this@RoutesGenerator.w = w
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            w.write(captureBody())
+            w.write(captureBody().inputStream)
         }
         writeLine("}")
     }
 
-    private fun captureBody(): InputStream {
-        val output = ByteArrayOutputStream()
-        val bodyWriter = CustomWriter(output)
+    private fun captureBody(): CopyFreeBuffer {
+        val buffer = CopyFreeBuffer()
+        val bodyWriter = CustomWriter(buffer.outputStream)
         RoutesBodyGenerator(
             endpointClazz,
             endpoint,
@@ -32,7 +30,7 @@ class RoutesGenerator(
             defaultSerde,
         ).write(bodyWriter)
         bodyWriter.close()
-        return output.toByteArray().inputStream()
+        return buffer
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
