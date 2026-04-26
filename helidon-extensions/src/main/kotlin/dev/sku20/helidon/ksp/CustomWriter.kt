@@ -1,6 +1,6 @@
 package dev.sku20.helidon.ksp
 
-import java.io.InputStream
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 
@@ -9,9 +9,9 @@ class CustomWriter(
 ) {
     private val writer = output.bufferedWriter()
 
-    fun write(input: InputStream) {
+    fun write(input: ByteArrayOutputStream) {
         writer.flush()
-        input.transferTo(output)
+        input.writeTo(output)
     }
 
     fun close() {
