@@ -23,6 +23,7 @@ class RoutesGenerator(
                 routes,
                 defaultSerde,
             ).write(bodyWriter)
+            bodyWriter.close()
         }
         writeLine("}")
     }
