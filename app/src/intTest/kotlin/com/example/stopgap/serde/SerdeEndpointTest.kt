@@ -1,5 +1,6 @@
 package com.example.stopgap.serde
 
+import com.example.stopgap.serde.fastjson.FastjsonSerde
 import extension.InjectInstance
 import extension.webservertest.EndpointSetup
 import extension.webservertest.WebserverTest
@@ -44,8 +45,8 @@ class SerdeEndpointTest {
     companion object {
         @JvmStatic
         @WebserverTest.Setup
-        fun createEndpoint(extras: MutableMap<Class<*>, Any>): EndpointSetup {
-            return EndpointSetup(SerdeEndpoint())
+        fun setup(extras: MutableMap<Class<*>, Any>): EndpointSetup {
+            return EndpointSetup(SerdeEndpoint(), FastjsonSerde())
         }
     }
 }
