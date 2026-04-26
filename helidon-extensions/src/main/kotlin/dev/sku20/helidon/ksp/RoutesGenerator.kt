@@ -16,16 +16,20 @@ class RoutesGenerator(
         this@RoutesGenerator.w = w
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            val bodyWriter = CustomWriter(ByteArrayOutputStream())
-            RoutesBodyGenerator(
-                endpointClazz,
-                endpoint,
-                routes,
-                defaultSerde,
-            ).write(bodyWriter)
-            bodyWriter.close()
+            captureBody()
         }
         writeLine("}")
+    }
+
+    private fun captureBody() {
+        val bodyWriter = CustomWriter(ByteArrayOutputStream())
+        RoutesBodyGenerator(
+            endpointClazz,
+            endpoint,
+            routes,
+            defaultSerde,
+        ).write(bodyWriter)
+        bodyWriter.close()
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
