@@ -1,14 +1,10 @@
 package dev.sku20.helidon.ksp
 
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import dev.sku20.helidon.endpoint.Endpoint
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
 ) {
-    private val endpointAnnotation = findEndpointAnnotationOnClazz()
-
     private val endpoint = "endpoint"
     private val routes = "routes"
     private val defaultSerde = "serde"
@@ -21,7 +17,6 @@ class RoutesGenerator(
         withRelativeIndent(4) {
             RoutesBodyGenerator(
                 endpointClazz,
-                endpointAnnotation,
                 endpoint,
                 routes,
                 defaultSerde,
@@ -40,7 +35,4 @@ class RoutesGenerator(
         }
         writeLine("){")
     }
-
-    private fun findEndpointAnnotationOnClazz(): KSAnnotation =
-        endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
 }

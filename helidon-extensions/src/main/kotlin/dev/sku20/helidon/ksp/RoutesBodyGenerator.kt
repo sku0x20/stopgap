@@ -9,11 +9,11 @@ import dev.sku20.helidon.endpoint.*
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
-    private val endpointAnnotation: KSAnnotation,
     private val endpoint: String,
     private val routes: String,
     private val defaultSerde: String,
 ) {
+    private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
     private val reqField = "req"
     private val resField = "res"
@@ -84,4 +84,7 @@ class RoutesBodyGenerator(
         val path = annotation.arguments.first { it.name?.getShortName() == "path" }
         return path.value as String
     }
+
+    private fun findEndpointAnnotationOnClazz(): KSAnnotation =
+        endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
 }
