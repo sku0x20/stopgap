@@ -17,7 +17,14 @@ class RoutesGenerator(
     fun write() = w.withRelativeIndent {
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            RoutesBodyGenerator(endpointClazz, endpointAnnotation, endpoint, routes, defaultSerde, w).write()
+            RoutesBodyGenerator(
+                endpointClazz,
+                endpointAnnotation,
+                endpoint,
+                routes,
+                defaultSerde,
+                w
+            ).write()
         }
         writeLine("}")
     }
