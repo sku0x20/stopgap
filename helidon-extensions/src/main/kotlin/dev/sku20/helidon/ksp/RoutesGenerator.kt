@@ -21,15 +21,15 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    private val endpointField = "endpoint"
-    private val routesField = "routes"
+    private val endpoint = "endpoint"
+    private val routes = "routes"
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
-            writeLine("$endpointField: ${endpointQualifiedName},")
-            writeLine("$routesField: HttpRouting.Builder,")
+            writeLine("$endpoint: ${endpointQualifiedName},")
+            writeLine("$routes: HttpRouting.Builder,")
             writeLine("serde: Serde = NopSerde,")
         }
         writeLine("){")
@@ -39,7 +39,7 @@ class RoutesGenerator(
 
     private fun writeFunctionBody() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
-        writeLine("$routesField.register(\"${endpointPath}\", { $rulesField ->")
+        writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }
@@ -51,7 +51,7 @@ class RoutesGenerator(
         withRelativeIndent(4) {
             for (function in endpointClazz.getDeclaredFunctions()) {
                 if (!function.isPublic()) continue
-                writeRoute(function)
+                writeRule(function)
             }
         }
     }
@@ -59,14 +59,14 @@ class RoutesGenerator(
     private val reqField = "req"
     private val resField = "res"
 
-    private fun writeRoute(function: KSFunctionDeclaration) = w.withRelativeIndent {
+    private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (annotation in function.annotations) {
             val methodFn = httpMethodFnName(annotation) ?: continue
             writeLine(".${methodFn}(\"${pathValue(annotation)}\", {$reqField, $resField ->")
             withRelativeIndent(4) {
                 HandlerGenerator(
                     function,
-                    endpointField,
+                    endpoint,
                     w
                 ).write()
             }
