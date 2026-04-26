@@ -51,7 +51,10 @@ class RoutesGenerator(
         withRelativeIndent(4) {
             for (function in endpointClazz.getDeclaredFunctions()) {
                 if (!function.isPublic()) continue
-                writeRoute(function)
+                for (annotation in function.annotations) {
+                    val routeName = getRouteName(annotation) ?: continue
+                    writeViaFunctionName(routeName, annotation, function)
+                }
             }
         }
     }
@@ -66,19 +69,16 @@ class RoutesGenerator(
      *  - or some kind of indirection, via factory or other techniques.
      */
     // @formatter:off
-    fun writeRoute(function: KSFunctionDeclaration) {
-        for (annotation in function.annotations) {
-            when (annotation.shortName.asString()) {
-                Get::class.simpleName -> writeViaFunctionName("get", annotation, function)
-                Post::class.simpleName -> writeViaFunctionName("post", annotation, function)
-                Delete::class.simpleName -> writeViaFunctionName("delete", annotation, function)
-                Put::class.simpleName -> writeViaFunctionName("put", annotation, function)
-                Patch::class.simpleName -> writeViaFunctionName("patch", annotation, function)
-                Head::class.simpleName -> writeViaFunctionName("head", annotation, function)
-                Options::class.simpleName -> writeViaFunctionName("options", annotation, function)
-                Trace::class.simpleName -> writeViaFunctionName("trace", annotation, function)
-            }
-        }
+    fun getRouteName(annotation: KSAnnotation): String? = when (annotation.shortName.asString()) {
+        Get::class.simpleName -> "get"
+        Post::class.simpleName -> "post"
+        Delete::class.simpleName -> "delete"
+        Put::class.simpleName -> "put"
+        Patch::class.simpleName -> "patch"
+        Head::class.simpleName -> "head"
+        Options::class.simpleName -> "options"
+        Trace::class.simpleName -> "trace"
+        else -> null
     }
     // @formatter:on
 
