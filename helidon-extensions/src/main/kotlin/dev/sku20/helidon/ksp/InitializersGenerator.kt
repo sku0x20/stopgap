@@ -14,6 +14,7 @@ class InitializersGenerator(
 
     fun write() {
         val endpointsRoutes = captureEndpointRoutes()
+
         val registryGenerator = RegistryInitializerGenerator(endpointClazzez)
         if (useRegistry) imports.addAll(registryGenerator.imports())
 
