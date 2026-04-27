@@ -19,7 +19,12 @@ class RegistryInitializerGenerator(
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
-        writeLine("fun initEndpointsRoutesViaRegistry(registry: InstanceRegistry, routes: HttpRouting.Builder) {")
+        writeLine("fun initEndpointsRoutesViaRegistry(")
+        withRelativeIndent(4) {
+            writeLine("registry: InstanceRegistry,")
+            writeLine("routes: HttpRouting.Builder,")
+        }
+        writeLine(") {")
     }
 
     private fun writeRegisterCallFor(endpointClazz: KSClassDeclaration) = w.withRelativeIndent {
