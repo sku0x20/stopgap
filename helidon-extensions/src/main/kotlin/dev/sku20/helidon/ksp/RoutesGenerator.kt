@@ -29,9 +29,9 @@ class RoutesGenerator(
     fun imports(): List<String> {
         if (!hasRan) throw IllegalStateException("write() must be called before imports()")
         return listOf(
+            "io.helidon.webserver.http.HttpRouting",
             "dev.sku20.helidon.serde.Serde",
             "dev.sku20.helidon.serde.NopSerde",
-            "io.helidon.webserver.http.HttpRouting",
         )
     }
 
