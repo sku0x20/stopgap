@@ -19,6 +19,14 @@ class RoutesBodyGenerator(
     private val reqField = "req"
     private val resField = "res"
 
+    private val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+
+    fun params(): List<String> = listOf(
+        "$endpoint: $endpointQualifiedName",
+        "$routes: HttpRouting.Builder",
+        "$defaultSerde: Serde = NopSerde",
+    )
+
     private lateinit var w: CustomWriter
 
     fun write(w: CustomWriter) = w.withRelativeIndent {
