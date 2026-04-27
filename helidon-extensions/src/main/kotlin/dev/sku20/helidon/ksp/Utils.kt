@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
 object Utils {
-    fun capture(block: (CustomWriter) -> Unit): InputStream {
+    fun capturing(block: (CustomWriter) -> Unit): InputStream {
         val buffer = ByteArrayOutputStream()
         val writer = CustomWriter(buffer)
         block(writer)

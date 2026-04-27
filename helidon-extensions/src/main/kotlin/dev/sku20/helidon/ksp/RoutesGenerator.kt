@@ -34,7 +34,7 @@ class RoutesGenerator(
         )
     }
 
-    private fun captureBody(): InputStream = Utils.capture { writer ->
+    private fun captureBody(): InputStream = Utils.capturing { writer ->
         RoutesBodyGenerator(
             endpointClazz,
             endpoint,
