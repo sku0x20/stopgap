@@ -15,7 +15,7 @@ class RoutesGenerator(
 
     fun write(w: CustomWriter) = w.withRelativeIndent {
         this@RoutesGenerator.w = w
-        hasRunOnce = true
+        hasRan = true
 
         val body = captureBody()
 
@@ -26,9 +26,9 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    private var hasRunOnce = false
+    private var hasRan = false
     fun imports(): List<String> {
-        if (!hasRunOnce) throw IllegalStateException("write() must be called before imports()")
+        if (!hasRan) throw IllegalStateException("write() must be called before imports()")
         return listOf(
             "dev.sku20.helidon.serde.Serde",
             "dev.sku20.helidon.serde.NopSerde"
