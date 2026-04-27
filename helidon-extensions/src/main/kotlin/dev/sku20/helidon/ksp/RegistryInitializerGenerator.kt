@@ -11,7 +11,9 @@ class RegistryInitializerGenerator(
         this@RegistryInitializerGenerator.w = w
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            for (endpointClazz in endpointClazzez) writeRegisterCallFor(endpointClazz)
+            for (endpointClazz in endpointClazzez) {
+                writeRegisterCallFor(endpointClazz)
+            }
         }
         writeLine("}")
     }
