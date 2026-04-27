@@ -8,6 +8,11 @@ class RegistryInitializerGenerator(
 
     private lateinit var w: CustomWriter
 
+    fun imports(): List<String> = listOf(
+        "dev.sku20.ir.InstanceRegistry",
+        "io.helidon.webserver.http.HttpRouting",
+    )
+
     fun write(w: CustomWriter) = w.withRelativeIndent {
         this@RegistryInitializerGenerator.w = w
         writeFunctionDefinition()

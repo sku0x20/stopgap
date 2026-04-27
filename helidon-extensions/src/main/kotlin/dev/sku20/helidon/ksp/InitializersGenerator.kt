@@ -14,10 +14,12 @@ class InitializersGenerator(
 
     fun write() {
         val endpointsRoutes = captureEndpointRoutes()
+        val registryGenerator = if (useRegistry) RegistryInitializerGenerator(endpointClazzez) else null
+        registryGenerator?.let { imports.addAll(it.imports()) }
 
         writePackage()
         writeImports()
-        if (useRegistry) RegistryInitializerGenerator(endpointClazzez).write(w)
+        registryGenerator?.write(w)
         w.withRelativeIndent(4) {
             w.write(endpointsRoutes)
         }
@@ -39,9 +41,7 @@ class InitializersGenerator(
     private val imports = mutableSetOf<String>()
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
-        writeLine("import dev.sku20.ir.InstanceRegistry")
         for (import in imports) writeLine("import $import")
-        writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
     }
