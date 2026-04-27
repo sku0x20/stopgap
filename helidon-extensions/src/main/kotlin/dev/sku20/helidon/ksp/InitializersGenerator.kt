@@ -17,27 +17,11 @@ class InitializersGenerator(
 
         writePackage()
         writeImports()
-        if (useRegistry) writeInitEndpointsRoutesViaRegistry()
+        if (useRegistry) RegistryInitializerGenerator(endpointClazzez).write(w)
         w.withRelativeIndent(4) {
             w.write(endpointsRoutes)
         }
         w.close()
-    }
-
-    private fun writeInitEndpointsRoutesViaRegistry() = w.withRelativeIndent {
-        writeLine("fun initEndpointsRoutesViaRegistry(registry: InstanceRegistry, routes: HttpRouting.Builder) {")
-        withRelativeIndent(4) {
-            for (endpointClazz in endpointClazzez) {
-                val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
-                writeLine("registerRoutesFor(")
-                withRelativeIndent(4) {
-                    writeLine("registry.getInstanceForType<$endpointQualifiedName>(),")
-                    writeLine("routes")
-                }
-                writeLine(")")
-            }
-        }
-        writeLine("}")
     }
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
