@@ -15,9 +15,11 @@ class RoutesGenerator(
 
     fun write(w: CustomWriter) = w.withRelativeIndent {
         this@RoutesGenerator.w = w
+        val body = captureBody()
+
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            w.write(captureBody())
+            w.write(body)
         }
         writeLine("}")
     }
