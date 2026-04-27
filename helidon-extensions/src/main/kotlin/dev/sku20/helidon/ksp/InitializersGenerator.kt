@@ -48,7 +48,6 @@ class InitializersGenerator(
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
         for (import in imports) writeLine("import $import")
-        writeLine("import io.helidon.webserver.http.HttpRules")
         writeLine()
     }
 }
