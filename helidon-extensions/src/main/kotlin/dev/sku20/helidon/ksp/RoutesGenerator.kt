@@ -16,10 +16,9 @@ class RoutesGenerator(
         this@RoutesGenerator.w = w
         hasRan = true
 
-        val bg = RoutesBodyGenerator(endpointClazz, endpoint, routes, defaultSerde)
-        val body = captureBody(bg)
+        val body = captureBody()
 
-        writeFunctionDefinition(bg)
+        writeFunctionDefinition()
         withRelativeIndent(4) {
             w.write(body)
         }
@@ -36,14 +35,23 @@ class RoutesGenerator(
         )
     }
 
-    private fun captureBody(bg: RoutesBodyGenerator): InputStream = Utils.capturing { writer ->
-        bg.write(writer)
+    private fun params(): List<String> {
+        val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+        return listOf(
+            "$endpoint: $endpointQualifiedName",
+            "$routes: HttpRouting.Builder",
+            "$defaultSerde: Serde = NopSerde",
+        )
     }
 
-    private fun writeFunctionDefinition(bg: RoutesBodyGenerator) = w.withRelativeIndent {
+    private fun captureBody(): InputStream = Utils.capturing { writer ->
+        RoutesBodyGenerator(endpointClazz, endpoint, routes, defaultSerde).write(writer)
+    }
+
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
-            for (param in bg.params()) writeLine("$param,")
+            for (param in params()) writeLine("$param,")
         }
         writeLine("){")
     }
