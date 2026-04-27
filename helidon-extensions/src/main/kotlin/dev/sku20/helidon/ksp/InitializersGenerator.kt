@@ -1,6 +1,8 @@
 package dev.sku20.helidon.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -12,10 +14,14 @@ class InitializersGenerator(
     private val w = CustomWriter(file)
 
     fun write() {
+        val endpointsRoutes = captureEndpointRoutes()
+
         writePackage()
         writeImports()
         if (useRegistry) writeInitEndpointsRoutesViaRegistry()
-        writeRegisterRoutesFor()
+        w.withRelativeIndent(4) {
+            w.write(endpointsRoutes)
+        }
         w.close()
     }
 
@@ -35,17 +41,23 @@ class InitializersGenerator(
         writeLine("}")
     }
 
-    private fun writeRegisterRoutesFor() = w.withRelativeIndent {
+    private fun captureEndpointRoutes(): InputStream {
+        val buffer = ByteArrayOutputStream()
+        val writer = CustomWriter(buffer)
         for (endpointClazz in endpointClazzez) {
-            RoutesGenerator(endpointClazz)
-                .write(w)
+            val rg = RoutesGenerator(endpointClazz)
+            rg.write(writer)
+            imports.addAll(rg.imports())
         }
+        writer.close()
+        return buffer.toByteArray().inputStream()
     }
 
     private fun writePackage() = w.withRelativeIndent {
         writeLine("package $packageName")
     }
 
+    private val imports = mutableSetOf<String>()
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
