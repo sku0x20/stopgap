@@ -30,7 +30,8 @@ class RoutesGenerator(
         if (!hasRan) throw IllegalStateException("write() must be called before imports()")
         return listOf(
             "dev.sku20.helidon.serde.Serde",
-            "dev.sku20.helidon.serde.NopSerde"
+            "dev.sku20.helidon.serde.NopSerde",
+            "io.helidon.webserver.http.HttpRouting",
         )
     }
 
