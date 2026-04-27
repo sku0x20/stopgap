@@ -9,18 +9,24 @@ class RegistryInitializerGenerator(
 
     fun write(w: CustomWriter) = w.withRelativeIndent {
         this@RegistryInitializerGenerator.w = w
-        writeLine("fun initEndpointsRoutesViaRegistry(registry: InstanceRegistry, routes: HttpRouting.Builder) {")
+        writeFunctionDefinition()
         withRelativeIndent(4) {
-            for (endpointClazz in endpointClazzez) {
-                val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
-                writeLine("registerRoutesFor(")
-                withRelativeIndent(4) {
-                    writeLine("registry.getInstanceForType<$endpointQualifiedName>(),")
-                    writeLine("routes")
-                }
-                writeLine(")")
-            }
+            for (endpointClazz in endpointClazzez) writeRegisterCallFor(endpointClazz)
         }
         writeLine("}")
+    }
+
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
+        writeLine("fun initEndpointsRoutesViaRegistry(registry: InstanceRegistry, routes: HttpRouting.Builder) {")
+    }
+
+    private fun writeRegisterCallFor(endpointClazz: KSClassDeclaration) = w.withRelativeIndent {
+        val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+        writeLine("registerRoutesFor(")
+        withRelativeIndent(4) {
+            writeLine("registry.getInstanceForType<$endpointQualifiedName>(),")
+            writeLine("routes")
+        }
+        writeLine(")")
     }
 }
