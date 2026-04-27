@@ -5,8 +5,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 class RegistryInitializerGenerator(
     private val endpointClazzez: List<KSClassDeclaration>
 ) {
-    private val registry = "registry"
-    private val routes = "routes"
 
     private lateinit var w: CustomWriter
 
@@ -20,6 +18,9 @@ class RegistryInitializerGenerator(
         }
         writeLine("}")
     }
+
+    private val registry = "registry"
+    private val routes = "routes"
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun initEndpointsRoutesViaRegistry(")
