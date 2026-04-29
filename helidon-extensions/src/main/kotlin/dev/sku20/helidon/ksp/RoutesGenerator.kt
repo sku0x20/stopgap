@@ -20,11 +20,10 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    fun imports(): List<String> {
-        return listOf(
+    fun imports(): Set<String> {
+        return setOf(
             "io.helidon.webserver.http.HttpRouting",
-            "dev.sku20.helidon.serde.Serde",
-            "dev.sku20.helidon.serde.NopSerde",
+            "dev.sku20.helidon.serde.Serde"
         )
     }
 
