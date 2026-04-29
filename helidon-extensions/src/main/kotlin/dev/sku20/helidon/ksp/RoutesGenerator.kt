@@ -35,23 +35,18 @@ class RoutesGenerator(
         )
     }
 
-    private fun params(): List<String> {
-        val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
-        return listOf(
-            "$endpoint: $endpointQualifiedName",
-            "$routes: HttpRouting.Builder",
-            "$defaultSerde: Serde = NopSerde",
-        )
-    }
+    private var params = mutableListOf<String>()
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
-        RoutesBodyGenerator(endpointClazz, endpoint, routes, defaultSerde).write(writer)
+        val gen = RoutesBodyGenerator(endpointClazz, endpoint, routes)
+        gen.write(writer)
+        params.addAll(gen.params())
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun registerRoutesFor(")
         withRelativeIndent(4) {
-            for (param in params()) writeLine("$param,")
+            for (param in params) writeLine("$param,")
         }
         writeLine("){")
     }

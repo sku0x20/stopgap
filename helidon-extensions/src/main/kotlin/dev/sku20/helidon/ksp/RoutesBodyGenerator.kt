@@ -12,18 +12,15 @@ class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val endpoint: String,
     private val routes: String,
-    private val defaultSerde: String,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
     private val reqField = "req"
     private val resField = "res"
 
-    private val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+    private val defaultSerde = "defaultSerde"
 
     fun params(): List<String> = listOf(
-        "$endpoint: $endpointQualifiedName",
-        "$routes: HttpRouting.Builder",
         "$defaultSerde: Serde = NopSerde",
     )
 
