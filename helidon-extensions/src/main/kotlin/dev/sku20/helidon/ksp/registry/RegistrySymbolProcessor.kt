@@ -2,6 +2,8 @@ package dev.sku20.helidon.ksp.registry
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSFile
+import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
 
 class RegistrySymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -10,19 +12,25 @@ class RegistrySymbolProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        if (resolver.getNewFiles().none()) return emptyList()
-        generateFile()
+        val endpointGeneratedFile = resolver.getNewFiles().findEndpointInitializers()
+            ?: return emptyList()
+        generateFile(endpointGeneratedFile)
         return emptyList()
+    }
+
+    private fun Sequence<KSFile>.findEndpointInitializers(): KSFile? = find {
+        it.packageName.asString() == EndpointSymbolProcessor.GENERATED_PACKAGE &&
+                it.fileName == "${EndpointSymbolProcessor.GENERATED_FILE_NAME}.${EndpointSymbolProcessor.GENERATED_EXTENSION}"
     }
 
     private val packageName = "dev.sku20.helidon.registry.generated"
     private val fileName = "RegistryInitializer"
     private val extension = "kt"
 
-    private fun generateFile() {
+    private fun generateFile(originatingFile: KSFile) {
         val file = try {
             codeGenerator.createNewFile(
-                Dependencies(false),
+                Dependencies(false, originatingFile),
                 packageName,
                 fileName,
                 extension
