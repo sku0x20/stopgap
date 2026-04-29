@@ -30,16 +30,12 @@ class RegistrySymbolProcessor(
     }
 
     private fun generateFile(originatingFile: KSFile) {
-        val file = try {
-            codeGenerator.createNewFile(
-                Dependencies(false, originatingFile),
-                GENERATED_PACKAGE,
-                GENERATED_FILE_NAME,
-                GENERATED_EXTENSION
-            )
-        } catch (e: FileAlreadyExistsException) {
-            return
-        }
+        val file = codeGenerator.createNewFile(
+            Dependencies(false, originatingFile),
+            GENERATED_PACKAGE,
+            GENERATED_FILE_NAME,
+            GENERATED_EXTENSION
+        )
         file.close()
     }
 }
