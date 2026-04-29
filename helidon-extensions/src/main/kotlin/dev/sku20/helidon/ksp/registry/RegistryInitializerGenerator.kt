@@ -1,9 +1,9 @@
 package dev.sku20.helidon.ksp.registry
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.ksp.Utils
-import java.io.InputStream
+import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
 import java.io.OutputStream
 
 class RegistryInitializerGenerator(
@@ -12,36 +12,22 @@ class RegistryInitializerGenerator(
     private val packageName: String
 ) {
     private val w = CustomWriter(file)
-    private val imports = mutableSetOf<String>()
-    private lateinit var cw: CustomWriter
 
     fun write() {
-        val content = captureContent()
         writePackage()
         writeImports()
-        w.write(content)
-        w.close()
-    }
-
-    private fun captureContent(): InputStream = Utils.capturing { writer ->
-        cw = writer
-        addImports()
         writeFunctionDefinition()
-        cw.withRelativeIndent(4) {
+        w.withRelativeIndent(4) {
             for (function in functions) writeRegisterCallFor(function)
         }
-        cw.writeLine("}")
-    }
-
-    private fun addImports() {
-        imports.add("dev.sku20.ir.InstanceRegistry")
-        imports.add("io.helidon.webserver.http.HttpRouting")
+        w.writeLine("}")
+        w.close()
     }
 
     private val registry = "registry"
     private val routes = "routes"
 
-    private fun writeFunctionDefinition() = cw.withRelativeIndent {
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun initEndpointsRoutesViaRegistry(")
         withRelativeIndent(4) {
             writeLine("$registry: InstanceRegistry,")
@@ -50,11 +36,10 @@ class RegistryInitializerGenerator(
         writeLine(") {")
     }
 
-    private fun writeRegisterCallFor(function: KSFunctionDeclaration) = cw.withRelativeIndent {
-        val endpointQualifiedName = function.parameters.first().type.resolve().declaration.qualifiedName!!.asString()
+    private fun writeRegisterCallFor(function: KSFunctionDeclaration) = w.withRelativeIndent {
         writeLine("registerRoutesFor(")
         withRelativeIndent(4) {
-            writeLine("$registry.getInstanceForType<$endpointQualifiedName>(),")
+            writeLine("$registry.getInstanceForType<${getParamFQN(function.parameters.first())}>(),")
             writeLine(routes)
         }
         writeLine(")")
@@ -66,7 +51,13 @@ class RegistryInitializerGenerator(
 
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
-        for (import in imports) writeLine("import $import")
+        writeLine("import dev.sku20.ir.InstanceRegistry")
+        writeLine("import io.helidon.webserver.http.HttpRouting")
+        writeLine("import ${EndpointSymbolProcessor.GENERATED_PACKAGE}")
         writeLine()
+    }
+
+    private fun getParamFQN(param: KSValueParameter): String {
+        return param.type.resolve().declaration.qualifiedName!!.asString()
     }
 }
