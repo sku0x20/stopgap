@@ -1,10 +1,10 @@
 package dev.sku20.helidon.ksp.registry
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.ksp.CustomWriter
 
 class RegistryInitializerGenerator(
-    private val endpointClazzez: List<KSClassDeclaration>
+    private val functions: List<KSFunctionDeclaration>
 ) {
 
     private lateinit var w: CustomWriter
@@ -20,8 +20,8 @@ class RegistryInitializerGenerator(
         addImports()
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            for (endpointClazz in endpointClazzez) {
-                writeRegisterCallFor(endpointClazz)
+            for (function in functions) {
+                writeRegisterCallFor(function)
             }
         }
         writeLine("}")
@@ -44,8 +44,8 @@ class RegistryInitializerGenerator(
         writeLine(") {")
     }
 
-    private fun writeRegisterCallFor(endpointClazz: KSClassDeclaration) = w.withRelativeIndent {
-        val endpointQualifiedName = endpointClazz.qualifiedName!!.asString()
+    private fun writeRegisterCallFor(function: KSFunctionDeclaration) = w.withRelativeIndent {
+        val endpointQualifiedName = function.parameters.first().type.resolve().declaration.qualifiedName!!.asString()
         writeLine("registerRoutesFor(")
         withRelativeIndent(4) {
             writeLine("$registry.getInstanceForType<$endpointQualifiedName>(),")
