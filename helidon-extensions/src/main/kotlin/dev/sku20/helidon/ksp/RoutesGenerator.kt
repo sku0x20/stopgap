@@ -32,7 +32,7 @@ class RoutesGenerator(
     private val routes = "routes"
 
     private var params = mutableListOf(
-        "$endpoint: ${endpointClazz.qualifiedName!!}",
+        "$endpoint: ${endpointClazz.qualifiedName!!.asString()}",
         "$routes: HttpRouting.Builder",
     )
 
