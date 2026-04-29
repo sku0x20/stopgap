@@ -4,8 +4,6 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.ksp.Utils
 import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
 
 class RegistrySymbolProcessor(
@@ -24,8 +22,7 @@ class RegistrySymbolProcessor(
         if (skip()) return emptyList()
         val endpointGeneratedFile = findEndpointInitializers(resolver.getNewFiles())
             ?: return emptyList()
-        val functions = endpointGeneratedFile.declarations.filterIsInstance<KSFunctionDeclaration>().toList()
-        generateFile(endpointGeneratedFile, functions)
+        generateFile(endpointGeneratedFile)
         return emptyList()
     }
 
@@ -36,23 +33,14 @@ class RegistrySymbolProcessor(
                 it.fileName == "${EndpointSymbolProcessor.GENERATED_FILE_NAME}.${EndpointSymbolProcessor.GENERATED_EXTENSION}"
     }
 
-    private fun generateFile(originatingFile: KSFile, functions: List<KSFunctionDeclaration>) {
+    private fun generateFile(originatingFile: KSFile) {
+        val functions = originatingFile.declarations.filterIsInstance<KSFunctionDeclaration>().toList()
         val file = codeGenerator.createNewFile(
             Dependencies(false, originatingFile),
             GENERATED_PACKAGE,
             GENERATED_FILE_NAME,
             GENERATED_EXTENSION
         )
-        val w = CustomWriter(file)
-        val imports = mutableSetOf<String>()
-        val content = Utils.capturing { writer ->
-            RegistryInitializerGenerator(functions).write(writer, imports)
-        }
-        w.writeLine("package $GENERATED_PACKAGE")
-        w.writeLine()
-        for (import in imports) w.writeLine("import $import")
-        w.writeLine()
-        w.write(content)
-        w.close()
+        RegistryInitializerGenerator(file, functions, GENERATED_PACKAGE).write()
     }
 }
