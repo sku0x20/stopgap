@@ -3,35 +3,25 @@ package dev.sku20.helidon.ksp.endpoint
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import dev.sku20.helidon.ksp.registry.RegistryInitializerGenerator
 import java.io.InputStream
 import java.io.OutputStream
 
 class InitializersGenerator(
     file: OutputStream,
     private val endpointClazzez: List<KSClassDeclaration>,
-    private val packageName: String,
-    private val useRegistry: Boolean
+    private val packageName: String
 ) {
     private val w = CustomWriter(file)
 
     fun write() {
         val endpointsRoutes = captureEndpointRoutes()
-        val registryFunction = captureRegistryFunction()
 
         writePackage()
         writeImports()
-        w.write(registryFunction)
         w.withRelativeIndent(4) {
             w.write(endpointsRoutes)
         }
         w.close()
-    }
-
-    private fun captureRegistryFunction(): InputStream = Utils.capturing { writer ->
-        if (!useRegistry) return@capturing
-        val rg = RegistryInitializerGenerator(endpointClazzez)
-        rg.write(writer, imports)
     }
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->

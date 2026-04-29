@@ -43,8 +43,7 @@ class EndpointSymbolProcessor(
         val initGen = InitializersGenerator(
             file,
             symbols,
-            GENERATED_PACKAGE,
-            !options["endpoint.codegen.registry.skip"].toBoolean()
+            GENERATED_PACKAGE
         )
         initGen.write()
     }
