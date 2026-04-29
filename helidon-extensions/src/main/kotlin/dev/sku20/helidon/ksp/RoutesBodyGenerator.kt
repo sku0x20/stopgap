@@ -63,7 +63,7 @@ class RoutesBodyGenerator(
                 reqField,
                 resField,
                 defaultSerde
-            ).write(w)
+            ).write(w, imports, params)
         }
         writeLine("})")
     }

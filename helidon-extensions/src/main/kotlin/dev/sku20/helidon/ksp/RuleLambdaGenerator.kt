@@ -14,9 +14,18 @@ class RuleLambdaGenerator(
     private val functionName = function.simpleName.asString()
 
     private lateinit var w: CustomWriter
+    private lateinit var imports: MutableSet<String>
+    private lateinit var params: MutableSet<String>
 
-    fun write(w: CustomWriter) = w.withRelativeIndent {
+    fun write(
+        w: CustomWriter,
+        imports: MutableSet<String>,
+        params: MutableSet<String>
+    ) = w.withRelativeIndent {
         this@RuleLambdaGenerator.w = w
+        this@RuleLambdaGenerator.params = params
+        this@RuleLambdaGenerator.imports = imports
+
         val returnType = function.returnType!!.resolve()
         if (isUnit(returnType)) writeUnitResp()
         else writeResp()
