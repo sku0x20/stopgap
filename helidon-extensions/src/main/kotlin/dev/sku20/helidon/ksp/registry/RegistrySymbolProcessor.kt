@@ -23,17 +23,19 @@ class RegistrySymbolProcessor(
                 it.fileName == "${EndpointSymbolProcessor.GENERATED_FILE_NAME}.${EndpointSymbolProcessor.GENERATED_EXTENSION}"
     }
 
-    private val packageName = "dev.sku20.helidon.registry.generated"
-    private val fileName = "RegistryInitializer"
-    private val extension = "kt"
+    companion object {
+        const val GENERATED_PACKAGE = "dev.sku20.helidon.registry.generated"
+        const val GENERATED_FILE_NAME = "RegistryInitializer"
+        const val GENERATED_EXTENSION = "kt"
+    }
 
     private fun generateFile(originatingFile: KSFile) {
         val file = try {
             codeGenerator.createNewFile(
                 Dependencies(false, originatingFile),
-                packageName,
-                fileName,
-                extension
+                GENERATED_PACKAGE,
+                GENERATED_FILE_NAME,
+                GENERATED_EXTENSION
             )
         } catch (e: FileAlreadyExistsException) {
             return
