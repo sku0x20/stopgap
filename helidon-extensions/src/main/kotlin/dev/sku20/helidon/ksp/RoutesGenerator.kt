@@ -6,16 +6,11 @@ import java.io.InputStream
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
 ) {
-    private val endpoint = "endpoint"
-    private val routes = "routes"
-    private val defaultSerde = "serde"
 
     private lateinit var w: CustomWriter
 
     fun write(w: CustomWriter) = w.withRelativeIndent {
         this@RoutesGenerator.w = w
-        hasRan = true
-
         val body = captureBody()
 
         writeFunctionDefinition()
@@ -25,9 +20,7 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    private var hasRan = false
     fun imports(): List<String> {
-        if (!hasRan) throw IllegalStateException("write() must be called before imports()")
         return listOf(
             "io.helidon.webserver.http.HttpRouting",
             "dev.sku20.helidon.serde.Serde",
@@ -35,7 +28,13 @@ class RoutesGenerator(
         )
     }
 
-    private var params = mutableListOf<String>()
+    private val endpoint = "endpoint"
+    private val routes = "routes"
+
+    private var params = mutableListOf<String>().also {
+        it.add("$endpoint: ${endpointClazz.qualifiedName!!}")
+        it.add("$routes: HttpRouting.Builder")
+    }
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
         val gen = RoutesBodyGenerator(endpointClazz, endpoint, routes)
