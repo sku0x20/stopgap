@@ -28,7 +28,6 @@ class RoutesGenerator(
 
     fun addImports() {
         imports.add("io.helidon.webserver.http.HttpRouting")
-        imports.add("dev.sku20.helidon.serde.Serde")
     }
 
     private val endpoint = "endpoint"
