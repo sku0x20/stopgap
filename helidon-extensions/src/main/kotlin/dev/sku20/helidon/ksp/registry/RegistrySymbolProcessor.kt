@@ -20,12 +20,16 @@ class RegistrySymbolProcessor(
     private val extension = "kt"
 
     private fun generateFile() {
-        val file = codeGenerator.createNewFile(
-            Dependencies(false),
-            packageName,
-            fileName,
-            extension
-        )
+        val file = try {
+            codeGenerator.createNewFile(
+                Dependencies(false),
+                packageName,
+                fileName,
+                extension
+            )
+        } catch (e: FileAlreadyExistsException) {
+            return
+        }
         file.close()
     }
 }
