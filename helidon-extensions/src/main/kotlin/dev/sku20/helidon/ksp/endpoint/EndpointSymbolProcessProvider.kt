@@ -1,4 +1,4 @@
-package dev.sku20.helidon.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

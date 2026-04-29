@@ -1,6 +1,7 @@
-package dev.sku20.helidon.ksp
+package dev.sku20.helidon.ksp.registry
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import dev.sku20.helidon.ksp.CustomWriter
 
 class RegistryInitializerGenerator(
     private val endpointClazzez: List<KSClassDeclaration>

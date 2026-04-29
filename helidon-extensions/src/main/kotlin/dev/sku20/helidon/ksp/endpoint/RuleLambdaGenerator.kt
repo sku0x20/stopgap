@@ -1,6 +1,7 @@
-package dev.sku20.helidon.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import dev.sku20.helidon.ksp.CustomWriter
 import com.google.devtools.ksp.symbol.KSType
 
 class RuleLambdaGenerator(

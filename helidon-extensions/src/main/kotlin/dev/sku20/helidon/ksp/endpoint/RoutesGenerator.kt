@@ -1,6 +1,8 @@
-package dev.sku20.helidon.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import dev.sku20.helidon.ksp.CustomWriter
+import dev.sku20.helidon.ksp.Utils
 import java.io.InputStream
 
 class RoutesGenerator(

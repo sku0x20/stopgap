@@ -1,6 +1,7 @@
-package dev.sku20.helidon.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.getDeclaredFunctions
+import dev.sku20.helidon.ksp.CustomWriter
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSAnnotation
