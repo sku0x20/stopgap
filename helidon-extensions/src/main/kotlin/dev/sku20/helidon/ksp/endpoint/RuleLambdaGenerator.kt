@@ -2,9 +2,9 @@ package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.helidon.endpoint.CustomSerde
-import dev.sku20.helidon.ksp.CustomWriter
 import com.google.devtools.ksp.symbol.KSType
+import dev.sku20.helidon.ksp.CustomWriter
+import dev.sku20.helidon.serde.CustomSerde
 
 class RuleLambdaGenerator(
     private val function: KSFunctionDeclaration,
@@ -63,16 +63,5 @@ class RuleLambdaGenerator(
     private fun customSerdeAnnotation(): KSAnnotation? =
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }
 
-    private fun validatedCustomSerde(): KSAnnotation? {
-        val annotation = customSerdeAnnotation() ?: return null
-        val qualifier = annotation.arguments.first { it.name?.getShortName() == "qualifier" }.value as String
-        val clazz = annotation.arguments.first { it.name?.getShortName() == "clazz" }.value
-        val hasQualifier = qualifier.isNotEmpty()
-        val hasClazz = clazz.toString() != Unit::class.qualifiedName!!
-        check(!(hasQualifier && hasClazz)) {
-            "CustomSerde on ${function.qualifiedName?.asString()}: set qualifier or clazz, not both"
-        }
-        return annotation
-    }
 
 }

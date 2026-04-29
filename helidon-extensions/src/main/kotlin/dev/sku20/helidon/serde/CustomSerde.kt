@@ -1,4 +1,4 @@
-package dev.sku20.helidon.endpoint
+package dev.sku20.helidon.serde
 
 import kotlin.reflect.KClass
 
