@@ -41,6 +41,7 @@ class RegistrySymbolProcessor(
             GENERATED_FILE_NAME,
             GENERATED_EXTENSION
         )
-        RegistryInitializerGenerator(file, functions, GENERATED_PACKAGE).write()
+        RegistryInitializerGenerator(file, functions, GENERATED_PACKAGE)
+            .write()
     }
 }
