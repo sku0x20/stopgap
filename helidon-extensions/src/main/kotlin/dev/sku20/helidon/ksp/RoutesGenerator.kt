@@ -8,11 +8,17 @@ class RoutesGenerator(
 ) {
 
     private lateinit var w: CustomWriter
+    private lateinit var imports: MutableSet<String>
 
-    fun write(w: CustomWriter) = w.withRelativeIndent {
+    fun write(
+        w: CustomWriter,
+        imports: MutableSet<String>
+    ) = w.withRelativeIndent {
         this@RoutesGenerator.w = w
-        val body = captureBody()
+        this@RoutesGenerator.imports = imports
 
+        addImports()
+        val body = captureBody()
         writeFunctionDefinition()
         withRelativeIndent(4) {
             w.write(body)
@@ -20,11 +26,9 @@ class RoutesGenerator(
         writeLine("}")
     }
 
-    fun imports(): Set<String> {
-        return setOf(
-            "io.helidon.webserver.http.HttpRouting",
-            "dev.sku20.helidon.serde.Serde"
-        )
+    fun addImports() {
+        imports.add("io.helidon.webserver.http.HttpRouting")
+        imports.add("dev.sku20.helidon.serde.Serde")
     }
 
     private val endpoint = "endpoint"
