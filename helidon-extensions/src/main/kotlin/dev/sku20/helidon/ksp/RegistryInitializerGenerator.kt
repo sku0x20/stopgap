@@ -7,14 +7,16 @@ class RegistryInitializerGenerator(
 ) {
 
     private lateinit var w: CustomWriter
+    private lateinit var imports: MutableSet<String>
 
-    fun imports(): List<String> = listOf(
-        "dev.sku20.ir.InstanceRegistry",
-        "io.helidon.webserver.http.HttpRouting",
-    )
-
-    fun write(w: CustomWriter) = w.withRelativeIndent {
+    fun write(
+        w: CustomWriter,
+        imports: MutableSet<String>
+    ) = w.withRelativeIndent {
         this@RegistryInitializerGenerator.w = w
+        this@RegistryInitializerGenerator.imports = imports
+
+        addImports()
         writeFunctionDefinition()
         withRelativeIndent(4) {
             for (endpointClazz in endpointClazzez) {
@@ -22,6 +24,11 @@ class RegistryInitializerGenerator(
             }
         }
         writeLine("}")
+    }
+
+    private fun addImports() {
+        imports.add("dev.sku20.ir.InstanceRegistry")
+        imports.add("io.helidon.webserver.http.HttpRouting")
     }
 
     private val registry = "registry"

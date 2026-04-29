@@ -28,15 +28,13 @@ class InitializersGenerator(
     private fun captureRegistryFunction(): InputStream = Utils.capturing { writer ->
         if (!useRegistry) return@capturing
         val rg = RegistryInitializerGenerator(endpointClazzez)
-        imports.addAll(rg.imports())
-        rg.write(writer)
+        rg.write(writer, imports)
     }
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
         for (endpointClazz in endpointClazzez) {
             val rg = RoutesGenerator(endpointClazz)
-            rg.write(writer)
-            imports.addAll(rg.imports())
+            rg.write(writer, imports)
         }
     }
 
