@@ -12,6 +12,7 @@ class RegistrySymbolProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (options["endpoint.codegen.registry.skip"].toBoolean()) return emptyList()
         val endpointGeneratedFile = findEndpointInitializers(resolver.getNewFiles())
             ?: return emptyList()
         generateFile(endpointGeneratedFile)
