@@ -12,13 +12,13 @@ class RegistrySymbolProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val endpointGeneratedFile = resolver.getNewFiles().findEndpointInitializers()
+        val endpointGeneratedFile = findEndpointInitializers(resolver.getNewFiles())
             ?: return emptyList()
         generateFile(endpointGeneratedFile)
         return emptyList()
     }
 
-    private fun Sequence<KSFile>.findEndpointInitializers(): KSFile? = find {
+    private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
         it.packageName.asString() == EndpointSymbolProcessor.GENERATED_PACKAGE &&
                 it.fileName == "${EndpointSymbolProcessor.GENERATED_FILE_NAME}.${EndpointSymbolProcessor.GENERATED_EXTENSION}"
     }
