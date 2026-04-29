@@ -57,7 +57,13 @@ class RoutesBodyGenerator(
         val (methodFn, path) = httpMethodFor(function)
         writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
         withRelativeIndent(4) {
-            RuleLambdaGenerator(function, endpoint, reqField, resField, defaultSerde).write(w)
+            RuleLambdaGenerator(
+                function,
+                endpoint,
+                reqField,
+                resField,
+                defaultSerde
+            ).write(w)
         }
         writeLine("})")
     }
