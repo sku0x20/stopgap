@@ -11,6 +11,12 @@ class RegistrySymbolProcessor(
     private val options: Map<String, String>
 ) : SymbolProcessor {
 
+    companion object {
+        const val GENERATED_PACKAGE = "dev.sku20.helidon.registry.generated"
+        const val GENERATED_FILE_NAME = "RegistryInitializer"
+        const val GENERATED_EXTENSION = "kt"
+    }
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (skip()) return emptyList()
         val endpointGeneratedFile = findEndpointInitializers(resolver.getNewFiles())
@@ -24,12 +30,6 @@ class RegistrySymbolProcessor(
     private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
         it.packageName.asString() == EndpointSymbolProcessor.GENERATED_PACKAGE &&
                 it.fileName == "${EndpointSymbolProcessor.GENERATED_FILE_NAME}.${EndpointSymbolProcessor.GENERATED_EXTENSION}"
-    }
-
-    companion object {
-        const val GENERATED_PACKAGE = "dev.sku20.helidon.registry.generated"
-        const val GENERATED_FILE_NAME = "RegistryInitializer"
-        const val GENERATED_EXTENSION = "kt"
     }
 
     private fun generateFile(originatingFile: KSFile) {
