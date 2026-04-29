@@ -22,6 +22,7 @@ class RoutesBodyGenerator(
 
     private lateinit var w: CustomWriter
     private lateinit var params: MutableSet<String>
+    private lateinit var imports: MutableSet<String>
 
     fun write(
         w: CustomWriter,
@@ -29,10 +30,8 @@ class RoutesBodyGenerator(
         params: MutableSet<String>
     ) = w.withRelativeIndent {
         this@RoutesBodyGenerator.w = w
+        this@RoutesBodyGenerator.imports = imports
         this@RoutesBodyGenerator.params = params
-
-        imports.add("dev.sku20.helidon.serde.NopSerde")
-        params.add("$defaultSerde: Serde = NopSerde")
 
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
