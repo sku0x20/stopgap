@@ -20,14 +20,20 @@ class RoutesBodyGenerator(
 
     private val defaultSerde = "defaultSerde"
 
-    fun params(): List<String> = listOf(
-        "$defaultSerde: Serde = NopSerde",
-    )
-
     private lateinit var w: CustomWriter
+    private lateinit var params: MutableSet<String>
 
-    fun write(w: CustomWriter) = w.withRelativeIndent {
+    fun write(
+        w: CustomWriter,
+        imports: MutableSet<String>,
+        params: MutableSet<String>
+    ) = w.withRelativeIndent {
         this@RoutesBodyGenerator.w = w
+        this@RoutesBodyGenerator.params = params
+
+        imports.add("dev.sku20.helidon.serde.NopSerde")
+        params.add("$defaultSerde: Serde = NopSerde")
+
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
