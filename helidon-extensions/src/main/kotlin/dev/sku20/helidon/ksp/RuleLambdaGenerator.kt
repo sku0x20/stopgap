@@ -41,6 +41,7 @@ class RuleLambdaGenerator(
     }
 
     private fun writeResp() = w.withRelativeIndent {
+        imports.add("dev.sku20.helidon.serde.Serde")
         imports.add("dev.sku20.helidon.serde.NopSerde")
         params.add("$defaultSerde: Serde = NopSerde")
 
