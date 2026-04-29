@@ -31,10 +31,10 @@ class RoutesGenerator(
     private val endpoint = "endpoint"
     private val routes = "routes"
 
-    private var params = mutableListOf<String>().also {
-        it.add("$endpoint: ${endpointClazz.qualifiedName!!}")
-        it.add("$routes: HttpRouting.Builder")
-    }
+    private var params = mutableListOf(
+        "$endpoint: ${endpointClazz.qualifiedName!!}",
+        "$routes: HttpRouting.Builder",
+    )
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
         val gen = RoutesBodyGenerator(endpointClazz, endpoint, routes)
