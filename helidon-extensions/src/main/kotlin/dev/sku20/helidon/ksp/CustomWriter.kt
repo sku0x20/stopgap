@@ -42,7 +42,8 @@ class CustomWriter(
         indent = n
     }
 
-    private var indent = 0
+    var indent = 0
+        private set
 
     @Suppress("EmptyRange")
     private fun writeIndent() {

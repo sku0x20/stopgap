@@ -21,14 +21,17 @@ class RuleLambdaGenerator(
     private lateinit var imports: MutableSet<String>
     private lateinit var params: MutableSet<String>
 
+    private lateinit var variables: MutableSet<String>
     fun write(
         w: CustomWriter,
         imports: MutableSet<String>,
-        params: MutableSet<String>
+        params: MutableSet<String>,
+        variables: MutableSet<String>
     ) = w.withRelativeIndent {
         this@RuleLambdaGenerator.w = w
         this@RuleLambdaGenerator.params = params
         this@RuleLambdaGenerator.imports = imports
+        this@RuleLambdaGenerator.variables = variables
 
         writeLambdaBody()
     }
@@ -44,19 +47,19 @@ class RuleLambdaGenerator(
 
     private val defaultSerde = "defaultSerde"
     private val respVariable = "resp"
-    private val bodyKType = "bodyKType"
+    private val bodyKType = "${functionName}BodyKType"
 
     // we can capture and required types from function call and epilogue.
     // but fine for now. loops not going to hurt much here.
     private fun writePrologue() = w.withRelativeIndent {
-        writeKTypeIfValid()
+        addKTypeVariableIfValid()
     }
 
-    private fun writeKTypeIfValid() = w.withRelativeIndent {
+    private fun addKTypeVariableIfValid() = w.withRelativeIndent {
         val bodyType = getBodyTypeIfExists() ?: return@withRelativeIndent
         if (bodyType.isGeneric()) {
             imports.add("kotlin.reflect.typeOf")
-            writeLine("val $bodyKType = typeOf<${toFqnString(bodyType)}>()")
+            variables.add("$bodyKType = typeOf<${toFqnString(bodyType)}>()")
         }
     }
 

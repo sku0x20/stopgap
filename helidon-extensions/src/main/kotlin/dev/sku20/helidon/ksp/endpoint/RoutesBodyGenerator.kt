@@ -8,6 +8,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
+import dev.sku20.helidon.ksp.Utils
+import java.io.InputStream
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -41,27 +43,33 @@ class RoutesBodyGenerator(
     }
 
     private fun writeRulesLambda() = w.withRelativeIndent {
-        writeLine(rulesField)
-        withRelativeIndent(4) {
-            for (function in endpointClazz.getDeclaredFunctions()) {
-                if (function.isConstructor()) continue
-                if (!function.isPublic()) continue
-                writeRule(function)
-            }
+        for (function in endpointClazz.getDeclaredFunctions()) {
+            if (function.isConstructor()) continue
+            if (!function.isPublic()) continue
+            writeRule(function)
         }
     }
 
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
-        val (methodFn, path) = httpMethodFor(function)
-        writeLine(".${methodFn}(\"${path}\", {$reqField, $resField ->")
+        val variables = mutableSetOf<String>()
+
+        var lambda: InputStream = byteArrayOf().inputStream()
         withRelativeIndent(4) {
-            RuleLambdaGenerator(
-                function,
-                endpoint,
-                reqField,
-                resField,
-            ).write(w, imports, params)
+            lambda = Utils.capturing { iw ->
+                iw.setIndent(w.indent)
+                RuleLambdaGenerator(
+                    function,
+                    endpoint,
+                    reqField,
+                    resField,
+                ).write(iw, imports, params, variables)
+            }
         }
+
+        for (variable in variables) writeLine("val $variable")
+        val (methodFn, path) = httpMethodFor(function)
+        writeLine("$rulesField.${methodFn}(\"${path}\", {$reqField, $resField ->")
+        w.write(lambda)
         writeLine("})")
     }
 
