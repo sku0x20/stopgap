@@ -2,6 +2,8 @@ package com.example.stopgap.serde.fastjson
 
 import com.alibaba.fastjson2.JSON
 import dev.sku20.helidon.serde.Serde
+import io.helidon.http.HeaderNames
+import io.helidon.http.HeaderValues
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.ServerResponseHeaders
 import kotlin.reflect.KClass
@@ -23,7 +25,10 @@ class FastjsonSerde : Serde {
         return JSON.toJSONBytes(obj)
     }
 
+    // from io.helidon.http.media.StringSupport.java:45
+    @Suppress("PrivatePropertyName")
+    private val JSON_UTF_8 = HeaderValues.createCached(HeaderNames.CONTENT_TYPE, HttpMediaTypes.JSON_UTF_8.text())
     override fun setHeaders(headers: ServerResponseHeaders) {
-        headers.contentType(HttpMediaTypes.JSON_UTF_8)
+        headers.set(JSON_UTF_8)
     }
 }
