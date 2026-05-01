@@ -32,19 +32,32 @@ class RuleLambdaGenerator(
         writeResp()
     }
 
+    private val respVariable = "resp"
     private fun writeResp() = w.withRelativeIndent {
         imports.add("dev.sku20.helidon.serde.Serde")
         imports.add("dev.sku20.helidon.serde.SerdeExtras")
         params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
 
-        writeLine("val resp = $endpoint.${functionName}(")
+        writeLine("val $respVariable = $endpoint.${functionName}(")
         withRelativeIndent(4) {
             writeLine("$req,")
-            writeLine(res)
+            writeLine("$res,")
+            writeReqDeserializerIfValid()
         }
         writeLine(")")
-
         writeSerializeIfValid()
+    }
+
+    private fun writeReqDeserializerIfValid() = w.withRelativeIndent {
+        if (function.parameters.size > 2) {
+            val param = function.parameters[2]
+            val requestBody = param.type.resolve().declaration
+            imports.add(requestBody.qualifiedName!!.asString())
+            writeLine(
+                "$defaultSerde.deserialize($req.content().inputStream().readAllBytes()," +
+                    " ${requestBody.simpleName.asString()}::class),"
+            )
+        }
     }
 
     private fun writeSerializeIfValid() = w.withRelativeIndent {
@@ -53,7 +66,7 @@ class RuleLambdaGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             writeLine("$defaultSerde.setHeaders($res.headers())")
-            writeLine("$res.send($defaultSerde.serialize(resp))")
+            writeLine("$res.send($defaultSerde.serialize($respVariable))")
         }
     }
 
