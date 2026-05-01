@@ -5,6 +5,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.serde.CustomSerde
+import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 
 class RuleLambdaGenerator(
     private val function: KSFunctionDeclaration,
@@ -29,35 +31,51 @@ class RuleLambdaGenerator(
         this@RuleLambdaGenerator.params = params
         this@RuleLambdaGenerator.imports = imports
 
-        writeResp()
+        writeLambdaBody()
+    }
+
+    // in order
+    private val functionParamsTypes = function.parameters.map { it.type.resolve() }
+
+    private fun writeLambdaBody() = w.withRelativeIndent {
+        writePrologue()
+        writeFunctionCall()
+        writeEpilogue()
     }
 
     private val respVariable = "resp"
-    private fun writeResp() = w.withRelativeIndent {
-        imports.add("dev.sku20.helidon.serde.Serde")
-        imports.add("dev.sku20.helidon.serde.SerdeExtras")
-        params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
 
+    private fun writePrologue() = w.withRelativeIndent {
+
+    }
+
+    private fun writeFunctionCall() = w.withRelativeIndent {
         writeLine("val $respVariable = $endpoint.${functionName}(")
         withRelativeIndent(4) {
-            writeLine("$req,")
-            if (hasRes()) writeLine("$res,")
-            writeReqDeserializerIfValid()
+            for (type in functionParamsTypes) {
+                val value = getParamValue(type)
+                writeLine("$value,")
+            }
         }
         writeLine(")")
+    }
+
+    private fun writeEpilogue() = w.withRelativeIndent {
         writeSerializeIfValid()
     }
 
-    private fun writeReqDeserializerIfValid() = w.withRelativeIndent {
-        if (function.parameters.size > 2) {
-            val param = function.parameters[2]
-            val requestBody = param.type.resolve().declaration
-            imports.add(requestBody.qualifiedName!!.asString())
-            writeLine(
-                "$defaultSerde.deserialize($req.content().inputStream().readAllBytes()," +
-                    " ${requestBody.simpleName.asString()}::class),"
-            )
-        }
+    private fun getParamValue(type: KSType) = when (type.declaration.qualifiedName!!.asString()) {
+        ServerRequest::class.qualifiedName -> req
+        ServerResponse::class.qualifiedName -> res
+        else -> bodyDeserialized(type)
+    }
+
+    private fun bodyDeserialized(type: KSType): String {
+        addSerde()
+        val requestBody = type.declaration
+        imports.add(requestBody.qualifiedName!!.asString())
+        return "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), " +
+            "${requestBody.simpleName.asString()}::class)"
     }
 
     private fun writeSerializeIfValid() = w.withRelativeIndent {
@@ -65,22 +83,24 @@ class RuleLambdaGenerator(
         if (!isUnit(returnType)) {
             writeLine("$defaultSerde.setHeaders($res.headers())")
             writeLine("$res.send($defaultSerde.serialize($respVariable))")
-        } else if (!hasRes()) {
+        } else if (!hasServerResponseParam()) {
             writeLine("$res.send()")
         }
+    }
+
+    private fun addSerde() {
+        imports.add("dev.sku20.helidon.serde.Serde")
+        imports.add("dev.sku20.helidon.serde.SerdeExtras")
+        params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
     }
 
     private fun isUnit(type: KSType): Boolean =
         type.declaration.qualifiedName!!.asString() == Unit::class.qualifiedName!!
 
-    private fun hasRes(): Boolean =
-        function.parameters.any {
-            it.type.resolve().declaration.qualifiedName!!.asString() ==
-                "io.helidon.webserver.http.ServerResponse"
-        }
+    private fun hasServerResponseParam(): Boolean =
+        functionParamsTypes.find { it.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName } != null
 
     private fun customSerdeAnnotation(): KSAnnotation? =
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }
-
 
 }

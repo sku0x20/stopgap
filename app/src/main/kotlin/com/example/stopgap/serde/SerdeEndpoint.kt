@@ -30,7 +30,7 @@ class SerdeEndpoint {
     }
 
     @Get("/unitGet")
-    fun unitGet(req: ServerRequest) {
+    fun unitGet() {
     }
 
 }
