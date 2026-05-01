@@ -39,6 +39,18 @@ class SerdeEndpointTest {
     }
 
     @Test
+    fun genericPost() {
+        val body = """[{"data":"foo"},{"data":"bar"}]"""
+
+        val response = client.post("/serde/genericPost")
+            .submit(body)
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"foo = bar"}""")
+    }
+
+    @Test
     fun ser() {
         val random = Random.nextLong()
         val response = client.get("/serde/serObj")
