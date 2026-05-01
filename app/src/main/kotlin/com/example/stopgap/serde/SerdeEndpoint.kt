@@ -29,4 +29,8 @@ class SerdeEndpoint {
         return ResDto(data)
     }
 
+    @Get("/unitGet")
+    fun unitGet(req: ServerRequest) {
+    }
+
 }

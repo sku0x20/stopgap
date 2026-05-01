@@ -41,7 +41,7 @@ class RuleLambdaGenerator(
         writeLine("val $respVariable = $endpoint.${functionName}(")
         withRelativeIndent(4) {
             writeLine("$req,")
-            writeLine("$res,")
+            if (hasRes()) writeLine("$res,")
             writeReqDeserializerIfValid()
         }
         writeLine(")")
@@ -61,17 +61,23 @@ class RuleLambdaGenerator(
     }
 
     private fun writeSerializeIfValid() = w.withRelativeIndent {
-        // todo: check if function takes in res.
-        // if doesn't add res.send()
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             writeLine("$defaultSerde.setHeaders($res.headers())")
             writeLine("$res.send($defaultSerde.serialize($respVariable))")
+        } else if (!hasRes()) {
+            writeLine("$res.send()")
         }
     }
 
     private fun isUnit(type: KSType): Boolean =
         type.declaration.qualifiedName!!.asString() == Unit::class.qualifiedName!!
+
+    private fun hasRes(): Boolean =
+        function.parameters.any {
+            it.type.resolve().declaration.qualifiedName!!.asString() ==
+                "io.helidon.webserver.http.ServerResponse"
+        }
 
     private fun customSerdeAnnotation(): KSAnnotation? =
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }

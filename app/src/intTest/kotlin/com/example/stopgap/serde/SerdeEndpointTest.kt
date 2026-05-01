@@ -31,6 +31,14 @@ class SerdeEndpointTest {
     }
 
     @Test
+    fun unitGet() {
+        val response = client.get("/serde/unitGet").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEmpty()
+    }
+
+    @Test
     fun ser() {
         val random = Random.nextLong()
         val response = client.get("/serde/serObj")
