@@ -29,18 +29,7 @@ class RuleLambdaGenerator(
         this@RuleLambdaGenerator.params = params
         this@RuleLambdaGenerator.imports = imports
 
-        val returnType = function.returnType!!.resolve()
-        if (isUnit(returnType)) writeUnitResp()
-        else writeResp()
-    }
-
-    private fun writeUnitResp() = w.withRelativeIndent {
-        writeLine("$endpoint.${functionName}(")
-        withRelativeIndent(4) {
-            writeLine("$req,")
-            writeLine(res)
-        }
-        writeLine(")")
+        writeResp()
     }
 
     private fun writeResp() = w.withRelativeIndent {
@@ -55,8 +44,17 @@ class RuleLambdaGenerator(
         }
         writeLine(")")
 
-        writeLine("$defaultSerde.setHeaders($res.headers())")
-        writeLine("$res.send($defaultSerde.serialize(resp))")
+        writeSerialize()
+    }
+
+    private fun writeSerialize() = w.withRelativeIndent {
+        // todo: check if function takes in res.
+        // if doesn't add res.send()
+        val returnType = function.returnType!!.resolve()
+        if (!isUnit(returnType)) {
+            writeLine("$defaultSerde.setHeaders($res.headers())")
+            writeLine("$res.send($defaultSerde.serialize(resp))")
+        }
     }
 
     private fun isUnit(type: KSType): Boolean =
