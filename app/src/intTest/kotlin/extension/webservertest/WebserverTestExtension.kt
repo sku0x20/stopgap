@@ -1,6 +1,5 @@
 package extension.webservertest
 
-import dev.sku20.helidon.serde.Serde
 import extension.InjectInstance
 import extension.SharedStore
 import io.helidon.config.Config
@@ -38,7 +37,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         private const val USER_INSTANCES_ID = "user.instances"
         private const val ENDPOINT_INSTANCE_ID = "endpoint.instance"
-        private const val SERDE_INSTANCE_ID = "serde.instance"
+        private const val EXTRAS_ID = "extras.instances"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -87,7 +86,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
         store.put(USER_INSTANCES_ID, instances)
         store.put(ENDPOINT_INSTANCE_ID, setup.endpoint)
-        store.put(SERDE_INSTANCE_ID, setup.serde)
+        store.put(EXTRAS_ID, setup.extras)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -114,7 +113,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .host("localhost")
 
         val endpoint = store.get(ENDPOINT_INSTANCE_ID)!!
-        val serde = store.get(SERDE_INSTANCE_ID) as Serde
+        val extras = store.get(EXTRAS_ID) as Array<out Any>
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val method = findMethodWith(
@@ -123,7 +122,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             endpoint::class.java, HttpRouting.Builder::class.java
         )
         val routes = HttpRouting.builder()
-        method.invoke(null, endpoint, routes, serde)
+        method.invoke(null, endpoint, routes, *extras)
         serverBuilder.routing(routes)
 
         findStaticMethod(
