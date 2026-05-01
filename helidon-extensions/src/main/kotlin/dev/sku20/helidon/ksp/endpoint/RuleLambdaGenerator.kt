@@ -44,9 +44,21 @@ class RuleLambdaGenerator(
     }
 
     private val respVariable = "resp"
+    private val bodyKType = "bodyKType"
 
+    // we can capture and required types from function call and epilogue.
+    // but fine for now. loops not going to hurt much here.
     private fun writePrologue() = w.withRelativeIndent {
+        writeKTypeIfValid()
+    }
 
+    private fun writeKTypeIfValid() = w.withRelativeIndent {
+        val bodyType = getBodyTypeIfExists() ?: return@withRelativeIndent
+        if (bodyType.arguments.isNotEmpty()) {
+            // generic type
+            imports.add("kotlin.reflect.typeOf")
+            writeLine("val $bodyKType = typeOf<${toTypeString(bodyType)}>()")
+        }
     }
 
     private fun writeFunctionCall() = w.withRelativeIndent {
@@ -100,6 +112,28 @@ class RuleLambdaGenerator(
 
     private fun hasServerResponseParam(): Boolean =
         functionParamsTypes.find { it.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName } != null
+
+    private fun getBodyTypeIfExists() = functionParamsTypes.find {
+        it.declaration.qualifiedName!!.asString() != ServerRequest::class.qualifiedName &&
+            it.declaration.qualifiedName!!.asString() != ServerResponse::class.qualifiedName
+    }
+
+    // base we are adding as import
+    // manual transversal/type resolution
+    // outermost typ
+    fun toTypeString(type: KSType): String {
+        fun fqn(t: KSType): String {
+            val base = t.declaration.qualifiedName!!.asString()
+            if (t.arguments.isEmpty()) return base
+            val args = t.arguments.joinToString(", ") { arg -> fqn(arg.type!!.resolve()) }
+            return "$base<$args>"
+        }
+
+        val base = type.declaration.simpleName.asString()
+        if (type.arguments.isEmpty()) return base
+        val args = type.arguments.joinToString(", ") { arg -> fqn(arg.type!!.resolve()) }
+        return "$base<$args>"
+    }
 
     private fun customSerdeAnnotation(): KSAnnotation? =
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }
