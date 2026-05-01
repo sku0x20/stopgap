@@ -54,6 +54,8 @@ class RuleLambdaGenerator(
             writeLine(res)
         }
         writeLine(")")
+
+        writeLine("$defaultSerde.setHeaders($res.headers())")
         writeLine("$res.send($defaultSerde.serialize(resp))")
     }
 
