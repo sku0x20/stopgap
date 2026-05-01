@@ -13,5 +13,5 @@ interface Serde {
     fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
     fun <T> serialize(obj: T): ByteArray
-    fun setHeaders(headers: ServerResponseHeaders) = Unit
+    fun setHeaders(headers: ServerResponseHeaders)
 }
