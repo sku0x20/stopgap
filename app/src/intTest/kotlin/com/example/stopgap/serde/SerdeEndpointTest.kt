@@ -20,7 +20,7 @@ class SerdeEndpointTest {
     @Test
     fun des() {
         val random = Random.nextLong()
-        val data = """{"expected": "$random"}"""
+        val data = """{"data": "$random"}"""
 
         val response = client.post("/serde/desObj")
             .submit(data)

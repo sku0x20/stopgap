@@ -17,7 +17,7 @@ class SerdeEndpoint {
     ) {
         val bytes = req.content().inputStream().readAllBytes()
         val obj = bytes.to<ReqDto>()
-        res.send(obj.expected)
+        res.send(obj.data)
     }
 
     @Get("/serObj")
