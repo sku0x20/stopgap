@@ -1,13 +1,13 @@
 package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.getDeclaredFunctions
-import dev.sku20.helidon.ksp.CustomWriter
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.*
+import dev.sku20.helidon.ksp.CustomWriter
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -18,8 +18,6 @@ class RoutesBodyGenerator(
     private val rulesField = "rules"
     private val reqField = "req"
     private val resField = "res"
-
-    private val defaultSerde = "defaultSerde"
 
     private lateinit var w: CustomWriter
     private lateinit var params: MutableSet<String>
@@ -62,7 +60,6 @@ class RoutesBodyGenerator(
                 endpoint,
                 reqField,
                 resField,
-                defaultSerde
             ).write(w, imports, params)
         }
         writeLine("})")

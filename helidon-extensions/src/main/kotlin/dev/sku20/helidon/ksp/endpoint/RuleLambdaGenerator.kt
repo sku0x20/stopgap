@@ -13,7 +13,6 @@ class RuleLambdaGenerator(
     private val endpoint: String,
     private val req: String,
     private val res: String,
-    private val defaultSerde: String,
 ) {
 
     private val functionName = function.simpleName.asString()
@@ -43,6 +42,7 @@ class RuleLambdaGenerator(
         writeEpilogue()
     }
 
+    private val defaultSerde = "defaultSerde"
     private val respVariable = "resp"
     private val bodyKType = "bodyKType"
 
