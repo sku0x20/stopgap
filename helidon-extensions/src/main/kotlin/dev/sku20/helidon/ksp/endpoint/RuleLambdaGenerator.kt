@@ -45,8 +45,8 @@ class RuleLambdaGenerator(
 
     private fun writeResp() = w.withRelativeIndent {
         imports.add("dev.sku20.helidon.serde.Serde")
-        imports.add("dev.sku20.helidon.serde.NopSerde")
-        params.add("$defaultSerde: Serde = NopSerde")
+        imports.add("dev.sku20.helidon.serde.SerdeExtras")
+        params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
 
         writeLine("val resp = $endpoint.${functionName}(")
         withRelativeIndent(4) {
