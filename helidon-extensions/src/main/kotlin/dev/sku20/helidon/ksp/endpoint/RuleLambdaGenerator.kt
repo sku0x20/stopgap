@@ -44,10 +44,10 @@ class RuleLambdaGenerator(
         }
         writeLine(")")
 
-        writeSerialize()
+        writeSerializeIfValid()
     }
 
-    private fun writeSerialize() = w.withRelativeIndent {
+    private fun writeSerializeIfValid() = w.withRelativeIndent {
         // todo: check if function takes in res.
         // if doesn't add res.send()
         val returnType = function.returnType!!.resolve()
