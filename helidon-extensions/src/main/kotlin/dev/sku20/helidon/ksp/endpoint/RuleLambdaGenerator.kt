@@ -54,10 +54,9 @@ class RuleLambdaGenerator(
 
     private fun writeKTypeIfValid() = w.withRelativeIndent {
         val bodyType = getBodyTypeIfExists() ?: return@withRelativeIndent
-        if (bodyType.arguments.isNotEmpty()) {
-            // generic type
+        if (bodyType.isGeneric()) {
             imports.add("kotlin.reflect.typeOf")
-            writeLine("val $bodyKType = typeOf<${toTypeString(bodyType)}>()")
+            writeLine("val $bodyKType = typeOf<${toFqnString(bodyType)}>()")
         }
     }
 
@@ -86,7 +85,8 @@ class RuleLambdaGenerator(
         addSerde()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        return "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), " +
+        return if (type.isGeneric()) "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
+        else "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), " +
             "${requestBody.simpleName.asString()}::class)"
     }
 
@@ -120,22 +120,17 @@ class RuleLambdaGenerator(
 
     // base we are adding as import
     // manual transversal/type resolution
-    // outermost typ
-    fun toTypeString(type: KSType): String {
-        fun fqn(t: KSType): String {
-            val base = t.declaration.qualifiedName!!.asString()
-            if (t.arguments.isEmpty()) return base
-            val args = t.arguments.joinToString(", ") { arg -> fqn(arg.type!!.resolve()) }
-            return "$base<$args>"
-        }
-
-        val base = type.declaration.simpleName.asString()
+    fun toFqnString(type: KSType): String {
+        val base = type.declaration.qualifiedName!!.asString()
         if (type.arguments.isEmpty()) return base
-        val args = type.arguments.joinToString(", ") { arg -> fqn(arg.type!!.resolve()) }
+        val args = type.arguments.joinToString(", ") { arg ->
+            toFqnString(arg.type!!.resolve())
+        }
         return "$base<$args>"
     }
 
     private fun customSerdeAnnotation(): KSAnnotation? =
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }
 
+    private fun KSType.isGeneric(): Boolean = this.arguments.isNotEmpty()
 }

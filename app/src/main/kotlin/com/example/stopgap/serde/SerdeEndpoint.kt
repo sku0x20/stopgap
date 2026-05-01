@@ -33,4 +33,11 @@ class SerdeEndpoint {
     fun unitGet() {
     }
 
+    @Post("/genericPost")
+    fun genericPost(
+        body: List<com.example.stopgap.serde.ResDto>
+    ): ResDto {
+        return ResDto(body.joinToString(" = ") { it.data })
+    }
+
 }
