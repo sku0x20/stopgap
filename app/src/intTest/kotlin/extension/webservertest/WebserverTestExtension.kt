@@ -78,15 +78,14 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val instances = mutableMapOf<Class<*>, Any>()
         val setup = findStaticMethod(
             testClass,
             WebserverTest.Setup::class.java
-        )?.invoke(null, instances) as? EndpointSetup
+        )?.invoke(null) as? SetupCapture
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
-        store.put(USER_INSTANCES_ID, instances)
+        store.put(USER_INSTANCES_ID, setup.instances)
         store.put(ENDPOINT_INSTANCE_ID, setup.endpoint)
-        store.put(EXTRAS_ID, setup.extras)
+        store.put(EXTRAS_ID, setup.registerParams)
     }
 
     @Suppress("UNCHECKED_CAST")
