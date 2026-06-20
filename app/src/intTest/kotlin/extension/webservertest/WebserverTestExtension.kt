@@ -35,9 +35,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
 
-        private const val USER_INSTANCES_ID = "user.instances"
-        private const val ENDPOINT_INSTANCE_ID = "endpoint.instance"
-        private const val EXTRAS_ID = "extras.instances"
+        private const val SETUP_CAPTURE_ID = "setup.capture"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -61,7 +59,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
                 else -> field.set(
                     testInstance,
-                    (store.get(USER_INSTANCES_ID) as Map<*, *>)[field.type]
+                    (store.get(SETUP_CAPTURE_ID) as SetupCapture).instances[field.type]
                 )
             }
         }
@@ -83,24 +81,20 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             WebserverTest.Setup::class.java
         )?.invoke(null) as? SetupCapture
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
-        store.put(USER_INSTANCES_ID, setup.instances)
-        store.put(ENDPOINT_INSTANCE_ID, setup.endpoint)
-        store.put(EXTRAS_ID, setup.registerParams)
+        store.put(SETUP_CAPTURE_ID, setup)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun cleanup(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
+        val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
         findStaticMethod(
             testClass,
             WebserverTest.Cleanup::class.java
-        )?.invoke(null, instances)
+        )?.invoke(null, setup.instances)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun startServer(
         testClass: Class<*>,
         store: ExtensionContext.Store
@@ -111,8 +105,9 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
-        val endpoint = store.get(ENDPOINT_INSTANCE_ID)!!
-        val extras = store.get(EXTRAS_ID) as Array<out Any>
+        val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
+        val endpoint = setup.endpoint
+        val extras = setup.registerParams
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val method = findMethodWith(
@@ -140,13 +135,12 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         server.stop()
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun Method?.invokeStaticMethodWithArgs(
         firstArg: Any,
         store: ExtensionContext.Store
     ) {
         if (this == null) return
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
+        val instances = (store.get(SETUP_CAPTURE_ID) as SetupCapture).instances
         val argsCount = this.parameterCount
         if (argsCount == 1) {
             this.invoke(null, firstArg); return
