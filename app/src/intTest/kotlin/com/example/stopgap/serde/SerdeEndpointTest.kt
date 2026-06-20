@@ -66,7 +66,7 @@ class SerdeEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(SerdeEndpoint(), arrayOf(FastjsonSerde()), emptyMap())
+            return SetupCapture(SerdeEndpoint(), arrayOf(FastjsonSerde()))
         }
     }
 }

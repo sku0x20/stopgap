@@ -54,7 +54,7 @@ class UuidEndpointTest {
         fun createEndpoint(): SetupCapture {
             val uuidGen = UuidGen()
             val endpoint = UuidEndpoint(uuidGen)
-            return SetupCapture(endpoint, emptyArray(), mapOf(UuidGen::class.java to uuidGen))
+            return SetupCapture(endpoint, instances = mapOf(UuidGen::class.java to uuidGen))
         }
 
         @JvmStatic

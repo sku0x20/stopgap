@@ -32,7 +32,7 @@ class ExceptionEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun createEndpoint(): SetupCapture {
-            return SetupCapture(ExceptionEndpoint(), emptyArray(), emptyMap())
+            return SetupCapture(ExceptionEndpoint())
         }
 
     }
