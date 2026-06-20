@@ -2,7 +2,7 @@ package com.example.stopgap.serde
 
 import com.example.stopgap.serde.fastjson.FastjsonSerde
 import extension.InjectInstance
-import extension.webservertest.EndpointSetup
+import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
@@ -65,8 +65,8 @@ class SerdeEndpointTest {
     companion object {
         @JvmStatic
         @WebserverTest.Setup
-        fun setup(extras: MutableMap<Class<*>, Any>): EndpointSetup {
-            return EndpointSetup(SerdeEndpoint(), FastjsonSerde())
+        fun setup(): SetupCapture {
+            return SetupCapture(SerdeEndpoint(), arrayOf(FastjsonSerde()), emptyMap())
         }
     }
 }
