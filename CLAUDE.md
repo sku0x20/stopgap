@@ -23,6 +23,9 @@
 ## External Commands
 - Never run heavy external commands (e.g. `./gradlew`). Ask me to run them and share the output.
 
+## Subagents
+- When spawning via the `Agent` tool, always pass `model: "haiku"`.
+
 ## Tool Usage
 - Web search, doc fetching, etc. can be done without asking permission first.
 - Keep confirmation prompts for external/destructive tools minimal — only ask when the risk is genuinely high.
