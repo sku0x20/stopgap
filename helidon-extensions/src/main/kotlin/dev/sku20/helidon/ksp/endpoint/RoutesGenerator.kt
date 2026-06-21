@@ -7,18 +7,11 @@ import java.io.InputStream
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
+    private val w: CustomWriter,
+    private val imports: MutableSet<String>,
 ) {
 
-    private lateinit var w: CustomWriter
-    private lateinit var imports: MutableSet<String>
-
-    fun write(
-        w: CustomWriter,
-        imports: MutableSet<String>
-    ) = w.withRelativeIndent {
-        this@RoutesGenerator.w = w
-        this@RoutesGenerator.imports = imports
-
+    fun write() = w.withRelativeIndent {
         addImports()
         val body = captureBody()
         writeFunctionDefinition()
@@ -42,8 +35,7 @@ class RoutesGenerator(
     )
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
-        val gen = RoutesBodyGenerator(endpointClazz, endpoint, routes)
-        gen.write(writer, imports, params)
+        RoutesBodyGenerator(endpointClazz, endpoint, routes, writer, imports, params).write()
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {

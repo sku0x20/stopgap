@@ -15,25 +15,16 @@ class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val endpoint: String,
     private val routes: String,
+    private val w: CustomWriter,
+    private val imports: MutableSet<String>,
+    private val params: MutableSet<String>,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
     private val reqField = "req"
     private val resField = "res"
 
-    private lateinit var w: CustomWriter
-    private lateinit var params: MutableSet<String>
-    private lateinit var imports: MutableSet<String>
-
-    fun write(
-        w: CustomWriter,
-        imports: MutableSet<String>,
-        params: MutableSet<String>
-    ) = w.withRelativeIndent {
-        this@RoutesBodyGenerator.w = w
-        this@RoutesBodyGenerator.imports = imports
-        this@RoutesBodyGenerator.params = params
-
+    fun write() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
@@ -62,7 +53,11 @@ class RoutesBodyGenerator(
                     endpoint,
                     reqField,
                     resField,
-                ).write(iw, imports, params, variables)
+                    iw,
+                    imports,
+                    params,
+                    variables,
+                ).write()
             }
         }
 

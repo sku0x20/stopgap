@@ -13,26 +13,15 @@ class RuleLambdaGenerator(
     private val endpoint: String,
     private val req: String,
     private val res: String,
+    private val w: CustomWriter,
+    private val imports: MutableSet<String>,
+    private val params: MutableSet<String>,
+    private val variables: MutableSet<String>,
 ) {
 
     private val functionName = function.simpleName.asString()
 
-    private lateinit var w: CustomWriter
-    private lateinit var imports: MutableSet<String>
-    private lateinit var params: MutableSet<String>
-
-    private lateinit var variables: MutableSet<String>
-    fun write(
-        w: CustomWriter,
-        imports: MutableSet<String>,
-        params: MutableSet<String>,
-        variables: MutableSet<String>
-    ) = w.withRelativeIndent {
-        this@RuleLambdaGenerator.w = w
-        this@RuleLambdaGenerator.params = params
-        this@RuleLambdaGenerator.imports = imports
-        this@RuleLambdaGenerator.variables = variables
-
+    fun write() = w.withRelativeIndent {
         writeLambdaBody()
     }
 

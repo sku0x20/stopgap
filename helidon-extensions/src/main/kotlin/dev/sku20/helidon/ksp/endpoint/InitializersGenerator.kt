@@ -26,8 +26,7 @@ class InitializersGenerator(
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
         for (endpointClazz in endpointClazzez) {
-            val rg = RoutesGenerator(endpointClazz)
-            rg.write(writer, imports)
+            RoutesGenerator(endpointClazz, writer, imports).write()
         }
     }
 
