@@ -45,6 +45,12 @@ class MapSerdeCatalogTest {
     }
 
     @Test
+    fun throwsWhenMediaTypeIsNull() {
+        assertThatThrownBy { catalog.get(null) }
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+    }
+
+    @Test
     fun throwsWhenAddingDuplicateMediaType() {
         catalog.add(serde)
 
