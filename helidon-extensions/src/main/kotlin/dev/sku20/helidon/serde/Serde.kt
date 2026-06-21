@@ -1,6 +1,5 @@
 package dev.sku20.helidon.serde
 
-import io.helidon.http.ServerResponseHeaders
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -13,5 +12,4 @@ interface Serde {
     fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
     fun <T> serialize(obj: T): ByteArray
-    fun setHeaders(headers: ServerResponseHeaders)
 }

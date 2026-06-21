@@ -97,7 +97,6 @@ class RuleLambdaGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerde()
-            writeLine("$defaultSerde.setHeaders($res.headers())")
             writeLine("$res.send($defaultSerde.serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
             writeLine("$res.send()")
