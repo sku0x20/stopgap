@@ -7,6 +7,7 @@ import dev.sku20.helidon.endpoint.Get
 class CustomEndpoint {
 
     @Get("/")
-    fun get() {
+    fun get(): ResDto {
+        return ResDto("hello")
     }
 }
