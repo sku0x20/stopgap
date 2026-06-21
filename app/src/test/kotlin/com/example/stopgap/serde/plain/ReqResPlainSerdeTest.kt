@@ -2,6 +2,7 @@ package com.example.stopgap.serde.plain
 
 import com.example.stopgap.serde.ReqDto
 import com.example.stopgap.serde.ResDto
+import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -12,7 +13,7 @@ class ReqResPlainSerdeTest {
 
     @Test
     fun mediaType() {
-        assertThat(serde.mediaType).isEqualTo(HttpMediaTypes.PLAINTEXT_UTF_8)
+        assertThat(serde.mediaType as Any).isEqualTo(HttpMediaTypes.PLAINTEXT_UTF_8)
     }
 
     @Test
