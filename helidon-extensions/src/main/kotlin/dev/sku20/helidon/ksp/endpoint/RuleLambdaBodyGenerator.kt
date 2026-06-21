@@ -17,12 +17,12 @@ class RuleLambdaBodyGenerator(
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
+    private val rulesVariables: MutableSet<String>
 ) {
 
     private val functionName = function.simpleName.asString()
 
     fun write() = w.withRelativeIndent {
-        writePrologue()
         writeFunctionCall()
         writeEpilogue()
     }
@@ -33,20 +33,6 @@ class RuleLambdaBodyGenerator(
     private val defaultSerdeCatalog = "defaultSerdeCatalog"
     private val respVariable = "resp"
     private val bodyKType = "${functionName}BodyKType"
-
-    // we can capture and required types from function call and epilogue.
-    // but fine for now. loops not going to hurt much here.
-    private fun writePrologue() = w.withRelativeIndent {
-        addKTypeVariableIfValid()
-    }
-
-    private fun addKTypeVariableIfValid() = w.withRelativeIndent {
-        val bodyType = getBodyTypeIfExists() ?: return@withRelativeIndent
-        if (bodyType.isGeneric()) {
-            imports.add("kotlin.reflect.typeOf")
-            variables.add("$bodyKType = typeOf<${toFqnString(bodyType)}>()")
-        }
-    }
 
     private fun writeFunctionCall() = w.withRelativeIndent {
         writeLine("val $respVariable = $endpoint.${functionName}(")
@@ -73,9 +59,18 @@ class RuleLambdaBodyGenerator(
         addSerdeCatalog()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        return if (type.isGeneric()) "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
-        else "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), " +
-            "${requestBody.simpleName.asString()}::class)"
+        if (type.isGeneric()) {
+            return genericDeserialization(type)
+        } else {
+            return "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), " +
+                "${requestBody.simpleName.asString()}::class)"
+        }
+    }
+
+    private fun genericDeserialization(requestBody: KSType): String {
+        imports.add("kotlin.reflect.typeOf")
+        variables.add("$bodyKType = typeOf<${toFqnString(requestBody)}>()")
+        return "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
     }
 
     private val serializer = "ser"
@@ -102,11 +97,6 @@ class RuleLambdaBodyGenerator(
 
     private fun hasServerResponseParam(): Boolean =
         functionParamsTypes.find { it.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName } != null
-
-    private fun getBodyTypeIfExists() = functionParamsTypes.find {
-        it.declaration.qualifiedName!!.asString() != ServerRequest::class.qualifiedName &&
-            it.declaration.qualifiedName!!.asString() != ServerResponse::class.qualifiedName
-    }
 
     // base we are adding as import
     // manual transversal/type resolution

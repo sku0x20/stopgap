@@ -18,11 +18,27 @@ class RuleLambdaGenerator(
 
     fun write() = w.withRelativeIndent {
         val body = captureBody()
+        writeVariables()
         w.write(body)
+    }
+
+    private val rulesVariables = mutableSetOf<String>()
+    private fun writeVariables() = w.withRelativeIndent {
+        for (variable in rulesVariables) writeLine("val $variable")
     }
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
         writer.setIndent(w.indent)
-        RuleLambdaBodyGenerator(function, endpoint, req, res, writer, imports, params, variables).write()
+        RuleLambdaBodyGenerator(
+            function,
+            endpoint,
+            req,
+            res,
+            writer,
+            imports,
+            params,
+            variables,
+            rulesVariables
+        ).write()
     }
 }
