@@ -49,6 +49,7 @@ class RoutesGenerator(
     }
 
     private fun captureBody(): InputStream = Utils.capturing { writer ->
+        writer.setIndent(w.indent + 4)
         RoutesBodyGenerator(
             endpointClazz,
             endpoint,
