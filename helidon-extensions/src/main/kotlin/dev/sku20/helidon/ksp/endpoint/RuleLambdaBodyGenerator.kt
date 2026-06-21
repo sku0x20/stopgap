@@ -61,13 +61,15 @@ class RuleLambdaBodyGenerator(
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
         rulesVariables.add("$deserializer = $defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null))")
+        val typeParam: String
         if (type.isGeneric()) {
             imports.add("kotlin.reflect.typeOf")
-            variables.add("${bodyKType} = typeOf<${toFqnString(type)}>()")
-            return "${deserializer}.deserialize(${req}.content().inputStream().readAllBytes(), ${bodyKType})"
+            variables.add("$bodyKType = typeOf<${toFqnString(type)}>()")
+            typeParam = bodyKType
         } else {
-            return "$deserializer.deserialize($req.content().inputStream().readAllBytes(), ${requestBody.simpleName.asString()}::class)"
+            typeParam = "${requestBody.simpleName.asString()}::class"
         }
+        return "${deserializer}.deserialize($req.content().inputStream().readAllBytes(), $typeParam)"
     }
 
     private val serializer = "ser"
