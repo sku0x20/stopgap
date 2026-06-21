@@ -23,4 +23,11 @@ class MapSerdeCatalog : SerdeCatalog {
         if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
         return serdes[mediaType] ?: throw UnsupportedMediaTypeException(mediaType)
     }
+
+    override fun get(mediaTypes: List<HttpMediaType>): Serde {
+        for (mediaType in mediaTypes) {
+            serdes[mediaType]?.let { return it }
+        }
+        throw UnsupportedMediaTypeException(mediaTypes.firstOrNull())
+    }
 }
