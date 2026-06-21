@@ -17,7 +17,7 @@ class RoutesBodyGenerator(
     private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
-    private val routesBodyVariables: MutableSet<String>,
+    private val variables: MutableSet<String>,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
@@ -60,7 +60,7 @@ class RoutesBodyGenerator(
             iw,
             imports,
             params,
-            routesBodyVariables,
+            variables,
         ).write()
     }
 

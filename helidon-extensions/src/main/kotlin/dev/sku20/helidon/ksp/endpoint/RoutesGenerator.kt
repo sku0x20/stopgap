@@ -16,7 +16,7 @@ class RoutesGenerator(
         val body = captureBody()
         writeFunctionDefinition()
         withRelativeIndent(4) {
-            for (variable in routesBodyVariables) writeLine("val $variable")
+            writeVariables()
             w.write(body)
         }
         writeLine("}")
@@ -34,11 +34,6 @@ class RoutesGenerator(
         "$endpoint: ${endpointClazz.qualifiedName!!.asString()}",
         "$routes: HttpRouting.Builder",
     )
-    private val routesBodyVariables = mutableSetOf<String>()
-
-    private fun captureBody(): InputStream = Utils.capturing { writer ->
-        RoutesBodyGenerator(endpointClazz, endpoint, routes, writer, imports, params, routesBodyVariables).write()
-    }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun registerRoutesFor(")
@@ -46,5 +41,22 @@ class RoutesGenerator(
             for (param in params) writeLine("$param,")
         }
         writeLine("){")
+    }
+
+    private val variables = mutableSetOf<String>()
+    private fun writeVariables() = w.withRelativeIndent {
+        for (variable in variables) writeLine("val $variable")
+    }
+
+    private fun captureBody(): InputStream = Utils.capturing { writer ->
+        RoutesBodyGenerator(
+            endpointClazz,
+            endpoint,
+            routes,
+            writer,
+            imports,
+            params,
+            variables
+        ).write()
     }
 }
