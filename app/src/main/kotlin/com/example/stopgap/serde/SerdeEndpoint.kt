@@ -40,4 +40,9 @@ class SerdeEndpoint {
         return ResDto(body.joinToString(" = ") { it.data })
     }
 
+    @Post("/negotiate")
+    fun negotiate(body: ReqDto): ResDto {
+        return ResDto(body.data)
+    }
+
 }
