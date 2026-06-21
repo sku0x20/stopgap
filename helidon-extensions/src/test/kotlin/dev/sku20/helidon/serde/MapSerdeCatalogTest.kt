@@ -11,8 +11,8 @@ import org.mockito.kotlin.whenever
 class MapSerdeCatalogTest {
 
     private val catalog = MapSerdeCatalog()
-    private val serde: Serde = mock()
-    private val otherSerde: Serde = mock()
+    private val serde = mock<Serde>()
+    private val otherSerde = mock<Serde>()
 
     @BeforeEach
     fun setup() {
@@ -34,10 +34,10 @@ class MapSerdeCatalogTest {
     }
 
     @Test
-    fun lastAddedSerdeWinsForSameMediaType() {
+    fun throwsWhenAddingDuplicateMediaType() {
         catalog.add(serde)
-        catalog.add(otherSerde)
 
-        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(otherSerde)
+        assertThatThrownBy { catalog.add(otherSerde) }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 }
