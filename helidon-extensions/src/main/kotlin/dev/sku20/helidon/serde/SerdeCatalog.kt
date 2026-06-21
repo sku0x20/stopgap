@@ -1,3 +1,7 @@
 package dev.sku20.helidon.serde
 
-interface SerdeCatalog
+import io.helidon.http.HttpMediaType
+
+interface SerdeCatalog {
+    fun get(mediaType: HttpMediaType): Serde?
+}
