@@ -6,7 +6,7 @@ import io.helidon.http.HttpMediaType
  * A generic [SerdeCatalog] backed by a map, with at most one [Serde] per media type.
  *
  * Throws [UnsupportedMediaTypeException] when no [Serde] matches. Does not support
- * wildcard media types (e.g. `&#42;/&#42;`).
+ * wildcard media types (e.g. `*​/​*`).
  */
 class MapSerdeCatalog : SerdeCatalog {
 
