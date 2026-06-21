@@ -4,7 +4,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.serde.CustomSerde
+import dev.sku20.helidon.serde.CustomSerdeCatalog
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
@@ -109,7 +109,7 @@ class RuleLambdaBodyGenerator(
     }
 
     private fun customSerdeAnnotation(): KSAnnotation? =
-        function.annotations.firstOrNull { it.shortName.asString() == CustomSerde::class.simpleName }
+        function.annotations.firstOrNull { it.shortName.asString() == CustomSerdeCatalog::class.simpleName }
 
     private fun KSType.isGeneric(): Boolean = this.arguments.isNotEmpty()
 }

@@ -4,7 +4,7 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
-annotation class CustomSerde(
+annotation class CustomSerdeCatalog(
     val qualifier: String = "",
     val clazz: KClass<*> = Unit::class
 )
