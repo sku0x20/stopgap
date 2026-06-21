@@ -10,12 +10,23 @@ import io.helidon.http.HttpMediaType
  * [Serde] regardless of the requested media type. Implement this interface directly
  * for any custom selection strategy.
  *
- * @param mediaType the requested media type, or `null` if the request didn't specify one
- * (e.g. a missing Content-Type/Accept header)
  * @see MapSerdeCatalog
  */
 interface SerdeCatalog {
-    // TODO: once Serde is split into separate Serializer/Deserializer interfaces,
-    // split this into getSerializer(accept)/getDeserializer(contentType) too.
+
+    /**
+     * Resolves a [Serde] for a single media type, e.g. a request's Content-Type.
+     *
+     * @param mediaType the requested media type, or `null` if the request didn't specify one
+     * (e.g. a missing Content-Type header)
+     */
     fun get(mediaType: HttpMediaType?): Serde
+
+    /**
+     * Resolves a [Serde] for a list of acceptable media types, e.g. a request's Accept header,
+     * in preference order — the first entry the implementation can satisfy wins.
+     *
+     * @param mediaTypes the acceptable media types in preference order, possibly empty
+     */
+    fun get(mediaTypes: List<HttpMediaType>): Serde
 }
