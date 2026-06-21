@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import java.io.InputStream
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -44,28 +43,26 @@ class RoutesBodyGenerator(
 
     private val ruleVariables = mutableSetOf<String>()
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
-        var lambda: InputStream = byteArrayOf().inputStream()
-        withRelativeIndent(4) {
-            lambda = Utils.capturing { iw ->
-                iw.setIndent(w.indent)
-                RuleLambdaGenerator(
-                    function,
-                    endpointParam,
-                    reqField,
-                    resField,
-                    iw,
-                    imports,
-                    params,
-                    ruleVariables,
-                ).write()
-            }
-        }
-
+        val lambda = captureRuleLambda(function)
         for (variable in ruleVariables) writeLine("val $variable")
         val (methodFn, path) = httpMethodFor(function)
         writeLine("$rulesField.${methodFn}(\"${path}\", {$reqField, $resField ->")
         w.write(lambda)
         writeLine("})")
+    }
+
+    private fun captureRuleLambda(function: KSFunctionDeclaration) = Utils.capturing { iw ->
+        iw.setIndent(w.indent + 4)
+        RuleLambdaGenerator(
+            function,
+            endpointParam,
+            reqField,
+            resField,
+            iw,
+            imports,
+            params,
+            ruleVariables,
+        ).write()
     }
 
     private fun httpMethodFor(function: KSFunctionDeclaration): Pair<String, String> {
