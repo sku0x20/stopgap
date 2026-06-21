@@ -10,6 +10,7 @@ dependencies {
     implementation(libs.helidon.webserver)
 
     testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
 }
 
 configurations {
