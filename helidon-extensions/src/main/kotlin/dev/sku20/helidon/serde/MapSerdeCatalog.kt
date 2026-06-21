@@ -12,9 +12,9 @@ import io.helidon.http.HttpMediaType
  *
  * The wildcard media type `&#42;/&#42;` (and other wildcards) is not given special treatment
  * here — it's matched literally against registered media types, so it will not resolve unless
- * a [Serde] is registered for that exact wildcard. Subclasses that want wildcard or "default"
- * handling (e.g. fall back to a designated [Serde] when nothing else matches) can override
- * either [get] overload to add that behavior.
+ * a [Serde] is registered for that exact wildcard. Different [SerdeCatalog] implementations
+ * can choose to support wildcard or "default" handling (e.g. fall back to a designated
+ * [Serde] when nothing else matches).
  */
 class MapSerdeCatalog : SerdeCatalog {
 
