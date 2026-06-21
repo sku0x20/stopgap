@@ -17,23 +17,18 @@ class RoutesBodyGenerator(
     private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
+    private val routesBodyVariables: MutableSet<String>,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
-    private val routesBodyVariables = mutableSetOf<String>()
 
     fun write() = w.withRelativeIndent {
-        for (variable in routesBodyVariables) writeLine("val $variable")
-        captureBody()
-        writeLine("})")
-    }
-
-    private fun captureBody() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routesParam.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }
+        writeLine("})")
     }
 
     private fun writeRulesLambda() = w.withRelativeIndent {
