@@ -1,8 +1,6 @@
 package dev.sku20.helidon.serde
 
-import io.helidon.http.HttpException
 import io.helidon.http.HttpMediaTypes
-import io.helidon.http.Status
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -43,9 +41,7 @@ class MapSerdeCatalogTest {
     @Test
     fun throwsWhenNoSerdeRegisteredForMediaType() {
         assertThatThrownBy { catalog.get(HttpMediaTypes.JSON_UTF_8) }
-            .isInstanceOf(HttpException::class.java)
-            .extracting { (it as HttpException).status() }
-            .isEqualTo(Status.UNSUPPORTED_MEDIA_TYPE_415)
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
     @Test
