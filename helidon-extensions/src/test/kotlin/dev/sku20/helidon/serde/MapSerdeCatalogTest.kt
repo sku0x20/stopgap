@@ -11,13 +11,11 @@ import org.mockito.kotlin.whenever
 class MapSerdeCatalogTest {
 
     private val catalog = MapSerdeCatalog()
-    private lateinit var serde: Serde
-    private lateinit var otherSerde: Serde
+    private val serde: Serde = mock()
+    private val otherSerde: Serde = mock()
 
     @BeforeEach
     fun setup() {
-        serde = mock()
-        otherSerde = mock()
         whenever(serde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
         whenever(otherSerde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
     }
