@@ -20,14 +20,20 @@ class RoutesBodyGenerator(
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
+    private val routesBodyVariables = mutableSetOf<String>()
 
     fun write() = w.withRelativeIndent {
+        for (variable in routesBodyVariables) writeLine("val $variable")
+        captureBody()
+        writeLine("})")
+    }
+
+    private fun captureBody() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
         writeLine("$routesParam.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }
-        writeLine("})")
     }
 
     private fun writeRulesLambda() = w.withRelativeIndent {
@@ -41,10 +47,8 @@ class RoutesBodyGenerator(
     private val reqField = "req"
     private val resField = "res"
 
-    private val ruleVariables = mutableSetOf<String>()
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
         val lambda = captureRuleLambda(function)
-        for (variable in ruleVariables) writeLine("val $variable")
         val (methodFn, path) = httpMethodFor(function)
         writeLine("$rulesField.${methodFn}(\"${path}\", {$reqField, $resField ->")
         w.write(lambda)
@@ -61,7 +65,7 @@ class RoutesBodyGenerator(
             iw,
             imports,
             params,
-            ruleVariables,
+            routesBodyVariables,
         ).write()
     }
 
