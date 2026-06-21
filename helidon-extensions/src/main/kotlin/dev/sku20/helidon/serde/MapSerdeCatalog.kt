@@ -24,7 +24,8 @@ class MapSerdeCatalog : SerdeCatalog {
 
     override fun getSerializer(mediaTypes: List<HttpMediaType>): Serde {
         for (mediaType in mediaTypes) {
-            serdes[mediaType]?.let { return it }
+            val serde = serdes[mediaType]
+            if (serde != null) return serde
         }
         throw NotAcceptableException(mediaTypes)
     }
