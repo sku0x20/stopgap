@@ -84,8 +84,6 @@ class RuleLambdaGenerator(
         else -> bodyDeserialized(type)
     }
 
-    // todo: remove double lookup from default serde catalog
-
     private fun bodyDeserialized(type: KSType): String {
         addSerdeCatalog()
         val requestBody = type.declaration
@@ -95,12 +93,15 @@ class RuleLambdaGenerator(
             "${requestBody.simpleName.asString()}::class)"
     }
 
+    // bestAccepted?
+    private val serializer = "ser"
     private fun writeSerializeIfValid() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerdeCatalog()
-            writeLine("$res.headers().contentType($defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).mediaType)")
-            writeLine("$res.send($defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).serialize($respVariable))")
+            writeLine("val $serializer = $defaultSerdeCatalog.get($req.headers().acceptedTypes().firstOrNull())")
+            writeLine("$res.headers().contentType($serializer.mediaType)")
+            writeLine("$res.send($serializer.serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
             writeLine("$res.send()")
         }

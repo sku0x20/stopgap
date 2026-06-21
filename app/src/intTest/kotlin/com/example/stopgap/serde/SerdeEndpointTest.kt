@@ -1,6 +1,8 @@
 package com.example.stopgap.serde
 
 import com.example.stopgap.serde.fastjson.FastjsonSerde
+import com.example.stopgap.serde.plain.ReqResPlainSerde
+import dev.sku20.helidon.serde.MapSerdeCatalog
 import extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
@@ -23,6 +25,8 @@ class SerdeEndpointTest {
         val data = """{"data": "$random"}"""
 
         val response = client.post("/serde/desObj")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
             .submit(data)
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
@@ -43,6 +47,8 @@ class SerdeEndpointTest {
         val body = """[{"data":"foo"},{"data":"bar"}]"""
 
         val response = client.post("/serde/genericPost")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
             .submit(body)
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
@@ -55,6 +61,7 @@ class SerdeEndpointTest {
         val random = Random.nextLong()
         val response = client.get("/serde/serObj")
             .queryParam("data", random.toString())
+            .accept(HttpMediaTypes.JSON_UTF_8)
             .request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
@@ -66,6 +73,7 @@ class SerdeEndpointTest {
     fun negotiate() {
         var response = client.post("/serde/negotiate")
             .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"data":"foo"}""")
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
         var text = response.inputStream().bufferedReader().readText()
@@ -73,7 +81,9 @@ class SerdeEndpointTest {
 
         response = client.post("/serde/negotiate")
             .contentType(HttpMediaTypes.PLAINTEXT_UTF_8)
+            .accept(HttpMediaTypes.PLAINTEXT_UTF_8)
             .submit("foo")
+        assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
         text = response.inputStream().bufferedReader().readText()
         assertThat(text).isEqualTo("foo")
@@ -83,7 +93,10 @@ class SerdeEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(SerdeEndpoint(), arrayOf(FastjsonSerde()))
+            val catalog = MapSerdeCatalog()
+            catalog.add(FastjsonSerde())
+            catalog.add(ReqResPlainSerde())
+            return SetupCapture(SerdeEndpoint(), arrayOf(catalog))
         }
     }
 }
