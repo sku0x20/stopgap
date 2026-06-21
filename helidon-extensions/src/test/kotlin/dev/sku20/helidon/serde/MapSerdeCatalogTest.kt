@@ -13,11 +13,13 @@ class MapSerdeCatalogTest {
     private val catalog = MapSerdeCatalog()
     private val serde = mock<Serde>()
     private val otherSerde = mock<Serde>()
+    private val plainTextSerde = mock<Serde>()
 
     @BeforeEach
     fun setup() {
         whenever(serde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
         whenever(otherSerde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
+        whenever(plainTextSerde.mediaType).thenReturn(HttpMediaTypes.PLAINTEXT_UTF_8)
     }
 
     @Test
@@ -25,6 +27,15 @@ class MapSerdeCatalogTest {
         catalog.add(serde)
 
         assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
+    }
+
+    @Test
+    fun getReturnsSerdeMatchingMediaType() {
+        catalog.add(serde)
+        catalog.add(plainTextSerde)
+
+        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
+        assertThat(catalog.get(HttpMediaTypes.PLAINTEXT_UTF_8)).isSameAs(plainTextSerde)
     }
 
     @Test
