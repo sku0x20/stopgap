@@ -1,6 +1,8 @@
 package dev.sku20.helidon.serde
 
+import io.helidon.http.HttpException
 import io.helidon.http.HttpMediaType
+import io.helidon.http.Status
 
 class MapSerdeCatalog : SerdeCatalog {
 
@@ -12,6 +14,7 @@ class MapSerdeCatalog : SerdeCatalog {
     }
 
     override fun get(mediaType: HttpMediaType): Serde {
-        return serdes[mediaType] ?: throw IllegalArgumentException("No serde registered for $mediaType")
+        return serdes[mediaType]
+            ?: throw HttpException("No serde registered for $mediaType", Status.UNSUPPORTED_MEDIA_TYPE_415)
     }
 }
