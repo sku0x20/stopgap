@@ -2,6 +2,12 @@ package dev.sku20.helidon.serde
 
 import io.helidon.http.HttpMediaType
 
+/**
+ * A generic [SerdeCatalog] backed by a map, with at most one [Serde] per media type.
+ *
+ * Throws [UnsupportedMediaTypeException] from [get] when no [Serde] is registered for the
+ * requested media type.
+ */
 class MapSerdeCatalog : SerdeCatalog {
 
     private val serdes = HashMap<HttpMediaType, Serde>()
