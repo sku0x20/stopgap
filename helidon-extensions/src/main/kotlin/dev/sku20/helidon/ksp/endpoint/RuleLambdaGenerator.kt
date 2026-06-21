@@ -84,6 +84,8 @@ class RuleLambdaGenerator(
         else -> bodyDeserialized(type)
     }
 
+    // todo: remove double lookup from default serde catalog
+
     private fun bodyDeserialized(type: KSType): String {
         addSerdeCatalog()
         val requestBody = type.declaration
