@@ -3,16 +3,27 @@ package dev.sku20.helidon.serde
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MapSerdeCatalogTest {
 
     private val catalog = MapSerdeCatalog()
+    private lateinit var serde: Serde
+    private lateinit var otherSerde: Serde
+
+    @BeforeEach
+    fun setup() {
+        serde = mock()
+        otherSerde = mock()
+        whenever(serde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
+        whenever(otherSerde.mediaType).thenReturn(HttpMediaTypes.JSON_UTF_8)
+    }
 
     @Test
     fun returnsAddedSerde() {
-        val serde = mock<Serde> { on { mediaType } doReturn HttpMediaTypes.JSON_UTF_8 }
         catalog.add(serde)
 
         assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
@@ -26,11 +37,9 @@ class MapSerdeCatalogTest {
 
     @Test
     fun lastAddedSerdeWinsForSameMediaType() {
-        val first = mock<Serde> { on { mediaType } doReturn HttpMediaTypes.JSON_UTF_8 }
-        val second = mock<Serde> { on { mediaType } doReturn HttpMediaTypes.JSON_UTF_8 }
-        catalog.add(first)
-        catalog.add(second)
+        catalog.add(serde)
+        catalog.add(otherSerde)
 
-        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(second)
+        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(otherSerde)
     }
 }
