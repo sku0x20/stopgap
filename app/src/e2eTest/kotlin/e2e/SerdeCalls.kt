@@ -19,6 +19,7 @@ class SerdeCalls {
         val data = """{"data": "$random"}"""
 
         val response = client.post("/serde/desObj")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
             .submit(data)
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
@@ -31,6 +32,7 @@ class SerdeCalls {
         val random = Random.nextLong()
         val response = client.get("/serde/serObj")
             .queryParam("data", random.toString())
+            .accept(HttpMediaTypes.JSON_UTF_8)
             .request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
