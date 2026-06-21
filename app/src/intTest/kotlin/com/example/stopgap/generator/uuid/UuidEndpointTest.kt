@@ -59,7 +59,7 @@ class UuidEndpointTest {
 
         @JvmStatic
         @WebserverTest.ConfigServer
-        fun configServer(builder: WebServerConfig.Builder) {
+        fun configServer(builder: WebServerConfig.Builder, instances: Map<Class<*>, Any>) {
             // config server
         }
 

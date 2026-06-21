@@ -122,7 +122,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invokeStaticMethodWithArgs(serverBuilder, store)
+        )?.invokeStaticMethodWithArgs(serverBuilder, setup.instances)
         val server = serverBuilder
             .build()
             .start()
@@ -137,23 +137,10 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
     private fun Method?.invokeStaticMethodWithArgs(
         firstArg: Any,
-        store: ExtensionContext.Store
+        instances: Map<Class<*>, Any>
     ) {
         if (this == null) return
-        val instances = (store.get(SETUP_CAPTURE_ID) as SetupCapture).instances
-        val argsCount = this.parameterCount
-        if (argsCount == 1) {
-            this.invoke(null, firstArg); return
-        }
-        val args = Array(argsCount) { firstArg }
-        for (i in 1 until argsCount) {
-            val type = this.parameters[i].type
-            args[i] = instances[type]!!
-        }
-        this.invoke(
-            null,
-            *args
-        )
+        this.invoke(null, firstArg, instances)
     }
 
     private fun findStaticMethod(
