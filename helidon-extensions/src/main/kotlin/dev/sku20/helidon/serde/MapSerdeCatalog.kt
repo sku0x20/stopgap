@@ -17,7 +17,7 @@ class MapSerdeCatalog : SerdeCatalog {
         serdes[serde.mediaType] = serde
     }
 
-    override fun get(mediaType: HttpMediaType): Serde {
-        return serdes[mediaType] ?: throw UnsupportedMediaTypeException(mediaType)
+    override fun get(mediaType: HttpMediaType?): Serde {
+        return mediaType?.let { serdes[it] } ?: throw UnsupportedMediaTypeException(mediaType)
     }
 }
