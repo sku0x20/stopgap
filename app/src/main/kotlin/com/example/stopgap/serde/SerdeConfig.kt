@@ -11,6 +11,11 @@ object SerdeConfig {
     }
 
     @Creates
+    fun customEndpoint(): CustomEndpoint {
+        return CustomEndpoint()
+    }
+
+    @Creates
     fun fastjsonSerde(): FastjsonSerde {
         return FastjsonSerde()
     }
