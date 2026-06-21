@@ -1,5 +1,6 @@
 package dev.sku20.helidon.serde
 
+import io.helidon.http.HttpMediaType
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -9,6 +10,7 @@ import kotlin.reflect.KType
 //   KType encodes full type info including nullability, so T : Any is not needed.
 // Caller selects the right overload statically at compile time based on what type info is available.
 interface Serde {
+    val mediaType: HttpMediaType
     fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
     fun <T> serialize(obj: T): ByteArray
