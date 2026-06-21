@@ -1,18 +1,13 @@
-package com.example.stopgap.serde
+package e2e
 
-import com.example.stopgap.serde.plain.ReqResPlainSerde
-import dev.sku20.helidon.serde.MapSerdeCatalog
 import extension.InjectInstance
-import extension.webservertest.SetupCapture
-import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-@WebserverTest
-class CustomEndpointTest {
+class CustomCalls {
 
     @InjectInstance
     lateinit var client: WebClient
@@ -28,13 +23,4 @@ class CustomEndpointTest {
         assertThat(text).isEqualTo("hello")
     }
 
-    companion object {
-        @JvmStatic
-        @WebserverTest.Setup
-        fun setup(): SetupCapture {
-            val catalog = MapSerdeCatalog()
-            catalog.add(ReqResPlainSerde())
-            return SetupCapture(CustomEndpoint(), arrayOf(catalog))
-        }
-    }
 }
