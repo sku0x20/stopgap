@@ -46,6 +46,7 @@ class RuleLambdaGenerator(
     }
 
     private val defaultSerde = "defaultSerde"
+    private val defaultSerdeCatalog = "defaultSerdeCatalog"
     private val respVariable = "resp"
     private val bodyKType = "${functionName}BodyKType"
 
@@ -108,6 +109,12 @@ class RuleLambdaGenerator(
         imports.add("dev.sku20.helidon.serde.Serde")
         imports.add("dev.sku20.helidon.serde.SerdeExtras")
         params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
+    }
+
+    private fun addSerdeCatalog() {
+        imports.add("dev.sku20.helidon.serde.SerdeCatalog")
+        imports.add("dev.sku20.helidon.serde.SerdeExtras")
+        params.add("@RegistryQualifier(SerdeExtras.DEFAULT_CATALOG_QUALIFIER) $defaultSerdeCatalog: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =
