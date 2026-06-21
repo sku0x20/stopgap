@@ -6,7 +6,7 @@ import extension.webservertest.WebserverTest
 import io.helidon.webclient.api.WebClient
 
 @WebserverTest
-class CustomSerdeCatalogEndpointTest {
+class CustomEndpointTest {
 
     @InjectInstance
     lateinit var client: WebClient
@@ -15,7 +15,7 @@ class CustomSerdeCatalogEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(CustomSerdeCatalogEndpoint())
+            return SetupCapture(CustomEndpoint())
         }
     }
 }
