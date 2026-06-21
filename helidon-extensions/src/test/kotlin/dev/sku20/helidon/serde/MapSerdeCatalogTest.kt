@@ -57,4 +57,37 @@ class MapSerdeCatalogTest {
         assertThatThrownBy { catalog.add(otherSerde) }
             .isInstanceOf(IllegalArgumentException::class.java)
     }
+
+    @Test
+    fun getFromListReturnsFirstPreferredMatch() {
+        catalog.add(serde)
+        catalog.add(plainTextSerde)
+
+        val result = catalog.get(listOf(HttpMediaTypes.PLAINTEXT_UTF_8, HttpMediaTypes.JSON_UTF_8))
+
+        assertThat(result).isSameAs(plainTextSerde)
+    }
+
+    @Test
+    fun getFromListSkipsUnmatchedPreferredTypes() {
+        catalog.add(plainTextSerde)
+
+        val result = catalog.get(listOf(HttpMediaTypes.JSON_UTF_8, HttpMediaTypes.PLAINTEXT_UTF_8))
+
+        assertThat(result).isSameAs(plainTextSerde)
+    }
+
+    @Test
+    fun throwsWhenNoSerdeMatchesAnyTypeInList() {
+        catalog.add(plainTextSerde)
+
+        assertThatThrownBy { catalog.get(listOf(HttpMediaTypes.JSON_UTF_8)) }
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+    }
+
+    @Test
+    fun throwsWhenMediaTypesListIsEmpty() {
+        assertThatThrownBy { catalog.get(emptyList()) }
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+    }
 }
