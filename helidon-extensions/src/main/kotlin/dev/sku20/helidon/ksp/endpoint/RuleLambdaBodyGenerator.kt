@@ -75,7 +75,7 @@ class RuleLambdaBodyGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerdeCatalog()
-            writeLine("val $serializer = $defaultSerdeCatalog.getSerializer($req.headers().acceptedTypes())")
+            rulesVariables.add("$serializer = $defaultSerdeCatalog.getSerializer($req.headers().acceptedTypes())")
             writeLine("$res.headers().contentType($serializer.mediaType)")
             writeLine("$res.send($serializer.serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
