@@ -26,27 +26,27 @@ class MapSerdeCatalogTest {
     fun returnsAddedSerde() {
         catalog.add(serde)
 
-        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
+        assertThat(catalog.getDeserializer(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
     }
 
     @Test
-    fun getReturnsSerdeMatchingMediaType() {
+    fun getDeserializerReturnsSerdeMatchingMediaType() {
         catalog.add(serde)
         catalog.add(plainTextSerde)
 
-        assertThat(catalog.get(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
-        assertThat(catalog.get(HttpMediaTypes.PLAINTEXT_UTF_8)).isSameAs(plainTextSerde)
+        assertThat(catalog.getDeserializer(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
+        assertThat(catalog.getDeserializer(HttpMediaTypes.PLAINTEXT_UTF_8)).isSameAs(plainTextSerde)
     }
 
     @Test
     fun throwsWhenNoSerdeRegisteredForMediaType() {
-        assertThatThrownBy { catalog.get(HttpMediaTypes.JSON_UTF_8) }
+        assertThatThrownBy { catalog.getDeserializer(HttpMediaTypes.JSON_UTF_8) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
     @Test
     fun throwsWhenMediaTypeIsNull() {
-        assertThatThrownBy { catalog.get(null) }
+        assertThatThrownBy { catalog.getDeserializer(null) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -59,20 +59,20 @@ class MapSerdeCatalogTest {
     }
 
     @Test
-    fun getFromListReturnsFirstPreferredMatch() {
+    fun getSerializerReturnsFirstPreferredMatch() {
         catalog.add(serde)
         catalog.add(plainTextSerde)
 
-        val result = catalog.get(listOf(HttpMediaTypes.PLAINTEXT_UTF_8, HttpMediaTypes.JSON_UTF_8))
+        val result = catalog.getSerializer(listOf(HttpMediaTypes.PLAINTEXT_UTF_8, HttpMediaTypes.JSON_UTF_8))
 
         assertThat(result).isSameAs(plainTextSerde)
     }
 
     @Test
-    fun getFromListSkipsUnmatchedPreferredTypes() {
+    fun getSerializerSkipsUnmatchedPreferredTypes() {
         catalog.add(plainTextSerde)
 
-        val result = catalog.get(listOf(HttpMediaTypes.JSON_UTF_8, HttpMediaTypes.PLAINTEXT_UTF_8))
+        val result = catalog.getSerializer(listOf(HttpMediaTypes.JSON_UTF_8, HttpMediaTypes.PLAINTEXT_UTF_8))
 
         assertThat(result).isSameAs(plainTextSerde)
     }
@@ -81,13 +81,13 @@ class MapSerdeCatalogTest {
     fun throwsWhenNoSerdeMatchesAnyTypeInList() {
         catalog.add(plainTextSerde)
 
-        assertThatThrownBy { catalog.get(listOf(HttpMediaTypes.JSON_UTF_8)) }
-            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+        assertThatThrownBy { catalog.getSerializer(listOf(HttpMediaTypes.JSON_UTF_8)) }
+            .isInstanceOf(NotAcceptableException::class.java)
     }
 
     @Test
     fun throwsWhenMediaTypesListIsEmpty() {
-        assertThatThrownBy { catalog.get(emptyList()) }
-            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+        assertThatThrownBy { catalog.getSerializer(emptyList()) }
+            .isInstanceOf(NotAcceptableException::class.java)
     }
 }

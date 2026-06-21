@@ -5,8 +5,8 @@ import io.helidon.http.HttpMediaType
 /**
  * A generic [SerdeCatalog] backed by a map, with at most one [Serde] per media type.
  *
- * Throws [UnsupportedMediaTypeException] when no [Serde] matches. Does not support
- * wildcard media types (e.g. `*​/​*`).
+ * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [Serde] matches.
+ * Does not support wildcard media types (e.g. `*​/​*`).
  */
 class MapSerdeCatalog : SerdeCatalog {
 
@@ -17,15 +17,15 @@ class MapSerdeCatalog : SerdeCatalog {
         serdes[serde.mediaType] = serde
     }
 
-    override fun get(mediaType: HttpMediaType?): Serde {
+    override fun getDeserializer(mediaType: HttpMediaType?): Serde {
         if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
         return serdes[mediaType] ?: throw UnsupportedMediaTypeException(mediaType)
     }
 
-    override fun get(mediaTypes: List<HttpMediaType>): Serde {
+    override fun getSerializer(mediaTypes: List<HttpMediaType>): Serde {
         for (mediaType in mediaTypes) {
             serdes[mediaType]?.let { return it }
         }
-        throw UnsupportedMediaTypeException(mediaTypes.firstOrNull())
+        throw NotAcceptableException(mediaTypes)
     }
 }

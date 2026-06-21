@@ -88,8 +88,8 @@ class RuleLambdaGenerator(
         addSerdeCatalog()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        return if (type.isGeneric()) "$defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
-        else "$defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), " +
+        return if (type.isGeneric()) "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
+        else "$defaultSerdeCatalog.getDeserializer($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), " +
             "${requestBody.simpleName.asString()}::class)"
     }
 
@@ -99,7 +99,7 @@ class RuleLambdaGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerdeCatalog()
-            writeLine("val $serializer = $defaultSerdeCatalog.get($req.headers().acceptedTypes().firstOrNull())")
+            writeLine("val $serializer = $defaultSerdeCatalog.getSerializer($req.headers().acceptedTypes())")
             writeLine("$res.headers().contentType($serializer.mediaType)")
             writeLine("$res.send($serializer.serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
