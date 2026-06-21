@@ -122,7 +122,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invokeStaticMethodWithArgs(serverBuilder, setup.instances)
+        )?.invoke(null, serverBuilder, setup.instances)
         val server = serverBuilder
             .build()
             .start()
@@ -133,14 +133,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     private fun stopServer(store: ExtensionContext.Store) {
         val server = store.get(SERVER_INSTANCE_ID) as WebServer
         server.stop()
-    }
-
-    private fun Method?.invokeStaticMethodWithArgs(
-        firstArg: Any,
-        instances: TestInstances
-    ) {
-        if (this == null) return
-        this.invoke(null, firstArg, instances)
     }
 
     private fun findStaticMethod(
