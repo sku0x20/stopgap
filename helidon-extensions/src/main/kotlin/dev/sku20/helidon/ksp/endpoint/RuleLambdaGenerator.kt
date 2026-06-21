@@ -93,7 +93,6 @@ class RuleLambdaGenerator(
             "${requestBody.simpleName.asString()}::class)"
     }
 
-    // bestAccepted?
     private val serializer = "ser"
     private fun writeSerializeIfValid() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
