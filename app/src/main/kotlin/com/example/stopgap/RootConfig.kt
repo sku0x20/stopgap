@@ -1,7 +1,8 @@
 package com.example.stopgap
 
 import com.example.stopgap.serde.fastjson.FastjsonSerde
-import dev.sku20.helidon.serde.Serde
+import dev.sku20.helidon.serde.MapSerdeCatalog
+import dev.sku20.helidon.serde.SerdeCatalog
 import dev.sku20.helidon.serde.SerdeExtras
 import dev.sku20.ir.Creates
 import dev.sku20.ir.Qualifier
@@ -16,8 +17,14 @@ object RootConfig {
     }
 
     @Creates
-    @Qualifier(SerdeExtras.DEFAULT_QUALIFIER)
-    fun defaultSerde(): Serde = FastjsonSerde()
+    @Qualifier(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
+    fun defaultSerdeCatalog(
+        fastjsonSerde: FastjsonSerde
+    ): SerdeCatalog {
+        val mapSerdeCatalog = MapSerdeCatalog()
+        mapSerdeCatalog.add(fastjsonSerde)
+        return mapSerdeCatalog
+    }
 
     @Creates
     fun rootEndpoint(): RootEndpoint {
