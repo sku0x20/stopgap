@@ -108,6 +108,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
         val endpoint = setup.endpoint
         val extras = setup.registerParams
+        val instances = setup.instances
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val method = findMethodWith(
@@ -122,7 +123,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invoke(null, serverBuilder, setup.instances)
+        )?.invoke(null, serverBuilder, instances)
         val server = serverBuilder
             .build()
             .start()
