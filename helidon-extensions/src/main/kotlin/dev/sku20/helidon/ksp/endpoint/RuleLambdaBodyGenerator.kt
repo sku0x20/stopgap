@@ -13,11 +13,11 @@ class RuleLambdaBodyGenerator(
     private val endpoint: String,
     private val req: String,
     private val res: String,
-    private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
-    private val rulesVariables: MutableSet<String>
+    private val rulesVariables: MutableSet<String>,
+    private val w: CustomWriter,
 ) {
 
     private val functionName = function.simpleName.asString()

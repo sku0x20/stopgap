@@ -14,10 +14,10 @@ class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val endpointParam: String,
     private val routesParam: String,
-    private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
+    private val w: CustomWriter,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
@@ -57,10 +57,10 @@ class RoutesBodyGenerator(
             endpointParam,
             reqField,
             resField,
-            iw,
             imports,
             params,
             variables,
+            iw,
         ).write()
     }
 

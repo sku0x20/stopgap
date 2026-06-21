@@ -7,8 +7,8 @@ import java.io.InputStream
 
 class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
-    private val w: CustomWriter,
     private val imports: MutableSet<String>,
+    private val w: CustomWriter,
 ) {
 
     fun write() = w.withRelativeIndent {
@@ -54,10 +54,10 @@ class RoutesGenerator(
             endpointClazz,
             endpoint,
             routes,
-            writer,
             imports,
             params,
-            variables
+            variables,
+            writer
         ).write()
     }
 }

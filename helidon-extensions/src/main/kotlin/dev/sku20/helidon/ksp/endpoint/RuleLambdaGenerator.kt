@@ -10,10 +10,10 @@ class RuleLambdaGenerator(
     private val endpoint: String,
     private val req: String,
     private val res: String,
-    private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
+    private val w: CustomWriter,
 ) {
 
     fun write() = w.withRelativeIndent {
@@ -34,11 +34,11 @@ class RuleLambdaGenerator(
             endpoint,
             req,
             res,
-            writer,
             imports,
             params,
             variables,
-            rulesVariables
+            rulesVariables,
+            writer
         ).write()
     }
 }
