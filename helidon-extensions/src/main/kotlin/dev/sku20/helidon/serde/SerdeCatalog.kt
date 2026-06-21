@@ -23,10 +23,10 @@ interface SerdeCatalog {
     fun getDeserializer(mediaType: HttpMediaType?): Serde
 
     /**
-     * Resolves a [Serde] to serialize a response, e.g. by a request's Accept header,
-     * in preference order — the first entry the implementation can satisfy wins.
+     * Resolves a [Serde] to serialize a response, e.g. by a request's Accept header.
+     * Implementations choose how to pick among the given types (e.g. quality, first match).
      *
-     * @param mediaTypes the acceptable media types in preference order, possibly empty
+     * @param mediaTypes the acceptable media types, possibly empty
      */
     fun getSerializer(mediaTypes: List<HttpMediaType>): Serde
 }
