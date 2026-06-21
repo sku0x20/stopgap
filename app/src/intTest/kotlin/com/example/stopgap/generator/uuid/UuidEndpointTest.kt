@@ -3,6 +3,7 @@ package com.example.stopgap.generator.uuid
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import extension.InjectInstance
 import extension.webservertest.SetupCapture
+import extension.webservertest.TestInstances
 import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
@@ -59,7 +60,7 @@ class UuidEndpointTest {
 
         @JvmStatic
         @WebserverTest.ConfigServer
-        fun configServer(builder: WebServerConfig.Builder, instances: Map<Class<*>, Any>) {
+        fun configServer(builder: WebServerConfig.Builder, instances: TestInstances) {
             // config server
         }
 

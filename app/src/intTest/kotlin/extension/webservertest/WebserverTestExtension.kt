@@ -137,7 +137,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
     private fun Method?.invokeStaticMethodWithArgs(
         firstArg: Any,
-        instances: Map<Class<*>, Any>
+        instances: TestInstances
     ) {
         if (this == null) return
         this.invoke(null, firstArg, instances)
