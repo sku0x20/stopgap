@@ -4,6 +4,9 @@ import com.example.stopgap.serde.fastjson.FastjsonSerde
 import extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
+import dev.sku20.helidon.serde.Serde
+import dev.sku20.helidon.serde.SerdeCatalog
+import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
@@ -66,7 +69,11 @@ class SerdeEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(SerdeEndpoint(), arrayOf(FastjsonSerde()))
+            val catalog = object : SerdeCatalog {
+                private val fastjsonSerde = FastjsonSerde()
+                override fun get(mediaType: HttpMediaType): Serde = fastjsonSerde
+            }
+            return SetupCapture(SerdeEndpoint(), arrayOf(catalog))
         }
     }
 }
