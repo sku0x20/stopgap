@@ -13,20 +13,18 @@ import java.io.InputStream
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
-    private val endpoint: String,
-    private val routes: String,
+    private val endpointParam: String,
+    private val routesParam: String,
     private val w: CustomWriter,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
     private val rulesField = "rules"
-    private val reqField = "req"
-    private val resField = "res"
 
     fun write() = w.withRelativeIndent {
         val endpointPath = pathValue(endpointAnnotation)
-        writeLine("$routes.register(\"${endpointPath}\", { $rulesField ->")
+        writeLine("$routesParam.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }
@@ -41,27 +39,29 @@ class RoutesBodyGenerator(
         }
     }
 
-    private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
-        val variables = mutableSetOf<String>()
+    private val reqField = "req"
+    private val resField = "res"
 
+    private val ruleVariables = mutableSetOf<String>()
+    private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
         var lambda: InputStream = byteArrayOf().inputStream()
         withRelativeIndent(4) {
             lambda = Utils.capturing { iw ->
                 iw.setIndent(w.indent)
                 RuleLambdaGenerator(
                     function,
-                    endpoint,
+                    endpointParam,
                     reqField,
                     resField,
                     iw,
                     imports,
                     params,
-                    variables,
+                    ruleVariables,
                 ).write()
             }
         }
 
-        for (variable in variables) writeLine("val $variable")
+        for (variable in ruleVariables) writeLine("val $variable")
         val (methodFn, path) = httpMethodFor(function)
         writeLine("$rulesField.${methodFn}(\"${path}\", {$reqField, $resField ->")
         w.write(lambda)
