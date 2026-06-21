@@ -15,5 +15,7 @@ import io.helidon.http.HttpMediaType
  * @see MapSerdeCatalog
  */
 interface SerdeCatalog {
+    // TODO: once Serde is split into separate Serializer/Deserializer interfaces,
+    // split this into getSerializer(accept)/getDeserializer(contentType) too.
     fun get(mediaType: HttpMediaType?): Serde
 }
