@@ -45,7 +45,6 @@ class RuleLambdaGenerator(
         writeEpilogue()
     }
 
-    private val defaultSerde = "defaultSerde"
     private val defaultSerdeCatalog = "defaultSerdeCatalog"
     private val respVariable = "resp"
     private val bodyKType = "${functionName}BodyKType"
@@ -86,29 +85,23 @@ class RuleLambdaGenerator(
     }
 
     private fun bodyDeserialized(type: KSType): String {
-        addSerde()
+        addSerdeCatalog()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        return if (type.isGeneric()) "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
-        else "$defaultSerde.deserialize($req.content().inputStream().readAllBytes(), " +
+        return if (type.isGeneric()) "$defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), $bodyKType)"
+        else "$defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).deserialize($req.content().inputStream().readAllBytes(), " +
             "${requestBody.simpleName.asString()}::class)"
     }
 
     private fun writeSerializeIfValid() = w.withRelativeIndent {
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
-            addSerde()
-            writeLine("$res.headers().contentType($defaultSerde.mediaType)")
-            writeLine("$res.send($defaultSerde.serialize($respVariable))")
+            addSerdeCatalog()
+            writeLine("$res.headers().contentType($defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).mediaType)")
+            writeLine("$res.send($defaultSerdeCatalog.get($req.headers().contentType().orElse(null)).serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
             writeLine("$res.send()")
         }
-    }
-
-    private fun addSerde() {
-        imports.add("dev.sku20.helidon.serde.Serde")
-        imports.add("dev.sku20.helidon.serde.SerdeExtras")
-        params.add("@RegistryQualifier(SerdeExtras.DEFAULT_QUALIFIER) $defaultSerde: Serde")
     }
 
     private fun addSerdeCatalog() {
