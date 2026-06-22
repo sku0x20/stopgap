@@ -1,6 +1,7 @@
 package dev.sku20.helidon.ksp.annotation
 
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.findAnnotation
@@ -21,10 +22,17 @@ class CustomSerdeCatalogData(
         fun from(annotated: KSAnnotated): CustomSerdeCatalogData {
             val kSAnnotation = annotated.findAnnotation(CustomSerdeCatalog::class)
                 ?: return CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
-            return CustomSerdeCatalogData(
-                kSAnnotation.argument("qualifier"),
-                kSAnnotation.argument("clazz")
-            )
+            return parse(kSAnnotation)
         }
+
+        fun fromOrDefault(annotated: KSAnnotated, default: CustomSerdeCatalogData): CustomSerdeCatalogData {
+            val kSAnnotation = annotated.findAnnotation(CustomSerdeCatalog::class) ?: return default
+            return parse(kSAnnotation)
+        }
+
+        private fun parse(annotation: KSAnnotation): CustomSerdeCatalogData = CustomSerdeCatalogData(
+            annotation.argument("qualifier"),
+            annotation.argument("clazz")
+        )
     }
 }
