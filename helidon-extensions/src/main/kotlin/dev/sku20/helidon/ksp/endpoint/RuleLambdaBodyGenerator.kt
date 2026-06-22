@@ -17,6 +17,7 @@ class RuleLambdaBodyGenerator(
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
     private val rulesVariables: MutableSet<String>,
+    private val endpointCatalogQualifier: CustomSerdeCatalog,
     private val w: CustomWriter,
 ) {
 

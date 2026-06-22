@@ -9,6 +9,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
+import dev.sku20.helidon.serde.CustomSerdeCatalog
+import dev.sku20.helidon.serde.SerdeExtras
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -20,6 +22,8 @@ class RoutesBodyGenerator(
     private val w: CustomWriter,
 ) {
     private val endpointAnnotation = findEndpointAnnotationOnClazz()
+    private val endpointCatalog = findEndpointCatalogOrDefault()
+
     private val rulesField = "rules"
 
     fun write() = w.withRelativeIndent {
@@ -60,6 +64,7 @@ class RoutesBodyGenerator(
             imports,
             params,
             variables,
+            endpointCatalog,
             iw,
         ).write()
     }
@@ -102,4 +107,13 @@ class RoutesBodyGenerator(
 
     private fun findEndpointAnnotationOnClazz(): KSAnnotation =
         endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
+
+    private fun findEndpointCatalogOrDefault(): CustomSerdeCatalog {
+        val kSAnnotation = endpointClazz.annotations.firstOrNull {
+            it.shortName.asString() == CustomSerdeCatalog::class.simpleName
+        } ?: return CustomSerdeCatalog(qualifier = SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
+//        val kClazz = kSAnnotation
+        return CustomSerdeCatalog()
+    }
 }
+
