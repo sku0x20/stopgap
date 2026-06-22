@@ -1,14 +1,14 @@
 package dev.sku20.helidon.ksp.registry
 
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
+import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
+import dev.sku20.helidon.ksp.findAnnotation
 import dev.sku20.helidon.serde.CustomSerdeCatalog
 import java.io.OutputStream
-import kotlin.reflect.KClass
 
 class RegistryInitializerGenerator(
     file: OutputStream,
@@ -53,12 +53,12 @@ class RegistryInitializerGenerator(
     private fun writeExtraParams(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (i in 2 until function.parameters.size) {
             val param = function.parameters[i]
-            val annotation = getAnnotation(param, CustomSerdeCatalog::class)
-            val qualifier = fieldValue(annotation, "qualifier") as String
+            val annotation = param.findAnnotation(CustomSerdeCatalog::class)!!
+            val qualifier: String = annotation.argument("qualifier")
             if (qualifier.isNotEmpty()) {
                 writeLine("$registry.getInstanceForQualifier(\"$qualifier\"),")
             } else {
-                val type = fieldValue(annotation, "clazz") as KSType
+                val type: KSType = annotation.argument("clazz")
                 writeLine("$registry.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
             }
         }
@@ -74,14 +74,6 @@ class RegistryInitializerGenerator(
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import ${EndpointSymbolProcessor.GENERATED_PACKAGE}.registerRoutesFor")
         writeLine()
-    }
-
-    private fun getAnnotation(param: KSValueParameter, klass: KClass<*>): KSAnnotation =
-        param.annotations.first { it.shortName.asString() == klass.simpleName }
-
-    private fun fieldValue(annotation: KSAnnotation, fieldName: String): Any {
-        val fieldValue = annotation.arguments.first { it.name?.getShortName() == fieldName }
-        return fieldValue.value as Any
     }
 
     private fun getParamFQN(param: KSValueParameter): String {

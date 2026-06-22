@@ -9,6 +9,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
+import dev.sku20.helidon.ksp.argument
+import dev.sku20.helidon.ksp.findAnnotation
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -19,7 +21,7 @@ class RoutesBodyGenerator(
     private val variables: MutableSet<String>,
     private val w: CustomWriter,
 ) {
-    private val endpointAnnotation = findEndpointAnnotationOnClazz()
+    private val endpointAnnotation = endpointClazz.findAnnotation(Endpoint::class)!!
     private val endpointCatalog = CustomSerdeCatalogInfo.from(endpointClazz)
 
     private val rulesField = "rules"
@@ -98,13 +100,6 @@ class RoutesBodyGenerator(
     }
     // @formatter:on
 
-    private fun pathValue(annotation: KSAnnotation): String {
-        val path = annotation.arguments.first { it.name?.getShortName() == "path" }
-        return path.value as String
-    }
-
-    private fun findEndpointAnnotationOnClazz(): KSAnnotation =
-        endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
-
+    private fun pathValue(annotation: KSAnnotation): String = annotation.argument("path")
 }
 
