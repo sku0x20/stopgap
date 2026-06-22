@@ -1,23 +1,38 @@
 package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import dev.sku20.helidon.serde.CustomSerdeCatalog
 import dev.sku20.helidon.serde.SerdeExtras
 
-// stand-in for @CustomSerdeCatalog; can't instantiate the annotation type itself since `clazz` is only available as a KSType pre-compilation
-class CustomSerdeCatalogInfo(annotation: KSAnnotation?) {
-    val qualifier: String = annotation?.argument("qualifier") as? String
-        ?: SerdeExtras.DEFAULT_CATALOG_QUALIFIER
-    val clazz: KSType? = annotation?.argument("clazz") as? KSType
-
-    fun asAnnotationString(): String = if (qualifier.isNotEmpty()) {
+class CustomSerdeCatalogInfo(
+    private val qualifier: String? = null,
+    private val clazz: KSType? = null
+) {
+    fun asAnnotationString(): String = if (!qualifier.isNullOrEmpty()) {
         "@CustomSerdeCatalog(\"$qualifier\")"
     } else {
         "@CustomSerdeCatalog(clazz=${clazz!!.declaration.qualifiedName!!.asString()}::class)"
     }
 
     companion object {
-        private fun KSAnnotation.argument(name: String): Any? =
-            arguments.firstOrNull { it.name?.getShortName() == name }?.value
+
+        fun from(clazzDecl: KSClassDeclaration): CustomSerdeCatalogInfo {
+            val kSAnnotation = clazzDecl.annotations.firstOrNull {
+                it.shortName.asString() == CustomSerdeCatalog::class.simpleName
+            }
+            if (kSAnnotation == null) {
+                return CustomSerdeCatalogInfo(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
+            }
+            return CustomSerdeCatalogInfo(
+                kSAnnotation.argument("qualifier"),
+                kSAnnotation.argument("clazz")
+            )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun <T> KSAnnotation.argument(name: String): T =
+            arguments.firstOrNull { it.name?.getShortName() == name }?.value as T
     }
 }
