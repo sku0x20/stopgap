@@ -11,7 +11,7 @@ import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
 import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
-import dev.sku20.helidon.ksp.findAnnotation
+import dev.sku20.helidon.ksp.endpoint.annotation.EndpointData
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -22,13 +22,13 @@ class RoutesBodyGenerator(
     private val variables: MutableSet<String>,
     private val w: CustomWriter,
 ) {
-    private val endpointAnnotation = endpointClazz.findAnnotation(Endpoint::class)!!
+    private val endpointAnnotation = EndpointData.from(endpointClazz)
     private val endpointCatalog = CustomSerdeCatalogData.from(endpointClazz)
 
     private val rulesField = "rules"
 
     fun write() = w.withRelativeIndent {
-        val endpointPath = pathValue(endpointAnnotation)
+        val endpointPath = endpointAnnotation.path
         writeLine("$routesParam.register(\"${endpointPath}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
