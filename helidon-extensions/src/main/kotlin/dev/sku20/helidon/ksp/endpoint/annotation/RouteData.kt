@@ -15,15 +15,7 @@ class RouteData(val methodName: String, val path: String) {
             throw IllegalArgumentException("No Http Method annotation found on function: ${function.simpleName.asString()}")
         }
 
-        /**
-         * fine with switch here.
-         * - internal impl; decoupled from client annotations
-         * - flexible; enable easy change later if required
-         * - mapping needs to be somewhere, either
-         *  - raw switch;
-         *  - hashmap lookup;
-         *  - or some kind of indirection, via factory or other techniques.
-         */
+        // internal mapping, decoupled from client annotations - switch is fine
         private fun httpMethodFnName(
             annotation: KSAnnotation
         ) = when (annotation.shortName.asString()) {
