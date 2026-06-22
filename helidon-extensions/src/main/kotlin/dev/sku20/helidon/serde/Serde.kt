@@ -11,7 +11,7 @@ import kotlin.reflect.KType
 // Caller selects the right overload statically at compile time based on what type info is available.
 interface Serde {
     val mediaType: HttpMediaType
-    fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T
+    fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
     fun <T> serialize(obj: T): ByteArray
 }

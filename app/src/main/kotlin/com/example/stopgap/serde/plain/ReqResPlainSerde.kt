@@ -13,7 +13,7 @@ class ReqResPlainSerde : Serde {
     override val mediaType: HttpMediaType = HttpMediaTypes.PLAINTEXT_UTF_8
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T {
+    override fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T {
         return ReqDto(String(bytes)) as T
     }
 

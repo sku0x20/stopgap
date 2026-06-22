@@ -12,8 +12,8 @@ class FastjsonSerde : Serde {
 
     override val mediaType: HttpMediaType = HttpMediaTypes.JSON_UTF_8
 
-    override fun <T : Any> deserialize(bytes: ByteArray, kClazz: KClass<T>): T {
-        return JSON.parseObject(bytes, kClazz.java)
+    override fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T {
+        return JSON.parseObject(bytes, clazz.java)
     }
 
     @OptIn(ExperimentalStdlibApi::class)
