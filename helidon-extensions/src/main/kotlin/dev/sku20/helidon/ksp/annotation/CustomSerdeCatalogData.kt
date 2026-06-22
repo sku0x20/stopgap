@@ -19,14 +19,12 @@ class CustomSerdeCatalogData(
     }
 
     companion object {
-        fun from(annotated: KSAnnotated): CustomSerdeCatalogData {
-            val kSAnnotation = annotated.findAnnotation(CustomSerdeCatalog::class)
-                ?: return CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
-            return parse(kSAnnotation)
-        }
+        fun from(annotated: KSAnnotated): CustomSerdeCatalogData =
+            fromOrDefault(annotated, CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER))
 
         fun fromOrDefault(annotated: KSAnnotated, default: CustomSerdeCatalogData): CustomSerdeCatalogData {
-            val kSAnnotation = annotated.findAnnotation(CustomSerdeCatalog::class) ?: return default
+            val kSAnnotation = annotated.findAnnotation(CustomSerdeCatalog::class)
+                ?: return default
             return parse(kSAnnotation)
         }
 
