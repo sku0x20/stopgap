@@ -3,7 +3,6 @@ package dev.sku20.helidon.ksp.endpoint
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import dev.sku20.helidon.serde.CustomSerdeCatalog
 import java.io.InputStream
 
 class RuleLambdaGenerator(
@@ -14,7 +13,7 @@ class RuleLambdaGenerator(
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
-    private val endpointCatalog: CustomSerdeCatalog,
+    private val endpointCatalog: CustomSerdeCatalogRef,
     private val w: CustomWriter,
 ) {
 

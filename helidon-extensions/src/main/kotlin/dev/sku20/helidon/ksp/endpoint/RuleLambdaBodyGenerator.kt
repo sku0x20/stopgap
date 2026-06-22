@@ -1,10 +1,8 @@
 package dev.sku20.helidon.ksp.endpoint
 
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.serde.CustomSerdeCatalog
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
@@ -17,7 +15,7 @@ class RuleLambdaBodyGenerator(
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
     private val rulesVariables: MutableSet<String>,
-    private val endpointCatalogQualifier: CustomSerdeCatalog,
+    private val endpointCatalogQualifier: CustomSerdeCatalogRef,
     private val w: CustomWriter,
 ) {
 
@@ -88,7 +86,7 @@ class RuleLambdaBodyGenerator(
 
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.helidon.serde.SerdeCatalog")
-        params.add("${endpointCatalogQualifier.asString()} $endpointCatalog: SerdeCatalog")
+        params.add("${endpointCatalogQualifier.asAnnotationString()} $endpointCatalog: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =
@@ -108,16 +106,5 @@ class RuleLambdaBodyGenerator(
         return "$base<$args>"
     }
 
-    private fun customSerdeAnnotation(): KSAnnotation? =
-        function.annotations.firstOrNull { it.shortName.asString() == CustomSerdeCatalog::class.simpleName }
-
     private fun KSType.isGeneric(): Boolean = this.arguments.isNotEmpty()
-
-    private fun CustomSerdeCatalog.asString(): String {
-        return if (this.qualifier.isNotEmpty()) {
-            "@CustomSerdeCatalog(\"${this.qualifier}\")"
-        } else {
-            "@CustomSerdeCatalog(clazz=${this.clazz.qualifiedName}::class)"
-        }
-    }
 }
