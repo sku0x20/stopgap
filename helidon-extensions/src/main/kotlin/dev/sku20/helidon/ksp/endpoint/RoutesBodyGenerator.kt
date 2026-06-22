@@ -22,7 +22,7 @@ class RoutesBodyGenerator(
     private val w: CustomWriter,
 ) {
     private val endpointAnnotation = endpointClazz.findAnnotation(Endpoint::class)!!
-    private val endpointCatalog = CustomSerdeCatalogInfo.from(endpointClazz)
+    private val endpointCatalog = CustomSerdeCatalogData.from(endpointClazz)
 
     private val rulesField = "rules"
 

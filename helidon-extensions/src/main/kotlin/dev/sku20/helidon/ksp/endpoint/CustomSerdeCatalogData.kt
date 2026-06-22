@@ -7,7 +7,7 @@ import dev.sku20.helidon.ksp.findAnnotation
 import dev.sku20.helidon.serde.CustomSerdeCatalog
 import dev.sku20.helidon.serde.SerdeExtras
 
-class CustomSerdeCatalogInfo(
+class CustomSerdeCatalogData(
     private val qualifier: String? = null,
     private val clazz: KSType? = null
 ) {
@@ -18,10 +18,10 @@ class CustomSerdeCatalogInfo(
     }
 
     companion object {
-        fun from(clazzDecl: KSClassDeclaration): CustomSerdeCatalogInfo {
+        fun from(clazzDecl: KSClassDeclaration): CustomSerdeCatalogData {
             val kSAnnotation = clazzDecl.findAnnotation(CustomSerdeCatalog::class)
-                ?: return CustomSerdeCatalogInfo(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
-            return CustomSerdeCatalogInfo(
+                ?: return CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
+            return CustomSerdeCatalogData(
                 kSAnnotation.argument("qualifier"),
                 kSAnnotation.argument("clazz")
             )

@@ -13,7 +13,7 @@ class RuleLambdaGenerator(
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
-    private val endpointCatalog: CustomSerdeCatalogInfo,
+    private val endpointCatalog: CustomSerdeCatalogData,
     private val w: CustomWriter,
 ) {
 
