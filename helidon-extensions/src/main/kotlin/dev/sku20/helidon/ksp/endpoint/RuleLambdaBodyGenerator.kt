@@ -3,7 +3,7 @@ package dev.sku20.helidon.ksp.endpoint
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 

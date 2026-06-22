@@ -3,7 +3,7 @@ package dev.sku20.helidon.ksp.endpoint
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
 import java.io.InputStream
 
 class RuleLambdaGenerator(

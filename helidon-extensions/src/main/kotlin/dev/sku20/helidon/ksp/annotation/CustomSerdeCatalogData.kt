@@ -1,4 +1,4 @@
-package dev.sku20.helidon.ksp.endpoint.annotation
+package dev.sku20.helidon.ksp.annotation
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType

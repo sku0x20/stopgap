@@ -7,9 +7,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
-import dev.sku20.helidon.ksp.endpoint.annotation.EndpointData
-import dev.sku20.helidon.ksp.endpoint.annotation.RouteData
+import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.annotation.EndpointData
+import dev.sku20.helidon.ksp.annotation.RouteData
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
