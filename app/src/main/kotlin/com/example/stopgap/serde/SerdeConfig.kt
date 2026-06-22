@@ -20,4 +20,9 @@ object SerdeConfig {
         return FastjsonSerde()
     }
 
+    @Creates
+    fun plainTextSerdeCatalog(): PlainTextSerdeCatalog {
+        return PlainTextSerdeCatalog()
+    }
+
 }

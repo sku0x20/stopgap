@@ -5,7 +5,7 @@ import dev.sku20.helidon.endpoint.Get
 import dev.sku20.helidon.serde.CustomSerdeCatalog
 
 @Endpoint("/custom-serde-catalog")
-@CustomSerdeCatalog(qualifier = "com.example.stopgap.serde.custom")
+@CustomSerdeCatalog(clazz = PlainTextSerdeCatalog::class)
 class CustomEndpoint {
 
     @Get("/")
