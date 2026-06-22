@@ -23,4 +23,15 @@ class CustomCalls {
         assertThat(text).isEqualTo("hello")
     }
 
+    @Test
+    fun getJsonReturnsJson() {
+        val response = client.get("/custom-serde-catalog/json")
+            .accept(HttpMediaTypes.JSON_UTF_8)
+            .request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"hello-json"}""")
+    }
+
 }
