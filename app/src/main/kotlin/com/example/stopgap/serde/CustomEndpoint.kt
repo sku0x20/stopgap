@@ -1,5 +1,6 @@
 package com.example.stopgap.serde
 
+import com.example.stopgap.serde.plain.PlainTextSerdeCatalog
 import dev.sku20.helidon.endpoint.Endpoint
 import dev.sku20.helidon.endpoint.Get
 import dev.sku20.helidon.serde.CustomSerdeCatalog

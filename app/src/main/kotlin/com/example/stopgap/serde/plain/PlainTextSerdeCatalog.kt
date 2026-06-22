@@ -1,6 +1,5 @@
-package com.example.stopgap.serde
+package com.example.stopgap.serde.plain
 
-import com.example.stopgap.serde.plain.ReqResPlainSerde
 import dev.sku20.helidon.serde.Serde
 import dev.sku20.helidon.serde.SerdeCatalog
 import io.helidon.http.HttpMediaType
