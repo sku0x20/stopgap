@@ -24,20 +24,20 @@ class EndpointSymbolProcessor(
     private fun generateFile(symbols: List<KSClassDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
-            GeneratedNames.GENERATED_PACKAGE,
-            GeneratedNames.GENERATED_FILE_NAME,
-            GeneratedNames.GENERATED_EXTENSION
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         codeGenerator.associateWithClasses(
             symbols,
-            GeneratedNames.GENERATED_PACKAGE,
-            GeneratedNames.GENERATED_FILE_NAME,
-            GeneratedNames.GENERATED_EXTENSION
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         val initGen = InitializersGenerator(
             file,
             symbols,
-            GeneratedNames.GENERATED_PACKAGE
+            GeneratedNames.PACKAGE
         )
         initGen.write()
     }

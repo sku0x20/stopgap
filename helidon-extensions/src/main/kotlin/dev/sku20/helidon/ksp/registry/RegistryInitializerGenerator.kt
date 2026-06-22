@@ -64,7 +64,7 @@ class RegistryInitializerGenerator(
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
         writeLine("import io.helidon.webserver.http.HttpRouting")
-        writeLine("import ${EndpointGeneratedNames.GENERATED_PACKAGE}.registerRoutesFor")
+        writeLine("import ${EndpointGeneratedNames.PACKAGE}.registerRoutesFor")
         writeLine()
     }
 

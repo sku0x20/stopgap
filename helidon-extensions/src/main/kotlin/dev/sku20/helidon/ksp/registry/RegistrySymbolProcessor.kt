@@ -23,19 +23,19 @@ class RegistrySymbolProcessor(
     private fun skip() = options["endpoint.codegen.registry.skip"].toBoolean()
 
     private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
-        it.packageName.asString() == EndpointGeneratedNames.GENERATED_PACKAGE &&
-                it.fileName == "${EndpointGeneratedNames.GENERATED_FILE_NAME}.${EndpointGeneratedNames.GENERATED_EXTENSION}"
+        it.packageName.asString() == EndpointGeneratedNames.PACKAGE &&
+                it.fileName == "${EndpointGeneratedNames.FILE_NAME}.${EndpointGeneratedNames.EXTENSION}"
     }
 
     private fun generateFile(originatingFile: KSFile) {
         val functions = originatingFile.declarations.filterIsInstance<KSFunctionDeclaration>().toList()
         val file = codeGenerator.createNewFile(
             Dependencies(false, originatingFile),
-            GeneratedNames.GENERATED_PACKAGE,
-            GeneratedNames.GENERATED_FILE_NAME,
-            GeneratedNames.GENERATED_EXTENSION
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
-        RegistryInitializerGenerator(file, functions, GeneratedNames.GENERATED_PACKAGE)
+        RegistryInitializerGenerator(file, functions, GeneratedNames.PACKAGE)
             .write()
     }
 }
