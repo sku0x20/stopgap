@@ -18,6 +18,12 @@ class CustomSerdeCatalogData(
         "@CustomSerdeCatalog(clazz=${clazz!!.declaration.qualifiedName!!.asString()}::class)"
     }
 
+    fun paramName(): String {
+        if (qualifier == SerdeExtras.DEFAULT_CATALOG_QUALIFIER) return "default"
+        val raw = if (!qualifier.isNullOrEmpty()) qualifier else clazz!!.declaration.qualifiedName!!.asString()
+        return "`${raw.replace('.', '-')}`"
+    }
+
     companion object {
         fun from(annotated: KSAnnotated) =
             fromOrDefault(annotated, CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER))
