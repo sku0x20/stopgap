@@ -1,18 +1,19 @@
-package dev.sku20.helidon.ksp.registry
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class RegistrySymbolProcessProvider : SymbolProcessorProvider {
+class EndpointSymbolProcessorProvider : SymbolProcessorProvider {
 
     override fun create(
         environment: SymbolProcessorEnvironment
     ): SymbolProcessor {
-        return RegistrySymbolProcessor(
+        return EndpointSymbolProcessor(
             environment.codeGenerator,
             environment.logger,
             environment.options
         )
     }
+
 }

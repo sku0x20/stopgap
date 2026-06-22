@@ -18,11 +18,11 @@ class RoutesBodyGenerator(
     private val variables: MutableSet<String>,
     private val w: CustomWriter,
 ) {
-    private val endpointAnnotation = EndpointData.from(endpointClazz)
+    private val endpointData = EndpointData.from(endpointClazz)
     private val endpointCatalog = CustomSerdeCatalogData.from(endpointClazz)
 
     fun write() = w.withRelativeIndent {
-        writeLine("${GeneratedNames.ROUTES}.register(\"${endpointAnnotation.path}\", { ${GeneratedNames.RULES} ->")
+        writeLine("${GeneratedNames.ROUTES}.register(\"${endpointData.path}\", { ${GeneratedNames.RULES} ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }

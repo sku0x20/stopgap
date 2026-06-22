@@ -8,7 +8,7 @@ import java.io.OutputStream
 
 class InitializersGenerator(
     file: OutputStream,
-    private val endpointClazzez: List<KSClassDeclaration>,
+    private val endpointClazzes: List<KSClassDeclaration>,
     private val packageName: String
 ) {
     private val w = CustomWriter(file)
@@ -25,7 +25,7 @@ class InitializersGenerator(
     }
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
-        for (endpointClazz in endpointClazzez) {
+        for (endpointClazz in endpointClazzes) {
             RoutesGenerator(endpointClazz, imports, writer).write()
         }
     }

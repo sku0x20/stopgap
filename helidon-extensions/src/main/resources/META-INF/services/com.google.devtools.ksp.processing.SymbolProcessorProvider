@@ -1,2 +1,2 @@
-dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessProvider
-dev.sku20.helidon.ksp.registry.RegistrySymbolProcessProvider
+dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessorProvider
+dev.sku20.helidon.ksp.registry.RegistrySymbolProcessorProvider
