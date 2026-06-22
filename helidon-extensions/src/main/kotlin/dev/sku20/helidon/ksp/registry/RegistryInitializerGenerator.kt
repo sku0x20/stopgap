@@ -1,13 +1,10 @@
 package dev.sku20.helidon.ksp.registry
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.ksp.argument
+import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
 import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
-import dev.sku20.helidon.ksp.findAnnotation
-import dev.sku20.helidon.serde.CustomSerdeCatalog
 import java.io.OutputStream
 
 class RegistryInitializerGenerator(
@@ -49,13 +46,11 @@ class RegistryInitializerGenerator(
 
     private fun writeExtraParams(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (i in 2 until function.parameters.size) {
-            val param = function.parameters[i]
-            val annotation = param.findAnnotation(CustomSerdeCatalog::class)!!
-            val qualifier: String = annotation.argument("qualifier")
-            if (qualifier.isNotEmpty()) {
-                writeLine("${GeneratedNames.REGISTRY}.getInstanceForQualifier(\"$qualifier\"),")
+            val catalog = CustomSerdeCatalogData.from(function.parameters[i])
+            if (!catalog.qualifier.isNullOrEmpty()) {
+                writeLine("${GeneratedNames.REGISTRY}.getInstanceForQualifier(\"${catalog.qualifier}\"),")
             } else {
-                val type: KSType = annotation.argument("clazz")
+                val type = catalog.clazz!!
                 writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
             }
         }
