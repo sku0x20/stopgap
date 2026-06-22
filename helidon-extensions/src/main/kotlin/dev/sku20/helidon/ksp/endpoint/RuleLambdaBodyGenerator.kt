@@ -89,7 +89,7 @@ class RuleLambdaBodyGenerator(
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.helidon.serde.SerdeCatalog")
         imports.add("dev.sku20.helidon.serde.SerdeExtras")
-        params.add("@RegistryQualifier(\"${endpointCatalogQualifier.qualifier}\") $endpointCatalog: SerdeCatalog")
+        params.add("@CustomSerdeCatalog(\"${endpointCatalogQualifier.qualifier}\") $endpointCatalog: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =

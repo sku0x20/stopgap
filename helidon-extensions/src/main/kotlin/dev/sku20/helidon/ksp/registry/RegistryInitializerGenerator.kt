@@ -4,8 +4,8 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
-import dev.sku20.helidon.ksp.RegistryQualifier
 import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
+import dev.sku20.helidon.serde.CustomSerdeCatalog
 import java.io.OutputStream
 import kotlin.reflect.KClass
 
@@ -52,7 +52,7 @@ class RegistryInitializerGenerator(
     private fun writeExtraParams(function: KSFunctionDeclaration) = w.withRelativeIndent {
         for (i in 2 until function.parameters.size) {
             val param = function.parameters[i]
-            val annotation = getAnnotation(param, RegistryQualifier::class)
+            val annotation = getAnnotation(param, CustomSerdeCatalog::class)
             val qualifier = fieldValue(annotation, "qualifier") as String
             if (qualifier.isNotEmpty()) {
                 writeLine("$registry.getInstanceForQualifier(\"$qualifier\"),")
