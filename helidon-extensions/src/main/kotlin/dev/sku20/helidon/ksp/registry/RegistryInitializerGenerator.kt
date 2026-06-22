@@ -4,7 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
-import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
+import dev.sku20.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
 import java.io.OutputStream
 
 class RegistryInitializerGenerator(
@@ -64,7 +64,7 @@ class RegistryInitializerGenerator(
         writeLine()
         writeLine("import dev.sku20.ir.InstanceRegistry")
         writeLine("import io.helidon.webserver.http.HttpRouting")
-        writeLine("import ${EndpointSymbolProcessor.GENERATED_PACKAGE}.registerRoutesFor")
+        writeLine("import ${EndpointGeneratedNames.GENERATED_PACKAGE}.registerRoutesFor")
         writeLine()
     }
 

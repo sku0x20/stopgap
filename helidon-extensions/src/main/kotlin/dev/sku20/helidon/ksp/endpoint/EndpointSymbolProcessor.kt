@@ -11,12 +11,6 @@ class EndpointSymbolProcessor(
     private val options: Map<String, String>
 ) : SymbolProcessor {
 
-    companion object {
-        const val GENERATED_PACKAGE = "dev.sku20.helidon.endpoint.generated"
-        const val GENERATED_FILE_NAME = "Initializers"
-        const val GENERATED_EXTENSION = "kt"
-    }
-
     @Suppress("UNCHECKED_CAST")
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver
@@ -30,20 +24,20 @@ class EndpointSymbolProcessor(
     private fun generateFile(symbols: List<KSClassDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
-            GENERATED_PACKAGE,
-            GENERATED_FILE_NAME,
-            GENERATED_EXTENSION
+            GeneratedNames.GENERATED_PACKAGE,
+            GeneratedNames.GENERATED_FILE_NAME,
+            GeneratedNames.GENERATED_EXTENSION
         )
         codeGenerator.associateWithClasses(
             symbols,
-            GENERATED_PACKAGE,
-            GENERATED_FILE_NAME,
-            GENERATED_EXTENSION
+            GeneratedNames.GENERATED_PACKAGE,
+            GeneratedNames.GENERATED_FILE_NAME,
+            GeneratedNames.GENERATED_EXTENSION
         )
         val initGen = InitializersGenerator(
             file,
             symbols,
-            GENERATED_PACKAGE
+            GeneratedNames.GENERATED_PACKAGE
         )
         initGen.write()
     }
