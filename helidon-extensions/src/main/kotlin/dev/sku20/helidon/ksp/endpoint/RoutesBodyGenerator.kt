@@ -107,11 +107,11 @@ class RoutesBodyGenerator(
     private fun findEndpointAnnotationOnClazz(): KSAnnotation =
         endpointClazz.annotations.first { it.shortName.asString() == Endpoint::class.simpleName }
 
-    private fun findEndpointCatalogOrDefault(): CustomSerdeCatalogRef {
+    private fun findEndpointCatalogOrDefault(): CustomSerdeCatalogInfo {
         val kSAnnotation = endpointClazz.annotations.firstOrNull {
             it.shortName.asString() == CustomSerdeCatalog::class.simpleName
         }
-        return CustomSerdeCatalogRef(kSAnnotation)
+        return CustomSerdeCatalogInfo(kSAnnotation)
     }
 }
 
