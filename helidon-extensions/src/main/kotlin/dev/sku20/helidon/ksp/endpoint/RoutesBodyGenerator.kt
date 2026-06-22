@@ -10,6 +10,7 @@ import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
 import dev.sku20.helidon.ksp.argument
+import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
 import dev.sku20.helidon.ksp.findAnnotation
 
 class RoutesBodyGenerator(
