@@ -19,7 +19,7 @@ class CustomSerdeCatalogData(
     }
 
     companion object {
-        fun from(annotated: KSAnnotated): CustomSerdeCatalogData =
+        fun from(annotated: KSAnnotated) =
             fromOrDefault(annotated, CustomSerdeCatalogData(SerdeExtras.DEFAULT_CATALOG_QUALIFIER))
 
         fun fromOrDefault(annotated: KSAnnotated, default: CustomSerdeCatalogData): CustomSerdeCatalogData {
