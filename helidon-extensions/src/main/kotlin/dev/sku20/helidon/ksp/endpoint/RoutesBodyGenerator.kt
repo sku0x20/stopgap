@@ -113,7 +113,7 @@ class RoutesBodyGenerator(
             it.shortName.asString() == CustomSerdeCatalog::class.simpleName
         } ?: return CustomSerdeCatalog(qualifier = SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
 //        val kClazz = kSAnnotation
-        return CustomSerdeCatalog()
+        return CustomSerdeCatalog(qualifier = SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
     }
 }
 
