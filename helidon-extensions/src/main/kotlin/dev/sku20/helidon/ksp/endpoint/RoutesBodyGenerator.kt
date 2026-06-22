@@ -28,8 +28,7 @@ class RoutesBodyGenerator(
     private val rulesField = "rules"
 
     fun write() = w.withRelativeIndent {
-        val endpointPath = endpointAnnotation.path
-        writeLine("$routesParam.register(\"${endpointPath}\", { $rulesField ->")
+        writeLine("$routesParam.register(\"${endpointAnnotation.path}\", { $rulesField ->")
         withRelativeIndent(4) {
             writeRulesLambda()
         }
