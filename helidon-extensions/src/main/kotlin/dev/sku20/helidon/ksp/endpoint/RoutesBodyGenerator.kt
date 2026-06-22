@@ -3,15 +3,13 @@ package dev.sku20.helidon.ksp.endpoint
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isPublic
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
-import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.endpoint.annotation.CustomSerdeCatalogData
 import dev.sku20.helidon.ksp.endpoint.annotation.EndpointData
+import dev.sku20.helidon.ksp.endpoint.annotation.RouteData
 
 class RoutesBodyGenerator(
     private val endpointClazz: KSClassDeclaration,
@@ -48,8 +46,8 @@ class RoutesBodyGenerator(
 
     private fun writeRule(function: KSFunctionDeclaration) = w.withRelativeIndent {
         val lambda = captureRuleLambda(function)
-        val (methodFn, path) = httpMethodFor(function)
-        writeLine("$rulesField.${methodFn}(\"${path}\", {$reqField, $resField ->")
+        val route = RouteData.from(function)
+        writeLine("$rulesField.${route.methodName}(\"${route.path}\", {$reqField, $resField ->")
         w.write(lambda)
         writeLine("})")
     }
@@ -68,38 +66,5 @@ class RoutesBodyGenerator(
             iw,
         ).write()
     }
-
-    private fun httpMethodFor(function: KSFunctionDeclaration): Pair<String, String> {
-        for (annotation in function.annotations) {
-            val methodFn = httpMethodFnName(annotation) ?: continue
-            return Pair(methodFn, pathValue(annotation))
-        }
-        throw IllegalArgumentException("No Http Method annotation found on function: ${function.simpleName.asString()}")
-    }
-
-    /**
-     * fine with switch here.
-     * - internal impl; decoupled from client annotations
-     * - flexible; enable easy change later if required
-     * - mapping needs to be somewhere, either
-     *  - raw switch;
-     *  - hashmap lookup;
-     *  - or some kind of indirection, via factory or other techniques.
-     */
-    // @formatter:off
-    private fun httpMethodFnName(annotation: KSAnnotation) = when (annotation.shortName.asString()) {
-        Get::class.simpleName -> "get"
-        Post::class.simpleName -> "post"
-        Delete::class.simpleName -> "delete"
-        Put::class.simpleName -> "put"
-        Patch::class.simpleName -> "patch"
-        Head::class.simpleName -> "head"
-        Options::class.simpleName -> "options"
-        Trace::class.simpleName -> "trace"
-        else -> null
-    }
-    // @formatter:on
-
-    private fun pathValue(annotation: KSAnnotation): String = annotation.argument("path")
 }
 
