@@ -7,6 +7,10 @@ version = "rolling"
 
 dependencies {
     implementation(libs.ksp.api)
+    implementation(libs.helidon.webserver)
+
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
 }
 
 configurations {

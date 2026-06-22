@@ -14,10 +14,10 @@ annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class CreateEndpoint
+    annotation class Setup
 
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class DestroyEndpoint
+    annotation class Cleanup
 
 }

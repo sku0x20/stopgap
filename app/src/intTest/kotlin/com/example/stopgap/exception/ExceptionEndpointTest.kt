@@ -1,6 +1,7 @@
 package com.example.stopgap.exception
 
 import extension.InjectInstance
+import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
@@ -29,9 +30,9 @@ class ExceptionEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.CreateEndpoint
-        fun createEndpoint(extras: MutableMap<Class<*>, Any>): ExceptionEndpoint {
-            return ExceptionEndpoint()
+        @WebserverTest.Setup
+        fun createEndpoint(): SetupCapture {
+            return SetupCapture(ExceptionEndpoint())
         }
 
     }

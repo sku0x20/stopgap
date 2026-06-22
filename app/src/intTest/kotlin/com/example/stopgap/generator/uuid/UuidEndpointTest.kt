@@ -2,6 +2,8 @@ package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
 import extension.InjectInstance
+import extension.webservertest.SetupCapture
+import extension.webservertest.TestInstances
 import extension.webservertest.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
@@ -49,23 +51,22 @@ class UuidEndpointTest {
     companion object {
 
         @JvmStatic
-        @WebserverTest.CreateEndpoint
-        fun createEndpoint(instances: MutableMap<Class<*>, Any>): UuidEndpoint {
+        @WebserverTest.Setup
+        fun createEndpoint(): SetupCapture {
             val uuidGen = UuidGen()
-            instances[UuidGen::class.java] = uuidGen
             val endpoint = UuidEndpoint(uuidGen)
-            return endpoint
+            return SetupCapture(endpoint, instances = mapOf(UuidGen::class.java to uuidGen))
         }
 
         @JvmStatic
         @WebserverTest.ConfigServer
-        fun configServer(builder: WebServerConfig.Builder) {
+        fun configServer(builder: WebServerConfig.Builder, instances: TestInstances) {
             // config server
         }
 
         @JvmStatic
-        @WebserverTest.DestroyEndpoint
-        fun destroyInstances(endpoint: UuidEndpoint, instances: MutableMap<Class<*>, Any>) {
+        @WebserverTest.Cleanup
+        fun destroyInstances(instances: TestInstances) {
             val uuidGen = instances[UuidGen::class.java] as UuidGen
             // call close,clean,etc.
         }

@@ -1,0 +1,74 @@
+package dev.sku20.helidon.ksp.registry
+
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
+import dev.sku20.helidon.ksp.CustomWriter
+import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
+import java.io.OutputStream
+
+class RegistryInitializerGenerator(
+    file: OutputStream,
+    private val functions: List<KSFunctionDeclaration>,
+    private val packageName: String
+) {
+    private val w = CustomWriter(file)
+
+    fun write() {
+        writePackage()
+        writeImports()
+        writeFunctionDefinition()
+        w.withRelativeIndent(4) {
+            for (function in functions) writeRegisterCallFor(function)
+        }
+        w.writeLine("}")
+        w.close()
+    }
+
+    private fun writeFunctionDefinition() = w.withRelativeIndent {
+        writeLine("fun initEndpointsRoutesViaRegistry(")
+        withRelativeIndent(4) {
+            writeLine("${GeneratedNames.REGISTRY}: InstanceRegistry,")
+            writeLine("${GeneratedNames.ROUTES}: HttpRouting.Builder,")
+        }
+        writeLine(") {")
+    }
+
+    private fun writeRegisterCallFor(function: KSFunctionDeclaration) = w.withRelativeIndent {
+        writeLine("registerRoutesFor(")
+        withRelativeIndent(4) {
+            writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<${getParamFQN(function.parameters.first())}>(),")
+            writeLine("${GeneratedNames.ROUTES},")
+            writeExtraParams(function)
+        }
+        writeLine(")")
+    }
+
+    private fun writeExtraParams(function: KSFunctionDeclaration) = w.withRelativeIndent {
+        for (i in 2 until function.parameters.size) {
+            val catalog = CustomSerdeCatalogData.from(function.parameters[i])
+            if (!catalog.qualifier.isNullOrEmpty()) {
+                writeLine("${GeneratedNames.REGISTRY}.getInstanceForQualifier(\"${catalog.qualifier}\"),")
+            } else {
+                val type = catalog.clazz!!
+                writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
+            }
+        }
+    }
+
+    private fun writePackage() = w.withRelativeIndent {
+        writeLine("package $packageName")
+    }
+
+    private fun writeImports() = w.withRelativeIndent {
+        writeLine()
+        writeLine("import dev.sku20.ir.InstanceRegistry")
+        writeLine("import io.helidon.webserver.http.HttpRouting")
+        writeLine("import ${EndpointGeneratedNames.PACKAGE}.registerRoutesFor")
+        writeLine()
+    }
+
+    private fun getParamFQN(param: KSValueParameter): String {
+        return param.type.resolve().declaration.qualifiedName!!.asString()
+    }
+}

@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.jmh)
     application
 }
 
@@ -15,6 +16,8 @@ dependencies {
     ksp(project(":ir"))
     implementation(project(":helidon-extensions"))
     ksp(project(":helidon-extensions"))
+
+    implementation(libs.fastjson2.kotlin)
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)

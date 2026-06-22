@@ -1,10 +1,10 @@
-package dev.sku20.helidon.endpoint.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class EndpointSymbolProcessProvider : SymbolProcessorProvider {
+class EndpointSymbolProcessorProvider : SymbolProcessorProvider {
 
     override fun create(
         environment: SymbolProcessorEnvironment

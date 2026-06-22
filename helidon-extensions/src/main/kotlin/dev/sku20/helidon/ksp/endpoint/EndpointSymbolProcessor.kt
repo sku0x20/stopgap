@@ -1,4 +1,4 @@
-package dev.sku20.helidon.endpoint.ksp
+package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -21,28 +21,23 @@ class EndpointSymbolProcessor(
         return emptyList()
     }
 
-    private val packageName = "dev.sku20.helidon.endpoint.generated"
-    private val fileName = "Initializers"
-    private val extension = "kt"
-
     private fun generateFile(symbols: List<KSClassDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
-            packageName,
-            fileName,
-            extension
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         codeGenerator.associateWithClasses(
             symbols,
-            packageName,
-            fileName,
-            extension
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         val initGen = InitializersGenerator(
             file,
             symbols,
-            packageName,
-            !options["endpoint.codegen.registry.skip"].toBoolean()
+            GeneratedNames.PACKAGE
         )
         initGen.write()
     }

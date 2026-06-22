@@ -12,14 +12,19 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
+import org.junit.platform.commons.support.ReflectionSupport
 import java.lang.reflect.Method
 
 /**
  * WebserverTestExtension runs once per test class.
  * It doesn't care if the test launch is per class or per methods, it behaves the same.
  * Junit Extensions also try to abstract that out, so changing the launch does not affect extensions.
- * Via [WebserverTest.CreateEndpoint] and [WebserverTest.DestroyEndpoint] this allows test classes to manage instances.
+ * Via [WebserverTest.Setup] and [WebserverTest.Cleanup] this allows test classes to manage instances.
  * This allows running in parallel as it ties the instances lifecycle with the run, rather than static.
+ * Instances are opaque to the extension — it only passes them through.
+ * Use [WebserverTest.Cleanup] to cleanup mocks/release test-specific resources.
+ * If anything needs lifecycle management, e.g. endpoint/serde, add it to instances in [WebserverTest.Setup]
+ * and retrieve it in [WebserverTest.Cleanup].
  */
 class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
@@ -30,14 +35,13 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
 
-        private const val USER_INSTANCES_ID = "user.instances"
-        private const val ENDPOINT_CLAZZ_ID = "endpoint.clazz"
+        private const val SETUP_CAPTURE_ID = "setup.capture"
     }
 
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
-        createEndpoint(testClass, store)
+        setup(testClass, store)
         startServer(testClass, store)
     }
 
@@ -55,7 +59,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
                 WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
                 else -> field.set(
                     testInstance,
-                    (store.get(USER_INSTANCES_ID) as Map<*, *>)[field.type]
+                    (store.get(SETUP_CAPTURE_ID) as SetupCapture).instances[field.type]
                 )
             }
         }
@@ -65,39 +69,32 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         val testClass = context.requiredTestClass
         val store = SharedStore.getStoreScopedToTestClass(context)
         stopServer(store)
-        destroyEndpoint(testClass, store)
+        cleanup(testClass, store)
     }
 
-    private fun createEndpoint(
+    private fun setup(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val instances = mutableMapOf<Class<*>, Any>()
-        val endpoint = findStaticMethod(
+        val setup = findStaticMethod(
             testClass,
-            WebserverTest.CreateEndpoint::class.java
-        )?.invoke(null, instances)
-            ?: throw RuntimeException("Cannot find createEndpoint method in test class ${testClass.simpleName}")
-        instances[endpoint::class.java] = endpoint
-        store.put(USER_INSTANCES_ID, instances)
-        store.put(ENDPOINT_CLAZZ_ID, endpoint::class.java)
+            WebserverTest.Setup::class.java
+        )?.invoke(null) as? SetupCapture
+            ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
+        store.put(SETUP_CAPTURE_ID, setup)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun destroyEndpoint(
+    private fun cleanup(
         testClass: Class<*>,
         store: ExtensionContext.Store
     ) {
-        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
-        val endpoint = instances[endpointClazz]
+        val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
         findStaticMethod(
             testClass,
-            WebserverTest.DestroyEndpoint::class.java
-        )?.invoke(null, endpoint, instances)
+            WebserverTest.Cleanup::class.java
+        )?.invoke(null, setup.instances)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun startServer(
         testClass: Class<*>,
         store: ExtensionContext.Store
@@ -108,24 +105,25 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .port(0)
             .host("localhost")
 
-        val endpointClazz = store.get(ENDPOINT_CLAZZ_ID) as Class<*>
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
-        val endpoint = instances[endpointClazz]
+        val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
+        val endpoint = setup.endpoint
+        val extras = setup.registerParams
+        val instances = setup.instances
 
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
-        val routes = HttpRouting.builder()
-        val method = clazz.getDeclaredMethod(
+        val method = findMethodWith(
+            clazz,
             "registerRoutesFor",
-            endpointClazz,
-            HttpRouting.Builder::class.java
+            endpoint::class.java, HttpRouting.Builder::class.java
         )
-        method.invoke(null, endpoint, routes)
+        val routes = HttpRouting.builder()
+        method.invoke(null, endpoint, routes, *extras)
         serverBuilder.routing(routes)
 
         findStaticMethod(
             testClass,
             WebserverTest.ConfigServer::class.java
-        )?.invokeStaticMethodWithArgs(serverBuilder, store)
+        )?.invoke(null, serverBuilder, instances)
         val server = serverBuilder
             .build()
             .start()
@@ -136,28 +134,6 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
     private fun stopServer(store: ExtensionContext.Store) {
         val server = store.get(SERVER_INSTANCE_ID) as WebServer
         server.stop()
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun Method?.invokeStaticMethodWithArgs(
-        firstArg: Any,
-        store: ExtensionContext.Store
-    ) {
-        if (this == null) return
-        val instances = store.get(USER_INSTANCES_ID) as Map<Class<*>, Any>
-        val argsCount = this.parameterCount
-        if (argsCount == 1) {
-            this.invoke(null, firstArg); return
-        }
-        val args = Array(argsCount) { firstArg }
-        for (i in 1 until argsCount) {
-            val type = this.parameters[i].type
-            args[i] = instances[type]!!
-        }
-        this.invoke(
-            null,
-            *args
-        )
     }
 
     private fun findStaticMethod(
@@ -180,6 +156,25 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             throw IllegalStateException("${annotation.name} method must be static")
         }
         return member
+    }
+
+    @Suppress("SameParameterValue")
+    private fun findMethodWith(
+        clazz: Class<*>,
+        methodName: String,
+        vararg params: Class<*>,
+    ): Method {
+        val methods = ReflectionSupport.findMethods(clazz, {
+            if (it.name != methodName) return@findMethods false
+            val parameters = it.parameters
+            if (params.size > parameters.size) return@findMethods false
+            for (i in params.indices) {
+                if (parameters[i].type != params[i]) return@findMethods false
+            }
+            return@findMethods true
+        }, HierarchyTraversalMode.BOTTOM_UP)
+        if (methods.isEmpty()) throw IllegalStateException("No method found with name $methodName and parameters ${params.joinToString { it.name }}")
+        return methods[0]
     }
 
 }

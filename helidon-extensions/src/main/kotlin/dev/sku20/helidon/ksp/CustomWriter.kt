@@ -1,11 +1,18 @@
-package dev.sku20.helidon.endpoint.ksp
+package dev.sku20.helidon.ksp
 
+import java.io.InputStream
 import java.io.OutputStream
 
+
 class CustomWriter(
-    output: OutputStream
+    private val output: OutputStream
 ) {
     private val writer = output.bufferedWriter()
+
+    fun write(input: InputStream) {
+        writer.flush()
+        input.transferTo(output)
+    }
 
     fun close() {
         writer.close()
@@ -35,7 +42,8 @@ class CustomWriter(
         indent = n
     }
 
-    private var indent = 0
+    var indent = 0
+        private set
 
     @Suppress("EmptyRange")
     private fun writeIndent() {
