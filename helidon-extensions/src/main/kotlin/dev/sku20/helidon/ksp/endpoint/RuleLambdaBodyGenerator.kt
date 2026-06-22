@@ -54,7 +54,7 @@ class RuleLambdaBodyGenerator(
         addSerdeCatalog()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        rulesVariables.add("${GeneratedNames.DESER} = ${GeneratedNames.ENDPOINT_CATALOG}.getDeserializer(${GeneratedNames.REQ}.headers().contentType().orElse(null))")
+        rulesVariables.add("${GeneratedNames.DESER} = ${functionCatalog.paramName()}.getDeserializer(${GeneratedNames.REQ}.headers().contentType().orElse(null))")
         val typeParam: String
         if (type.isGeneric()) {
             imports.add("kotlin.reflect.typeOf")
@@ -70,7 +70,7 @@ class RuleLambdaBodyGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerdeCatalog()
-            rulesVariables.add("${GeneratedNames.SER} = ${GeneratedNames.ENDPOINT_CATALOG}.getSerializer(${GeneratedNames.REQ}.headers().acceptedTypes())")
+            rulesVariables.add("${GeneratedNames.SER} = ${functionCatalog.paramName()}.getSerializer(${GeneratedNames.REQ}.headers().acceptedTypes())")
             writeLine("${GeneratedNames.RES}.headers().contentType(${GeneratedNames.SER}.mediaType)")
             writeLine("${GeneratedNames.RES}.send(${GeneratedNames.SER}.serialize(${GeneratedNames.RESP}))")
         } else if (!hasServerResponseParam()) {
@@ -80,7 +80,7 @@ class RuleLambdaBodyGenerator(
 
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.helidon.serde.SerdeCatalog")
-        params.add("${functionCatalog.asAnnotationString()} ${GeneratedNames.ENDPOINT_CATALOG}: SerdeCatalog")
+        params.add("${functionCatalog.asAnnotationString()} ${functionCatalog.paramName()}: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =
