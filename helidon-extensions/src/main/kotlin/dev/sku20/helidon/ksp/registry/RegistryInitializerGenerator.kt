@@ -28,14 +28,11 @@ class RegistryInitializerGenerator(
         w.close()
     }
 
-    private val registry = "registry"
-    private val routes = "routes"
-
     private fun writeFunctionDefinition() = w.withRelativeIndent {
         writeLine("fun initEndpointsRoutesViaRegistry(")
         withRelativeIndent(4) {
-            writeLine("$registry: InstanceRegistry,")
-            writeLine("$routes: HttpRouting.Builder,")
+            writeLine("${GeneratedNames.REGISTRY}: InstanceRegistry,")
+            writeLine("${GeneratedNames.ROUTES}: HttpRouting.Builder,")
         }
         writeLine(") {")
     }
@@ -43,8 +40,8 @@ class RegistryInitializerGenerator(
     private fun writeRegisterCallFor(function: KSFunctionDeclaration) = w.withRelativeIndent {
         writeLine("registerRoutesFor(")
         withRelativeIndent(4) {
-            writeLine("$registry.getInstanceForType<${getParamFQN(function.parameters.first())}>(),")
-            writeLine("$routes,")
+            writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<${getParamFQN(function.parameters.first())}>(),")
+            writeLine("${GeneratedNames.ROUTES},")
             writeExtraParams(function)
         }
         writeLine(")")
@@ -56,10 +53,10 @@ class RegistryInitializerGenerator(
             val annotation = param.findAnnotation(CustomSerdeCatalog::class)!!
             val qualifier: String = annotation.argument("qualifier")
             if (qualifier.isNotEmpty()) {
-                writeLine("$registry.getInstanceForQualifier(\"$qualifier\"),")
+                writeLine("${GeneratedNames.REGISTRY}.getInstanceForQualifier(\"$qualifier\"),")
             } else {
                 val type: KSType = annotation.argument("clazz")
-                writeLine("$registry.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
+                writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
             }
         }
     }
