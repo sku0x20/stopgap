@@ -9,9 +9,6 @@ import io.helidon.webserver.http.ServerResponse
 
 class RuleLambdaBodyGenerator(
     private val function: KSFunctionDeclaration,
-    private val endpoint: String,
-    private val req: String,
-    private val res: String,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
@@ -35,7 +32,7 @@ class RuleLambdaBodyGenerator(
     private val bodyKType = "${functionName}BodyKType"
 
     private fun writeFunctionCall() = w.withRelativeIndent {
-        writeLine("val $respVariable = $endpoint.${functionName}(")
+        writeLine("val $respVariable = ${GeneratedNames.ENDPOINT}.${functionName}(")
         withRelativeIndent(4) {
             for (type in functionParamsTypes) {
                 val value = getParamValue(type)
@@ -50,8 +47,8 @@ class RuleLambdaBodyGenerator(
     }
 
     private fun getParamValue(type: KSType) = when (type.declaration.qualifiedName!!.asString()) {
-        ServerRequest::class.qualifiedName -> req
-        ServerResponse::class.qualifiedName -> res
+        ServerRequest::class.qualifiedName -> GeneratedNames.REQ
+        ServerResponse::class.qualifiedName -> GeneratedNames.RES
         else -> bodyDeserialized(type)
     }
 
@@ -60,7 +57,7 @@ class RuleLambdaBodyGenerator(
         addSerdeCatalog()
         val requestBody = type.declaration
         imports.add(requestBody.qualifiedName!!.asString())
-        rulesVariables.add("$deserializer = $endpointCatalog.getDeserializer($req.headers().contentType().orElse(null))")
+        rulesVariables.add("$deserializer = $endpointCatalog.getDeserializer(${GeneratedNames.REQ}.headers().contentType().orElse(null))")
         val typeParam: String
         if (type.isGeneric()) {
             imports.add("kotlin.reflect.typeOf")
@@ -69,7 +66,7 @@ class RuleLambdaBodyGenerator(
         } else {
             typeParam = "${requestBody.simpleName.asString()}::class"
         }
-        return "${deserializer}.deserialize($req.content().inputStream().readAllBytes(), $typeParam)"
+        return "${deserializer}.deserialize(${GeneratedNames.REQ}.content().inputStream().readAllBytes(), $typeParam)"
     }
 
     private val serializer = "ser"
@@ -77,11 +74,11 @@ class RuleLambdaBodyGenerator(
         val returnType = function.returnType!!.resolve()
         if (!isUnit(returnType)) {
             addSerdeCatalog()
-            rulesVariables.add("$serializer = $endpointCatalog.getSerializer($req.headers().acceptedTypes())")
-            writeLine("$res.headers().contentType($serializer.mediaType)")
-            writeLine("$res.send($serializer.serialize($respVariable))")
+            rulesVariables.add("$serializer = $endpointCatalog.getSerializer(${GeneratedNames.REQ}.headers().acceptedTypes())")
+            writeLine("${GeneratedNames.RES}.headers().contentType($serializer.mediaType)")
+            writeLine("${GeneratedNames.RES}.send($serializer.serialize($respVariable))")
         } else if (!hasServerResponseParam()) {
-            writeLine("$res.send()")
+            writeLine("${GeneratedNames.RES}.send()")
         }
     }
 

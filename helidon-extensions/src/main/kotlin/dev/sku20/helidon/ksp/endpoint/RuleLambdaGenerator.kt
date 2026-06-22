@@ -8,9 +8,6 @@ import java.io.InputStream
 
 class RuleLambdaGenerator(
     private val function: KSFunctionDeclaration,
-    private val endpoint: String,
-    private val req: String,
-    private val res: String,
     private val imports: MutableSet<String>,
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
@@ -33,9 +30,6 @@ class RuleLambdaGenerator(
         writer.setIndent(w.indent)
         RuleLambdaBodyGenerator(
             function,
-            endpoint,
-            req,
-            res,
             imports,
             params,
             variables,

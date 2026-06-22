@@ -27,12 +27,9 @@ class RoutesGenerator(
         imports.add("dev.sku20.helidon.serde.CustomSerdeCatalog")
     }
 
-    private val endpoint = "endpoint"
-    private val routes = "routes"
-
     private var params = mutableSetOf(
-        "$endpoint: ${endpointClazz.qualifiedName!!.asString()}",
-        "$routes: HttpRouting.Builder",
+        "${GeneratedNames.ENDPOINT}: ${endpointClazz.qualifiedName!!.asString()}",
+        "${GeneratedNames.ROUTES}: HttpRouting.Builder",
     )
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
@@ -52,8 +49,6 @@ class RoutesGenerator(
         writer.setIndent(w.indent + 4)
         RoutesBodyGenerator(
             endpointClazz,
-            endpoint,
-            routes,
             imports,
             params,
             variables,
