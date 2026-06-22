@@ -21,7 +21,7 @@ class RuleLambdaBodyGenerator(
 
     fun write() = w.withRelativeIndent {
         writeFunctionCall()
-        writeEpilogue()
+        writeSerializeIfValid()
     }
 
     // in order
@@ -38,10 +38,6 @@ class RuleLambdaBodyGenerator(
             }
         }
         writeLine(")")
-    }
-
-    private fun writeEpilogue() = w.withRelativeIndent {
-        writeSerializeIfValid()
     }
 
     private fun getParamValue(type: KSType) = when (type.declaration.qualifiedName!!.asString()) {
