@@ -10,6 +10,7 @@ import dev.sku20.helidon.endpoint.*
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.Utils
 import dev.sku20.helidon.serde.CustomSerdeCatalog
+import dev.sku20.helidon.serde.MapSerdeCatalog
 import dev.sku20.helidon.serde.SerdeExtras
 
 class RoutesBodyGenerator(
@@ -113,7 +114,7 @@ class RoutesBodyGenerator(
             it.shortName.asString() == CustomSerdeCatalog::class.simpleName
         } ?: return CustomSerdeCatalog(qualifier = SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
 //        val kClazz = kSAnnotation
-        return CustomSerdeCatalog(qualifier = SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
+        return CustomSerdeCatalog(clazz = MapSerdeCatalog::class)
     }
 }
 

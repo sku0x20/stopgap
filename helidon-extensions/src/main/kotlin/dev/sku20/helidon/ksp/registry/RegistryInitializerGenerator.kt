@@ -2,6 +2,7 @@ package dev.sku20.helidon.ksp.registry
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.endpoint.EndpointSymbolProcessor
@@ -57,8 +58,8 @@ class RegistryInitializerGenerator(
             if (qualifier.isNotEmpty()) {
                 writeLine("$registry.getInstanceForQualifier(\"$qualifier\"),")
             } else {
-                val type = fieldValue(annotation, "type") as KClass<*>
-                writeLine("$registry.getInstanceForType<${type.qualifiedName}>(),")
+                val type = fieldValue(annotation, "clazz") as KSType
+                writeLine("$registry.getInstanceForType<${type.declaration.qualifiedName!!.asString()}>(),")
             }
         }
     }
