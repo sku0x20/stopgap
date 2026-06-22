@@ -13,7 +13,7 @@ class RuleLambdaBodyGenerator(
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
     private val rulesVariables: MutableSet<String>,
-    private val endpointCatalogQualifier: CustomSerdeCatalogData,
+    private val endpointCatalog: CustomSerdeCatalogData,
     private val w: CustomWriter,
 ) {
 
@@ -80,7 +80,7 @@ class RuleLambdaBodyGenerator(
 
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.helidon.serde.SerdeCatalog")
-        params.add("${endpointCatalogQualifier.asAnnotationString()} ${GeneratedNames.ENDPOINT_CATALOG}: SerdeCatalog")
+        params.add("${endpointCatalog.asAnnotationString()} ${GeneratedNames.ENDPOINT_CATALOG}: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =
