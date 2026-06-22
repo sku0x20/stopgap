@@ -21,7 +21,7 @@ class CustomSerdeCatalogData(
     fun paramName(): String {
         if (qualifier == SerdeExtras.DEFAULT_CATALOG_QUALIFIER) return "default"
         val raw = if (!qualifier.isNullOrEmpty()) qualifier else clazz!!.declaration.qualifiedName!!.asString()
-        return "`${raw.replace('.', '-')}`"
+        return raw.replace('.', '_')
     }
 
     companion object {
