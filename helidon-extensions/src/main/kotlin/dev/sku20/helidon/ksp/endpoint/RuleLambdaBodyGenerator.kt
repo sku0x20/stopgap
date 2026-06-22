@@ -88,8 +88,7 @@ class RuleLambdaBodyGenerator(
 
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.helidon.serde.SerdeCatalog")
-        imports.add("dev.sku20.helidon.serde.SerdeExtras")
-        params.add("@CustomSerdeCatalog(\"${endpointCatalogQualifier.qualifier}\") $endpointCatalog: SerdeCatalog")
+        params.add("${endpointCatalogQualifier.asString()} $endpointCatalog: SerdeCatalog")
     }
 
     private fun isUnit(type: KSType): Boolean =
@@ -113,4 +112,12 @@ class RuleLambdaBodyGenerator(
         function.annotations.firstOrNull { it.shortName.asString() == CustomSerdeCatalog::class.simpleName }
 
     private fun KSType.isGeneric(): Boolean = this.arguments.isNotEmpty()
+
+    private fun CustomSerdeCatalog.asString(): String {
+        return if (this.qualifier.isNotEmpty()) {
+            "@CustomSerdeCatalog(\"${this.qualifier}\")"
+        } else {
+            "@CustomSerdeCatalog(clazz=${this.clazz.qualifiedName}::class)"
+        }
+    }
 }
