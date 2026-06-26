@@ -67,7 +67,7 @@ class RuleLambdaBodyGenerator(
 
     private fun headerParamValue(name: String): String {
         imports.add("io.helidon.http.HeaderNames")
-        val varName = name.replace(Regex("[^a-zA-Z0-9]"), "_").lowercase() + "_header_name"
+        val varName = "${name}_header_name"
         variables.add("$varName = HeaderNames.create(\"$name\")")
         return "${GeneratedNames.REQ}.headers().get($varName)"
     }
