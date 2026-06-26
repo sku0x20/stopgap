@@ -10,7 +10,7 @@ class ParamEndpoint {
 
     @Get("/{id}")
     fun getById(req: ServerRequest, res: ServerResponse) {
-        val id = req.path().pathParam("id")
+        val id = req.path().pathParameters()["id"]
         res.send(id)
     }
 
