@@ -31,9 +31,9 @@ class ParamEndpointTest {
 
     @Test
     fun headerParam() {
-        val response = client.get("/param/header").header(HeaderNames.create("X-Name"), "bar").request()
+        val response = client.get("/param/header").header(HeaderNames.ACCEPT_LANGUAGE, "en").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        assertThat(response.`as`(String::class.java)).isEqualTo("bar")
+        assertThat(response.`as`(String::class.java)).isEqualTo("en")
     }
 
     companion object {

@@ -18,7 +18,7 @@ class ParamEndpoint {
     }
 
     @Get("/header")
-    fun getByHeader(@HeaderParam("X-Name") name: Header, res: ServerResponse) {
+    fun getByHeader(@HeaderParam("Accept-Language") name: Header, res: ServerResponse) {
         res.send(name.get())
     }
 
