@@ -25,4 +25,11 @@ class ParamCalls {
         assertThat(response.`as`(String::class.java)).isEqualTo("foo")
     }
 
+    @Test
+    fun headerParam() {
+        val response = client.get("/param/header").header(Http.Header.create(Http.HeaderName.create("X-Name"), "bar")).request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.`as`(String::class.java)).isEqualTo("bar")
+    }
+
 }
