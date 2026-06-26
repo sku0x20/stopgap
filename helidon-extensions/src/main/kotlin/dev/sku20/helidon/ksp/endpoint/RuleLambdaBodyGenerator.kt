@@ -2,8 +2,11 @@ package dev.sku20.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.findAnnotation
+import dev.sku20.helidon.param.PathParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
@@ -29,25 +32,35 @@ class RuleLambdaBodyGenerator(
     }
 
     // in order
-    private val functionParamsTypes = function.parameters.map { it.type.resolve() }
+    private val functionParams = function.parameters
 
     private val bodyKType = "${functionName}BodyKType"
 
     private fun writeFunctionCall() = w.withRelativeIndent {
         writeLine("val ${GeneratedNames.RESP} = ${GeneratedNames.ENDPOINT}.${functionName}(")
         withRelativeIndent(4) {
-            for (type in functionParamsTypes) {
-                val value = getParamValue(type)
+            for (param in functionParams) {
+                val value = getParamValue(param)
                 writeLine("$value,")
             }
         }
         writeLine(")")
     }
 
-    private fun getParamValue(type: KSType) = when (type.declaration.qualifiedName!!.asString()) {
-        ServerRequest::class.qualifiedName -> GeneratedNames.REQ
-        ServerResponse::class.qualifiedName -> GeneratedNames.RES
-        else -> bodyDeserialized(type)
+    private fun getParamValue(param: KSValueParameter): String {
+        val type = param.type.resolve()
+        return when (type.declaration.qualifiedName!!.asString()) {
+            ServerRequest::class.qualifiedName -> GeneratedNames.REQ
+            ServerResponse::class.qualifiedName -> GeneratedNames.RES
+            else -> {
+                val pathParam = param.findAnnotation(PathParam::class)
+                if (pathParam != null) {
+                    val name: String = pathParam.argument("name")
+                    return """${GeneratedNames.REQ}.path().pathParameters()["$name"]"""
+                }
+                bodyDeserialized(type)
+            }
+        }
     }
 
     private fun bodyDeserialized(type: KSType): String {
@@ -87,7 +100,7 @@ class RuleLambdaBodyGenerator(
         type.declaration.qualifiedName!!.asString() == Unit::class.qualifiedName!!
 
     private fun hasServerResponseParam(): Boolean =
-        functionParamsTypes.find { it.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName } != null
+        functionParams.any { it.type.resolve().declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName }
 
     // base we are adding as import
     // manual transversal/type resolution
