@@ -9,14 +9,14 @@ import io.helidon.webserver.http.ServerResponse
 @Endpoint("/param")
 class ParamEndpoint {
 
-    @Get("/{id}")
-    fun getById(@PathParam("id") id: String, res: ServerResponse) {
-        res.send(id)
-    }
-
     @Get("/query")
     fun getByQuery(@QueryParam("name") name: String, res: ServerResponse) {
         res.send(name)
+    }
+
+    @Get("/{id}")
+    fun getById(@PathParam("id") id: String, res: ServerResponse) {
+        res.send(id)
     }
 
 }
