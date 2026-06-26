@@ -8,6 +8,7 @@ import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
 import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.findAnnotation
 import dev.sku20.helidon.param.PathParam
+import dev.sku20.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
@@ -51,10 +52,12 @@ class RuleLambdaBodyGenerator(
     private fun getParamValue(param: KSValueParameter): String {
         val type = param.type.resolve()
         val pathParam = param.findAnnotation(PathParam::class)
+        val queryParam = param.findAnnotation(QueryParam::class)
         return when {
             type.declaration.qualifiedName!!.asString() == ServerRequest::class.qualifiedName -> GeneratedNames.REQ
             type.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName -> GeneratedNames.RES
             pathParam != null -> """${GeneratedNames.REQ}.path().pathParameters()["${pathParam.argument<String>("name")}"]"""
+            queryParam != null -> """${GeneratedNames.REQ}.query().get("${queryParam.argument<String>("name")}")"""
             else -> bodyDeserialized(type)
         }
     }
