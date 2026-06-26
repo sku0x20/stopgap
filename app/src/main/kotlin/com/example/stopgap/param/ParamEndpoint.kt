@@ -9,6 +9,7 @@ import io.helidon.webserver.http.ServerResponse
 @Endpoint("/param")
 class ParamEndpoint {
 
+    // literal routes must be declared before path param routes; Helidon matches first-registered wins
     @Get("/query")
     fun getByQuery(@QueryParam("name") name: String, res: ServerResponse) {
         res.send(name)
