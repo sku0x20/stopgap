@@ -5,6 +5,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.findAnnotation
 import dev.sku20.helidon.param.PathParam
 import io.helidon.webserver.http.ServerRequest
