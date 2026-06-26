@@ -21,6 +21,13 @@ class ParamEndpointTest {
         assertThat(response.`as`(String::class.java)).isEqualTo("abc123")
     }
 
+    @Test
+    fun queryParam() {
+        val response = client.get("/param/query").queryParam("name", "foo").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.`as`(String::class.java)).isEqualTo("foo")
+    }
+
     companion object {
         @JvmStatic
         @WebserverTest.Setup
