@@ -1,4 +1,4 @@
-package dev.sku20.helidon.params
+package dev.sku20.helidon.param
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.SOURCE)
