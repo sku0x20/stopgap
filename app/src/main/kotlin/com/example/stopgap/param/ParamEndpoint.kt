@@ -5,6 +5,7 @@ import dev.sku20.helidon.endpoint.Get
 import dev.sku20.helidon.param.HeaderParam
 import dev.sku20.helidon.param.PathParam
 import dev.sku20.helidon.param.QueryParam
+import io.helidon.http.Header
 import io.helidon.webserver.http.ServerResponse
 
 @Endpoint("/param")
@@ -17,8 +18,8 @@ class ParamEndpoint {
     }
 
     @Get("/header")
-    fun getByHeader(@HeaderParam("X-Name") name: String, res: ServerResponse) {
-        res.send(name)
+    fun getByHeader(@HeaderParam("X-Name") name: Header, res: ServerResponse) {
+        res.send(name.get())
     }
 
     @Get("/{id}")

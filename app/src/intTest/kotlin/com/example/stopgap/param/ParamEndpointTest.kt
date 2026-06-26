@@ -3,6 +3,7 @@ package com.example.stopgap.param
 import extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
+import io.helidon.http.HeaderNames
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
@@ -30,7 +31,7 @@ class ParamEndpointTest {
 
     @Test
     fun headerParam() {
-        val response = client.get("/param/header").header(Http.Header.create(Http.HeaderName.create("X-Name"), "bar")).request()
+        val response = client.get("/param/header").header(HeaderNames.create("X-Name"), "bar").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.`as`(String::class.java)).isEqualTo("bar")
     }
