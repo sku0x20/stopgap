@@ -6,6 +6,7 @@ import dev.sku20.helidon.param.HeaderParam
 import dev.sku20.helidon.param.PathParam
 import dev.sku20.helidon.param.QueryParam
 import io.helidon.http.Header
+import io.helidon.http.HeaderNames
 import io.helidon.webserver.http.ServerResponse
 
 @Endpoint("/param")
@@ -18,7 +19,7 @@ class ParamEndpoint {
     }
 
     @Get("/header")
-    fun getByHeader(@HeaderParam("Accept-Language") name: Header, res: ServerResponse) {
+    fun getByHeader(@HeaderParam(HeaderNames.ACCEPT_LANGUAGE_NAME) name: Header, res: ServerResponse) {
         res.send(name.get())
     }
 
