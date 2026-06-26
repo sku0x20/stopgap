@@ -50,17 +50,12 @@ class RuleLambdaBodyGenerator(
 
     private fun getParamValue(param: KSValueParameter): String {
         val type = param.type.resolve()
-        return when (type.declaration.qualifiedName!!.asString()) {
-            ServerRequest::class.qualifiedName -> GeneratedNames.REQ
-            ServerResponse::class.qualifiedName -> GeneratedNames.RES
-            else -> {
-                val pathParam = param.findAnnotation(PathParam::class)
-                if (pathParam != null) {
-                    val name: String = pathParam.argument("name")
-                    return """${GeneratedNames.REQ}.path().pathParameters()["$name"]"""
-                }
-                bodyDeserialized(type)
-            }
+        val pathParam = param.findAnnotation(PathParam::class)
+        return when {
+            type.declaration.qualifiedName!!.asString() == ServerRequest::class.qualifiedName -> GeneratedNames.REQ
+            type.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName -> GeneratedNames.RES
+            pathParam != null -> """${GeneratedNames.REQ}.path().pathParameters()["${pathParam.argument<String>("name")}"]"""
+            else -> bodyDeserialized(type)
         }
     }
 
