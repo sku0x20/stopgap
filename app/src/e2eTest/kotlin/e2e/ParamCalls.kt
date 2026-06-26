@@ -1,0 +1,21 @@
+package e2e
+
+import extension.InjectInstance
+import io.helidon.http.Status
+import io.helidon.webclient.api.WebClient
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class ParamCalls {
+
+    @InjectInstance
+    lateinit var client: WebClient
+
+    @Test
+    fun pathParam() {
+        val response = client.get("/param/abc123").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.`as`(String::class.java)).isEqualTo("abc123")
+    }
+
+}
