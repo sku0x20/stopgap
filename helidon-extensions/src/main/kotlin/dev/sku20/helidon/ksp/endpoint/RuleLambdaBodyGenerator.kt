@@ -7,6 +7,7 @@ import dev.sku20.helidon.ksp.CustomWriter
 import dev.sku20.helidon.ksp.annotation.CustomSerdeCatalogData
 import dev.sku20.helidon.ksp.argument
 import dev.sku20.helidon.ksp.findAnnotation
+import dev.sku20.helidon.param.HeaderParam
 import dev.sku20.helidon.param.PathParam
 import dev.sku20.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
@@ -53,13 +54,22 @@ class RuleLambdaBodyGenerator(
         val type = param.type.resolve()
         val pathParam = param.findAnnotation(PathParam::class)
         val queryParam = param.findAnnotation(QueryParam::class)
+        val headerParam = param.findAnnotation(HeaderParam::class)
         return when {
             type.declaration.qualifiedName!!.asString() == ServerRequest::class.qualifiedName -> GeneratedNames.REQ
             type.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName -> GeneratedNames.RES
             pathParam != null -> """${GeneratedNames.REQ}.path().pathParameters()["${pathParam.argument<String>("name")}"]"""
             queryParam != null -> """${GeneratedNames.REQ}.query().get("${queryParam.argument<String>("name")}")"""
+            headerParam != null -> headerParamValue(headerParam.argument("name"))
             else -> bodyDeserialized(type)
         }
+    }
+
+    private fun headerParamValue(name: String): String {
+        imports.add("io.helidon.http.HeaderNames")
+        val varName = name.replace(Regex("[^a-zA-Z0-9]"), "_").lowercase() + "_header_name"
+        variables.add("$varName = HeaderNames.create(\"$name\")")
+        return "${GeneratedNames.REQ}.headers().get($varName)"
     }
 
     private fun bodyDeserialized(type: KSType): String {
