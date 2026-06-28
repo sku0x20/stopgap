@@ -62,7 +62,7 @@ class RegistryInitializerGenerator(
 
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
-        writeLine("import dev.sku20.ir.InstanceRegistry")
+        writeLine("import dev.sku20.stopgap.ir.InstanceRegistry")
         writeLine("import io.helidon.webserver.http.HttpRouting")
         writeLine("import ${EndpointGeneratedNames.PACKAGE}.registerRoutesFor")
         writeLine()
