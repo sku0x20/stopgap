@@ -33,7 +33,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
 
         const val SERVER_INSTANCE_ID = "server.instance"
 
-        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.helidon.endpoint.generated.InitializersKt"
+        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.InitializersKt"
 
         private const val SETUP_CAPTURE_ID = "setup.capture"
     }

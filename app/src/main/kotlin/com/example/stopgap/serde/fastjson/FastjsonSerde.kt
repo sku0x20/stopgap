@@ -1,7 +1,7 @@
 package com.example.stopgap.serde.fastjson
 
 import com.alibaba.fastjson2.JSON
-import dev.sku20.helidon.serde.Serde
+import dev.sku20.stopgap.helidon.serde.Serde
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import kotlin.reflect.KClass

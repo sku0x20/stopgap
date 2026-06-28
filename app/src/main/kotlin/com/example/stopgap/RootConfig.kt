@@ -1,9 +1,9 @@
 package com.example.stopgap
 
 import com.example.stopgap.serde.fastjson.FastjsonSerde
-import dev.sku20.helidon.serde.MapSerdeCatalog
-import dev.sku20.helidon.serde.SerdeCatalog
-import dev.sku20.helidon.serde.SerdeExtras
+import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeExtras
 import dev.sku20.stopgap.ir.Creates
 import dev.sku20.stopgap.ir.Qualifier
 import io.helidon.config.Config

@@ -1,8 +1,8 @@
 package com.example.stopgap.exception
 
-import dev.sku20.helidon.endpoint.Endpoint
-import dev.sku20.helidon.endpoint.Get
-import dev.sku20.helidon.endpoint.Post
+import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.endpoint.Get
+import dev.sku20.stopgap.helidon.endpoint.Post
 import io.helidon.http.HttpException
 import io.helidon.http.Status
 import io.helidon.webserver.http.ServerRequest

@@ -1,6 +1,6 @@
 package com.example.stopgap
 
-import dev.sku20.helidon.registry.generated.initEndpointsRoutesViaRegistry
+import dev.sku20.stopgap.helidon.registry.generated.initEndpointsRoutesViaRegistry
 import dev.sku20.stopgap.ir.InstanceRegistry
 import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config

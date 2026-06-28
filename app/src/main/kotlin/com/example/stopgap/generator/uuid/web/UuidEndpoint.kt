@@ -1,8 +1,8 @@
 package com.example.stopgap.generator.uuid.web
 
 import com.example.stopgap.generator.uuid.UuidGen
-import dev.sku20.helidon.endpoint.Endpoint
-import dev.sku20.helidon.endpoint.Get
+import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.endpoint.Get
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 

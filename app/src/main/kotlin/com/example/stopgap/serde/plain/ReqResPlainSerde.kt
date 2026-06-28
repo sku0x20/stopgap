@@ -2,7 +2,7 @@ package com.example.stopgap.serde.plain
 
 import com.example.stopgap.serde.ReqDto
 import com.example.stopgap.serde.ResDto
-import dev.sku20.helidon.serde.Serde
+import dev.sku20.stopgap.helidon.serde.Serde
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import kotlin.reflect.KClass

@@ -1,6 +1,6 @@
 package com.example.stopgap
 
-import dev.sku20.helidon.endpoint.*
+import dev.sku20.stopgap.helidon.endpoint.*
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 

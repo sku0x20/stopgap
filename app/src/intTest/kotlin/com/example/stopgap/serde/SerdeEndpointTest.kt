@@ -2,7 +2,7 @@ package com.example.stopgap.serde
 
 import com.example.stopgap.serde.fastjson.FastjsonSerde
 import com.example.stopgap.serde.plain.ReqResPlainSerde
-import dev.sku20.helidon.serde.MapSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest

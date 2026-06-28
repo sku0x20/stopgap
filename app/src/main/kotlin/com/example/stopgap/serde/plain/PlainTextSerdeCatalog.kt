@@ -1,7 +1,7 @@
 package com.example.stopgap.serde.plain
 
-import dev.sku20.helidon.serde.Serde
-import dev.sku20.helidon.serde.SerdeCatalog
+import dev.sku20.stopgap.helidon.serde.Serde
+import dev.sku20.stopgap.helidon.serde.SerdeCatalog
 import io.helidon.http.HttpMediaType
 
 class PlainTextSerdeCatalog : SerdeCatalog {

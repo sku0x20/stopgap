@@ -1,10 +1,10 @@
 package com.example.stopgap.serde
 
 import com.example.stopgap.serde.plain.PlainTextSerdeCatalog
-import dev.sku20.helidon.endpoint.Endpoint
-import dev.sku20.helidon.endpoint.Get
-import dev.sku20.helidon.serde.CustomSerdeCatalog
-import dev.sku20.helidon.serde.SerdeExtras
+import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.endpoint.Get
+import dev.sku20.stopgap.helidon.serde.CustomSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeExtras
 
 @Endpoint("/custom-serde-catalog")
 @CustomSerdeCatalog(clazz = PlainTextSerdeCatalog::class)

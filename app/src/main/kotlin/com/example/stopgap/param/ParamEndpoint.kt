@@ -1,10 +1,10 @@
 package com.example.stopgap.param
 
-import dev.sku20.helidon.endpoint.Endpoint
-import dev.sku20.helidon.endpoint.Get
-import dev.sku20.helidon.param.HeaderParam
-import dev.sku20.helidon.param.PathParam
-import dev.sku20.helidon.param.QueryParam
+import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.endpoint.Get
+import dev.sku20.stopgap.helidon.param.HeaderParam
+import dev.sku20.stopgap.helidon.param.PathParam
+import dev.sku20.stopgap.helidon.param.QueryParam
 import io.helidon.http.Header
 import io.helidon.http.HeaderNames
 import io.helidon.webserver.http.ServerResponse

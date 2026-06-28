@@ -1,0 +1,19 @@
+package dev.sku20.stopgap.helidon.ksp.endpoint
+
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
+
+class EndpointSymbolProcessorProvider : SymbolProcessorProvider {
+
+    override fun create(
+        environment: SymbolProcessorEnvironment
+    ): SymbolProcessor {
+        return EndpointSymbolProcessor(
+            environment.codeGenerator,
+            environment.logger,
+            environment.options
+        )
+    }
+
+}
