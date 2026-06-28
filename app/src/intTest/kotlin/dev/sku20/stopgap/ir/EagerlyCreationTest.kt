@@ -1,6 +1,6 @@
-package dev.sku20.ir
+package dev.sku20.stopgap.ir
 
-import dev.sku20.ir.generated.initRegistry
+import dev.sku20.stopgap.ir.generated.initRegistry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Duration

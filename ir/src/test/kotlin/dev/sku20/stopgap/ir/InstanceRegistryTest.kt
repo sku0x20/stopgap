@@ -1,4 +1,4 @@
-package dev.sku20.ir
+package dev.sku20.stopgap.ir
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType

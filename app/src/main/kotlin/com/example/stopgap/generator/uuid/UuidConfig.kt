@@ -1,8 +1,8 @@
 package com.example.stopgap.generator.uuid
 
 import com.example.stopgap.generator.uuid.web.UuidEndpoint
-import dev.sku20.ir.Creates
-import dev.sku20.ir.Qualifier
+import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.Qualifier
 
 object UuidConfig {
 

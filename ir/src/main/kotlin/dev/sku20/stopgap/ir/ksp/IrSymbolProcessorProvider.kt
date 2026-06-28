@@ -1,4 +1,4 @@
-package dev.sku20.ir.ksp
+package dev.sku20.stopgap.ir.ksp
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

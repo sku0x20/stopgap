@@ -1,6 +1,6 @@
 package com.example.stopgap.param
 
-import dev.sku20.ir.Creates
+import dev.sku20.stopgap.ir.Creates
 
 object ParamConfig {
 

@@ -1,12 +1,12 @@
-package dev.sku20.ir.ksp
+package dev.sku20.stopgap.ir.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
-import dev.sku20.ir.Creates
-import dev.sku20.ir.InstanceRegistry
-import dev.sku20.ir.Qualifier
+import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.InstanceRegistry
+import dev.sku20.stopgap.ir.Qualifier
 import java.io.OutputStream
 
 class InitializersGenerator(
@@ -124,7 +124,7 @@ class InitializersGenerator(
 
     private fun writeImports() = w.withRelativeIndent {
         writeLine()
-        writeLine("import dev.sku20.ir.InstanceRegistry")
+        writeLine("import dev.sku20.stopgap.ir.InstanceRegistry")
         writeLine()
     }
 

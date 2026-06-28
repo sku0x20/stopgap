@@ -1,9 +1,9 @@
-package dev.sku20.ir.ksp
+package dev.sku20.stopgap.ir.ksp
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import dev.sku20.ir.Creates
+import dev.sku20.stopgap.ir.Creates
 
 class IrSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -20,7 +20,7 @@ class IrSymbolProcessor(
         return emptyList()
     }
 
-    private val packageName = "dev.sku20.ir.generated"
+    private val packageName = "dev.sku20.stopgap.ir.generated"
     private val fileName = "Initializers"
 
     private fun generateFile(symbols: List<KSFunctionDeclaration>) {

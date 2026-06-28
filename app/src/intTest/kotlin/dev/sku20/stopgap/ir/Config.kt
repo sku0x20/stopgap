@@ -1,4 +1,4 @@
-package dev.sku20.ir
+package dev.sku20.stopgap.ir
 
 object EagerlyConfig {
 

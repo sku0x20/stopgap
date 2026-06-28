@@ -1,6 +1,6 @@
 package com.example.stopgap.exception
 
-import dev.sku20.ir.Creates
+import dev.sku20.stopgap.ir.Creates
 
 object ExceptionConfig {
 

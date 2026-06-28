@@ -1,8 +1,8 @@
 package com.example.stopgap
 
 import dev.sku20.helidon.registry.generated.initEndpointsRoutesViaRegistry
-import dev.sku20.ir.InstanceRegistry
-import dev.sku20.ir.generated.initRegistry
+import dev.sku20.stopgap.ir.InstanceRegistry
+import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
