@@ -1,8 +1,8 @@
 package dev.sku20.stopgap.app.param
 
-import extension.InjectInstance
-import extension.webservertest.SetupCapture
-import extension.webservertest.WebserverTest
+import dev.sku20.stopgap.helidon.test.InjectInstance
+import dev.sku20.stopgap.helidon.test.integration.SetupCapture
+import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.HeaderNames
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient

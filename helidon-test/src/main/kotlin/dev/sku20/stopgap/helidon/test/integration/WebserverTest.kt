@@ -1,11 +1,10 @@
-package extension.webservertest
+package dev.sku20.stopgap.helidon.test.integration
 
-import extension.webserverclient.ClientExtension
 import org.junit.jupiter.api.extension.ExtendWith
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ExtendWith(WebserverTestExtension::class, ClientExtension::class)
+@ExtendWith(WebserverExtension::class, ClientExtension::class)
 annotation class WebserverTest {
 
     @Target(AnnotationTarget.FUNCTION)
@@ -19,5 +18,4 @@ annotation class WebserverTest {
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
     annotation class Cleanup
-
 }

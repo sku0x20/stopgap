@@ -1,3 +1,4 @@
-extension.DockerNetworkManager
-extension.DockerImageRunner
-extension.webserverclient.ClientsManager
+dev.sku20.stopgap.helidon.test.e2e.TestPropertiesLoader
+dev.sku20.stopgap.helidon.test.e2e.DockerNetworkManager
+dev.sku20.stopgap.helidon.test.e2e.DockerImageRunner
+dev.sku20.stopgap.helidon.test.e2e.ClientsManager

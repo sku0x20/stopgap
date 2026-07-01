@@ -1,6 +1,6 @@
 package e2e
 
-import extension.InjectInstance
+import dev.sku20.stopgap.helidon.test.InjectInstance
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient

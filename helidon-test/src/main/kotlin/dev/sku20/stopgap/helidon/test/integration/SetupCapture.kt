@@ -1,12 +1,9 @@
-package extension.webservertest
+package dev.sku20.stopgap.helidon.test.integration
 
 typealias TestInstances = Map<Class<*>, Any>
 
 class SetupCapture(
     val endpoint: Any,
-
-    // params for the generated register method
     val registerParams: Array<Any> = emptyArray(),
-
     val instances: TestInstances = emptyMap(),
 )

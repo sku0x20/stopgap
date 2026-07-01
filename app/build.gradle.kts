@@ -22,8 +22,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
 
-    testImplementation(libs.helidon.webclient)
-    testImplementation(libs.testcontainers)
+    testImplementation(project(":helidon-test"))
 }
 
 application {
@@ -65,23 +64,10 @@ tasks.register<Exec>("buildImageE2e") {
 }
 
 
-// just for sharing code between e2eTest and intTest
-testing.suites.register<JvmTestSuite>("sharedTest") {
-    dependencies {
-        // should not be needed but to extract out SharedStore
-        // org.junit.platform.engine.support.store.Namespace is here
-        implementation(libs.junit.platform.launcher)
-    }
-    configurations {
-        named("sharedTestImplementation").get().extendsFrom(testImplementation.get())
-        named("sharedTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
-    }
-}
-
 testing.suites.register<JvmTestSuite>("intTest") {
     sources {
-        compileClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
-        runtimeClasspath += sourceSets.main.get().output + sourceSets.named("sharedTest").get().output
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
     }
     configurations {
         named("intTestImplementation").get().extendsFrom(testImplementation.get())
@@ -90,13 +76,6 @@ testing.suites.register<JvmTestSuite>("intTest") {
 }
 
 testing.suites.register<JvmTestSuite>("e2eTest") {
-    dependencies {
-        implementation(libs.junit.platform.launcher)
-    }
-    sources {
-        compileClasspath += sourceSets.named("sharedTest").get().output
-        runtimeClasspath += sourceSets.named("sharedTest").get().output
-    }
     configurations {
         named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
         named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
