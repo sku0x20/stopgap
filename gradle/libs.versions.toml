@@ -1,15 +1,15 @@
 [versions]
 jvm = "25"
-kotlin = "2.3.0"
-ksp = "2.3.4"
+kotlin = "2.4.0"
+ksp = "2.3.9"
 jmh-plugin = "0.7.3"
 maven-publish = "0.37.0"
-helidon = "4.3.0"
-junit = "6.0.1"
-assertj = "3.27.3"
-mockito-kotlin = "6.1.0"
-testcontainers = "2.0.2"
-fastjson2 = "2.0.61"
+helidon = "4.5.0"
+junit = "6.1.1"
+assertj = "3.27.7"
+mockito-kotlin = "6.3.0"
+testcontainers = "2.0.5"
+fastjson2 = "2.0.62"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
