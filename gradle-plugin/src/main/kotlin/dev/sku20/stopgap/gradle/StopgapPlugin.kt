@@ -14,9 +14,12 @@ import org.gradle.testing.base.TestingExtension
 class StopgapPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        val extension = project.extensions.create("stopgap", StopgapExtension::class.java)
+        extension.imageName.convention(project.name)
+
         setupCopyLibs(project)
         setupJar(project)
-        setupDockerTasks(project)
+        setupDockerTasks(project, extension)
         setupTestSuites(project)
     }
 
@@ -44,17 +47,20 @@ class StopgapPlugin : Plugin<Project> {
         }
     }
 
-    private fun setupDockerTasks(project: Project) {
+    private fun setupDockerTasks(project: Project, extension: StopgapExtension) {
         val context = project.rootProject.layout.projectDirectory.asFile.absolutePath
         val dockerfile = project.layout.projectDirectory.file("Dockerfile").asFile.absolutePath
-        val imageName = project.name
 
         project.tasks.register("buildImage", Exec::class.java) {
-            commandLine("docker", "build", "-t", "$imageName:latest", "-f", dockerfile, context)
+            doFirst {
+                commandLine("docker", "build", "-t", "${extension.imageName.get()}:latest", "-f", dockerfile, context)
+            }
         }
 
         project.tasks.register("buildImageE2e", Exec::class.java) {
-            commandLine("docker", "build", "-q", "-t", "$imageName:e2e", "-f", dockerfile, context)
+            doFirst {
+                commandLine("docker", "build", "-q", "-t", "${extension.imageName.get()}:e2e", "-f", dockerfile, context)
+            }
         }
     }
 
