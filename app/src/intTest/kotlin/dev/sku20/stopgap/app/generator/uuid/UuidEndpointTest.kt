@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.app.generator.uuid
 
 import dev.sku20.stopgap.app.generator.uuid.web.UuidEndpoint
-import extension.InjectInstance
+import dev.sku20.stopgap.helidon.test.extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.TestInstances
 import extension.webservertest.WebserverTest

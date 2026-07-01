@@ -1,7 +1,8 @@
 package extension.webserverclient
 
-import extension.InjectInstance
-import extension.SharedStore
+import dev.sku20.stopgap.helidon.test.extension.InjectInstance
+import dev.sku20.stopgap.helidon.test.extension.SharedStore
+import dev.sku20.stopgap.helidon.test.extension.webserverclient.Clients
 import extension.webservertest.WebserverTestExtension.Companion.SERVER_INSTANCE_ID
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback

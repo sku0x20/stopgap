@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.app.exception
 
-import extension.InjectInstance
+import dev.sku20.stopgap.helidon.test.extension.InjectInstance
 import extension.webservertest.SetupCapture
 import extension.webservertest.WebserverTest
 import io.helidon.http.Status

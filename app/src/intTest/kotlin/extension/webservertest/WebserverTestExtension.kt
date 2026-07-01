@@ -1,7 +1,7 @@
 package extension.webservertest
 
-import extension.InjectInstance
-import extension.SharedStore
+import dev.sku20.stopgap.helidon.test.extension.InjectInstance
+import dev.sku20.stopgap.helidon.test.extension.SharedStore
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
