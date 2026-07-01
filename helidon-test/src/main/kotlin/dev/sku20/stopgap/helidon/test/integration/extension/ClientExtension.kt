@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.helidon.test.integration.extension
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
-import dev.sku20.stopgap.helidon.test.client.Clients
+import dev.sku20.stopgap.helidon.test.client.ManagedClients
 import dev.sku20.stopgap.helidon.test.store.SharedStore
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -28,7 +28,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
             InjectInstance::class.java
         )
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val clients = store.get(CLIENTS_ID) as Clients
+        val clients = store.get(CLIENTS_ID) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) field.set(testInstance, client)
@@ -37,12 +37,12 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
 
     override fun afterAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val clients = store.get(CLIENTS_ID) as Clients
+        val clients = store.get(CLIENTS_ID) as ManagedClients
         clients.closeClients()
     }
 
     private fun setupClients(server: WebServer, store: ExtensionContext.Store) {
-        val clients = Clients()
+        val clients = ManagedClients()
         clients.setup(server.prototype().host(), server.port())
         store.put(CLIENTS_ID, clients)
     }

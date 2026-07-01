@@ -1,16 +1,17 @@
 package dev.sku20.stopgap.helidon.test.client
 
-import java.util.ServiceLoader
+import java.util.*
 
-class Clients {
+class ManagedClients {
 
-    private val clients = mutableMapOf<Class<*>, ClientHolder>()
+    private val clients = mutableMapOf<Class<*>, ClientProviderHolder>()
 
     @Suppress("UNCHECKED_CAST")
     fun setup(host: String, port: Int) {
-        for (webserverClient in ServiceLoader.load(WebClientProvider::class.java) as ServiceLoader<WebClientProvider<Any>>) {
+        val providers = ServiceLoader.load(WebClientProvider::class.java) as ServiceLoader<WebClientProvider<Any>>
+        for (webserverClient in providers) {
             val client = webserverClient.create(host, port)
-            val holder = ClientHolder(webserverClient, client)
+            val holder = ClientProviderHolder(webserverClient, client)
             clients[holder.type] = holder
         }
     }
