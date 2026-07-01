@@ -5,6 +5,6 @@ import org.gradle.api.Project
 
 class StopgapPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        StopgapPluginSetup(project).apply()
+        StopgapPluginApply(project).apply()
     }
 }
