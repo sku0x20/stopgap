@@ -1,4 +1,4 @@
-package extension.webserverclient
+package dev.sku20.stopgap.helidon.test.extension.webserverclient
 
 class ClientHolder(
     val webserverClient: WebserverClient<Any>,

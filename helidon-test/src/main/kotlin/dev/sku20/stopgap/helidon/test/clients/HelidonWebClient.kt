@@ -1,6 +1,6 @@
-package clients
+package dev.sku20.stopgap.helidon.test.clients
 
-import extension.webserverclient.WebserverClient
+import dev.sku20.stopgap.helidon.test.extension.webserverclient.WebserverClient
 import io.helidon.webclient.api.WebClient
 
 class HelidonWebClient : WebserverClient<WebClient> {
@@ -15,5 +15,4 @@ class HelidonWebClient : WebserverClient<WebClient> {
     override fun close(client: WebClient) {
         client.closeResource()
     }
-
 }
