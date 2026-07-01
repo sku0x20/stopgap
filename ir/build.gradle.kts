@@ -22,6 +22,8 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
+    coordinates("dev.sku20.stopgap", "ir", version as String)
+
     pom {
         name.set("Stopgap IR")
         description.set("Instance Registry - lightweight source-generated dependency injection.")
