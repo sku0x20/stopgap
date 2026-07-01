@@ -10,7 +10,7 @@ class DockerNetworkManager : LauncherSessionListener {
 
     override fun launcherSessionOpened(session: LauncherSession) {
         network = Network.newNetwork()
-        session.store.put(SharedStore.NAMESPACE, StoreKeys.NETWORK, network)
+        session.store.put(E2eStore.NAMESPACE, E2eStoreKeys.NETWORK, network)
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {

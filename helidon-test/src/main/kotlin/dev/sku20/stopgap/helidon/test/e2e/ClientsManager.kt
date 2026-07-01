@@ -9,10 +9,10 @@ class ClientsManager : LauncherSessionListener {
     private lateinit var clients: ManagedClients
 
     override fun launcherSessionOpened(session: LauncherSession) {
-        val port = session.store.get(SharedStore.NAMESPACE, StoreKeys.PORT) as Int
+        val port = session.store.get(E2eStore.NAMESPACE, E2eStoreKeys.PORT) as Int
         clients = ManagedClients()
         clients.setup("localhost", port)
-        session.store.put(SharedStore.NAMESPACE, StoreKeys.CLIENTS, clients)
+        session.store.put(E2eStore.NAMESPACE, E2eStoreKeys.CLIENTS, clients)
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
