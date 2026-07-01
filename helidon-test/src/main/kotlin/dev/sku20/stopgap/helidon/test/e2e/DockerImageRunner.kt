@@ -1,6 +1,5 @@
 package dev.sku20.stopgap.helidon.test.e2e
 
-import dev.sku20.stopgap.helidon.test.store.SharedStore
 import org.junit.platform.engine.support.store.Namespace
 import org.junit.platform.engine.support.store.NamespacedHierarchicalStore
 import org.junit.platform.launcher.LauncherSession
@@ -14,8 +13,9 @@ class DockerImageRunner : LauncherSessionListener {
         private const val DOCKER_IMAGE_NAME = "stopgap:e2e"
         private const val ENV_FILE = "application.env"
         const val SERVICE_NAME = "stopgap"
-        const val SERVER_PORT_ID = "server.port"
     }
+
+    private val namespace = Namespace.create(DockerImageRunner::class.java)
 
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
         .withExposedPorts(8080)
@@ -25,7 +25,7 @@ class DockerImageRunner : LauncherSessionListener {
         setupContainerNetwork(session.store)
         setupEnv()
         container.start()
-        session.store.put(SharedStore.GLOBAL_NAMESPACE, SERVER_PORT_ID, container.getMappedPort(8080))
+        session.store.put(namespace, Int::class.java, container.getMappedPort(8080))
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
@@ -41,7 +41,7 @@ class DockerImageRunner : LauncherSessionListener {
     }
 
     private fun setupContainerNetwork(store: NamespacedHierarchicalStore<Namespace>) {
-        val network = store.get(SharedStore.GLOBAL_NAMESPACE, DockerNetworkManager.NETWORK_ID) as Network
+        val network = store.get(Namespace.create(DockerNetworkManager::class.java), Network::class.java) as Network
         container.withNetwork(network).withNetworkAliases(SERVICE_NAME)
     }
 }

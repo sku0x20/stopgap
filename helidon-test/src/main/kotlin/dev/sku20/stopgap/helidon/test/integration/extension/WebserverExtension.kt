@@ -1,7 +1,6 @@
 package dev.sku20.stopgap.helidon.test.integration.extension
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
-import dev.sku20.stopgap.helidon.test.store.SharedStore
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
@@ -19,17 +18,18 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
     companion object {
         private val loadedConfig = Config.create()
-
-        const val SERVER_INSTANCE_ID = "server.instance"
-
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.InitializersKt"
+    }
 
-        private const val SETUP_CAPTURE_ID = "setup.capture"
+    private fun storeFor(context: ExtensionContext): ExtensionContext.Store {
+        return context.getStore(
+            ExtensionContext.Namespace.create(WebserverExtension::class.java, context.requiredTestClass)
+        )
     }
 
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
-        val store = SharedStore.getStoreScopedToTestClass(context)
+        val store = storeFor(context)
         setup(testClass, store)
         startServer(testClass, store)
     }
@@ -39,13 +39,13 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val store = SharedStore.getStoreScopedToTestClass(context)
+        val store = storeFor(context)
         for (field in injectableFields) {
             when (field.type) {
-                WebServer::class.java -> field.set(testInstance, store.get(SERVER_INSTANCE_ID))
+                WebServer::class.java -> field.set(testInstance, store.get(WebServer::class.java))
                 else -> field.set(
                     testInstance,
-                    (store.get(SETUP_CAPTURE_ID) as SetupCapture).instances[field.type]
+                    (store.get(SetupCapture::class.java) as SetupCapture).instances[field.type]
                 )
             }
         }
@@ -53,7 +53,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
     override fun afterAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
-        val store = SharedStore.getStoreScopedToTestClass(context)
+        val store = storeFor(context)
         stopServer(store)
         cleanup(testClass, store)
     }
@@ -62,11 +62,11 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         val setup = findStaticMethod(testClass, WebserverTest.Setup::class.java)
             ?.invoke(null) as? SetupCapture
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
-        store.put(SETUP_CAPTURE_ID, setup)
+        store.put(SetupCapture::class.java, setup)
     }
 
     private fun cleanup(testClass: Class<*>, store: ExtensionContext.Store) {
-        val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
+        val setup = store.get(SetupCapture::class.java) as SetupCapture
         findStaticMethod(testClass, WebserverTest.Cleanup::class.java)?.invoke(null, setup.instances)
     }
 
@@ -88,12 +88,12 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             ?.invoke(null, serverBuilder, setup.instances)
 
         val server = serverBuilder.build().start()
-        store.put(SERVER_INSTANCE_ID, server)
+        store.put(WebServer::class.java, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        (store.get(SERVER_INSTANCE_ID) as WebServer).stop()
+        (store.get(WebServer::class.java) as WebServer).stop()
     }
 
     private fun findStaticMethod(testClass: Class<*>, annotation: Class<out Annotation>): Method? {
