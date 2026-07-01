@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.test.e2e
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
+import dev.sku20.stopgap.helidon.test.StoreKeys
 import dev.sku20.stopgap.helidon.test.client.ManagedClients
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestInstancePostProcessor
@@ -14,7 +15,7 @@ class ClientExtension : TestInstancePostProcessor {
             InjectInstance::class.java
         )
         val clients = context.getStore(ExtensionContext.Namespace.create(ClientsManager::class.java))
-            .get(ManagedClients::class.java) as ManagedClients
+            .get(StoreKeys.E2e.CLIENTS) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) field.set(testInstance, client)

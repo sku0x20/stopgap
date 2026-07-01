@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.test.integration.extension
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
+import dev.sku20.stopgap.helidon.test.StoreKeys
 import dev.sku20.stopgap.helidon.test.client.ManagedClients
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -24,10 +25,10 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        val server = webserverStoreFor(context).get(WebServer::class.java) as WebServer
+        val server = webserverStoreFor(context).get(StoreKeys.It.SERVER) as WebServer
         val clients = ManagedClients()
         clients.setup(server.prototype().host(), server.port())
-        storeFor(context).put(ManagedClients::class.java, clients)
+        storeFor(context).put(StoreKeys.It.CLIENTS, clients)
     }
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
@@ -35,7 +36,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val clients = storeFor(context).get(ManagedClients::class.java) as ManagedClients
+        val clients = storeFor(context).get(StoreKeys.It.CLIENTS) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) field.set(testInstance, client)
@@ -43,7 +44,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
     }
 
     override fun afterAll(context: ExtensionContext) {
-        val clients = storeFor(context).get(ManagedClients::class.java) as ManagedClients
+        val clients = storeFor(context).get(StoreKeys.It.CLIENTS) as ManagedClients
         clients.closeClients()
     }
 }
