@@ -15,7 +15,7 @@ import org.junit.platform.commons.support.ModifierSupport
 import org.junit.platform.commons.support.ReflectionSupport
 import java.lang.reflect.Method
 
-class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
+class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
         private val loadedConfig = Config.create()

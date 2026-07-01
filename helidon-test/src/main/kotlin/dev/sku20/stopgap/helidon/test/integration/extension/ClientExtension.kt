@@ -18,7 +18,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
 
     override fun beforeAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val server = store.get(WebserverTestExtension.SERVER_INSTANCE_ID) as WebServer
+        val server = store.get(WebserverExtension.SERVER_INSTANCE_ID) as WebServer
         setupClients(server, store)
     }
 
