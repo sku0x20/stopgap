@@ -1,7 +1,6 @@
 package dev.sku20.stopgap.helidon.test.client
 
-import org.junit.platform.commons.support.ModifierSupport
-import org.junit.platform.commons.support.ReflectionSupport
+import java.util.ServiceLoader
 
 class Clients {
 
@@ -9,8 +8,7 @@ class Clients {
 
     @Suppress("UNCHECKED_CAST")
     fun setup(host: String, port: Int) {
-        for (clazz in classes) {
-            val webserverClient = clazz.getConstructor().newInstance() as WebserverClient<Any>
+        for (webserverClient in ServiceLoader.load(WebserverClient::class.java) as ServiceLoader<WebserverClient<Any>>) {
             val client = webserverClient.create(host, port)
             val holder = ClientHolder(webserverClient, client)
             clients[holder.type] = holder
@@ -31,23 +29,6 @@ class Clients {
     fun closeClients() {
         for (clientHolder in clients.values) {
             clientHolder.close()
-        }
-    }
-
-    companion object {
-        private val classes by lazy { findClasses() }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun findClasses(): List<Class<out WebserverClient<*>>> {
-            val roots = this::class.java.classLoader.getResources("")
-            val allClasses = mutableListOf<Class<out WebserverClient<*>>>()
-            for (root in roots) {
-                val classes = ReflectionSupport.findAllClassesInClasspathRoot(root.toURI(), { clazz ->
-                    clazz.interfaces.contains(WebserverClient::class.java) && ModifierSupport.isPublic(clazz)
-                }, { true })
-                allClasses.addAll(classes as List<Class<out WebserverClient<*>>>)
-            }
-            return allClasses
         }
     }
 }
