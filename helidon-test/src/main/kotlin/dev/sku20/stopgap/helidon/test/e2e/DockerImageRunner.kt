@@ -1,12 +1,12 @@
-package extension
+package dev.sku20.stopgap.helidon.test.e2e
 
+import dev.sku20.stopgap.helidon.test.store.SharedStore
 import org.junit.platform.engine.support.store.Namespace
 import org.junit.platform.engine.support.store.NamespacedHierarchicalStore
 import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
-
 
 class DockerImageRunner : LauncherSessionListener {
 
@@ -25,12 +25,7 @@ class DockerImageRunner : LauncherSessionListener {
         setupContainerNetwork(session.store)
         setupEnv()
         container.start()
-
-        session.store.put(
-            SharedStore.GLOBAL_NAMESPACE,
-            SERVER_PORT_ID,
-            container.getMappedPort(8080)
-        )
+        session.store.put(SharedStore.GLOBAL_NAMESPACE, SERVER_PORT_ID, container.getMappedPort(8080))
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
@@ -41,19 +36,12 @@ class DockerImageRunner : LauncherSessionListener {
         val resource = this::class.java.classLoader.getResourceAsStream(ENV_FILE)!!
         for (line in resource.bufferedReader().lines()) {
             val split = line.split("=")
-            val key = split[0]
-            val value = split[1]
-            container.withEnv(key, value)
+            container.withEnv(split[0], split[1])
         }
     }
 
     private fun setupContainerNetwork(store: NamespacedHierarchicalStore<Namespace>) {
-        val network = store.get(
-            SharedStore.GLOBAL_NAMESPACE,
-            DockerNetworkManager.NETWORK_ID
-        ) as Network
-
-        container.withNetwork(network)
-            .withNetworkAliases(SERVICE_NAME)
+        val network = store.get(SharedStore.GLOBAL_NAMESPACE, DockerNetworkManager.NETWORK_ID) as Network
+        container.withNetwork(network).withNetworkAliases(SERVICE_NAME)
     }
 }

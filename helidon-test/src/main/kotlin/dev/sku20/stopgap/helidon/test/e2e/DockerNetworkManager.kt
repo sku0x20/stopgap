@@ -1,5 +1,6 @@
-package extension
+package dev.sku20.stopgap.helidon.test.e2e
 
+import dev.sku20.stopgap.helidon.test.store.SharedStore
 import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.Network
@@ -14,11 +15,7 @@ class DockerNetworkManager : LauncherSessionListener {
 
     override fun launcherSessionOpened(session: LauncherSession) {
         network = Network.newNetwork()
-        session.store.put(
-            SharedStore.GLOBAL_NAMESPACE,
-            NETWORK_ID,
-            network
-        )
+        session.store.put(SharedStore.GLOBAL_NAMESPACE, NETWORK_ID, network)
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
