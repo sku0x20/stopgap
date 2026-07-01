@@ -1,3 +1,7 @@
+pluginManagement {
+    includeBuild("gradle-plugin")
+}
+
 rootProject.name = "stopgap"
 include("app")
 include("ir")
