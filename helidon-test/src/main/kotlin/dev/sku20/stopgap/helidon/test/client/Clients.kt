@@ -8,7 +8,7 @@ class Clients {
 
     @Suppress("UNCHECKED_CAST")
     fun setup(host: String, port: Int) {
-        for (webserverClient in ServiceLoader.load(ClientProvider::class.java) as ServiceLoader<ClientProvider<Any>>) {
+        for (webserverClient in ServiceLoader.load(WebClientProvider::class.java) as ServiceLoader<WebClientProvider<Any>>) {
             val client = webserverClient.create(host, port)
             val holder = ClientHolder(webserverClient, client)
             clients[holder.type] = holder
