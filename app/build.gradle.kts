@@ -23,7 +23,6 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
 
     testImplementation(project(":helidon-test"))
-    testImplementation(libs.helidon.webclient)
 }
 
 application {
