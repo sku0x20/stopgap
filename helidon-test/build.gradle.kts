@@ -19,5 +19,5 @@ dependencies {
     api(libs.helidon.webclient)
     api(libs.junit.jupiter.api)
     api(libs.junit.platform.launcher)
-    implementation(libs.testcontainers)
+    api(libs.testcontainers)
 }
