@@ -11,12 +11,8 @@ import org.junit.platform.commons.support.AnnotationSupport
 
 class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
-    private fun storeFor(context: ExtensionContext): ExtensionContext.Store {
-        return context.getStore(ItStore.namespace(context.requiredTestClass))
-    }
-
     override fun beforeAll(context: ExtensionContext) {
-        val store = storeFor(context)
+        val store = ItStore.storeFor(context)
         val server = store.get(ItStoreKeys.SERVER) as WebServer
         val clients = ManagedClients()
         clients.setup(server.prototype().host(), server.port())
@@ -28,7 +24,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val clients = storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
+        val clients = ItStore.storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) field.set(testInstance, client)
@@ -36,7 +32,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
     }
 
     override fun afterAll(context: ExtensionContext) {
-        val clients = storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
+        val clients = ItStore.storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
         clients.closeClients()
     }
 }

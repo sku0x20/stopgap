@@ -21,13 +21,9 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         private const val INITIALIZERS_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.InitializersKt"
     }
 
-    private fun storeFor(context: ExtensionContext): ExtensionContext.Store {
-        return context.getStore(ItStore.namespace(context.requiredTestClass))
-    }
-
     override fun beforeAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
-        val store = storeFor(context)
+        val store = ItStore.storeFor(context)
         setup(testClass, store)
         startServer(testClass, store)
     }
@@ -37,7 +33,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val store = storeFor(context)
+        val store = ItStore.storeFor(context)
         for (field in injectableFields) {
             when (field.type) {
                 WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
@@ -51,7 +47,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
     override fun afterAll(context: ExtensionContext) {
         val testClass = context.requiredTestClass
-        val store = storeFor(context)
+        val store = ItStore.storeFor(context)
         stopServer(store)
         cleanup(testClass, store)
     }

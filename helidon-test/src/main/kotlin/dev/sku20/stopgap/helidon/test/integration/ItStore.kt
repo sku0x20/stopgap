@@ -5,6 +5,9 @@ import org.junit.jupiter.api.extension.ExtensionContext
 object ItStore {
     fun namespace(testClass: Class<*>): ExtensionContext.Namespace =
         ExtensionContext.Namespace.create("it", testClass)
+
+    fun storeFor(context: ExtensionContext): ExtensionContext.Store =
+        context.getStore(namespace(context.requiredTestClass))
 }
 
 object ItStoreKeys {
