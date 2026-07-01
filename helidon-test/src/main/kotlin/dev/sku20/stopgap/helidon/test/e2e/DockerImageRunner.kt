@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.helidon.test.e2e
 
-import org.junit.platform.engine.support.store.Namespace
 import org.junit.platform.engine.support.store.NamespacedHierarchicalStore
+import org.junit.platform.engine.support.store.Namespace
 import org.junit.platform.launcher.LauncherSession
 import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.GenericContainer
@@ -15,8 +15,6 @@ class DockerImageRunner : LauncherSessionListener {
         const val SERVICE_NAME = "stopgap"
     }
 
-    private val namespace = Namespace.create(DockerImageRunner::class.java)
-
     private val container = GenericContainer(DOCKER_IMAGE_NAME)
         .withExposedPorts(8080)
         .withLogConsumer { System.err.print(it.utf8String) }
@@ -25,7 +23,7 @@ class DockerImageRunner : LauncherSessionListener {
         setupContainerNetwork(session.store)
         setupEnv()
         container.start()
-        session.store.put(namespace, StoreKeys.PORT, container.getMappedPort(8080))
+        session.store.put(SharedStore.NAMESPACE, StoreKeys.PORT, container.getMappedPort(8080))
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {
@@ -41,7 +39,7 @@ class DockerImageRunner : LauncherSessionListener {
     }
 
     private fun setupContainerNetwork(store: NamespacedHierarchicalStore<Namespace>) {
-        val network = store.get(Namespace.create(DockerNetworkManager::class.java), StoreKeys.NETWORK) as Network
+        val network = store.get(SharedStore.NAMESPACE, StoreKeys.NETWORK) as Network
         container.withNetwork(network).withNetworkAliases(SERVICE_NAME)
     }
 }

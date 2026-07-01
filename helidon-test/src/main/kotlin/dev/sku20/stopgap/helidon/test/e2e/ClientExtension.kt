@@ -13,7 +13,7 @@ class ClientExtension : TestInstancePostProcessor {
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val clients = context.getStore(ExtensionContext.Namespace.create(ClientsManager::class.java))
+        val clients = context.getStore(SharedStore.EXTENSION_NAMESPACE)
             .get(StoreKeys.CLIENTS) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
