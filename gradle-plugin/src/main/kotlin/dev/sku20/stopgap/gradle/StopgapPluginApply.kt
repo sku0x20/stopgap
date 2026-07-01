@@ -10,7 +10,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.testing.base.TestingExtension
 
 @Suppress("UnstableApiUsage")
-internal class StopgapPluginApply(private val project: Project) {
+class StopgapPluginApply(private val project: Project) {
 
     private val extension: StopgapExtension = project.extensions.create("stopgap", StopgapExtension::class.java).also {
         it.imageName.convention(project.name)
