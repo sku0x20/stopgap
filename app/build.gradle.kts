@@ -24,7 +24,6 @@ dependencies {
 
     testImplementation(project(":helidon-test"))
     testImplementation(libs.helidon.webclient)
-    testImplementation(libs.testcontainers)
 }
 
 application {
@@ -85,7 +84,6 @@ testing.suites.register<JvmTestSuite>("e2eTest") {
     targets.register("e2eTestImage") {
         testTask.configure {
             dependsOn("buildImageE2e")
-            // todo: make it depend on output of task
             outputs.upToDateWhen { false }
         }
     }
