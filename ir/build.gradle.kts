@@ -12,8 +12,8 @@ mavenPublishing {
 
     pom {
         name.set("Stopgap IR")
-        description.set("Instance Registry — lightweight source-generated dependency injection for Stopgap.")
-        inceptionYear.set("2025")
+        description.set("Instance Registry - lightweight source-generated dependency injection.")
+        inceptionYear.set("2026")
         url.set("https://github.com/sku0x20/stopgap/")
 
         licenses {
