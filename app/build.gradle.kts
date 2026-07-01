@@ -78,9 +78,6 @@ testing.suites.register<JvmTestSuite>("intTest") {
 }
 
 testing.suites.register<JvmTestSuite>("e2eTest") {
-    dependencies {
-        implementation(libs.junit.platform.launcher)
-    }
     configurations {
         named("e2eTestImplementation").get().extendsFrom(testImplementation.get())
         named("e2eTestRuntimeOnly").get().extendsFrom(testRuntimeOnly.get())
