@@ -39,14 +39,15 @@ class Clients {
 
         @Suppress("UNCHECKED_CAST")
         private fun findClasses(): List<Class<out WebserverClient<*>>> {
-            val roots = this::class.java.classLoader.getResources("").toList()
-            return roots.flatMap { root ->
-                ReflectionSupport.findAllClassesInClasspathRoot(root.toURI(), { clazz ->
-                    WebserverClient::class.java.isAssignableFrom(clazz)
-                        && !clazz.isInterface
-                        && ModifierSupport.isPublic(clazz)
-                }, { true }) as List<Class<out WebserverClient<*>>>
+            val roots = this::class.java.classLoader.getResources("")
+            val allClasses = mutableListOf<Class<out WebserverClient<*>>>()
+            for (root in roots) {
+                val classes = ReflectionSupport.findAllClassesInClasspathRoot(root.toURI(), { clazz ->
+                    clazz.interfaces.contains(WebserverClient::class.java) && ModifierSupport.isPublic(clazz)
+                }, { true })
+                allClasses.addAll(classes as List<Class<out WebserverClient<*>>>)
             }
+            return allClasses
         }
     }
 }
