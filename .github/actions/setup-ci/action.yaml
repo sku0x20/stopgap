@@ -1,4 +1,4 @@
-name: setupCi
+name: Setup CI
 
 runs:
   using: "composite"
