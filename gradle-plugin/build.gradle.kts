@@ -9,9 +9,9 @@ version = findProperty("publishVersion") as? String ?: "rolling"
 
 gradlePlugin {
     plugins {
-        create("stopgapApp") {
-            id = "dev.sku20.stopgap.app"
-            implementationClass = "dev.sku20.stopgap.gradle.StopgapAppPlugin"
+        create("stopgap") {
+            id = "stopgap"
+            implementationClass = "dev.sku20.stopgap.gradle.StopgapPlugin"
         }
     }
 }
