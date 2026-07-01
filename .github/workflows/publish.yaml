@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-ci
-      - run: ./gradlew :ir:publishAndReleaseToMavenCentral --no-daemon
+      - run: ./gradlew :ir:publishToMavenCentral :helidon-extensions:publishToMavenCentral --no-daemon -PpublishVersion=${GITHUB_REF_NAME#v}
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
