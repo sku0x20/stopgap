@@ -1,9 +1,8 @@
-package extension.webserverclient
+package dev.sku20.stopgap.helidon.test.integration
 
 import dev.sku20.stopgap.helidon.test.extension.InjectInstance
 import dev.sku20.stopgap.helidon.test.extension.SharedStore
 import dev.sku20.stopgap.helidon.test.extension.webserverclient.Clients
-import extension.webservertest.WebserverTestExtension.Companion.SERVER_INSTANCE_ID
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -19,7 +18,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
 
     override fun beforeAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
-        val server = store.get(SERVER_INSTANCE_ID) as WebServer
+        val server = store.get(WebserverTestExtension.SERVER_INSTANCE_ID) as WebServer
         setupClients(server, store)
     }
 
@@ -61,5 +60,4 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
         val clients = store.get(CLIENTS_ID) as Clients
         clients.closeClients()
     }
-
 }

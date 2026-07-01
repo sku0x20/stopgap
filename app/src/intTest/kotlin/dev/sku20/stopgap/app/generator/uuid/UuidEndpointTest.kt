@@ -2,9 +2,9 @@ package dev.sku20.stopgap.app.generator.uuid
 
 import dev.sku20.stopgap.app.generator.uuid.web.UuidEndpoint
 import dev.sku20.stopgap.helidon.test.extension.InjectInstance
-import extension.webservertest.SetupCapture
-import extension.webservertest.TestInstances
-import extension.webservertest.WebserverTest
+import dev.sku20.stopgap.helidon.test.integration.SetupCapture
+import dev.sku20.stopgap.helidon.test.integration.TestInstances
+import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
