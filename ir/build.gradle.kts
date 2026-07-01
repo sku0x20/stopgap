@@ -6,6 +6,18 @@ plugins {
 group = "dev.sku20.stopgap"
 version = "rolling"
 
+dependencies {
+    implementation(libs.ksp.api)
+    testImplementation(libs.assertj.core)
+}
+
+configurations {
+    val kspApi = libs.ksp.api.get()
+    runtimeElements {
+        exclude(group = kspApi.group, module = kspApi.name)
+    }
+}
+
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
@@ -37,17 +49,5 @@ mavenPublishing {
             connection.set("scm:git:git://github.com/sku0x20/stopgap.git")
             developerConnection.set("scm:git:ssh://git@github.com/sku0x20/stopgap.git")
         }
-    }
-}
-
-dependencies {
-    implementation(libs.ksp.api)
-    testImplementation(libs.assertj.core)
-}
-
-configurations {
-    val kspApi = libs.ksp.api.get()
-    runtimeElements {
-        exclude(group = kspApi.group, module = kspApi.name)
     }
 }
