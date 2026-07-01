@@ -40,17 +40,18 @@ class StopgapPluginApply(private val project: Project) {
     }
 
     private fun setupJar() {
-        val javaApplication = project.extensions.getByType(JavaApplication::class.java)
+        val mainClass = project.extensions.getByType(JavaApplication::class.java).mainClass
         val runtimeClasspath = project.configurations.named("runtimeClasspath")
+        val prefix = libsPrefix
 
         project.tasks.named("jar", Jar::class.java) { jar ->
             jar.archiveFileName.set(extension.jarName)
             jar.dependsOn(project.tasks.named("copyLibs"))
             jar.doFirst {
-                val classPath = runtimeClasspath.get().joinToString(" ") { "$libsPrefix${it.name}" }
-                jar.manifest.attributes(
+                val classPath = runtimeClasspath.get().joinToString(" ") { "$prefix${it.name}" }
+                (it as Jar).manifest.attributes(
                     mapOf(
-                        "Main-Class" to javaApplication.mainClass.get(),
+                        "Main-Class" to mainClass.get(),
                         "Class-Path" to classPath,
                     )
                 )
