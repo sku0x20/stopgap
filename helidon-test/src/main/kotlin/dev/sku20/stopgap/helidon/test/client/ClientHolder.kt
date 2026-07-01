@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.helidon.test.client
 
 class ClientHolder(
-    val webserverClient: WebserverClient<Any>,
+    val webserverClient: ClientProvider<Any>,
     val client: Any,
 ) {
 
