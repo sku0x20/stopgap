@@ -7,7 +7,7 @@ plugins {
     application
 }
 
-group = "com.example.stopgap"
+group = "dev.sku20.stopgap.app"
 version = "1.0-SNAPSHOT"
 
 dependencies {
@@ -27,7 +27,7 @@ dependencies {
 }
 
 application {
-    mainClass = "com.example.stopgap.MainKt"
+    mainClass = "dev.sku20.stopgap.app.MainKt"
 }
 
 ksp {
