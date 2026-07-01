@@ -15,7 +15,7 @@ class StopgapPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val ext = setupExtension(project)
         setupCopyLibs(project)
-        setupJar(project)
+        setupJar(project, ext)
         setupDockerTasks(project, ext)
         setupTestSuites(project)
     }
@@ -23,9 +23,12 @@ class StopgapPlugin : Plugin<Project> {
     private fun setupExtension(project: Project): StopgapExtension {
         val extension = project.extensions.create("stopgap", StopgapExtension::class.java)
         extension.imageName.convention(project.name)
+        extension.imageTag.convention("latest")
         extension.e2eImageName.convention(extension.imageName)
-        // todo: add image tag and e2eImage.
-        // default being latest.
+        extension.e2eImageTag.convention("e2e")
+        extension.jarName.convention(
+            project.provider { "${project.rootProject.name}-${project.name}.jar" }
+        )
         return extension
     }
 
@@ -36,13 +39,12 @@ class StopgapPlugin : Plugin<Project> {
         }
     }
 
-    private fun setupJar(project: Project) {
+    private fun setupJar(project: Project, extension: StopgapExtension) {
         val javaApplication = project.extensions.getByType(JavaApplication::class.java)
         val runtimeClasspath = project.configurations.named("runtimeClasspath")
 
         project.tasks.named("jar", Jar::class.java) { jar ->
-            // todo: make name into extension property
-            jar.archiveFileName.set("${project.rootProject.name}-${project.name}.jar")
+            jar.archiveFileName.set(extension.jarName)
             jar.dependsOn(project.tasks.named("copyLibs"))
             jar.doFirst {
                 val classPath = runtimeClasspath.get().joinToString(" ") { "libs/${it.name}" }
@@ -61,7 +63,7 @@ class StopgapPlugin : Plugin<Project> {
         val dockerfile = project.layout.projectDirectory.file("Dockerfile").asFile.absolutePath
 
         project.tasks.register("buildImage", Exec::class.java) {
-            it.commandLine("docker", "build", "-t", "${extension.imageName.get()}:latest", "-f", dockerfile, context)
+            it.commandLine("docker", "build", "-t", "${extension.imageName.get()}:${extension.imageTag.get()}", "-f", dockerfile, context)
         }
 
         project.tasks.register("buildImageE2e", Exec::class.java) {
@@ -70,7 +72,7 @@ class StopgapPlugin : Plugin<Project> {
                 "build",
                 "-q",
                 "-t",
-                "${extension.e2eImageName.get()}:e2e",
+                "${extension.e2eImageName.get()}:${extension.e2eImageTag.get()}",
                 "-f",
                 dockerfile,
                 context
