@@ -12,6 +12,9 @@ import org.gradle.testing.base.TestingExtension
 @Suppress("UnstableApiUsage")
 class StopgapPluginApply(private val project: Project) {
 
+    private val libsDir = "libs/libs"
+    private val libsPrefix = "libs/"
+
     private val extension: StopgapExtension = project.extensions.create("stopgap", StopgapExtension::class.java).also {
         it.imageName.convention(project.name)
         it.imageTag.convention("latest")
@@ -32,7 +35,7 @@ class StopgapPluginApply(private val project: Project) {
     private fun setupCopyLibs() {
         project.tasks.register("copyLibs", Copy::class.java) {
             it.from(project.configurations.named("runtimeClasspath"))
-            it.into(project.layout.buildDirectory.dir("libs/libs"))
+            it.into(project.layout.buildDirectory.dir(libsDir))
         }
     }
 
@@ -44,7 +47,7 @@ class StopgapPluginApply(private val project: Project) {
             jar.archiveFileName.set(extension.jarName)
             jar.dependsOn(project.tasks.named("copyLibs"))
             jar.doFirst {
-                val classPath = runtimeClasspath.get().joinToString(" ") { "libs/${it.name}" }
+                val classPath = runtimeClasspath.get().joinToString(" ") { "$libsPrefix${it.name}" }
                 jar.manifest.attributes(
                     mapOf(
                         "Main-Class" to javaApplication.mainClass.get(),
