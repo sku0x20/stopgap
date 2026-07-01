@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.sku20.stopgap"
-version = "rolling"
+version = findProperty("publishVersion") as String? ?: "rolling"
 
 dependencies {
     implementation(libs.ksp.api)
