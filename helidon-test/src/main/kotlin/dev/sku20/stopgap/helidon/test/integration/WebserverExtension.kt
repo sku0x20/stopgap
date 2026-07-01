@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.test.integration.extension
+package dev.sku20.stopgap.helidon.test.integration
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import io.helidon.config.Config

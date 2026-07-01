@@ -4,8 +4,8 @@ import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.app.serde.plain.ReqResPlainSerde
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance
-import dev.sku20.stopgap.helidon.test.integration.extension.SetupCapture
-import dev.sku20.stopgap.helidon.test.integration.extension.WebserverTest
+import dev.sku20.stopgap.helidon.test.integration.SetupCapture
+import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient

@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.test.integration.extension
+package dev.sku20.stopgap.helidon.test.integration
 
 import org.junit.jupiter.api.extension.ExtendWith
 

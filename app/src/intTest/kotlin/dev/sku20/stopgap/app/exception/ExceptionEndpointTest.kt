@@ -1,8 +1,8 @@
 package dev.sku20.stopgap.app.exception
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
-import dev.sku20.stopgap.helidon.test.integration.extension.SetupCapture
-import dev.sku20.stopgap.helidon.test.integration.extension.WebserverTest
+import dev.sku20.stopgap.helidon.test.integration.SetupCapture
+import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
