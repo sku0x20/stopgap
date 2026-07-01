@@ -7,12 +7,9 @@ import java.util.Properties
 class TestPropertiesLoader : LauncherSessionListener {
 
     override fun launcherSessionOpened(session: LauncherSession) {
-        val props = loadProperties()
         val store = session.store
-        store.put(E2eStore.NAMESPACE, E2eStoreKeys.DOCKER_IMAGE, props.require(E2eStoreKeys.DOCKER_IMAGE))
-        store.put(E2eStore.NAMESPACE, E2eStoreKeys.SERVICE_NAME, props.require(E2eStoreKeys.SERVICE_NAME))
-        props.getProperty(E2eStoreKeys.ENV_FILE)?.let {
-            store.put(E2eStore.NAMESPACE, E2eStoreKeys.ENV_FILE, it)
+        loadProperties().forEach { key, value ->
+            store.put(E2eStore.NAMESPACE, key, value)
         }
     }
 
@@ -21,7 +18,4 @@ class TestPropertiesLoader : LauncherSessionListener {
             ?: error("stopgap-test.properties not found on classpath")
         return Properties().also { it.load(stream) }
     }
-
-    private fun Properties.require(key: String): String =
-        getProperty(key) ?: error("Missing required property '$key' in stopgap-test.properties")
 }
