@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.gradle.api.tasks.Copy
@@ -41,14 +42,14 @@ class StopgapPluginApply(private val project: Project) {
 
     private fun setupJar() {
         val mainClass = project.extensions.getByType(JavaApplication::class.java).mainClass
-        val runtimeClasspath = project.configurations.named("runtimeClasspath")
+        val runtimeClasspath: FileCollection = project.files(project.configurations.named("runtimeClasspath"))
         val prefix = libsPrefix
 
         project.tasks.named("jar", Jar::class.java) { jar ->
             jar.archiveFileName.set(extension.jarName)
             jar.dependsOn(project.tasks.named("copyLibs"))
             jar.doFirst {
-                val classPath = runtimeClasspath.get().joinToString(" ") { "$prefix${it.name}" }
+                val classPath = runtimeClasspath.joinToString(" ") { "$prefix${it.name}" }
                 (it as Jar).manifest.attributes(
                     mapOf(
                         "Main-Class" to mainClass.get(),
