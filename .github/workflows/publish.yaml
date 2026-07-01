@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: ./gradlew :ir:publishToMavenCentral :helidon-extensions:publishToMavenCentral :helidon-test:publishToMavenCentral :gradle-plugin:publishToMavenCentral --no-daemon -PpublishVersion=${GITHUB_REF_NAME#v}
+      - run: ./gradlew :ir:publishToMavenCentral :helidon-extensions:publishToMavenCentral :helidon-test:publishToMavenCentral gradle-plugin:publishToMavenCentral --no-daemon -PpublishVersion=${GITHUB_REF_NAME#v}
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
