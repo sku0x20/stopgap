@@ -19,7 +19,7 @@ configurations {
 }
 
 mavenPublishing {
-    publishToMavenCentral(automaticRelease = true)
+    publishToMavenCentral()
     signAllPublications()
 
     coordinates("dev.sku20.stopgap", "ir", version as String)
