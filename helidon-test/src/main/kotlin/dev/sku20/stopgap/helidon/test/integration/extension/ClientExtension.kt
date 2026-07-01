@@ -1,8 +1,8 @@
-package dev.sku20.stopgap.helidon.test.integration
+package dev.sku20.stopgap.helidon.test.integration.extension
 
-import dev.sku20.stopgap.helidon.test.extension.InjectInstance
-import dev.sku20.stopgap.helidon.test.extension.SharedStore
-import dev.sku20.stopgap.helidon.test.extension.webserverclient.Clients
+import dev.sku20.stopgap.helidon.test.InjectInstance
+import dev.sku20.stopgap.helidon.test.client.Clients
+import dev.sku20.stopgap.helidon.test.store.SharedStore
 import io.helidon.webserver.WebServer
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -22,10 +22,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
         setupClients(server, store)
     }
 
-    override fun postProcessTestInstance(
-        testInstance: Any,
-        context: ExtensionContext
-    ) {
+    override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         val injectableFields = AnnotationSupport.findAnnotatedFields(
             context.requiredTestClass,
             InjectInstance::class.java
@@ -34,30 +31,19 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
         val clients = store.get(CLIENTS_ID) as Clients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
-            if (client != null) {
-                field.set(testInstance, client)
-            }
+            if (client != null) field.set(testInstance, client)
         }
     }
 
     override fun afterAll(context: ExtensionContext) {
         val store = SharedStore.getStoreScopedToTestClass(context)
-        closeClient(store)
-    }
-
-    private fun setupClients(
-        server: WebServer,
-        store: ExtensionContext.Store
-    ) {
-        val host = server.prototype().host()
-        val port = server.port()
-        val clients = Clients()
-        clients.setup(host, port)
-        store.put(CLIENTS_ID, clients)
-    }
-
-    private fun closeClient(store: ExtensionContext.Store) {
         val clients = store.get(CLIENTS_ID) as Clients
         clients.closeClients()
+    }
+
+    private fun setupClients(server: WebServer, store: ExtensionContext.Store) {
+        val clients = Clients()
+        clients.setup(server.prototype().host(), server.port())
+        store.put(CLIENTS_ID, clients)
     }
 }

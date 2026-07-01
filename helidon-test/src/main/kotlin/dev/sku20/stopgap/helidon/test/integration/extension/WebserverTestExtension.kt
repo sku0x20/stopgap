@@ -1,7 +1,7 @@
-package dev.sku20.stopgap.helidon.test.integration
+package dev.sku20.stopgap.helidon.test.integration.extension
 
-import dev.sku20.stopgap.helidon.test.extension.InjectInstance
-import dev.sku20.stopgap.helidon.test.extension.SharedStore
+import dev.sku20.stopgap.helidon.test.InjectInstance
+import dev.sku20.stopgap.helidon.test.store.SharedStore
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
@@ -34,10 +34,7 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         startServer(testClass, store)
     }
 
-    override fun postProcessTestInstance(
-        testInstance: Any,
-        context: ExtensionContext
-    ) {
+    override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         val injectableFields = AnnotationSupport.findAnnotatedFields(
             context.requiredTestClass,
             InjectInstance::class.java
@@ -61,33 +58,19 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
         cleanup(testClass, store)
     }
 
-    private fun setup(
-        testClass: Class<*>,
-        store: ExtensionContext.Store
-    ) {
-        val setup = findStaticMethod(
-            testClass,
-            WebserverTest.Setup::class.java
-        )?.invoke(null) as? SetupCapture
+    private fun setup(testClass: Class<*>, store: ExtensionContext.Store) {
+        val setup = findStaticMethod(testClass, WebserverTest.Setup::class.java)
+            ?.invoke(null) as? SetupCapture
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
         store.put(SETUP_CAPTURE_ID, setup)
     }
 
-    private fun cleanup(
-        testClass: Class<*>,
-        store: ExtensionContext.Store
-    ) {
+    private fun cleanup(testClass: Class<*>, store: ExtensionContext.Store) {
         val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
-        findStaticMethod(
-            testClass,
-            WebserverTest.Cleanup::class.java
-        )?.invoke(null, setup.instances)
+        findStaticMethod(testClass, WebserverTest.Cleanup::class.java)?.invoke(null, setup.instances)
     }
 
-    private fun startServer(
-        testClass: Class<*>,
-        store: ExtensionContext.Store
-    ): WebServer {
+    private fun startServer(testClass: Class<*>, store: ExtensionContext.Store): WebServer {
         val serverBuilder = WebServer.builder()
             .config(loadedConfig.get("server"))
             .protocolsDiscoverServices(false)
@@ -95,60 +78,35 @@ class WebserverTestExtension : BeforeAllCallback, TestInstancePostProcessor, Aft
             .host("localhost")
 
         val setup = store.get(SETUP_CAPTURE_ID) as SetupCapture
-        val endpoint = setup.endpoint
-        val extras = setup.registerParams
-        val instances = setup.instances
-
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
-        val method = findMethodWith(
-            clazz,
-            "registerRoutesFor",
-            endpoint::class.java, HttpRouting.Builder::class.java
-        )
+        val method = findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         val routes = HttpRouting.builder()
-        method.invoke(null, endpoint, routes, *extras)
+        method.invoke(null, setup.endpoint, routes, *setup.registerParams)
         serverBuilder.routing(routes)
 
-        findStaticMethod(
-            testClass,
-            WebserverTest.ConfigServer::class.java
-        )?.invoke(null, serverBuilder, instances)
+        findStaticMethod(testClass, WebserverTest.ConfigServer::class.java)
+            ?.invoke(null, serverBuilder, setup.instances)
+
         val server = serverBuilder.build().start()
         store.put(SERVER_INSTANCE_ID, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        val server = store.get(SERVER_INSTANCE_ID) as WebServer
-        server.stop()
+        (store.get(SERVER_INSTANCE_ID) as WebServer).stop()
     }
 
-    private fun findStaticMethod(
-        testClass: Class<*>,
-        annotation: Class<out Annotation>
-    ): Method? {
-        val methods = AnnotationSupport.findAnnotatedMethods(
-            testClass,
-            annotation,
-            HierarchyTraversalMode.TOP_DOWN
-        )
-        if (methods.size > 1) {
-            throw IllegalStateException("Only one method can be annotated with ${annotation.name}")
-        }
+    private fun findStaticMethod(testClass: Class<*>, annotation: Class<out Annotation>): Method? {
+        val methods = AnnotationSupport.findAnnotatedMethods(testClass, annotation, HierarchyTraversalMode.TOP_DOWN)
+        if (methods.size > 1) throw IllegalStateException("Only one method can be annotated with ${annotation.name}")
         if (methods.isEmpty()) return null
         val member = methods[0]
-        if (ModifierSupport.isNotStatic(member)) {
-            throw IllegalStateException("${annotation.name} method must be static")
-        }
+        if (ModifierSupport.isNotStatic(member)) throw IllegalStateException("${annotation.name} method must be static")
         return member
     }
 
     @Suppress("SameParameterValue")
-    private fun findMethodWith(
-        clazz: Class<*>,
-        methodName: String,
-        vararg params: Class<*>,
-    ): Method {
+    private fun findMethodWith(clazz: Class<*>, methodName: String, vararg params: Class<*>): Method {
         val methods = ReflectionSupport.findMethods(clazz, {
             if (it.name != methodName) return@findMethods false
             val parameters = it.parameters

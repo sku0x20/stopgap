@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.test.extension
+package dev.sku20.stopgap.helidon.test.store
 
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.engine.support.store.Namespace

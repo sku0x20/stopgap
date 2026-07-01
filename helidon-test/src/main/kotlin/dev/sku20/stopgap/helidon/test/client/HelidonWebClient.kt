@@ -1,6 +1,5 @@
-package dev.sku20.stopgap.helidon.test.clients
+package dev.sku20.stopgap.helidon.test.client
 
-import dev.sku20.stopgap.helidon.test.extension.webserverclient.WebserverClient
 import io.helidon.webclient.api.WebClient
 
 class HelidonWebClient : WebserverClient<WebClient> {
