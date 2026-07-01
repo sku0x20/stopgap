@@ -61,23 +61,33 @@ class StopgapPluginApply(private val project: Project) {
     }
 
     private fun setupDockerTasks() {
-        val context = extension.dockerContext.asFile.get().absolutePath
-        val dockerfile = extension.dockerfile.asFile.get().absolutePath
+        val imageName = extension.imageName
+        val imageTag = extension.imageTag
+        val e2eImageName = extension.e2eImageName
+        val e2eImageTag = extension.e2eImageTag
+        val dockerfile = extension.dockerfile
+        val dockerContext = extension.dockerContext
 
         project.tasks.register("buildImage", Exec::class.java) {
-            it.commandLine(
-                "docker", "build",
-                "-t", "${extension.imageName.get()}:${extension.imageTag.get()}",
-                "-f", dockerfile, context
-            )
+            it.doFirst {
+                (it as Exec).commandLine(
+                    "docker", "build",
+                    "-t", "${imageName.get()}:${imageTag.get()}",
+                    "-f", dockerfile.asFile.get().absolutePath,
+                    dockerContext.asFile.get().absolutePath
+                )
+            }
         }
 
         project.tasks.register("buildImageE2e", Exec::class.java) {
-            it.commandLine(
-                "docker", "build", "-q",
-                "-t", "${extension.e2eImageName.get()}:${extension.e2eImageTag.get()}",
-                "-f", dockerfile, context
-            )
+            it.doFirst {
+                (it as Exec).commandLine(
+                    "docker", "build", "-q",
+                    "-t", "${e2eImageName.get()}:${e2eImageTag.get()}",
+                    "-f", dockerfile.asFile.get().absolutePath,
+                    dockerContext.asFile.get().absolutePath
+                )
+            }
         }
     }
 
