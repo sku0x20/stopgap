@@ -8,7 +8,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-ci
       - run: ./gradlew :ir:publishToMavenCentral :helidon-extensions:publishToMavenCentral --no-daemon -PpublishVersion=${GITHUB_REF_NAME#v}
         env:
