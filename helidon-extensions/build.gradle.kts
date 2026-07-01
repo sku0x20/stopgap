@@ -25,7 +25,7 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates("dev.sku20.stopgap", "helidon-extensions", version as? String ?: "rolling")
+    coordinates("dev.sku20.stopgap", "helidon-extensions", version as String)
 
     pom {
         name.set("Stopgap Helidon Extensions")
