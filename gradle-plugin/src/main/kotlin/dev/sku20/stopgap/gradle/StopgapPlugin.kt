@@ -16,6 +16,7 @@ class StopgapPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create("stopgap", StopgapExtension::class.java)
         extension.imageName.convention(project.name)
+        extension.e2eImageName.convention(extension.imageName)
 
         setupCopyLibs(project)
         setupJar(project)
@@ -59,7 +60,7 @@ class StopgapPlugin : Plugin<Project> {
 
         project.tasks.register("buildImageE2e", Exec::class.java) {
             doFirst {
-                commandLine("docker", "build", "-q", "-t", "${extension.imageName.get()}:e2e", "-f", dockerfile, context)
+                commandLine("docker", "build", "-q", "-t", "${extension.e2eImageName.get()}:e2e", "-f", dockerfile, context)
             }
         }
     }
