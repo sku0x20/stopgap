@@ -18,6 +18,8 @@ class StopgapPluginApply(private val project: Project) {
         it.e2eImageName.convention(it.imageName)
         it.e2eImageTag.convention("e2e")
         it.jarName.convention(project.provider { "${project.rootProject.name}-${project.name}.jar" })
+        it.dockerfile.convention(project.layout.projectDirectory.file("Dockerfile"))
+        it.dockerContext.convention(project.rootProject.layout.projectDirectory)
     }
 
     fun apply() {
@@ -54,8 +56,8 @@ class StopgapPluginApply(private val project: Project) {
     }
 
     private fun setupDockerTasks() {
-        val context = project.rootProject.layout.projectDirectory.asFile.absolutePath
-        val dockerfile = project.layout.projectDirectory.file("Dockerfile").asFile.absolutePath
+        val context = extension.dockerContext.asFile.get().absolutePath
+        val dockerfile = extension.dockerfile.asFile.get().absolutePath
 
         project.tasks.register("buildImage", Exec::class.java) {
             it.commandLine(
