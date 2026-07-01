@@ -12,22 +12,15 @@ import org.junit.platform.commons.support.AnnotationSupport
 class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     private fun storeFor(context: ExtensionContext): ExtensionContext.Store {
-        return context.getStore(
-            ExtensionContext.Namespace.create(ClientExtension::class.java, context.requiredTestClass)
-        )
-    }
-
-    private fun webserverStoreFor(context: ExtensionContext): ExtensionContext.Store {
-        return context.getStore(
-            ExtensionContext.Namespace.create(WebserverExtension::class.java, context.requiredTestClass)
-        )
+        return context.getStore(ItStore.namespace(context.requiredTestClass))
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        val server = webserverStoreFor(context).get(StoreKeys.SERVER) as WebServer
+        val store = storeFor(context)
+        val server = store.get(ItStoreKeys.SERVER) as WebServer
         val clients = ManagedClients()
         clients.setup(server.prototype().host(), server.port())
-        storeFor(context).put(StoreKeys.CLIENTS, clients)
+        store.put(ItStoreKeys.CLIENTS, clients)
     }
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
@@ -35,7 +28,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
             context.requiredTestClass,
             InjectInstance::class.java
         )
-        val clients = storeFor(context).get(StoreKeys.CLIENTS) as ManagedClients
+        val clients = storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
         for (field in injectableFields) {
             val client = clients.findClient(field.type)
             if (client != null) field.set(testInstance, client)
@@ -43,7 +36,7 @@ class ClientExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCa
     }
 
     override fun afterAll(context: ExtensionContext) {
-        val clients = storeFor(context).get(StoreKeys.CLIENTS) as ManagedClients
+        val clients = storeFor(context).get(ItStoreKeys.CLIENTS) as ManagedClients
         clients.closeClients()
     }
 }

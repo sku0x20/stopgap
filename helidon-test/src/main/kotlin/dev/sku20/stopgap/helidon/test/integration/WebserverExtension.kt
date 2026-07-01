@@ -22,9 +22,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
     }
 
     private fun storeFor(context: ExtensionContext): ExtensionContext.Store {
-        return context.getStore(
-            ExtensionContext.Namespace.create(WebserverExtension::class.java, context.requiredTestClass)
-        )
+        return context.getStore(ItStore.namespace(context.requiredTestClass))
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -42,10 +40,10 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         val store = storeFor(context)
         for (field in injectableFields) {
             when (field.type) {
-                WebServer::class.java -> field.set(testInstance, store.get(StoreKeys.SERVER))
+                WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
                 else -> field.set(
                     testInstance,
-                    (store.get(StoreKeys.SETUP) as SetupCapture).instances[field.type]
+                    (store.get(ItStoreKeys.SETUP) as SetupCapture).instances[field.type]
                 )
             }
         }
@@ -62,11 +60,11 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         val setup = findStaticMethod(testClass, WebserverTest.Setup::class.java)
             ?.invoke(null) as? SetupCapture
             ?: throw RuntimeException("Cannot find setup method in test class ${testClass.simpleName}")
-        store.put(StoreKeys.SETUP, setup)
+        store.put(ItStoreKeys.SETUP, setup)
     }
 
     private fun cleanup(testClass: Class<*>, store: ExtensionContext.Store) {
-        val setup = store.get(StoreKeys.SETUP) as SetupCapture
+        val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
         findStaticMethod(testClass, WebserverTest.Cleanup::class.java)?.invoke(null, setup.instances)
     }
 
@@ -77,7 +75,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             .port(0)
             .host("localhost")
 
-        val setup = store.get(StoreKeys.SETUP) as SetupCapture
+        val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
         val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
         val method = findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         val routes = HttpRouting.builder()
@@ -88,12 +86,12 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             ?.invoke(null, serverBuilder, setup.instances)
 
         val server = serverBuilder.build().start()
-        store.put(StoreKeys.SERVER, server)
+        store.put(ItStoreKeys.SERVER, server)
         return server
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
-        (store.get(StoreKeys.SERVER) as WebServer).stop()
+        (store.get(ItStoreKeys.SERVER) as WebServer).stop()
     }
 
     private fun findStaticMethod(testClass: Class<*>, annotation: Class<out Annotation>): Method? {
