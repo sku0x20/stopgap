@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-ci
+      - uses: ./.github/actions/setup
       - run: ./gradlew test --no-daemon
 
   intTest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-ci
+      - uses: ./.github/actions/setup
       - run: ./gradlew intTest --no-daemon
 
   # any way to use docker cache?
@@ -23,5 +23,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-ci
+      - uses: ./.github/actions/setup
       - run: ./gradlew e2eTestImage --no-daemon
