@@ -4,3 +4,8 @@ plugins {
 
 group = "dev.sku20.stopgap"
 version = findProperty("publishVersion") as? String ?: "rolling"
+
+dependencies {
+    implementation(libs.helidon.webclient)
+    implementation(libs.junit.platform.launcher)
+}
