@@ -6,6 +6,42 @@ plugins {
 group = "dev.sku20.stopgap"
 version = "rolling"
 
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates("dev.sku20.stopgap", "ir", version as String)
+
+    pom {
+        name.set("Stopgap IR")
+        description.set("Instance Registry — lightweight source-generated dependency injection for Stopgap.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/sku0x20/stopgap/")
+
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("repo")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("sku0x20")
+                name.set("sku20")
+                url.set("https://github.com/sku0x20/")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/sku0x20/stopgap/")
+            connection.set("scm:git:git://github.com/sku0x20/stopgap.git")
+            developerConnection.set("scm:git:ssh://git@github.com/sku0x20/stopgap.git")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.ksp.api)
     testImplementation(libs.assertj.core)
