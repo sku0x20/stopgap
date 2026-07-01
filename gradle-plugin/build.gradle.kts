@@ -10,13 +10,14 @@ version = findProperty("publishVersion") as? String ?: "rolling"
 gradlePlugin {
     plugins {
         create("stopgap") {
-            id = "stopgap"
+            id = "dev.sku20.stopgap"
             implementationClass = "dev.sku20.stopgap.gradle.StopgapPlugin"
         }
     }
 }
 
 mavenPublishing {
+    publishToMavenCentral()
     coordinates("dev.sku20.stopgap", "gradle-plugin", version as String)
     pom {
         name.set("Stopgap Gradle Plugin")

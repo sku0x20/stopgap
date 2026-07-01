@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.jmh)
     application
-    id("stopgap")
+    id("dev.sku20.stopgap")
 }
 
 group = "dev.sku20.stopgap.app"
