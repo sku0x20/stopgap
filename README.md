@@ -38,3 +38,6 @@ Three tiers, all wired through JUnit 5 extensions:
 1. Explore `:app` src and test directories.
 2. Build with the Gradle wrapper.
 3. Configuration via YAML (`helidon-config-yaml`).
+
+---
+*Built for developers who value transparency, performance, and simplicity.*
