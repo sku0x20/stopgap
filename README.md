@@ -1,38 +1,40 @@
-# 🛑 Stopgap
+# Stopgap
 
-A high-performance, lightweight **Helidon SE** template designed for modern Java development with **Project Loom**.
+A lightweight **Helidon SE** template for **Kotlin** with **Project Loom** virtual threads.
 
-## ✨ Features
+No runtime reflection. No hidden containers. Handlers are plain blocking functions — the JVM schedules them on virtual threads.
 
-- **🚀 Helidon SE (Nima) 4.x:** Built on the minimal, code-first API surface.
-- **🧵 Virtual Thread Native:** No async mess—handlers are plain, blocking Java methods running on virtual threads.
-- **🛡️ Zero Magic:** No runtime reflection magic or hidden containers.
-- **📦 Minimal Footprint:** Keeping dependencies to an absolute minimum for fast startup and low memory usage.
-- **⚙️ Custom DI:** Includes `ir` (Instance Registry) with lightweight codegen instead of a heavy DI framework.
+## Modules
 
-## 🏗️ Project Structure
+| Module | Description |
+|:---|:---|
+| `ir` | Compile-time DI via KSP. Generates wiring at build time — plain function calls at runtime, no classpath scanning. |
+| `helidon-extensions` | Routing annotations (`@Get`, `@Post`, …) with KSP codegen for Helidon route registration. Includes param binding and a serde layer. |
+| `helidon-test` | JUnit 5 extensions for integration and E2E testing. Injects `WebClient` directly into test constructors. |
+| `gradle-plugin` | Sets up copyLibs, jar, Docker build, and test suites from one plugin block. |
+| `app` | Starter project wiring all modules together. |
 
-- `app/`: The core template and starter project.
-- `ir/`: Instance Registry with source-generated dependency injection.
-- `helidon-extensions/`: Custom codegen and Helidon utilities.
+## Maven Central
 
-## 🧪 Testing Strategy
+```kotlin
+implementation("dev.sku20.stopgap:ir:2.8.0")
+implementation("dev.sku20.stopgap:helidon-extensions:2.8.0")
+implementation("dev.sku20.stopgap:helidon-test:2.8.0")
+id("dev.sku20.stopgap") version "2.8.0"
+```
 
-The project features a robust, tiered testing setup:
+## Testing
 
-| Level           | Description                                                                                                              |
-|:----------------|:-------------------------------------------------------------------------------------------------------------------------|
-| **Unit**        | Fast, isolated tests for business logic.                                                                                 |
-| **Integration** | Uses `WebServerTestExtension` to spin up a Loom-based webserver for endpoint testing.                                    |
-| **E2E**         | Full lifecycle testing: Builds a Docker image via Gradle and runs it using a JUnit extension with `WebClient` injection. |
+Three tiers, all wired through JUnit 5 extensions:
 
----
+| Level | Description |
+|:---|:---|
+| **Unit** | Plain JUnit, no infrastructure. |
+| **Integration** | Spins up a real Loom-based server in-process. `WebClient` injected into the test constructor. |
+| **E2E** | Builds and runs the Docker image via Testcontainers. `WebClient` injected, full lifecycle managed. |
 
-### Getting Started
+## Getting Started
 
-1. **Explore:** Check out `:app` src and test directories.
-2. **Build:** Use standard Gradle wrappers.
-3. **Run:** Configuration is handled via YAML (`helidon-config-yaml`).
-
----
-*Built for developers who value transparency, performance, and simplicity.*
+1. Explore `:app` src and test directories.
+2. Build with the Gradle wrapper.
+3. Configuration via YAML (`helidon-config-yaml`).
