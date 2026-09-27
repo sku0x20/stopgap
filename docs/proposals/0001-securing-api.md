@@ -103,11 +103,13 @@ An endpoint method is not required to declare an `Authentication` parameter if i
 The behavior for methods that omit the parameter is governed by a single build-time KSP option:
 `stopgap.codegen.endpoint.auth.defaultType`
 
-- **When set to `"public"` (or omitted)**:
+- **When set to `"public"`**:
   Methods that omit the `Authentication` parameter are open/public. The framework generates no authentication check for them, allowing the lazy resolver to be completely bypassed.
 - **When set to a concrete `Authentication` class FQN (e.g., `"com.example.UserAuthN"`)**:
   Methods that omit the parameter are automatically protected by that default type. The framework checks that the resolved principal matches the default type (throwing `403 Forbidden` on mismatch), but invokes the endpoint method without passing the parameter. This keeps method signatures clean when caller identity is not needed in the handler body.
   - If the configured default class does not exist or does not implement `Authentication`, KSP fails the build at compile-time.
+- **When omitted / not configured**:
+  Methods that omit the `Authentication` parameter are closed by default: without a configured default type, the generator hardcodes a `403 Forbidden` rejection. It is public only when `"public"` is explicitly configured.
 
 ---
 
@@ -149,6 +151,4 @@ This distinction inherently reveals the existence of protected endpoints to unau
 Yes. The developer has full access to the `ServerRequest` inside `authenticate(request)` and can enforce any combination of request attributes.
 
 **Q: Does omitting the parameter make an endpoint public?**  
-It depends on `stopgap.codegen.endpoint.auth.defaultType`:
-- If configured as `"public"` (or omitted), omitting the parameter leaves the endpoint public.
-- If configured with an `Authentication` class FQN (e.g., `"com.example.UserAuthN"`), omitting the parameter automatically protects it with that type. To make an endpoint public in that mode, declare the application's unauthenticated type (e.g., `auth: NoAuthN`) explicitly.
+Only if `stopgap.codegen.endpoint.auth.defaultType` is explicitly set to `"public"`. If set to an `Authentication` class FQN, it protects with that type; if not configured at all, omitting the parameter closes the endpoint (yielding `403 Forbidden`).
