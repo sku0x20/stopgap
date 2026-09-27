@@ -6,4 +6,5 @@ class SetupCapture(
     val endpoint: Any,
     val registerParams: Array<Any> = emptyArray(),
     val instances: TestInstances = emptyMap(),
+    val authResolver: Any? = null,
 )
