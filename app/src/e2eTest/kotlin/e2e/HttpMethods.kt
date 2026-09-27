@@ -50,7 +50,7 @@ class HttpMethods {
     fun head() {
         val response = client.head("/methods/head").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        assertThat(response.`as`(String::class.java)).isEqualTo("HEAD request received")
+        assertThat(response.entity().hasEntity()).isFalse()
     }
 
     @Test
