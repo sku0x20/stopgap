@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.app.authn
 
+import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.test.InjectInstance
-import dev.sku20.stopgap.helidon.test.integration.NoAuthN
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.TestAuthFakeResolver
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest
@@ -9,6 +9,7 @@ import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 
 @WebserverTest
 class SecureEndpointFakeAuthTest {
@@ -29,7 +30,7 @@ class SecureEndpointFakeAuthTest {
 
     @Test
     fun userEndpointForbiddenWhenFakeAuthIsNoAuth() {
-        fakeAuth.currentAuth = NoAuthN
+        fakeAuth.currentAuth = mock()
         val response = client.get("/secure/user").request()
         assertThat(response.status()).isEqualTo(Status.FORBIDDEN_403)
     }
