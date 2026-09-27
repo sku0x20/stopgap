@@ -39,6 +39,6 @@ object RootConfig {
 
     @Creates
     fun authenticationResolver(): AuthenticationResolver {
-        return DummyAuthenticationResolver
+        return DummyAuthenticationResolver()
     }
 }

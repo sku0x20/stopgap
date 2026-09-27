@@ -4,7 +4,7 @@ import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import io.helidon.webserver.http.ServerRequest
 
-object DummyAuthenticationResolver : AuthenticationResolver {
+class DummyAuthenticationResolver : AuthenticationResolver {
     override fun authenticate(request: ServerRequest): Authentication {
         TODO()
     }
