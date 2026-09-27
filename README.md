@@ -1,6 +1,6 @@
 # Stopgap
 
-A small, compile-time Kotlin toolkit for building HTTP services on [Helidon SE](https://helidon.io/).
+A small, compile-time Kotlin toolkit for building HTTP services on [Helidon Core](https://helidon.io/) (formerly Helidon SE).
 
 Stopgap is not a framework. It doesn't own your `main()`, start a container, or scan your classpath. It's a set of
 separate libraries. Each one removes a specific piece of boilerplate by generating plain Kotlin at compile time, and
