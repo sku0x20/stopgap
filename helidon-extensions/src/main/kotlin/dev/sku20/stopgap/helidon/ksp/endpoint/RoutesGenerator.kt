@@ -9,6 +9,7 @@ class RoutesGenerator(
     private val endpointClazz: KSClassDeclaration,
     private val imports: MutableSet<String>,
     private val w: CustomWriter,
+    private val defaultAuthType: String? = null,
 ) {
 
     fun write() = w.withRelativeIndent {
@@ -52,7 +53,8 @@ class RoutesGenerator(
             imports,
             params,
             variables,
-            writer
+            writer,
+            defaultAuthType,
         ).write()
     }
 }

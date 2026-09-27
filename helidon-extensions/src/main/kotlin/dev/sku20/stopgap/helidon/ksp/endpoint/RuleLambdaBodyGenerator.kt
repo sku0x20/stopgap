@@ -16,6 +16,7 @@ class RuleLambdaBodyGenerator(
     private val rulesVariables: MutableSet<String>,
     endpointCatalog: CustomSerdeCatalogData,
     private val w: CustomWriter,
+    private val defaultAuthType: String? = null,
 ) {
 
     private val functionName = function.simpleName.asString()
@@ -36,13 +37,27 @@ class RuleLambdaBodyGenerator(
     private val authParam = endpointParams.filterIsInstance<EndpointParam.Auth>().firstOrNull()
 
     private fun writeAuth() = w.withRelativeIndent {
-        val auth = authParam ?: return@withRelativeIndent
+        val targetTypeName: String
+        if (authParam != null) {
+            val targetTypeDecl = authParam.type.declaration
+            imports.add(targetTypeDecl.qualifiedName!!.asString())
+            targetTypeName = targetTypeDecl.simpleName.asString()
+        } else {
+            if (defaultAuthType == "public") return@withRelativeIndent
+            if (defaultAuthType != null) {
+                imports.add(defaultAuthType)
+                targetTypeName = defaultAuthType.substringAfterLast('.')
+            } else {
+                imports.add(HttpException::class.qualifiedName!!)
+                imports.add(Status::class.qualifiedName!!)
+                writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
+                return@withRelativeIndent
+            }
+        }
+
         imports.add(Authentication::class.qualifiedName!!)
         imports.add(HttpException::class.qualifiedName!!)
         imports.add(Status::class.qualifiedName!!)
-        val targetTypeDecl = auth.type.declaration
-        imports.add(targetTypeDecl.qualifiedName!!.asString())
-        val targetTypeName = targetTypeDecl.simpleName.asString()
         writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(${Authentication::class.simpleName}::class.java).orElse(null)")
         writeLine("if (${GeneratedNames.AUTH} !is $targetTypeName) throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
     }

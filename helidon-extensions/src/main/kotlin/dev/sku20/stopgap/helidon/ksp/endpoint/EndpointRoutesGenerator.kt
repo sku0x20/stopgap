@@ -9,7 +9,8 @@ import java.io.OutputStream
 class EndpointRoutesGenerator(
     file: OutputStream,
     private val endpointClazzes: List<KSClassDeclaration>,
-    private val packageName: String
+    private val packageName: String,
+    private val defaultAuthType: String? = null,
 ) {
     private val w = CustomWriter(file)
 
@@ -26,7 +27,7 @@ class EndpointRoutesGenerator(
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
         for (endpointClazz in endpointClazzes) {
-            RoutesGenerator(endpointClazz, imports, writer).write()
+            RoutesGenerator(endpointClazz, imports, writer, defaultAuthType).write()
         }
     }
 
