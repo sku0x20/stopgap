@@ -93,4 +93,4 @@ The [`app`](app) module is a working example of every feature:
 
 ---
 
-*Built for developers who value transparency, control, and simplicity.*
+*Built for developers who value transparency, performance, and simplicity.*
