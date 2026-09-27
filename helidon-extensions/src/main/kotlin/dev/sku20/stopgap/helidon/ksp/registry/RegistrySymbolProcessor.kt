@@ -21,7 +21,7 @@ class RegistrySymbolProcessor(
     }
 
     private fun isEnabled(): Boolean =
-        options["stopgap.endpoint.codegen.registry.enabled"]?.toBoolean() ?: true
+        options["stopgap.codegen.endpoint.registry.enabled"]?.toBoolean() ?: true
 
     private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
         it.packageName.asString() == EndpointGeneratedNames.PACKAGE &&
