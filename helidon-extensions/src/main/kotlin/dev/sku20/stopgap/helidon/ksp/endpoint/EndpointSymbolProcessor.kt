@@ -4,8 +4,6 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
-import dev.sku20.stopgap.helidon.ksp.authentication.AuthenticationInitializerGenerator
-import dev.sku20.stopgap.helidon.ksp.authentication.GeneratedNames as AuthGeneratedNames
 
 class EndpointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -19,12 +17,11 @@ class EndpointSymbolProcessor(
             .getSymbolsWithAnnotation(Endpoint::class.qualifiedName!!)
             .toList() as List<KSClassDeclaration>
         if (symbols.isEmpty()) return emptyList()
-        generateEndpointRoutes(symbols)
-        generateAuthenticationInitializer(symbols)
+        generateFile(symbols)
         return emptyList()
     }
 
-    private fun generateEndpointRoutes(symbols: List<KSClassDeclaration>) {
+    private fun generateFile(symbols: List<KSClassDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
             GeneratedNames.PACKAGE,
@@ -43,25 +40,5 @@ class EndpointSymbolProcessor(
             GeneratedNames.PACKAGE
         )
         routesGen.write()
-    }
-
-    private fun generateAuthenticationInitializer(symbols: List<KSClassDeclaration>) {
-        val file = codeGenerator.createNewFile(
-            Dependencies(true),
-            AuthGeneratedNames.PACKAGE,
-            AuthGeneratedNames.FILE_NAME,
-            AuthGeneratedNames.EXTENSION
-        )
-        codeGenerator.associateWithClasses(
-            symbols,
-            AuthGeneratedNames.PACKAGE,
-            AuthGeneratedNames.FILE_NAME,
-            AuthGeneratedNames.EXTENSION
-        )
-        val authGen = AuthenticationInitializerGenerator(
-            file,
-            AuthGeneratedNames.PACKAGE
-        )
-        authGen.write()
     }
 }
