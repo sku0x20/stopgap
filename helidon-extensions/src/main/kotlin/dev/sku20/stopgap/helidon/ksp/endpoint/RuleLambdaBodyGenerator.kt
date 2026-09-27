@@ -44,11 +44,7 @@ class RuleLambdaBodyGenerator(
         imports.add(targetTypeDecl.qualifiedName!!.asString())
         val targetTypeName = targetTypeDecl.simpleName.asString()
         writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(${Authentication::class.simpleName}::class.java).orElse(null)")
-        writeLine("if (${GeneratedNames.AUTH} !is $targetTypeName) {")
-        withRelativeIndent(4) {
-            writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
-        }
-        writeLine("}")
+        writeLine("if (${GeneratedNames.AUTH} !is $targetTypeName) throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
     }
 
     private val bodyKType = "${functionName}BodyKType"
