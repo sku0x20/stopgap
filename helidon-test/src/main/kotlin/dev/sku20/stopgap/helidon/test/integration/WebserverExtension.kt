@@ -12,6 +12,8 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.junit.platform.commons.support.ReflectionSupport
+import dev.sku20.stopgap.helidon.authentication.AuthenticationFilter
+import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import java.lang.reflect.Method
 
 class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
@@ -19,8 +21,6 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
     companion object {
         private val loadedConfig = Config.create()
         private const val ENDPOINT_ROUTES_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.EndpointRoutesKt"
-        private const val AUTH_INITIALIZER_CLASS_NAME = "dev.sku20.stopgap.helidon.authentication.generated.AuthenticationInitializerKt"
-        private const val AUTH_RESOLVER_INTERFACE_NAME = "dev.sku20.stopgap.helidon.authentication.AuthenticationResolver"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -94,26 +94,11 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
     private fun initAuthentication(setup: SetupCapture, routes: HttpRouting.Builder) {
         val resolver = setup.authResolver
-            ?: setup.instances.entries.firstOrNull { entry ->
-                entry.key.name == AUTH_RESOLVER_INTERFACE_NAME ||
-                    try {
-                        val authResolverClass = Class.forName(AUTH_RESOLVER_INTERFACE_NAME)
-                        authResolverClass.isInstance(entry.value)
-                    } catch (_: ClassNotFoundException) {
-                        false
-                    }
-            }?.value
+            ?: setup.instances[AuthenticationResolver::class.java] as? AuthenticationResolver
+            ?: setup.instances.values.filterIsInstance<AuthenticationResolver>().firstOrNull()
             ?: return
 
-        try {
-            val authInitClass = Class.forName(AUTH_INITIALIZER_CLASS_NAME)
-            val method = authInitClass.methods.firstOrNull {
-                it.name == "initAuthentication" && it.parameterCount == 2
-            } ?: throw IllegalStateException("Cannot find initAuthentication method in $AUTH_INITIALIZER_CLASS_NAME")
-            method.invoke(null, resolver, routes)
-        } catch (_: ClassNotFoundException) {
-            // Authentication codegen not applied; skip
-        }
+        routes.addFilter(AuthenticationFilter(resolver))
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
