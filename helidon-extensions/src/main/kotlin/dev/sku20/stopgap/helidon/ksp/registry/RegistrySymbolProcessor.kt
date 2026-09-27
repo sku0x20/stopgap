@@ -20,11 +20,8 @@ class RegistrySymbolProcessor(
         return emptyList()
     }
 
-    private fun isEnabled(): Boolean {
-        options["stopgap.endpoint.codegen.registry.enabled"]?.let { return it.toBoolean() }
-        options["endpoint.codegen.registry.skip"]?.let { return !it.toBoolean() }
-        return true
-    }
+    private fun isEnabled(): Boolean =
+        options["stopgap.endpoint.codegen.registry.enabled"]?.toBoolean() ?: true
 
     private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
         it.packageName.asString() == EndpointGeneratedNames.PACKAGE &&
