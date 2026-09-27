@@ -49,7 +49,7 @@ class RuleLambdaBodyGenerator(
         } else {
             val endpointName = function.parentDeclaration?.simpleName?.asString() ?: "Unknown"
             val methodName = function.simpleName.asString()
-            throw IllegalStateException(
+            throw IllegalArgumentException(
                 "Endpoint method '$endpointName.$methodName' omits an Authentication parameter, but '${EndpointSymbolProcessor.DEFAULT_AUTH_TYPE_OPTION}' is not configured. Either declare an Authentication parameter or configure the default type (e.g. \"public\" or an Authentication FQN)."
             )
         }
