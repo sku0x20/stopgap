@@ -76,6 +76,17 @@ Every module is optional.
 
 Requires JDK 25+ and Kotlin 2.4. See [`app/build.gradle.kts`](app/build.gradle.kts) for a complete setup.
 
+```kotlin
+dependencies {
+    implementation("dev.sku20.stopgap:ir:3.1.0")
+    ksp("dev.sku20.stopgap:ir:3.1.0")
+    implementation("dev.sku20.stopgap:helidon-extensions:3.1.0")
+    ksp("dev.sku20.stopgap:helidon-extensions:3.1.0")
+
+    testImplementation("dev.sku20.stopgap:helidon-test:3.1.0")
+}
+```
+
 ## Examples
 
 The [`app`](app) module is a working example of every feature. It's more than documentation: it's also the
