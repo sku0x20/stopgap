@@ -13,4 +13,5 @@ object GeneratedNames {
     const val RESP = "resp"
     const val DESER = "deser"
     const val SER = "ser"
+    const val AUTH = "auth"
 }

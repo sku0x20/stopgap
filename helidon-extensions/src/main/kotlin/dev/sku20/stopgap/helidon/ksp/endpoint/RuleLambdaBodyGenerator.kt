@@ -30,8 +30,13 @@ class RuleLambdaBodyGenerator(
     )
 
     fun write() = w.withRelativeIndent {
+        writeAuth()
         writeFunctionCall()
         writeSerializeIfValid()
+    }
+
+    private fun writeAuth() = w.withRelativeIndent {
+        writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(dev.sku20.stopgap.helidon.authentication.Authentication::class.java).orElse(null)")
     }
 
     // in order
