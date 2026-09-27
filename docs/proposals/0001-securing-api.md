@@ -100,11 +100,14 @@ Note: this intentionally treats a missing-credentials request the same as any ot
 ### 5.4 Omitted Parameter & Build-Time Defaults
 An endpoint method is not required to declare an `Authentication` parameter if its body does not need caller identity.
 
-When the parameter is omitted:
-- **Enforcement with Default**: The check falls back to a build-time configured default type (configured via KSP). The framework validates that the resolved principal matches the default type (throwing `403 Forbidden` on mismatch), but invokes the endpoint method without passing the instance. This keeps method signatures clean when caller identity is not needed in the body.
-- **Compile-Time Validation**:
-  - If the configured default type names a class that does not exist, KSP fails the build at compile-time.
-  - If no default type is configured and an endpoint method omits the parameter, KSP fails the build at compile-time. Because the route would be functionally unreachable at runtime without an expected type to match against, it fails early during compilation rather than deferring to a runtime failure.
+The behavior for methods that omit the parameter is governed by a single build-time KSP option:
+`stopgap.codegen.endpoint.auth.defaultType`
+
+- **When set to `"public"` (or omitted)**:
+  Methods that omit the `Authentication` parameter are open/public. The framework generates no authentication check for them, allowing the lazy resolver to be completely bypassed.
+- **When set to a concrete `Authentication` class FQN (e.g., `"com.example.UserAuthN"`)**:
+  Methods that omit the parameter are automatically protected by that default type. The framework checks that the resolved principal matches the default type (throwing `403 Forbidden` on mismatch), but invokes the endpoint method without passing the parameter. This keeps method signatures clean when caller identity is not needed in the handler body.
+  - If the configured default class does not exist or does not implement `Authentication`, KSP fails the build at compile-time.
 
 ---
 
@@ -146,4 +149,6 @@ This distinction inherently reveals the existence of protected endpoints to unau
 Yes. The developer has full access to the `ServerRequest` inside `authenticate(request)` and can enforce any combination of request attributes.
 
 **Q: Does omitting the parameter make an endpoint public?**  
-No. Omitting the parameter falls back to the configured build-time default type. To make an endpoint public, declare the application's unauthenticated type (e.g., `auth: NoAuthN`) explicitly.
+It depends on `stopgap.codegen.endpoint.auth.defaultType`:
+- If configured as `"public"` (or omitted), omitting the parameter leaves the endpoint public.
+- If configured with an `Authentication` class FQN (e.g., `"com.example.UserAuthN"`), omitting the parameter automatically protects it with that type. To make an endpoint public in that mode, declare the application's unauthenticated type (e.g., `auth: NoAuthN`) explicitly.
