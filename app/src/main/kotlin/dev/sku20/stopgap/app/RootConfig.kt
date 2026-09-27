@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.app
 
-import dev.sku20.stopgap.app.authn.DummyAuthenticationResolver
+import dev.sku20.stopgap.app.authn.AppAuthenticationResolver
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
@@ -40,6 +40,6 @@ object RootConfig {
 
     @Creates
     fun authenticationResolver(): AuthenticationResolver {
-        return DummyAuthenticationResolver()
+        return AppAuthenticationResolver()
     }
 }
