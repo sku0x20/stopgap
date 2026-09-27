@@ -42,12 +42,12 @@ Requires JDK 25+, Kotlin 2.4, and KSP 2.3.
 
 ```kotlin
 plugins {
-    id("com.google.devtools.ksp") version "2.3.9"
+    id("com.google.devtools.ksp") version "2.3.12"
     id("dev.sku20.stopgap") version "3.0.0"    // from Maven Central
 }
 
 dependencies {
-    implementation("io.helidon.webserver:helidon-webserver:4.5.0")
+    implementation("io.helidon.webserver:helidon-webserver:4.5.5")
 
     implementation("dev.sku20.stopgap:ir:3.0.0")
     ksp("dev.sku20.stopgap:ir:3.0.0")
