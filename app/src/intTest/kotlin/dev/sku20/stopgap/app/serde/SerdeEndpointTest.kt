@@ -96,7 +96,7 @@ class SerdeEndpointTest {
             val catalog = MapSerdeCatalog()
             catalog.add(FastjsonSerde())
             catalog.add(ReqResPlainSerde())
-            return SetupCapture(SerdeEndpoint(), arrayOf(catalog))
+            return SetupCapture(SerdeEndpoint(), registerParams = arrayOf(catalog))
         }
     }
 }

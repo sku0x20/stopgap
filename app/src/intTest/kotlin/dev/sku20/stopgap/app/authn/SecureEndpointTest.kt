@@ -50,8 +50,8 @@ class SecureEndpointTest {
         @WebserverTest.Setup
         fun setup(): SetupCapture {
             return SetupCapture(
-                endpoint = SecureEndpoint(),
-                authResolver = AppAuthenticationResolver()
+                SecureEndpoint(),
+                AppAuthenticationResolver(),
             )
         }
     }
