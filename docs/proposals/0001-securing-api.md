@@ -1,6 +1,6 @@
-# RFC: Type-Safe API Authentication (AuthN)
+# RFC-0001: Type-Safe API Authentication (AuthN)
 
-- **Status**: Proposed
+- **Date**: 2026-09-27
 - **Target**: `stopgap` / `helidon-extensions`
 - **Scope**: Authentication (AuthN) API Contract & Type-Enforcement
 
@@ -126,7 +126,21 @@ The framework avoids built-in composite or delegating resolver chains. Chaining 
 
 ---
 
-## 7. FAQ
+## 7. Security Considerations
+
+### Route Enumeration (404 vs. 403)
+Because route matching evaluates the path before the method's `Authentication` type is verified:
+- Probing a non-existent path yields `404 Not Found`.
+- Probing an existing protected path without valid credentials yields `403 Forbidden`.
+
+This distinction inherently reveals the existence of protected endpoints to unauthenticated callers via status code probing. This proposal intentionally embraces the standard REST approach (returning `403` on existing protected endpoints):
+1. **Simplicity in Design & Implementation**: Masking `403` as `404` ("stealth mode") would require the framework to track unauthenticated states or introduce artificial routing hooks. Leaving them distinct keeps the framework's routing and type checking simple and predictable.
+2. **Clear Diagnostics**: Returning `403 Forbidden` provides clear, honest diagnostics to legitimate API consumers that the endpoint exists but requires credentials.
+3. **Security over Obscurity**: Masking whether an endpoint exists provides little practical security benefit. Real protection comes from strict, fail-closed verification at the boundary, not from concealing route presence.
+
+---
+
+## 8. FAQ
 
 **Q: Can a resolver validate both client IP and token claims?**  
 Yes. The developer has full access to the `ServerRequest` inside `authenticate(request)` and can enforce any combination of request attributes.
