@@ -15,8 +15,6 @@ dependencies {
     ksp(project(":ir"))
     implementation(project(":helidon-extensions"))
     ksp(project(":helidon-extensions"))
-    // for codegen inside intTests `ksp` only runs for main
-    kspIntTest(project(":ir"))
 
     implementation(libs.fastjson2.kotlin)
 
@@ -24,6 +22,7 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
 
     testImplementation(project(":helidon-test"))
+    kspIntTest(project(":ir")) // for codegen inside intTests `ksp` only runs for main
 }
 
 application {
