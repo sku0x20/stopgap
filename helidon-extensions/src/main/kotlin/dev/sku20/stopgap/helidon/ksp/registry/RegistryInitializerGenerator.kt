@@ -28,7 +28,7 @@ class RegistryInitializerGenerator(
     }
 
     private fun writeFunctionDefinition() = w.withRelativeIndent {
-        writeLine("fun initEndpointsRoutesViaRegistry(")
+        writeLine("fun initHttpRouting(")
         withRelativeIndent(4) {
             writeLine("${GeneratedNames.REGISTRY}: InstanceRegistry,")
             writeLine("${GeneratedNames.ROUTES}: HttpRouting.Builder,")
