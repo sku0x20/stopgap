@@ -10,8 +10,9 @@ class AuthenticationFilter(
 ) : Filter {
 
     override fun filter(chain: FilterChain, req: RoutingRequest, res: RoutingResponse) {
-        val auth = resolver.authenticate(req)
-        req.context().register(auth)
+        req.context().supply(Authentication::class.java) {
+            resolver.authenticate(req)
+        }
         chain.proceed()
     }
 }

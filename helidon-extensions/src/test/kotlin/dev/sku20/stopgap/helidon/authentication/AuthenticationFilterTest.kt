@@ -8,9 +8,12 @@ import io.helidon.webserver.http.RoutingRequest
 import io.helidon.webserver.http.RoutingResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -25,26 +28,48 @@ class AuthenticationFilterTest {
 
     private class TestAuthN : Authentication
 
-    @Test
-    fun registersAuthenticationAndProceeds() {
-        val testAuth = TestAuthN()
+    @BeforeEach
+    fun setup() {
         whenever(req.context()).thenReturn(context)
+    }
+
+    @Test
+    fun suppliesAuthenticationLazilyAndProceeds() {
+        val testAuth = TestAuthN()
         whenever(resolver.authenticate(req)).thenReturn(testAuth)
 
         filter.filter(chain, req, res)
 
-        assertThat(context.get(Authentication::class.java)).contains(testAuth)
         verify(chain).proceed()
+        verify(resolver, never()).authenticate(any())
+
+        val resolved = context.get(Authentication::class.java)
+        assertThat(resolved).contains(testAuth)
+        verify(resolver, times(1)).authenticate(req)
     }
 
     @Test
-    fun propagatesExceptionWhenResolverThrows() {
+    fun memoizesAuthenticationWhenAccessedMultipleTimes() {
+        val testAuth = TestAuthN()
+        whenever(resolver.authenticate(req)).thenReturn(testAuth)
+
+        filter.filter(chain, req, res)
+
+        context.get(Authentication::class.java)
+        context.get(Authentication::class.java)
+
+        verify(resolver, times(1)).authenticate(req)
+    }
+
+    @Test
+    fun propagatesExceptionWhenResolverThrowsOnAccess() {
         val exception = HttpException("Unauthorized", Status.UNAUTHORIZED_401)
         whenever(resolver.authenticate(req)).thenThrow(exception)
 
-        assertThatThrownBy { filter.filter(chain, req, res) }
-            .isSameAs(exception)
+        filter.filter(chain, req, res)
+        verify(chain).proceed()
 
-        verify(chain, never()).proceed()
+        assertThatThrownBy { context.get(Authentication::class.java) }
+            .isSameAs(exception)
     }
 }
