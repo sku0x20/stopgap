@@ -47,10 +47,11 @@ class RuleLambdaBodyGenerator(
             imports.add(defaultAuthType)
             targetTypeName = defaultAuthType.substringAfterLast('.')
         } else {
-            imports.add(HttpException::class.qualifiedName!!)
-            imports.add(Status::class.qualifiedName!!)
-            writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
-            return@withRelativeIndent
+            val endpointName = function.parentDeclaration?.simpleName?.asString() ?: "Unknown"
+            val methodName = function.simpleName.asString()
+            throw IllegalStateException(
+                "Endpoint method '$endpointName.$methodName' omits an Authentication parameter, but '${EndpointSymbolProcessor.DEFAULT_AUTH_TYPE_OPTION}' is not configured. Either declare an Authentication parameter or configure the default type (e.g. \"public\" or an Authentication FQN)."
+            )
         }
 
         imports.add(Authentication::class.qualifiedName!!)
