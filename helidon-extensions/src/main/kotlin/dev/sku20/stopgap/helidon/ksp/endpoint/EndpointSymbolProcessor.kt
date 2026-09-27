@@ -21,6 +21,10 @@ class EndpointSymbolProcessor(
         return emptyList()
     }
 
+    companion object {
+        const val DEFAULT_AUTH_TYPE_OPTION = "stopgap.codegen.endpoint.auth.defaultType"
+    }
+
     private fun generateFile(symbols: List<KSClassDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
@@ -34,12 +38,12 @@ class EndpointSymbolProcessor(
             GeneratedNames.FILE_NAME,
             GeneratedNames.EXTENSION
         )
-        val initGen = InitializersGenerator(
+        val routesGen = EndpointRoutesGenerator(
             file,
             symbols,
-            GeneratedNames.PACKAGE
+            GeneratedNames.PACKAGE,
+            options[DEFAULT_AUTH_TYPE_OPTION]
         )
-        initGen.write()
+        routesGen.write()
     }
-
 }

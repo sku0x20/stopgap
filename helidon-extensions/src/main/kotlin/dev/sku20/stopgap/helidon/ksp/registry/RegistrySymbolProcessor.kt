@@ -13,16 +13,17 @@ class RegistrySymbolProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        if (skip()) return emptyList()
-        val endpointGeneratedFile = findEndpointInitializers(resolver.getNewFiles())
+        if (!isEnabled()) return emptyList()
+        val endpointGeneratedFile = findEndpointRoutesFile(resolver.getNewFiles())
             ?: return emptyList()
         generateFile(endpointGeneratedFile)
         return emptyList()
     }
 
-    private fun skip() = options["endpoint.codegen.registry.skip"].toBoolean()
+    private fun isEnabled(): Boolean =
+        options["stopgap.codegen.endpoint.registry.enabled"]?.toBoolean() ?: true
 
-    private fun findEndpointInitializers(files: Sequence<KSFile>): KSFile? = files.find {
+    private fun findEndpointRoutesFile(files: Sequence<KSFile>): KSFile? = files.find {
         it.packageName.asString() == EndpointGeneratedNames.PACKAGE &&
                 it.fileName == "${EndpointGeneratedNames.FILE_NAME}.${EndpointGeneratedNames.EXTENSION}"
     }

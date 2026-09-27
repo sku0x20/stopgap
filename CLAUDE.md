@@ -20,8 +20,6 @@
 ## Tests
 - Name test functions in camelCase, no backtick-quoted strings or spaces. Keep them short and crisp (e.g. `serializeNonEmpty` not `"serialize produces non-empty bytes"`).
 
-## External Commands
-- Never run heavy external commands (e.g. `./gradlew`). Ask me to run them and share the output.
 
 ## Subagents
 - When spawning via the `Agent` tool, always pass `model: "haiku"`.

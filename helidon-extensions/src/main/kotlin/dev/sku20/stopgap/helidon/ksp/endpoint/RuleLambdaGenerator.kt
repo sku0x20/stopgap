@@ -13,6 +13,7 @@ class RuleLambdaGenerator(
     private val variables: MutableSet<String>,
     private val endpointCatalog: CustomSerdeCatalogData,
     private val w: CustomWriter,
+    private val defaultAuthType: String? = null,
 ) {
 
     fun write() = w.withRelativeIndent {
@@ -35,7 +36,8 @@ class RuleLambdaGenerator(
             variables,
             rulesVariables,
             endpointCatalog,
-            writer
+            writer,
+            defaultAuthType,
         ).write()
     }
 }

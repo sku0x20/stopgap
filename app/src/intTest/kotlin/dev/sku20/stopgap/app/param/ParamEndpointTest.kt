@@ -40,7 +40,7 @@ class ParamEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(ParamEndpoint(), emptyArray())
+            return SetupCapture(ParamEndpoint())
         }
     }
 }

@@ -6,10 +6,11 @@ import dev.sku20.stopgap.helidon.ksp.Utils
 import java.io.InputStream
 import java.io.OutputStream
 
-class InitializersGenerator(
+class EndpointRoutesGenerator(
     file: OutputStream,
     private val endpointClazzes: List<KSClassDeclaration>,
-    private val packageName: String
+    private val packageName: String,
+    private val defaultAuthType: String? = null,
 ) {
     private val w = CustomWriter(file)
 
@@ -26,7 +27,7 @@ class InitializersGenerator(
 
     private fun captureEndpointRoutes(): InputStream = Utils.capturing { writer ->
         for (endpointClazz in endpointClazzes) {
-            RoutesGenerator(endpointClazz, imports, writer).write()
+            RoutesGenerator(endpointClazz, imports, writer, defaultAuthType).write()
         }
     }
 

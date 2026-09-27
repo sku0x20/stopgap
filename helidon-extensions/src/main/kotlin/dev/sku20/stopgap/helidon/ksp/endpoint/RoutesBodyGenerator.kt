@@ -17,6 +17,7 @@ class RoutesBodyGenerator(
     private val params: MutableSet<String>,
     private val variables: MutableSet<String>,
     private val w: CustomWriter,
+    private val defaultAuthType: String? = null,
 ) {
     private val endpointData = EndpointData.from(endpointClazz)
     private val endpointCatalog = CustomSerdeCatalogData.from(endpointClazz)
@@ -54,6 +55,7 @@ class RoutesBodyGenerator(
             variables,
             endpointCatalog,
             iw,
+            defaultAuthType,
         ).write()
     }
 }

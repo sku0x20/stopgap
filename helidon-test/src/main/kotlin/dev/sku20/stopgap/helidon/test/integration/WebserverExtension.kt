@@ -12,13 +12,14 @@ import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.junit.platform.commons.support.ReflectionSupport
+import dev.sku20.stopgap.helidon.authentication.AuthenticationFilter
 import java.lang.reflect.Method
 
 class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
 
     companion object {
         private val loadedConfig = Config.create()
-        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.InitializersKt"
+        private const val ENDPOINT_ROUTES_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.EndpointRoutesKt"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -34,13 +35,12 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             InjectInstance::class.java
         )
         val store = ItStore.storeFor(context)
+        val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
         for (field in injectableFields) {
-            when (field.type) {
-                WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
-                else -> field.set(
-                    testInstance,
-                    (store.get(ItStoreKeys.SETUP) as SetupCapture).instances[field.type]
-                )
+            when {
+                field.type == WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
+                field.type.isInstance(setup.authResolver) -> field.set(testInstance, setup.authResolver)
+                else -> field.set(testInstance, setup.instances[field.type])
             }
         }
     }
@@ -72,9 +72,12 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             .host("localhost")
 
         val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
-        val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
-        val method = findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         val routes = HttpRouting.builder()
+
+        routes.addFilter(AuthenticationFilter(setup.authResolver))
+        val clazz = Class.forName(ENDPOINT_ROUTES_CLASS_NAME)
+        val method =
+            findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         method.invoke(null, setup.endpoint, routes, *setup.registerParams)
         serverBuilder.routing(routes)
 

@@ -15,6 +15,7 @@ mavenPublishing {
 }
 
 dependencies {
+    api(project(":helidon-extensions"))
     api(libs.helidon.webserver)
     api(libs.helidon.webclient)
     api(libs.junit.jupiter.api)

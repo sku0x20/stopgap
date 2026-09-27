@@ -2,7 +2,7 @@ package dev.sku20.stopgap.helidon.ksp.endpoint
 
 object GeneratedNames {
     const val PACKAGE = "dev.sku20.stopgap.helidon.endpoint.generated"
-    const val FILE_NAME = "Initializers"
+    const val FILE_NAME = "EndpointRoutes"
     const val EXTENSION = "kt"
 
     const val ENDPOINT = "endpoint"
@@ -13,4 +13,5 @@ object GeneratedNames {
     const val RESP = "resp"
     const val DESER = "deser"
     const val SER = "ser"
+    const val AUTH = "auth"
 }
