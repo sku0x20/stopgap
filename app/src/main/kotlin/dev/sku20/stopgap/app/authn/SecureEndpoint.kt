@@ -12,4 +12,9 @@ class SecureEndpoint {
     fun closed(req: ServerRequest, res: ServerResponse) {
         res.send("secret")
     }
+
+    @Get("/user")
+    fun user(auth: UserAuthN, res: ServerResponse) {
+        res.send(auth.id)
+    }
 }

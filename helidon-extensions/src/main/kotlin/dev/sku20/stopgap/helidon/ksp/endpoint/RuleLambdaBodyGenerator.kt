@@ -5,6 +5,8 @@ import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.CustomWriter
 import dev.sku20.stopgap.helidon.ksp.annotation.CustomSerdeCatalogData
+import io.helidon.http.HttpException
+import io.helidon.http.Status
 
 class RuleLambdaBodyGenerator(
     private val function: KSFunctionDeclaration,
@@ -28,14 +30,26 @@ class RuleLambdaBodyGenerator(
         writeSerializeIfValid()
     }
 
-    private fun writeAuth() = w.withRelativeIndent {
-        imports.add(Authentication::class.qualifiedName!!)
-        writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(${Authentication::class.simpleName}::class.java).orElse(null)")
-    }
-
     // in order
     private val endpointParams = function.parameters.map { EndpointParam.from(it) }
     private val hasServerResponseParam = endpointParams.any { it is EndpointParam.Response }
+    private val authParam = endpointParams.filterIsInstance<EndpointParam.Auth>().firstOrNull()
+
+    private fun writeAuth() = w.withRelativeIndent {
+        val auth = authParam ?: return@withRelativeIndent
+        imports.add(Authentication::class.qualifiedName!!)
+        imports.add(HttpException::class.qualifiedName!!)
+        imports.add(Status::class.qualifiedName!!)
+        val targetTypeDecl = auth.type.declaration
+        imports.add(targetTypeDecl.qualifiedName!!.asString())
+        val targetTypeName = targetTypeDecl.simpleName.asString()
+        writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(${Authentication::class.simpleName}::class.java).orElse(null)")
+        writeLine("if (${GeneratedNames.AUTH} !is $targetTypeName) {")
+        withRelativeIndent(4) {
+            writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
+        }
+        writeLine("}")
+    }
 
     private val bodyKType = "${functionName}BodyKType"
 
