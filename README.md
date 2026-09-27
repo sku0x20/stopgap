@@ -74,7 +74,7 @@ Every module is optional.
 
 ## Getting started
 
-Requires JDK 25+, Kotlin 2.4, and KSP 2.3. See [`app/build.gradle.kts`](app/build.gradle.kts) for a complete setup.
+Requires JDK 25+ and Kotlin 2.4. See [`app/build.gradle.kts`](app/build.gradle.kts) for a complete setup.
 
 ## Examples
 
