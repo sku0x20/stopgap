@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.app
 
+import dev.sku20.stopgap.app.authn.DummyAuthenticationResolver
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog

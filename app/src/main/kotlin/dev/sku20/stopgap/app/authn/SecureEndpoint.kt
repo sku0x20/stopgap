@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.app.auth
+package dev.sku20.stopgap.app.authn
 
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.endpoint.Get
