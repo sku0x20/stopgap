@@ -37,13 +37,10 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         val store = ItStore.storeFor(context)
         val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
         for (field in injectableFields) {
-            when (field.type) {
-                WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
-                else -> {
-                    val value = setup.instances[field.type]
-                        ?: setup.authResolver.takeIf { field.type.isInstance(it) }
-                    field.set(testInstance, value)
-                }
+            when {
+                field.type == WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
+                field.type.isInstance(setup.authResolver) -> field.set(testInstance, setup.authResolver)
+                else -> field.set(testInstance, setup.instances[field.type])
             }
         }
     }
