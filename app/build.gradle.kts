@@ -30,6 +30,7 @@ application {
 
 ksp {
     arg("stopgap.codegen.endpoint.registry.enabled", "true")
+    arg("stopgap.codegen.endpoint.auth.defaultType", "public")
 }
 
 stopgap {
