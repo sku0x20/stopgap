@@ -7,6 +7,7 @@ import dev.sku20.stopgap.helidon.ksp.CustomWriter
 import dev.sku20.stopgap.helidon.ksp.annotation.CustomSerdeCatalogData
 import dev.sku20.stopgap.helidon.ksp.argument
 import dev.sku20.stopgap.helidon.ksp.findAnnotation
+import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.param.HeaderParam
 import dev.sku20.stopgap.helidon.param.PathParam
 import dev.sku20.stopgap.helidon.param.QueryParam
@@ -36,7 +37,8 @@ class RuleLambdaBodyGenerator(
     }
 
     private fun writeAuth() = w.withRelativeIndent {
-        writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(dev.sku20.stopgap.helidon.authentication.Authentication::class.java).orElse(null)")
+        imports.add(Authentication::class.qualifiedName!!)
+        writeLine("val ${GeneratedNames.AUTH} = ${GeneratedNames.REQ}.context().get(${Authentication::class.simpleName}::class.java).orElse(null)")
     }
 
     // in order
