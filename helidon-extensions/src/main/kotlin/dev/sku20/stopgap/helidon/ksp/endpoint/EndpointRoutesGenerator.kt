@@ -6,7 +6,7 @@ import dev.sku20.stopgap.helidon.ksp.Utils
 import java.io.InputStream
 import java.io.OutputStream
 
-class InitializersGenerator(
+class EndpointRoutesGenerator(
     file: OutputStream,
     private val endpointClazzes: List<KSClassDeclaration>,
     private val packageName: String

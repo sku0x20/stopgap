@@ -34,7 +34,7 @@ class EndpointSymbolProcessor(
             GeneratedNames.FILE_NAME,
             GeneratedNames.EXTENSION
         )
-        val initGen = InitializersGenerator(
+        val initGen = EndpointRoutesGenerator(
             file,
             symbols,
             GeneratedNames.PACKAGE

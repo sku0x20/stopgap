@@ -18,7 +18,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
     companion object {
         private val loadedConfig = Config.create()
-        private const val INITIALIZERS_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.InitializersKt"
+        private const val ENDPOINT_ROUTES_CLASS_NAME = "dev.sku20.stopgap.helidon.endpoint.generated.EndpointRoutesKt"
     }
 
     override fun beforeAll(context: ExtensionContext) {
@@ -72,7 +72,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
             .host("localhost")
 
         val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
-        val clazz = Class.forName(INITIALIZERS_CLASS_NAME)
+        val clazz = Class.forName(ENDPOINT_ROUTES_CLASS_NAME)
         val method = findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         val routes = HttpRouting.builder()
         method.invoke(null, setup.endpoint, routes, *setup.registerParams)
