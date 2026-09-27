@@ -21,10 +21,10 @@ A high-performance, lightweight **Helidon SE** template designed for modern **Ko
 ## 📦 Maven Central
 
 ```kotlin
-implementation("dev.sku20.stopgap:ir:2.8.0")
-implementation("dev.sku20.stopgap:helidon-extensions:2.8.0")
-implementation("dev.sku20.stopgap:helidon-test:2.8.0")
-id("dev.sku20.stopgap") version "2.8.0"
+implementation("dev.sku20.stopgap:ir:3.0.0")
+implementation("dev.sku20.stopgap:helidon-extensions:3.0.0")
+implementation("dev.sku20.stopgap:helidon-test:3.0.0")
+id("dev.sku20.stopgap") version "3.0.0"
 ```
 
 ## 🧪 Testing Strategy
