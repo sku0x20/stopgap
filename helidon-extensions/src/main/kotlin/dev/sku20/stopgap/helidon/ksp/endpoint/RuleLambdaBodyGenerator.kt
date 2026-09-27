@@ -2,17 +2,9 @@ package dev.sku20.stopgap.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSValueParameter
+import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.CustomWriter
 import dev.sku20.stopgap.helidon.ksp.annotation.CustomSerdeCatalogData
-import dev.sku20.stopgap.helidon.ksp.argument
-import dev.sku20.stopgap.helidon.ksp.findAnnotation
-import dev.sku20.stopgap.helidon.authentication.Authentication
-import dev.sku20.stopgap.helidon.param.HeaderParam
-import dev.sku20.stopgap.helidon.param.PathParam
-import dev.sku20.stopgap.helidon.param.QueryParam
-import io.helidon.webserver.http.ServerRequest
-import io.helidon.webserver.http.ServerResponse
 
 class RuleLambdaBodyGenerator(
     private val function: KSFunctionDeclaration,
@@ -42,14 +34,15 @@ class RuleLambdaBodyGenerator(
     }
 
     // in order
-    private val functionParams = function.parameters
+    private val endpointParams = function.parameters.map { EndpointParam.from(it) }
+    private val hasServerResponseParam = endpointParams.any { it is EndpointParam.Response }
 
     private val bodyKType = "${functionName}BodyKType"
 
     private fun writeFunctionCall() = w.withRelativeIndent {
         writeLine("val ${GeneratedNames.RESP} = ${GeneratedNames.ENDPOINT}.${functionName}(")
         withRelativeIndent(4) {
-            for (param in functionParams) {
+            for (param in endpointParams) {
                 val value = getParamValue(param)
                 writeLine("$value,")
             }
@@ -57,19 +50,14 @@ class RuleLambdaBodyGenerator(
         writeLine(")")
     }
 
-    private fun getParamValue(param: KSValueParameter): String {
-        val type = param.type.resolve()
-        val pathParam = param.findAnnotation(PathParam::class)
-        val queryParam = param.findAnnotation(QueryParam::class)
-        val headerParam = param.findAnnotation(HeaderParam::class)
-        return when {
-            type.declaration.qualifiedName!!.asString() == ServerRequest::class.qualifiedName -> GeneratedNames.REQ
-            type.declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName -> GeneratedNames.RES
-            pathParam != null -> """${GeneratedNames.REQ}.path().pathParameters()["${pathParam.argument<String>("name")}"]"""
-            queryParam != null -> """${GeneratedNames.REQ}.query().get("${queryParam.argument<String>("name")}")"""
-            headerParam != null -> headerParamValue(headerParam.argument("name"))
-            else -> bodyDeserialized(type)
-        }
+    private fun getParamValue(param: EndpointParam): String = when (param) {
+        is EndpointParam.Request -> GeneratedNames.REQ
+        is EndpointParam.Response -> GeneratedNames.RES
+        is EndpointParam.Path -> """${GeneratedNames.REQ}.path().pathParameters()["${param.name}"]"""
+        is EndpointParam.Query -> """${GeneratedNames.REQ}.query().get("${param.name}")"""
+        is EndpointParam.Header -> headerParamValue(param.name)
+        is EndpointParam.Auth -> GeneratedNames.AUTH
+        is EndpointParam.Body -> bodyDeserialized(param.type)
     }
 
     private fun headerParamValue(name: String): String {
@@ -102,7 +90,7 @@ class RuleLambdaBodyGenerator(
             rulesVariables.add("${GeneratedNames.SER} = ${functionCatalog.paramName()}.getSerializer(${GeneratedNames.REQ}.headers().acceptedTypes())")
             writeLine("${GeneratedNames.RES}.headers().contentType(${GeneratedNames.SER}.mediaType)")
             writeLine("${GeneratedNames.RES}.send(${GeneratedNames.SER}.serialize(${GeneratedNames.RESP}))")
-        } else if (!hasServerResponseParam()) {
+        } else if (!hasServerResponseParam) {
             writeLine("${GeneratedNames.RES}.send()")
         }
     }
@@ -114,9 +102,6 @@ class RuleLambdaBodyGenerator(
 
     private fun isUnit(type: KSType): Boolean =
         type.declaration.qualifiedName!!.asString() == Unit::class.qualifiedName!!
-
-    private fun hasServerResponseParam(): Boolean =
-        functionParams.any { it.type.resolve().declaration.qualifiedName!!.asString() == ServerResponse::class.qualifiedName }
 
     // base we are adding as import
     // manual transversal/type resolution
