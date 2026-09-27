@@ -129,6 +129,14 @@ Endpoint parameters accept a single concrete type checked via an `is` check. The
 ### Single Global Resolver vs. Resolver Chains
 The framework avoids built-in composite or delegating resolver chains. Chaining rules ("first match wins", fallback rules) add hidden complexity. The application registers one resolver; if multi-source resolution is needed (e.g. Bearer tokens vs. API keys), the developer organizes that logic within their own resolver.
 
+### Security Validation Adapters (Decoupled Validation vs. Web Middleware)
+Stopgap intentionally does **not** run parallel web-layer security frameworks (e.g., Helidon WebServer's `SecurityFeature` / `WebSecurity`). Running parallel route filters or interceptors creates fragmented routing logic, duplicate middleware overhead, and coupled framework-specific principal types.
+
+Instead, external validation tools (such as Helidon Security, Helidon JWT/JWKS, Nimbus JOSE, or JJWT) are integrated using the **Adapter Pattern**:
+1. **Validation Engine Only**: The framework's validation engine is used strictly inside the application's `AuthenticationResolver` to verify token signatures, validate claims, or invoke authentication providers.
+2. **Domain-Owned `Authentication` Types**: Concrete `Authentication` types belong strictly to the application domain (`UserAuthN`, `ServiceAuthN`, `AnonymousAuthN`). The resolver acts as an adapter that converts verified tokens or subjects into these domain objects.
+3. **Pluggable & Replaceable**: Applications can swap or upgrade validation libraries (e.g., migrating from Helidon JWT to Nimbus or a custom introspector) without altering endpoint handler signatures or routing rules.
+
 ---
 
 ## 7. Security Considerations
