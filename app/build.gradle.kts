@@ -29,7 +29,7 @@ application {
 }
 
 ksp {
-    arg("endpoint.codegen.registry.skip", "false")
+    arg("stopgap.endpoint.codegen.registry.enabled", "true")
 }
 
 stopgap {
