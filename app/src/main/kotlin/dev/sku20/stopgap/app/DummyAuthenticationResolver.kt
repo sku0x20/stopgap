@@ -1,14 +1,11 @@
-package dev.sku20.stopgap.app.auth
+package dev.sku20.stopgap.app
 
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
-import dev.sku20.stopgap.ir.Creates
 import io.helidon.webserver.http.ServerRequest
 
-object AuthConfig {
-
-    @Creates
-    fun secureEndpoint(): SecureEndpoint {
-        return SecureEndpoint()
+object DummyAuthenticationResolver : AuthenticationResolver {
+    override fun authenticate(request: ServerRequest): Authentication {
+        TODO()
     }
 }
