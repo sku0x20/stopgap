@@ -109,7 +109,7 @@ The behavior for methods that omit the parameter is governed by a single build-t
   Methods that omit the parameter are automatically protected by that default type. The framework checks that the resolved principal matches the default type (throwing `403 Forbidden` on mismatch), but invokes the endpoint method without passing the parameter. This keeps method signatures clean when caller identity is not needed in the handler body.
   - If the configured default class does not exist or does not implement `Authentication`, KSP fails the build at compile-time.
 - **When omitted / not configured**:
-  Methods that omit the `Authentication` parameter are closed by default: without a configured default type, the generator hardcodes a `403 Forbidden` rejection. It is public only when `"public"` is explicitly configured.
+  If an endpoint method omits the `Authentication` parameter and no `defaultType` is configured, KSP fails compilation with an `IllegalArgumentException`. Developers must either declare an explicit `Authentication` parameter on the method or configure `stopgap.codegen.endpoint.auth.defaultType` (e.g. `"public"` or a concrete `Authentication` FQN). This prevents accidental exposure and provides immediate build-time feedback rather than unexpected runtime errors.
 
 ---
 
@@ -151,4 +151,4 @@ This distinction inherently reveals the existence of protected endpoints to unau
 Yes. The developer has full access to the `ServerRequest` inside `authenticate(request)` and can enforce any combination of request attributes.
 
 **Q: Does omitting the parameter make an endpoint public?**  
-Only if `stopgap.codegen.endpoint.auth.defaultType` is explicitly set to `"public"`. If set to an `Authentication` class FQN, it protects with that type; if not configured at all, omitting the parameter closes the endpoint (yielding `403 Forbidden`).
+Only if `stopgap.codegen.endpoint.auth.defaultType` is explicitly set to `"public"`. If set to an `Authentication` class FQN, it protects with that type; if not configured at all, omitting the parameter results in a compile-time failure.
