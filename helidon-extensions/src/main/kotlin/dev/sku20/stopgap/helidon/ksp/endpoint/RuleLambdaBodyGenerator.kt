@@ -42,17 +42,15 @@ class RuleLambdaBodyGenerator(
             val targetTypeDecl = authParam.type.declaration
             imports.add(targetTypeDecl.qualifiedName!!.asString())
             targetTypeName = targetTypeDecl.simpleName.asString()
-        } else {
+        } else if (defaultAuthType != null) {
             if (defaultAuthType == "public") return@withRelativeIndent
-            if (defaultAuthType != null) {
-                imports.add(defaultAuthType)
-                targetTypeName = defaultAuthType.substringAfterLast('.')
-            } else {
-                imports.add(HttpException::class.qualifiedName!!)
-                imports.add(Status::class.qualifiedName!!)
-                writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
-                return@withRelativeIndent
-            }
+            imports.add(defaultAuthType)
+            targetTypeName = defaultAuthType.substringAfterLast('.')
+        } else {
+            imports.add(HttpException::class.qualifiedName!!)
+            imports.add(Status::class.qualifiedName!!)
+            writeLine("throw ${HttpException::class.simpleName}(\"Forbidden\", ${Status::class.simpleName}.FORBIDDEN_403)")
+            return@withRelativeIndent
         }
 
         imports.add(Authentication::class.qualifiedName!!)
