@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.stopgap.helidon.ksp.CustomWriter
 import dev.sku20.stopgap.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.stopgap.helidon.ksp.authentication.GeneratedNames as AuthGeneratedNames
 import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
 import java.io.OutputStream
 
@@ -19,6 +20,7 @@ class RegistryInitializerGenerator(
         writeImports()
         writeFunctionDefinition()
         w.withRelativeIndent(4) {
+            writeInitAuthenticationCall()
             for (function in functions) writeRegisterCallFor(function)
         }
         w.writeLine("}")
@@ -32,6 +34,15 @@ class RegistryInitializerGenerator(
             writeLine("${GeneratedNames.ROUTES}: HttpRouting.Builder,")
         }
         writeLine(") {")
+    }
+
+    private fun writeInitAuthenticationCall() = w.withRelativeIndent {
+        writeLine("initAuthentication(")
+        withRelativeIndent(4) {
+            writeLine("${GeneratedNames.REGISTRY}.getInstanceForType<AuthenticationResolver>(),")
+            writeLine("${GeneratedNames.ROUTES},")
+        }
+        writeLine(")")
     }
 
     private fun writeRegisterCallFor(function: KSFunctionDeclaration) = w.withRelativeIndent {
@@ -64,6 +75,8 @@ class RegistryInitializerGenerator(
         writeLine()
         writeLine("import dev.sku20.stopgap.ir.InstanceRegistry")
         writeLine("import io.helidon.webserver.http.HttpRouting")
+        writeLine("import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver")
+        writeLine("import ${AuthGeneratedNames.PACKAGE}.initAuthentication")
         writeLine("import ${EndpointGeneratedNames.PACKAGE}.registerRoutesFor")
         writeLine()
     }
