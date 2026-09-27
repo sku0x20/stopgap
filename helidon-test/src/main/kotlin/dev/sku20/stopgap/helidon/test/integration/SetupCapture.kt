@@ -6,7 +6,7 @@ typealias TestInstances = Map<Class<*>, Any>
 
 class SetupCapture(
     val endpoint: Any,
+    val authResolver: AuthenticationResolver = TestAuthFakeResolver(),
     val registerParams: Array<Any> = emptyArray(),
     val instances: TestInstances = emptyMap(),
-    val authResolver: AuthenticationResolver? = null,
 )

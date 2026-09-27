@@ -42,7 +42,7 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
                 WebServer::class.java -> field.set(testInstance, store.get(ItStoreKeys.SERVER))
                 else -> {
                     val value = setup.instances[field.type]
-                        ?: setup.authResolver?.takeIf { field.type.isInstance(it) }
+                        ?: setup.authResolver.takeIf { field.type.isInstance(it) }
                     field.set(testInstance, value)
                 }
             }
@@ -93,10 +93,8 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
     }
 
     private fun initAuthentication(setup: SetupCapture, routes: HttpRouting.Builder) {
-        val resolver = setup.authResolver
-            ?: setup.instances[AuthenticationResolver::class.java] as? AuthenticationResolver
-            ?: setup.instances.values.filterIsInstance<AuthenticationResolver>().firstOrNull()
-            ?: return
+        val resolver = setup.instances[AuthenticationResolver::class.java] as? AuthenticationResolver
+            ?: setup.authResolver
 
         routes.addFilter(AuthenticationFilter(resolver))
     }
