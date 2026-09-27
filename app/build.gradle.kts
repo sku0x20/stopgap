@@ -22,6 +22,7 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
 
     testImplementation(project(":helidon-test"))
+    kspIntTest(project(":ir")) // for codegen inside intTests `ksp` only runs for main
 }
 
 application {

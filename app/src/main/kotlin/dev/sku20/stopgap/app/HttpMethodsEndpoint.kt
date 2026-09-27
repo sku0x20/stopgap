@@ -34,7 +34,7 @@ class HttpMethodsEndpoint {
 
     @Head("/head")
     fun head(req: ServerRequest, res: ServerResponse) {
-        res.send("HEAD request received")
+        res.send()
     }
 
     @Options("/options")
