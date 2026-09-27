@@ -13,7 +13,6 @@ import org.junit.platform.commons.support.HierarchyTraversalMode
 import org.junit.platform.commons.support.ModifierSupport
 import org.junit.platform.commons.support.ReflectionSupport
 import dev.sku20.stopgap.helidon.authentication.AuthenticationFilter
-import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import java.lang.reflect.Method
 
 class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAllCallback {
@@ -77,10 +76,11 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
 
         val setup = store.get(ItStoreKeys.SETUP) as SetupCapture
         val routes = HttpRouting.builder()
-        initAuthentication(setup, routes)
 
+        routes.addFilter(AuthenticationFilter(setup.authResolver))
         val clazz = Class.forName(ENDPOINT_ROUTES_CLASS_NAME)
-        val method = findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
+        val method =
+            findMethodWith(clazz, "registerRoutesFor", setup.endpoint::class.java, HttpRouting.Builder::class.java)
         method.invoke(null, setup.endpoint, routes, *setup.registerParams)
         serverBuilder.routing(routes)
 
@@ -90,13 +90,6 @@ class WebserverExtension : BeforeAllCallback, TestInstancePostProcessor, AfterAl
         val server = serverBuilder.build().start()
         store.put(ItStoreKeys.SERVER, server)
         return server
-    }
-
-    private fun initAuthentication(setup: SetupCapture, routes: HttpRouting.Builder) {
-        val resolver = setup.instances[AuthenticationResolver::class.java] as? AuthenticationResolver
-            ?: setup.authResolver
-
-        routes.addFilter(AuthenticationFilter(resolver))
     }
 
     private fun stopServer(store: ExtensionContext.Store) {
