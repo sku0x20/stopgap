@@ -77,6 +77,21 @@ Every module is optional.
 Requires JDK 25+ and Kotlin 2.4. See [`app/build.gradle.kts`](app/build.gradle.kts) for a complete setup.
 
 ```kotlin
+// settings.gradle.kts
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+```
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("dev.sku20.stopgap") version "3.1.0"
+}
+
 dependencies {
     implementation("dev.sku20.stopgap:ir:3.1.0")
     ksp("dev.sku20.stopgap:ir:3.1.0")
