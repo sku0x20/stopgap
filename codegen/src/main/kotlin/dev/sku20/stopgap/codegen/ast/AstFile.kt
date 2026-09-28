@@ -4,4 +4,4 @@ data class AstFile(
     val packageName: String,
     val imports: List<AstImport>,
     val content: List<AstElement>
-)
+) : AstElement
