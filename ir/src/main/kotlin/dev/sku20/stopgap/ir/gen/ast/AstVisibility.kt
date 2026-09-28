@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.ir.gen.ast
 
-enum class KVisibility {
+enum class AstVisibility {
     Public,
     Private,
 }
