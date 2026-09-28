@@ -5,5 +5,5 @@ data class AstFunction (
     val visibility: AstVisibility,
     val params: List<AstParam>,
     val returnType: AstType,
-    val content: List<AstDeclarable>,
-) : AstDeclarable
+    val content: List<AstStatement>,
+) : AstDeclarable, AstStatement
