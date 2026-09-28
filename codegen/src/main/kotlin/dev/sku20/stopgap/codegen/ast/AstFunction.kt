@@ -4,4 +4,4 @@ data class AstFunction (
     val name: String,
     val visibility: AstVisibility,
     val params: List<AstParam>,
-) : AstElement
+) : AstDeclarable
