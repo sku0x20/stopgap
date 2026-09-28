@@ -4,4 +4,4 @@ data class AstParam(
     val name: String,
     val type: AstType,
     val annotations: List<AstAnnotation>
-)
+) : AstElement
