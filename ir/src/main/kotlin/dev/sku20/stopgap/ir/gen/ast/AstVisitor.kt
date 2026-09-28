@@ -5,5 +5,4 @@ interface AstVisitor {
     fun visitParam(param: AstParam)
     fun visitType(type: AstType)
     fun visitAnnotation(annotation: AstAnnotation)
-    fun visitVisibility(visibility: AstVisibility)
 }
