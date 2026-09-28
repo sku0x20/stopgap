@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.ir.gen.ast
+package dev.sku20.stopgap.codegen.ast
 
 data class AstParam(
     val name: String,
