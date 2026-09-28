@@ -7,8 +7,4 @@ interface AstVisitor {
     fun visitParam(param: AstParam)
     fun visitType(type: AstType)
     fun visitAnnotation(annotation: AstAnnotation)
-    fun visitReturn(ret: AstReturn)
-    fun visitCall(call: AstCall)
-    fun visitLiteral(literal: AstLiteral)
-    fun visitReference(reference: AstReference)
 }
