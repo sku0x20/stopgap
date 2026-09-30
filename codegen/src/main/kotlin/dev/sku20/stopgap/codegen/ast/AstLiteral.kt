@@ -1,5 +1,5 @@
 package dev.sku20.stopgap.codegen.ast
 
-data class AstLiteral<T>(
-    val value: T,
+data class AstLiteral(
+    val value: String,
 ) : AstExpression
