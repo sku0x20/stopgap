@@ -8,9 +8,9 @@ Bare-minimum AST for codegen output. There are endless ways to model an AST; thi
 
 Open idea: distill every other node into these two, so the printer only has to know them.
 
-## Names as expressions
+## Reusing expressions
 
-Names are `AstExpression` so the generator declares each once as a node and reuses it everywhere, making each name a single edit.
+Fields take `AstExpression` rather than `String`, even for plain names, so any node can be built once and reused across the tree, for consistency and deduplication.
 
 ## Deliberate shortcuts
 
