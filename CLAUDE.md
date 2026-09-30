@@ -27,3 +27,14 @@
 ## Tool Usage
 - Web search, doc fetching, etc. can be done without asking permission first.
 - Keep confirmation prompts for external/destructive tools minimal — only ask when the risk is genuinely high.
+
+## IntelliJ MCP Tools
+- When `mcp__idea__*` tools are available, prefer them for semantic work:
+  - Renames: `rename_refactoring`, not multi-file `Edit`/`sed`.
+  - Symbol lookup / usages / call sites: `search_symbol`, `get_symbol_info`, `analyze_calls` over `Grep`.
+  - Error checks after edits: `get_file_problems` or `mcp__ide__getDiagnostics` before a full Gradle build; `build_project` for cross-module checks.
+  - Tests: `execute_run_configuration` when a matching config exists.
+  - Formatting: `reformat_file`.
+- Chain them for refactors, e.g. `search_symbol` → `analyze_calls` → `rename_refactoring` → `get_file_problems`.
+- Keep `Read`/`Edit`/`Grep` for plain reading, small edits, and non-symbol text search.
+- Fall back to standard tools if the IDE isn't connected or a call fails.
