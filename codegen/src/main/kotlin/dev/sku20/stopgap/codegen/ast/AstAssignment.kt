@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.codegen.ast
 
 data class AstAssignment(
-    val name: String,
+    val name: AstExpression,
     val type: VariableType,
     val value: AstExpression,
 ) : AstExpression
