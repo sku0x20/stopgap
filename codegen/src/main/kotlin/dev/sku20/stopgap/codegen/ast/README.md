@@ -10,7 +10,7 @@ Open idea: distill every other node into these two, so the printer only has to k
 
 ## Names as expressions
 
-A name that is later used as an expression (a param or variable referenced in a call or assignment) is typed `AstExpression`, even when it is really just an identifier. The generator declares it once as a node, e.g. `val item = AstLiteral("item")`, and reuses that node everywhere, with no `AstLiteral(...)` wrapping at use sites.
+Names are `AstExpression` so the generator declares each once as a node and reuses it everywhere, making each name a single edit.
 
 ## Deliberate shortcuts
 
