@@ -8,6 +8,10 @@ Bare-minimum AST for codegen output. There are endless ways to model an AST; thi
 
 Open idea: distill every other node into these two, so the printer only has to know them.
 
+## Names as expressions
+
+A name that is later used as an expression (a param or variable referenced in a call or assignment) is typed `AstExpression`, even when it is really just an identifier. The generator declares it once as a node, e.g. `val item = AstLiteral("item")`, and reuses that node everywhere, with no `AstLiteral(...)` wrapping at use sites. Names that never appear as expressions, like `AstReturn.label`, stay `String`.
+
 ## Deliberate shortcuts
 
 The model is intentionally imprecise. Fix these only when there is a real need:
