@@ -57,7 +57,7 @@ class AstPrinter(
         }
         write(" {")
         writeln()
-        writeSeparated(node.content, "\n")
+        writeLnSeparated(node.content)
         writeln()
         write("}")
     }
@@ -101,6 +101,8 @@ class AstPrinter(
     }
 
     private fun writeCommaSeparated(items: List<AstExpression>) = writeSeparated(items, ", ")
+
+    private fun writeLnSeparated(items: List<AstExpression>) = writeSeparated(items, "\n")
 
     private fun writeSeparated(
         items: List<AstExpression>,
