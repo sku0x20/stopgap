@@ -53,7 +53,7 @@ class AstPrinter(
     }
 
     override fun visitType(node: AstType) {
-        TODO("Not yet implemented")
+        write(node.fqn)
     }
 
     private fun write(text: String) {
