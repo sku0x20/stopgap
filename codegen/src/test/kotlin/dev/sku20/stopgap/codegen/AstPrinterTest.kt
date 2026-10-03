@@ -112,34 +112,29 @@ class AstPrinterTest {
     }
 
     @Test
-    fun astAssignmentVal() {
-        val assignment = AstAssignment(AstLiteral("a"), VariableType.VAL, AstLiteral("1"))
-        printer.visitAssignment(assignment)
-
+    fun astAssignment() {
+        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.VAL, AstLiteral("1")))
         assertOutput("val a = 1")
-    }
 
-    @Test
-    fun astAssignmentVar() {
-        val assignment = AstAssignment(AstLiteral("a"), VariableType.VAR, AstLiteral("1"))
-        printer.visitAssignment(assignment)
+        out.reset()
 
+        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.VAR, AstLiteral("1")))
         assertOutput("var a = 1")
-    }
 
-    @Test
-    fun astAssignmentLateinit() {
-        val assignment = AstAssignment(AstLiteral("a"), VariableType.LATEINIT_VAR, AstType("String", "kotlin.String"))
-        printer.visitAssignment(assignment)
+        out.reset()
 
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                VariableType.LATEINIT_VAR,
+                AstType("String", "kotlin.String")
+            )
+        )
         assertOutput("lateinit var a: kotlin.String")
-    }
 
-    @Test
-    fun astAssignmentEmpty() {
-        val assignment = AstAssignment(AstLiteral("a"), VariableType.EMPTY, AstLiteral("1"))
-        printer.visitAssignment(assignment)
+        out.reset()
 
+        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.EMPTY, AstLiteral("1")))
         assertOutput("a = 1")
     }
 
