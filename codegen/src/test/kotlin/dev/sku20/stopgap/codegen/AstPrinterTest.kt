@@ -48,7 +48,7 @@ class AstPrinterTest {
 
     @Test
     fun astType() {
-        val type = AstType("String", "kotlin.String")
+        val type = AstType("kotlin.String")
         printer.visitType(type)
 
         assertOutput("kotlin.String")
@@ -64,7 +64,7 @@ class AstPrinterTest {
         printer.visitParam(
             AstParam(
                 AstLiteral("a"),
-                AstType("String", "kotlin.String")
+                AstType("kotlin.String")
             )
         )
         assertOutput("a: kotlin.String")
@@ -138,7 +138,7 @@ class AstPrinterTest {
         printer.visitAssignment(
             AstAssignment(
                 AstLiteral("a"),
-                AstType("String", "kotlin.String"),
+                AstType("kotlin.String"),
                 VariableType.LATEINIT_VAR
             )
         )
@@ -186,7 +186,7 @@ class AstPrinterTest {
                 "f",
                 emptyList(),
                 listOf(AstLiteral("x")),
-                AstType("String", "kotlin.String")
+                AstType("kotlin.String")
             )
         )
         assertOutput(
