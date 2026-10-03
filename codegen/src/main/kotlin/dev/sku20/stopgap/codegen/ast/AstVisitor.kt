@@ -13,15 +13,15 @@ interface AstVisitor {
     fun visitType(node: AstType)
 }
 
-fun AstExpression.accept(visitor: AstVisitor) = when (this) {
-    is AstAssignment -> visitor.visitAssignment(this)
-    is AstCall -> visitor.visitCall(this)
-    is AstFile -> visitor.visitFile(this)
-    is AstFunction -> visitor.visitFunction(this)
-    is AstLambda -> visitor.visitLambda(this)
-    is AstLiteral -> visitor.visitLiteral(this)
-    is AstParam -> visitor.visitParam(this)
-    is AstReturn -> visitor.visitReturn(this)
-    is AstStringLiteral -> visitor.visitStringLiteral(this)
-    is AstType -> visitor.visitType(this)
+fun AstVisitor.visit(node: AstExpression) = when (node) {
+    is AstAssignment -> visitAssignment(node)
+    is AstCall -> visitCall(node)
+    is AstFile -> visitFile(node)
+    is AstFunction -> visitFunction(node)
+    is AstLambda -> visitLambda(node)
+    is AstLiteral -> visitLiteral(node)
+    is AstParam -> visitParam(node)
+    is AstReturn -> visitReturn(node)
+    is AstStringLiteral -> visitStringLiteral(node)
+    is AstType -> visitType(node)
 }

@@ -17,7 +17,7 @@ class AstPrinter(
 
     override fun visitFile(node: AstFile) {
         write("package ")
-        node.packageName.accept(this)
+        visit(node.packageName)
         writeln()
     }
 
