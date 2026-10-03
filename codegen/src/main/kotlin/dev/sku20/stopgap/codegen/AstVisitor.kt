@@ -2,6 +2,7 @@ package dev.sku20.stopgap.codegen
 
 import dev.sku20.stopgap.codegen.ast.AstAssignment
 import dev.sku20.stopgap.codegen.ast.AstCall
+import dev.sku20.stopgap.codegen.ast.AstExpression
 import dev.sku20.stopgap.codegen.ast.AstFile
 import dev.sku20.stopgap.codegen.ast.AstFunction
 import dev.sku20.stopgap.codegen.ast.AstImport
@@ -24,4 +25,18 @@ interface AstVisitor {
     fun visitReturn(node: AstReturn)
     fun visitStringLiteral(node: AstStringLiteral)
     fun visitType(node: AstType)
+
+    fun AstExpression.accept() = when (this) {
+        is AstAssignment -> visitAssignment(this)
+        is AstCall -> visitCall(this)
+        is AstFile -> visitFile(this)
+        is AstFunction -> visitFunction(this)
+        is AstImport -> visitImport(this)
+        is AstLambda -> visitLambda(this)
+        is AstLiteral -> visitLiteral(this)
+        is AstParam -> visitParam(this)
+        is AstReturn -> visitReturn(this)
+        is AstStringLiteral -> visitStringLiteral(this)
+        is AstType -> visitType(this)
+    }
 }
