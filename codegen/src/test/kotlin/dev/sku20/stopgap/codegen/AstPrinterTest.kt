@@ -231,6 +231,25 @@ class AstPrinterTest {
             }
             """.trimIndent()
         )
+
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                listOf(AstParam(AstLiteral("a"), AstLiteral("T"))),
+                listOf(AstLiteral("x")),
+                null,
+                listOf(AstLiteral("T"))
+            )
+        )
+        assertOutput(
+            """
+            fun <T> f(a: T) {
+            x
+            }
+            """.trimIndent()
+        )
     }
 
     @Test

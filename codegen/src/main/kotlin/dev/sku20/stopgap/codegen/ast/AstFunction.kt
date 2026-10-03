@@ -5,4 +5,5 @@ data class AstFunction(
     val parameters: List<AstParam>,
     val content: List<AstExpression>,
     val returnType: AstType? = null,
+    val typeArguments: List<AstExpression> = emptyList(),
 ) : AstExpression

@@ -48,6 +48,10 @@ class AstPrinter(
 
     override fun visitFunction(node: AstFunction) {
         write("fun ")
+        if (node.typeArguments.isNotEmpty()) {
+            writeTypeArguments(node.typeArguments)
+            write(" ")
+        }
         write(node.name)
         write("(")
         writeCommaSeparated(node.parameters)
