@@ -93,6 +93,13 @@ class AstPrinter(
         }
     }
 
+    override fun visitCatch(node: AstCatch) {
+        write("catch (")
+        visit(node.parameter)
+        write(") ")
+        writeBlock(node.content)
+    }
+
     override fun visitContinue(node: AstContinue) {
         write("continue")
         writeLabel(node.label)
@@ -159,6 +166,19 @@ class AstPrinter(
     override fun visitThrow(node: AstThrow) {
         write("throw ")
         visit(node.value)
+    }
+
+    override fun visitTry(node: AstTry) {
+        write("try ")
+        writeBlock(node.content)
+        for (astCatch in node.astCatch) {
+            write(" ")
+            visit(astCatch)
+        }
+        if (node.finallyContent.isNotEmpty()) {
+            write(" finally ")
+            writeBlock(node.finallyContent)
+        }
     }
 
     override fun visitType(node: AstType) {

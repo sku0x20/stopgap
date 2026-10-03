@@ -182,6 +182,68 @@ class AstPrinterTest {
     }
 
     @Test
+    fun astCatch() {
+        printer.visitCatch(
+            AstCatch(
+                AstParam(AstLiteral("e"), AstLiteral("E")),
+                listOf(AstLiteral("x"))
+            )
+        )
+        assertOutput(
+            """
+            catch (e: E) {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astTry() {
+        printer.visitTry(
+            AstTry(
+                listOf(AstLiteral("x")),
+                finallyContent = listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            try {
+            x
+            } finally {
+            z
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitTry(
+            AstTry(
+                listOf(AstLiteral("x")),
+                listOf(
+                    AstCatch(AstLiteral("a: A"), listOf(AstLiteral("y"))),
+                    AstCatch(AstLiteral("b: B"), listOf(AstLiteral("w")))
+                ),
+                listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            try {
+            x
+            } catch (a: A) {
+            y
+            } catch (b: B) {
+            w
+            } finally {
+            z
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun astAssignment() {
         printer.visitAssignment(
             AstAssignment(
