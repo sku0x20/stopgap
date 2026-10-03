@@ -2,6 +2,7 @@ package dev.sku20.stopgap.codegen
 
 import dev.sku20.stopgap.codegen.ast.AstAssignment
 import dev.sku20.stopgap.codegen.ast.AstCall
+import dev.sku20.stopgap.codegen.ast.AstFile
 import dev.sku20.stopgap.codegen.ast.AstFunction
 import dev.sku20.stopgap.codegen.ast.AstImport
 import dev.sku20.stopgap.codegen.ast.AstLambda
@@ -14,6 +15,7 @@ import dev.sku20.stopgap.codegen.ast.AstType
 interface AstVisitor {
     fun visitAssignment(node: AstAssignment)
     fun visitCall(node: AstCall)
+    fun visitFile(node: AstFile)
     fun visitFunction(node: AstFunction)
     fun visitImport(node: AstImport)
     fun visitLambda(node: AstLambda)
