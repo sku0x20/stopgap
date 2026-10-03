@@ -318,7 +318,7 @@ class AstPrinterTest {
             AstIf(
                 AstLiteral("c"),
                 listOf(AstLiteral("x")),
-                listOf(AstLiteral("y"))
+                listOf(AstElse(content = listOf(AstLiteral("y"))))
             )
         )
         assertOutput(
@@ -338,11 +338,8 @@ class AstPrinterTest {
                 AstLiteral("c"),
                 listOf(AstLiteral("x")),
                 listOf(
-                    AstIf(
-                        AstLiteral("d"),
-                        listOf(AstLiteral("y")),
-                        listOf(AstLiteral("z"))
-                    )
+                    AstElse(AstLiteral("d"), listOf(AstLiteral("y"))),
+                    AstElse(content = listOf(AstLiteral("z")))
                 )
             )
         )
@@ -354,6 +351,29 @@ class AstPrinterTest {
             y
             } else {
             z
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astElse() {
+        printer.visitElse(AstElse(content = listOf(AstLiteral("x"))))
+        assertOutput(
+            """
+            else {
+            x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitElse(AstElse(AstLiteral("c"), listOf(AstLiteral("x"))))
+        assertOutput(
+            """
+            else if (c) {
+            x
             }
             """.trimIndent()
         )

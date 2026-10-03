@@ -72,13 +72,20 @@ class AstPrinter(
         visit(node.condition)
         write(") ")
         writeBlock(node.content)
-        if (node.elseContent.size == 1 && node.elseContent[0] is AstIf) {
-            write(" else ")
-            visit(node.elseContent[0])
-        } else if (node.elseContent.isNotEmpty()) {
-            write(" else ")
-            writeBlock(node.elseContent)
+        for (astElse in node.astElse) {
+            write(" ")
+            visit(astElse)
         }
+    }
+
+    override fun visitElse(node: AstElse) {
+        write("else ")
+        if (node.condition != null) {
+            write("if (")
+            visit(node.condition)
+            write(") ")
+        }
+        writeBlock(node.content)
     }
 
     private fun writeBlock(content: List<AstExpression>) {
