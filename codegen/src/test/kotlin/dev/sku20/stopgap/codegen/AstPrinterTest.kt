@@ -28,8 +28,7 @@ class AstPrinterTest {
         )
         printer.visitFile(file)
 
-        assertThat(out.toString())
-            .isEqualTo("package dev.sku20.example\n")
+        assertOutput("package dev.sku20.example\n")
     }
 
     @Test
@@ -40,16 +39,15 @@ class AstPrinterTest {
         )
         printer.visitFile(file)
 
-        assertThat(out.toString())
-            .isEqualTo(
-                """
-                package dev.sku20.example
+        assertOutput(
+            """
+            package dev.sku20.example
 
-                a
+            a
 
-                b
-                """.trimIndent() + "\n"
-            )
+            b
+            """.trimIndent() + "\n"
+        )
     }
 
     @Test
@@ -57,8 +55,7 @@ class AstPrinterTest {
         val literal = AstLiteral("42")
         printer.visitLiteral(literal)
 
-        assertThat(out.toString())
-            .isEqualTo("42")
+        assertOutput("42")
     }
 
     @Test
@@ -66,8 +63,7 @@ class AstPrinterTest {
         val literal = AstStringLiteral("hello")
         printer.visitStringLiteral(literal)
 
-        assertThat(out.toString())
-            .isEqualTo("\"hello\"")
+        assertOutput("\"hello\"")
     }
 
     @Test
@@ -75,8 +71,7 @@ class AstPrinterTest {
         val type = AstType("String", "kotlin.String")
         printer.visitType(type)
 
-        assertThat(out.toString())
-            .isEqualTo("String")
+        assertOutput("String")
     }
 
     @Test
@@ -84,8 +79,7 @@ class AstPrinterTest {
         val type = AstType("Builder", "io.helidon.webserver.http.HttpRouting.Builder", "RoutingBuilder")
         printer.visitType(type)
 
-        assertThat(out.toString())
-            .isEqualTo("RoutingBuilder")
+        assertOutput("RoutingBuilder")
     }
 
     @Test
@@ -93,8 +87,7 @@ class AstPrinterTest {
         val param = AstParam(AstLiteral("a"))
         printer.visitParam(param)
 
-        assertThat(out.toString())
-            .isEqualTo("a")
+        assertOutput("a")
     }
 
     @Test
@@ -102,8 +95,7 @@ class AstPrinterTest {
         val param = AstParam(AstLiteral("a"), AstType("String", "kotlin.String"))
         printer.visitParam(param)
 
-        assertThat(out.toString())
-            .isEqualTo("a: String")
+        assertOutput("a: String")
     }
 
     @Test
@@ -111,8 +103,7 @@ class AstPrinterTest {
         val call = AstCall(AstLiteral("f"), listOf(AstLiteral("a"), AstLiteral("b")))
         printer.visitCall(call)
 
-        assertThat(out.toString())
-            .isEqualTo("f(a, b)")
+        assertOutput("f(a, b)")
     }
 
     @Test
@@ -120,8 +111,7 @@ class AstPrinterTest {
         val call = AstCall(AstLiteral("f"), listOf(AstLiteral("a")), AstLiteral("r"))
         printer.visitCall(call)
 
-        assertThat(out.toString())
-            .isEqualTo("r.f(a)")
+        assertOutput("r.f(a)")
     }
 
     @Test
@@ -129,8 +119,7 @@ class AstPrinterTest {
         val ret = AstReturn()
         printer.visitReturn(ret)
 
-        assertThat(out.toString())
-            .isEqualTo("return")
+        assertOutput("return")
     }
 
     @Test
@@ -138,8 +127,7 @@ class AstPrinterTest {
         val ret = AstReturn(AstLiteral("a"))
         printer.visitReturn(ret)
 
-        assertThat(out.toString())
-            .isEqualTo("return a")
+        assertOutput("return a")
     }
 
     @Test
@@ -147,8 +135,7 @@ class AstPrinterTest {
         val ret = AstReturn(label = AstLiteral("l"))
         printer.visitReturn(ret)
 
-        assertThat(out.toString())
-            .isEqualTo("return@l")
+        assertOutput("return@l")
     }
 
     @Test
@@ -156,8 +143,7 @@ class AstPrinterTest {
         val ret = AstReturn(AstLiteral("a"), AstLiteral("l"))
         printer.visitReturn(ret)
 
-        assertThat(out.toString())
-            .isEqualTo("return@l a")
+        assertOutput("return@l a")
     }
 
     @Test
@@ -165,8 +151,7 @@ class AstPrinterTest {
         val assignment = AstAssignment(AstLiteral("a"), VariableType.VAL, AstLiteral("1"))
         printer.visitAssignment(assignment)
 
-        assertThat(out.toString())
-            .isEqualTo("val a = 1")
+        assertOutput("val a = 1")
     }
 
     @Test
@@ -174,8 +159,7 @@ class AstPrinterTest {
         val assignment = AstAssignment(AstLiteral("a"), VariableType.VAR, AstLiteral("1"))
         printer.visitAssignment(assignment)
 
-        assertThat(out.toString())
-            .isEqualTo("var a = 1")
+        assertOutput("var a = 1")
     }
 
     @Test
@@ -183,8 +167,7 @@ class AstPrinterTest {
         val assignment = AstAssignment(AstLiteral("a"), VariableType.LATEINIT_VAR, AstType("String", "kotlin.String"))
         printer.visitAssignment(assignment)
 
-        assertThat(out.toString())
-            .isEqualTo("lateinit var a: String")
+        assertOutput("lateinit var a: String")
     }
 
     @Test
@@ -192,8 +175,7 @@ class AstPrinterTest {
         val assignment = AstAssignment(AstLiteral("a"), VariableType.EMPTY, AstLiteral("1"))
         printer.visitAssignment(assignment)
 
-        assertThat(out.toString())
-            .isEqualTo("a = 1")
+        assertOutput("a = 1")
     }
 
     @Test
@@ -205,15 +187,14 @@ class AstPrinterTest {
         )
         printer.visitFunction(function)
 
-        assertThat(out.toString())
-            .isEqualTo(
-                """
-                fun f(a, b) {
-                    x
-                    y
-                }
-                """.trimIndent()
-            )
+        assertOutput(
+            """
+            fun f(a, b) {
+                x
+                y
+            }
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -226,14 +207,13 @@ class AstPrinterTest {
         )
         printer.visitFunction(function)
 
-        assertThat(out.toString())
-            .isEqualTo(
-                """
-                fun f(): String {
-                    x
-                }
-                """.trimIndent()
-            )
+        assertOutput(
+            """
+            fun f(): String {
+                x
+            }
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -244,15 +224,14 @@ class AstPrinterTest {
         )
         printer.visitLambda(lambda)
 
-        assertThat(out.toString())
-            .isEqualTo(
-                """
-                { a, b ->
-                    x
-                    y
-                }
-                """.trimIndent()
-            )
+        assertOutput(
+            """
+            { a, b ->
+                x
+                y
+            }
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -260,14 +239,13 @@ class AstPrinterTest {
         val lambda = AstLambda(emptyList(), listOf(AstLiteral("x")))
         printer.visitLambda(lambda)
 
-        assertThat(out.toString())
-            .isEqualTo(
-                """
-                {
-                    x
-                }
-                """.trimIndent()
-            )
+        assertOutput(
+            """
+            {
+                x
+            }
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -279,16 +257,20 @@ class AstPrinterTest {
         )
         printer.visitFunction(function)
 
+        assertOutput(
+            """
+            fun f() {
+                run({
+                    x
+                })
+            }
+            """.trimIndent()
+        )
+    }
+
+    private fun assertOutput(expected: String) {
         assertThat(out.toString())
-            .isEqualTo(
-                """
-                fun f() {
-                    run({
-                        x
-                    })
-                }
-                """.trimIndent()
-            )
+            .isEqualTo(expected)
     }
 
 }
