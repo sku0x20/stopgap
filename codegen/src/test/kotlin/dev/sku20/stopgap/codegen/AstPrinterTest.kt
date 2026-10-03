@@ -157,13 +157,13 @@ class AstPrinterTest {
 
     @Test
     fun astFunction() {
-        val function = AstFunction(
-            "f",
-            listOf(AstParam(AstLiteral("a")), AstParam(AstLiteral("b"))),
-            listOf(AstLiteral("x"), AstLiteral("y"))
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                listOf(AstParam(AstLiteral("a")), AstParam(AstLiteral("b"))),
+                listOf(AstLiteral("x"), AstLiteral("y"))
+            )
         )
-        printer.visitFunction(function)
-
         assertOutput(
             """
             fun f(a, b) {
@@ -172,18 +172,17 @@ class AstPrinterTest {
             }
             """.trimIndent()
         )
-    }
 
-    @Test
-    fun astFunctionReturnType() {
-        val function = AstFunction(
-            "f",
-            emptyList(),
-            listOf(AstLiteral("x")),
-            AstType("String", "kotlin.String")
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                emptyList(),
+                listOf(AstLiteral("x")),
+                AstType("String", "kotlin.String")
+            )
         )
-        printer.visitFunction(function)
-
         assertOutput(
             """
             fun f(): kotlin.String {
