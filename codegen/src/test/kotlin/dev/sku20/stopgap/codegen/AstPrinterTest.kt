@@ -474,6 +474,28 @@ class AstPrinterTest {
     }
 
     @Test
+    fun astFor() {
+        printer.visitFor(
+            AstFor(
+                AstLiteral("i"),
+                AstLiteral("xs"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            for (i in xs) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun astWhile() {
         printer.visitWhile(
             AstWhile(

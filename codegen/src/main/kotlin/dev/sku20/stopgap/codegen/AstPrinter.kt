@@ -46,6 +46,15 @@ class AstPrinter(
         writeln()
     }
 
+    override fun visitFor(node: AstFor) {
+        write("for (")
+        visit(node.item)
+        write(" in ")
+        visit(node.iterable)
+        write(") ")
+        writeBlock(node.content)
+    }
+
     override fun visitFunction(node: AstFunction) {
         write("fun ")
         if (node.typeArguments.isNotEmpty()) {
