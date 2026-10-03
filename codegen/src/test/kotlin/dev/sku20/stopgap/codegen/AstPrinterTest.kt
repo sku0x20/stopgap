@@ -160,8 +160,14 @@ class AstPrinterTest {
         printer.visitFunction(
             AstFunction(
                 "f",
-                listOf(AstParam(AstLiteral("a")), AstParam(AstLiteral("b"))),
-                listOf(AstLiteral("x"), AstLiteral("y"))
+                listOf(
+                    AstParam(AstLiteral("a")),
+                    AstParam(AstLiteral("b"))
+                ),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
             )
         )
         assertOutput(
