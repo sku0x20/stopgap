@@ -200,12 +200,18 @@ class AstPrinterTest {
 
     @Test
     fun astLambda() {
-        val lambda = AstLambda(
-            listOf(AstParam(AstLiteral("a")), AstParam(AstLiteral("b"))),
-            listOf(AstLiteral("x"), AstLiteral("y"))
+        printer.visitLambda(
+            AstLambda(
+                listOf(
+                    AstParam(AstLiteral("a")),
+                    AstParam(AstLiteral("b"))
+                ),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
         )
-        printer.visitLambda(lambda)
-
         assertOutput(
             """
             { a, b ->
@@ -214,13 +220,15 @@ class AstPrinterTest {
             }
             """.trimIndent()
         )
-    }
 
-    @Test
-    fun astLambdaNoParams() {
-        val lambda = AstLambda(emptyList(), listOf(AstLiteral("x")))
-        printer.visitLambda(lambda)
+        out.reset()
 
+        printer.visitLambda(
+            AstLambda(
+                emptyList(),
+                listOf(AstLiteral("x"))
+            )
+        )
         assertOutput(
             """
             {
