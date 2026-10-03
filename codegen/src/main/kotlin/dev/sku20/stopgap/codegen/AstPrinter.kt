@@ -12,7 +12,19 @@ class AstPrinter(
     }
 
     override fun visitCall(node: AstCall) {
-        TODO("Not yet implemented")
+        if (node.receiver != null) {
+            visit(node.receiver)
+            write(".")
+        }
+        visit(node.name)
+        write("(")
+        for ((index, argument) in node.arguments.withIndex()) {
+            if (index > 0) {
+                write(", ")
+            }
+            visit(argument)
+        }
+        write(")")
     }
 
     override fun visitFile(node: AstFile) {
