@@ -35,7 +35,8 @@ class AstPrinterTest {
             a
 
             b
-            """.trimIndent() + "\n"
+
+            """.trimIndent()
         )
     }
 
