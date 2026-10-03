@@ -60,7 +60,15 @@ class AstPrinter(
     }
 
     override fun visitReturn(node: AstReturn) {
-        TODO("Not yet implemented")
+        write("return")
+        if (node.label != null) {
+            write("@")
+            visit(node.label)
+        }
+        if (node.value != null) {
+            write(" ")
+            visit(node.value)
+        }
     }
 
     override fun visitStringLiteral(node: AstStringLiteral) {
