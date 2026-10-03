@@ -66,17 +66,12 @@ class AstPrinterTest {
 
     @Test
     fun astParam() {
-        val param = AstParam(AstLiteral("a"))
-        printer.visitParam(param)
-
+        printer.visitParam(AstParam(AstLiteral("a")))
         assertOutput("a")
-    }
 
-    @Test
-    fun astParamTyped() {
-        val param = AstParam(AstLiteral("a"), AstType("String", "kotlin.String"))
-        printer.visitParam(param)
+        out.reset()
 
+        printer.visitParam(AstParam(AstLiteral("a"), AstType("String", "kotlin.String")))
         assertOutput("a: kotlin.String")
     }
 
