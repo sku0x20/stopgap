@@ -113,12 +113,24 @@ class AstPrinterTest {
 
     @Test
     fun astAssignment() {
-        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.VAL, AstLiteral("1")))
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                VariableType.VAL,
+                AstLiteral("1")
+            )
+        )
         assertOutput("val a = 1")
 
         out.reset()
 
-        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.VAR, AstLiteral("1")))
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                VariableType.VAR,
+                AstLiteral("1")
+            )
+        )
         assertOutput("var a = 1")
 
         out.reset()
@@ -134,7 +146,13 @@ class AstPrinterTest {
 
         out.reset()
 
-        printer.visitAssignment(AstAssignment(AstLiteral("a"), VariableType.EMPTY, AstLiteral("1")))
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                VariableType.EMPTY,
+                AstLiteral("1")
+            )
+        )
         assertOutput("a = 1")
     }
 
