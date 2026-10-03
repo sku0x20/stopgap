@@ -32,7 +32,7 @@ class AstPrinter(
         }
         visit(node.name)
         write("(")
-        writeList(node.arguments)
+        writeJoined(node.arguments)
         write(")")
     }
 
@@ -51,7 +51,7 @@ class AstPrinter(
         write("fun ")
         write(node.name)
         write("(")
-        writeList(node.parameters)
+        writeJoined(node.parameters)
         write(")")
         if (node.returnType != null) {
             write(": ")
@@ -104,7 +104,7 @@ class AstPrinter(
         write(node.fqn)
     }
 
-    private fun writeList(items: List<AstExpression>) {
+    private fun writeJoined(items: List<AstExpression>) {
         if (items.isNotEmpty()) {
             visit(items[0])
             for (index in 1 until items.size) {
