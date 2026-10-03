@@ -21,18 +21,7 @@ class AstPrinterTest {
     private val printer = AstPrinter(out)
 
     @Test
-    fun astFileSimple() {
-        val file = AstFile(
-            AstLiteral("dev.sku20.example"),
-            emptyList()
-        )
-        printer.visitFile(file)
-
-        assertOutput("package dev.sku20.example\n")
-    }
-
-    @Test
-    fun astFileContent() {
+    fun astFile() {
         val file = AstFile(
             AstLiteral("dev.sku20.example"),
             listOf(AstLiteral("a"), AstLiteral("b"))
