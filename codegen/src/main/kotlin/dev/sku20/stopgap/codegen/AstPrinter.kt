@@ -63,7 +63,16 @@ class AstPrinter(
     }
 
     override fun visitLambda(node: AstLambda) {
-        TODO("Not yet implemented")
+        write("{")
+        if (node.parameters.isNotEmpty()) {
+            write(" ")
+            writeCommaSeparated(node.parameters)
+            write(" ->")
+        }
+        writeln()
+        writeLnSeparated(node.content)
+        writeln()
+        write("}")
     }
 
     override fun visitLiteral(node: AstLiteral) {
