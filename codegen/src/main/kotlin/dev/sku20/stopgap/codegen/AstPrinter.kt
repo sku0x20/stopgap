@@ -104,11 +104,16 @@ class AstPrinter(
         write(node.fqn)
     }
 
-    private fun writeCommaSeparated(items: List<AstExpression>) {
+    private fun writeCommaSeparated(items: List<AstExpression>) = writeSeparated(items, ", ")
+
+    private fun writeSeparated(
+        items: List<AstExpression>,
+        separator: String
+    ) {
         if (items.isNotEmpty()) {
             visit(items[0])
             for (index in 1 until items.size) {
-                write(", ")
+                write(separator)
                 visit(items[index])
             }
         }
