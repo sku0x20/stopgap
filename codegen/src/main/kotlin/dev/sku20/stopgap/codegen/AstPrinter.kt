@@ -40,11 +40,9 @@ class AstPrinter(
         write("package ")
         visit(node.packageName)
         writeln()
-        for (item in node.content) {
-            writeln()
-            visit(item)
-            writeln()
-        }
+        writeln()
+        writeSeparated(node.content, "\n\n")
+        writeln()
     }
 
     override fun visitFunction(node: AstFunction) {
@@ -59,10 +57,8 @@ class AstPrinter(
         }
         write(" {")
         writeln()
-        for (item in node.content) {
-            visit(item)
-            writeln()
-        }
+        writeSeparated(node.content, "\n")
+        writeln()
         write("}")
     }
 
