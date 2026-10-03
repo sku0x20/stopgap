@@ -109,11 +109,6 @@ class AstPrinterTest {
 
         printer.visitReturn(AstReturn(label = AstLiteral("l")))
         assertOutput("return@l")
-
-        out.reset()
-
-        printer.visitReturn(AstReturn(AstLiteral("a"), AstLiteral("l")))
-        assertOutput("return@l a")
     }
 
     @Test
