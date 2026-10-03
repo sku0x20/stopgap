@@ -25,7 +25,6 @@ interface AstVisitor {
     fun visitReturn(node: AstReturn)
     fun visitStringLiteral(node: AstStringLiteral)
     fun visitType(node: AstType)
-
 }
 
 fun AstExpression.accept(visitor: AstVisitor) = when (this) {
