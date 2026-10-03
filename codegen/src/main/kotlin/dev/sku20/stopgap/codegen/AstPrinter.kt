@@ -1,8 +1,11 @@
 package dev.sku20.stopgap.codegen
 
 import dev.sku20.stopgap.codegen.ast.*
+import java.io.OutputStream
 
-class AstPrinter : AstVisitor {
+class AstPrinter(
+    private val out: OutputStream,
+) : AstVisitor {
 
     override fun visitAssignment(node: AstAssignment) {
         TODO("Not yet implemented")
