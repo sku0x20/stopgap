@@ -15,6 +15,7 @@ interface AstVisitor {
     fun visitType(node: AstType)
     fun visitWhen(node: AstWhen)
     fun visitWhenBranch(node: AstWhenBranch)
+    fun visitWhile(node: AstWhile)
 }
 
 fun AstVisitor.visit(node: AstExpression) = when (node) {
@@ -32,4 +33,5 @@ fun AstVisitor.visit(node: AstExpression) = when (node) {
     is AstType -> visitType(node)
     is AstWhen -> visitWhen(node)
     is AstWhenBranch -> visitWhenBranch(node)
+    is AstWhile -> visitWhile(node)
 }

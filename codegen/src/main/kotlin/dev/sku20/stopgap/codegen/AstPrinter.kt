@@ -170,6 +170,13 @@ class AstPrinter(
         writeBranchContent(node.content)
     }
 
+    override fun visitWhile(node: AstWhile) {
+        write("while (")
+        visit(node.condition)
+        write(") ")
+        writeBlock(node.content)
+    }
+
     private fun writeBranchContent(content: List<AstExpression>) {
         write(" -> ")
         if (content.size == 1) {

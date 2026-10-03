@@ -473,6 +473,27 @@ class AstPrinterTest {
         )
     }
 
+    @Test
+    fun astWhile() {
+        printer.visitWhile(
+            AstWhile(
+                AstLiteral("c"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            while (c) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOutput(expected: String) {
         assertThat(out.toString())
             .isEqualTo(expected)
