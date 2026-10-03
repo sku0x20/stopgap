@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
-class AstPrinterIntegrationTest {
+class AstPrinterSmokeTest {
 
     @Test
     fun printFile() {
