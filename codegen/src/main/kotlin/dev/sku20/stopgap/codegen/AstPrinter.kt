@@ -42,7 +42,9 @@ class AstPrinter(
     }
 
     override fun visitStringLiteral(node: AstStringLiteral) {
-        TODO("Not yet implemented")
+        write("\"")
+        write(node.value)
+        write("\"")
     }
 
     override fun visitType(node: AstType) {
