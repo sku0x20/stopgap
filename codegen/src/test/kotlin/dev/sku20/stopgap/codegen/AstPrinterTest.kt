@@ -53,8 +53,25 @@ class AstPrinterTest {
 
         out.reset()
 
-        printer.visitType(AstType("kotlin.String", true))
+        printer.visitType(AstType("kotlin.String", emptyList(), true))
         assertOutput("kotlin.String?")
+
+        out.reset()
+
+        printer.visitType(
+            AstType(
+                "kotlin.collections.Map",
+                listOf(
+                    AstType("kotlin.String"),
+                    AstType(
+                        "kotlin.collections.List",
+                        listOf(AstType("kotlin.Int", emptyList(), true))
+                    )
+                ),
+                true
+            )
+        )
+        assertOutput("kotlin.collections.Map<kotlin.String, kotlin.collections.List<kotlin.Int?>>?")
     }
 
     @Test

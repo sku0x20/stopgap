@@ -107,8 +107,17 @@ class AstPrinter(
 
     override fun visitType(node: AstType) {
         write(node.fqn)
+        writeTypeArguments(node.typeArguments)
         if (node.nullable) {
             write("?")
+        }
+    }
+
+    private fun writeTypeArguments(items: List<AstExpression>) {
+        if (items.isNotEmpty()) {
+            write("<")
+            writeCommaSeparated(items)
+            write(">")
         }
     }
 
