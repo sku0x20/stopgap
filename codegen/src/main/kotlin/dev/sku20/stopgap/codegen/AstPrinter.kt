@@ -54,7 +54,29 @@ class AstPrinter(
     }
 
     override fun visitFunction(node: AstFunction) {
-        TODO("Not yet implemented")
+        write("fun ")
+        write(node.name)
+        write("(")
+        if (node.parameters.isNotEmpty()) {
+            visitParam(node.parameters[0])
+            for (index in 1 until node.parameters.size) {
+                write(", ")
+                visitParam(node.parameters[index])
+            }
+        }
+        write(")")
+        if (node.returnType != null) {
+            write(": ")
+            visitType(node.returnType)
+        }
+        write(" {")
+        writeln()
+        for (item in node.content) {
+            write("    ")
+            visit(item)
+            writeln()
+        }
+        write("}")
     }
 
     override fun visitLambda(node: AstLambda) {
