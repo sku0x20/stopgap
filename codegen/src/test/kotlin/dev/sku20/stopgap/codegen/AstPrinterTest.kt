@@ -1,16 +1,6 @@
 package dev.sku20.stopgap.codegen
 
-import dev.sku20.stopgap.codegen.ast.AstAssignment
-import dev.sku20.stopgap.codegen.ast.AstCall
-import dev.sku20.stopgap.codegen.ast.AstFile
-import dev.sku20.stopgap.codegen.ast.AstFunction
-import dev.sku20.stopgap.codegen.ast.AstLambda
-import dev.sku20.stopgap.codegen.ast.AstLiteral
-import dev.sku20.stopgap.codegen.ast.AstParam
-import dev.sku20.stopgap.codegen.ast.AstReturn
-import dev.sku20.stopgap.codegen.ast.AstStringLiteral
-import dev.sku20.stopgap.codegen.ast.AstType
-import dev.sku20.stopgap.codegen.ast.VariableType
+import dev.sku20.stopgap.codegen.ast.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -71,7 +61,12 @@ class AstPrinterTest {
 
         out.reset()
 
-        printer.visitParam(AstParam(AstLiteral("a"), AstType("String", "kotlin.String")))
+        printer.visitParam(
+            AstParam(
+                AstLiteral("a"),
+                AstType("String", "kotlin.String")
+            )
+        )
         assertOutput("a: kotlin.String")
     }
 
