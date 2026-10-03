@@ -72,7 +72,6 @@ class AstPrinter(
         write(" {")
         writeln()
         for (item in node.content) {
-            write("    ")
             visit(item)
             writeln()
         }

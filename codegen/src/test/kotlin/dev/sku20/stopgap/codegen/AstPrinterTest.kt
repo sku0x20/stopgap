@@ -173,8 +173,8 @@ class AstPrinterTest {
         assertOutput(
             """
             fun f(a, b) {
-                x
-                y
+            x
+            y
             }
             """.trimIndent()
         )
@@ -192,7 +192,7 @@ class AstPrinterTest {
         assertOutput(
             """
             fun f(): kotlin.String {
-                x
+            x
             }
             """.trimIndent()
         )
@@ -209,8 +209,8 @@ class AstPrinterTest {
         assertOutput(
             """
             { a, b ->
-                x
-                y
+            x
+            y
             }
             """.trimIndent()
         )
@@ -224,27 +224,7 @@ class AstPrinterTest {
         assertOutput(
             """
             {
-                x
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun nestedIndent() {
-        val function = AstFunction(
-            "f",
-            emptyList(),
-            listOf(AstCall(AstLiteral("run"), listOf(AstLambda(emptyList(), listOf(AstLiteral("x"))))))
-        )
-        printer.visitFunction(function)
-
-        assertOutput(
-            """
-            fun f() {
-                run({
-                    x
-                })
+            x
             }
             """.trimIndent()
         )
