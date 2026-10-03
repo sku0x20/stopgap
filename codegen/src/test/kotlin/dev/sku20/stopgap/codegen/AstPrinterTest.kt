@@ -293,6 +293,73 @@ class AstPrinterTest {
     }
 
     @Test
+    fun astIf() {
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                listOf(AstLiteral("y"))
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            } else {
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                listOf(
+                    AstIf(
+                        AstLiteral("d"),
+                        listOf(AstLiteral("y")),
+                        listOf(AstLiteral("z"))
+                    )
+                )
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            } else if (d) {
+            y
+            } else {
+            z
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun astWhenBranch() {
         printer.visitWhenBranch(
             AstWhenBranch(

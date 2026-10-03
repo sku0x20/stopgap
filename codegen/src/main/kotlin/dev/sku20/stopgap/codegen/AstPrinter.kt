@@ -67,6 +67,28 @@ class AstPrinter(
         write("}")
     }
 
+    override fun visitIf(node: AstIf) {
+        write("if (")
+        visit(node.condition)
+        write(") ")
+        writeBlock(node.content)
+        if (node.elseContent.size == 1 && node.elseContent[0] is AstIf) {
+            write(" else ")
+            visit(node.elseContent[0])
+        } else if (node.elseContent.isNotEmpty()) {
+            write(" else ")
+            writeBlock(node.elseContent)
+        }
+    }
+
+    private fun writeBlock(content: List<AstExpression>) {
+        write("{")
+        writeln()
+        writeLnSeparated(content)
+        writeln()
+        write("}")
+    }
+
     override fun visitLambda(node: AstLambda) {
         write("{")
         if (node.parameters.isNotEmpty()) {
