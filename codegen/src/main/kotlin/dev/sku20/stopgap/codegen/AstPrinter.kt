@@ -19,6 +19,11 @@ class AstPrinter(
         write("package ")
         visit(node.packageName)
         writeln()
+        node.content.forEach {
+            writeln()
+            visit(it)
+            writeln()
+        }
     }
 
     override fun visitFunction(node: AstFunction) {
