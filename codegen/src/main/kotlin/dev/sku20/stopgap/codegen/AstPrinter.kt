@@ -31,6 +31,7 @@ class AstPrinter(
             write(".")
         }
         visit(node.name)
+        writeTypeArguments(node.typeArguments)
         write("(")
         writeCommaSeparated(node.arguments)
         write(")")

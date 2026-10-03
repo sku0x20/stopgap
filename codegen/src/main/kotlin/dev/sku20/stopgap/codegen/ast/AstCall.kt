@@ -4,4 +4,5 @@ data class AstCall(
     val name: AstExpression,
     val arguments: List<AstExpression>,
     val receiver: AstExpression? = null,
+    val typeArguments: List<AstExpression> = emptyList(),
 ) : AstExpression

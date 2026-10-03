@@ -113,6 +113,21 @@ class AstPrinterTest {
             )
         )
         assertOutput("r.f(a)")
+
+        out.reset()
+
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(AstLiteral("a")),
+                AstLiteral("r"),
+                listOf(
+                    AstType("kotlin.String"),
+                    AstType("kotlin.Int")
+                )
+            )
+        )
+        assertOutput("r.f<kotlin.String, kotlin.Int>(a)")
     }
 
     @Test
