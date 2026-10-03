@@ -8,15 +8,15 @@ import java.io.ByteArrayOutputStream
 
 class AstPrinterTest {
 
+    private val out = ByteArrayOutputStream()
+    private val printer = AstPrinter(out)
+
     @Test
     fun astFileSimple() {
-        val out = ByteArrayOutputStream()
-
         val file = AstFile(
             AstLiteral("dev.sku20.example"),
             emptyList()
         )
-        val printer = AstPrinter(out)
         printer.visitFile(file)
 
         assertThat(out.toString())
@@ -25,10 +25,7 @@ class AstPrinterTest {
 
     @Test
     fun astLiteral() {
-        val out = ByteArrayOutputStream()
-
         val literal = AstLiteral("42")
-        val printer = AstPrinter(out)
         printer.visitLiteral(literal)
 
         assertThat(out.toString())
