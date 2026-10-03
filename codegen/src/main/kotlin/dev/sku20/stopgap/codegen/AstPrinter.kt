@@ -39,7 +39,11 @@ class AstPrinter(
     }
 
     override fun visitParam(node: AstParam) {
-        TODO("Not yet implemented")
+        visit(node.name)
+        node.type?.let {
+            write(": ")
+            visit(it)
+        }
     }
 
     override fun visitReturn(node: AstReturn) {
