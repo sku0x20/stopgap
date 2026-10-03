@@ -58,7 +58,7 @@ class AstPrinter(
         write(")")
         if (node.returnType != null) {
             write(": ")
-            visitType(node.returnType)
+            visit(node.returnType)
         }
         write(" {")
         writeln()

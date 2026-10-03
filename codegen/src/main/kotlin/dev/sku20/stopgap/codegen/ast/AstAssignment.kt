@@ -2,7 +2,7 @@ package dev.sku20.stopgap.codegen.ast
 
 data class AstAssignment(
     val name: AstExpression,
-    val type: AstType? = null,
+    val type: AstExpression? = null,
     val variableType: VariableType? = null,
     val value: AstExpression? = null,
 ) : AstExpression
