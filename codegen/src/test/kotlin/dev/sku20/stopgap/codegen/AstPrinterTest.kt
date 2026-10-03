@@ -19,7 +19,8 @@ class AstPrinterTest {
         val printer = AstPrinter(out)
         printer.visitFile(file)
 
-        assertThat(out.toString()).isEqualTo("package dev.sku20.example\n")
+        assertThat(out.toString())
+            .isEqualTo("package dev.sku20.example\n")
     }
 
 }
