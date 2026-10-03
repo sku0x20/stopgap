@@ -36,39 +36,39 @@ class AuthenticationSymbolProcessor(
         }
     }
 
-    private fun createAstFile(): AstFile {
-        val resolver = AstLiteral("resolver")
-        val routes = AstLiteral("routes")
+    private val resolver = AstLiteral("resolver")
+    private val routes = AstLiteral("routes")
 
+    private fun createAstFile(): AstFile {
         return AstFile(
             AstLiteral(GeneratedNames.PACKAGE),
-            listOf(
-                AstFunction(
-                    "initAuthentication",
-                    listOf(
-                        AstParam(
-                            resolver,
-                            AstType(AuthenticationResolver::class.qualifiedName!!)
-                        ),
-                        AstParam(
-                            routes,
-                            AstType(HttpRouting.Builder::class.qualifiedName!!)
-                        ),
-                    ),
-                    listOf(
-                        AstCall(
-                            AstLiteral("addFilter"),
-                            listOf(
-                                AstCall(
-                                    AstType(AuthenticationFilter::class.qualifiedName!!),
-                                    listOf(resolver)
-                                )
-                            ),
-                            routes
-                        )
-                    )
-                )
-            )
+            listOf(initAuthenticationFn())
         )
     }
+
+    private fun initAuthenticationFn(): AstFunction = AstFunction(
+        "initAuthentication",
+        listOf(
+            AstParam(
+                resolver,
+                AstType(AuthenticationResolver::class.qualifiedName!!)
+            ),
+            AstParam(
+                routes,
+                AstType(HttpRouting.Builder::class.qualifiedName!!)
+            ),
+        ),
+        listOf(
+            AstCall(
+                AstLiteral("addFilter"),
+                listOf(
+                    AstCall(
+                        AstType(AuthenticationFilter::class.qualifiedName!!),
+                        listOf(resolver)
+                    )
+                ),
+                routes
+            )
+        )
+    )
 }
