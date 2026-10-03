@@ -16,7 +16,9 @@ class AstPrinter(
     }
 
     override fun visitFile(node: AstFile) {
-        TODO("Not yet implemented")
+        write("package ")
+        node.packageName.accept(this)
+        write("\n")
     }
 
     override fun visitFunction(node: AstFunction) {
@@ -28,7 +30,7 @@ class AstPrinter(
     }
 
     override fun visitLiteral(node: AstLiteral) {
-        TODO("Not yet implemented")
+        write(node.value)
     }
 
     override fun visitParam(node: AstParam) {
@@ -45,6 +47,10 @@ class AstPrinter(
 
     override fun visitType(node: AstType) {
         TODO("Not yet implemented")
+    }
+
+    private fun write(text: String) {
+        out.write(text.toByteArray())
     }
 
 }
