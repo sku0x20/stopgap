@@ -8,7 +8,21 @@ class AstPrinter(
 ) : AstVisitor {
 
     override fun visitAssignment(node: AstAssignment) {
-        TODO("Not yet implemented")
+        when (node.variableType) {
+            VariableType.VAL -> write("val ")
+            VariableType.VAR -> write("var ")
+            VariableType.LATEINIT_VAR -> write("lateinit var ")
+            null -> {}
+        }
+        visit(node.name)
+        if (node.type != null) {
+            write(": ")
+            visit(node.type)
+        }
+        if (node.value != null) {
+            write(" = ")
+            visit(node.value)
+        }
     }
 
     override fun visitCall(node: AstCall) {
