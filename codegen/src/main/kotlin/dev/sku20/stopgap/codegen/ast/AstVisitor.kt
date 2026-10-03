@@ -2,7 +2,9 @@ package dev.sku20.stopgap.codegen.ast
 
 interface AstVisitor {
     fun visitAssignment(node: AstAssignment)
+    fun visitBreak(node: AstBreak)
     fun visitCall(node: AstCall)
+    fun visitContinue(node: AstContinue)
     fun visitElse(node: AstElse)
     fun visitFile(node: AstFile)
     fun visitFor(node: AstFor)
@@ -22,7 +24,9 @@ interface AstVisitor {
 
 fun AstVisitor.visit(node: AstExpression) = when (node) {
     is AstAssignment -> visitAssignment(node)
+    is AstBreak -> visitBreak(node)
     is AstCall -> visitCall(node)
+    is AstContinue -> visitContinue(node)
     is AstElse -> visitElse(node)
     is AstFile -> visitFile(node)
     is AstFor -> visitFor(node)

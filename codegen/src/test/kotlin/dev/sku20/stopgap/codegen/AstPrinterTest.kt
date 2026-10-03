@@ -147,6 +147,28 @@ class AstPrinterTest {
     }
 
     @Test
+    fun astBreak() {
+        printer.visitBreak(AstBreak())
+        assertOutput("break")
+
+        out.reset()
+
+        printer.visitBreak(AstBreak(AstLiteral("l")))
+        assertOutput("break@l")
+    }
+
+    @Test
+    fun astContinue() {
+        printer.visitContinue(AstContinue())
+        assertOutput("continue")
+
+        out.reset()
+
+        printer.visitContinue(AstContinue(AstLiteral("l")))
+        assertOutput("continue@l")
+    }
+
+    @Test
     fun astThrow() {
         printer.visitThrow(
             AstThrow(

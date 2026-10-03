@@ -25,6 +25,11 @@ class AstPrinter(
         }
     }
 
+    override fun visitBreak(node: AstBreak) {
+        write("break")
+        writeLabel(node.label)
+    }
+
     override fun visitCall(node: AstCall) {
         if (node.receiver != null) {
             visit(node.receiver)
@@ -84,6 +89,11 @@ class AstPrinter(
         }
     }
 
+    override fun visitContinue(node: AstContinue) {
+        write("continue")
+        writeLabel(node.label)
+    }
+
     override fun visitElse(node: AstElse) {
         write("else ")
         if (node.condition != null) {
@@ -129,10 +139,7 @@ class AstPrinter(
 
     override fun visitReturn(node: AstReturn) {
         write("return")
-        if (node.label != null) {
-            write("@")
-            visit(node.label)
-        }
+        writeLabel(node.label)
         if (node.value != null) {
             write(" ")
             visit(node.value)
@@ -197,6 +204,13 @@ class AstPrinter(
             visit(content[0])
         } else {
             writeBlock(content)
+        }
+    }
+
+    private fun writeLabel(label: AstExpression?) {
+        if (label != null) {
+            write("@")
+            visit(label)
         }
     }
 
