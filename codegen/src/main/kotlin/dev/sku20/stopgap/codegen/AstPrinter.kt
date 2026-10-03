@@ -32,13 +32,7 @@ class AstPrinter(
         }
         visit(node.name)
         write("(")
-        if (node.arguments.isNotEmpty()) {
-            visit(node.arguments[0])
-            for (index in 1 until node.arguments.size) {
-                write(", ")
-                visit(node.arguments[index])
-            }
-        }
+        writeList(node.arguments)
         write(")")
     }
 
@@ -57,13 +51,7 @@ class AstPrinter(
         write("fun ")
         write(node.name)
         write("(")
-        if (node.parameters.isNotEmpty()) {
-            visitParam(node.parameters[0])
-            for (index in 1 until node.parameters.size) {
-                write(", ")
-                visitParam(node.parameters[index])
-            }
-        }
+        writeList(node.parameters)
         write(")")
         if (node.returnType != null) {
             write(": ")
@@ -114,6 +102,16 @@ class AstPrinter(
 
     override fun visitType(node: AstType) {
         write(node.fqn)
+    }
+
+    private fun writeList(items: List<AstExpression>) {
+        if (items.isNotEmpty()) {
+            visit(items[0])
+            for (index in 1 until items.size) {
+                write(", ")
+                visit(items[index])
+            }
+        }
     }
 
     private fun write(text: String) {
