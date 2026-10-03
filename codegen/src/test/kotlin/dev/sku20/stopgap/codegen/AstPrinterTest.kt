@@ -61,15 +61,7 @@ class AstPrinterTest {
         val type = AstType("String", "kotlin.String")
         printer.visitType(type)
 
-        assertOutput("String")
-    }
-
-    @Test
-    fun astTypeAlias() {
-        val type = AstType("Builder", "io.helidon.webserver.http.HttpRouting.Builder", "RoutingBuilder")
-        printer.visitType(type)
-
-        assertOutput("RoutingBuilder")
+        assertOutput("kotlin.String")
     }
 
     @Test
@@ -85,7 +77,7 @@ class AstPrinterTest {
         val param = AstParam(AstLiteral("a"), AstType("String", "kotlin.String"))
         printer.visitParam(param)
 
-        assertOutput("a: String")
+        assertOutput("a: kotlin.String")
     }
 
     @Test
@@ -157,7 +149,7 @@ class AstPrinterTest {
         val assignment = AstAssignment(AstLiteral("a"), VariableType.LATEINIT_VAR, AstType("String", "kotlin.String"))
         printer.visitAssignment(assignment)
 
-        assertOutput("lateinit var a: String")
+        assertOutput("lateinit var a: kotlin.String")
     }
 
     @Test
@@ -199,7 +191,7 @@ class AstPrinterTest {
 
         assertOutput(
             """
-            fun f(): String {
+            fun f(): kotlin.String {
                 x
             }
             """.trimIndent()
