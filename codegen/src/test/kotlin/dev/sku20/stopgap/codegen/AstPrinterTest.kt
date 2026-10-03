@@ -292,6 +292,100 @@ class AstPrinterTest {
         )
     }
 
+    @Test
+    fun astWhenBranch() {
+        printer.visitWhenBranch(
+            AstWhenBranch(
+                listOf(
+                    AstLiteral("a"),
+                    AstLiteral("b")
+                ),
+                listOf(AstLiteral("x"))
+            )
+        )
+        assertOutput("a, b -> x")
+
+        out.reset()
+
+        printer.visitWhenBranch(
+            AstWhenBranch(
+                listOf(AstLiteral("a")),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            a -> {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astWhen() {
+        printer.visitWhen(
+            AstWhen(
+                listOf(
+                    AstWhenBranch(listOf(AstLiteral("a")), listOf(AstLiteral("x"))),
+                    AstWhenBranch(listOf(AstLiteral("b")), listOf(AstLiteral("y")))
+                ),
+                AstLiteral("s"),
+                listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            when (s) {
+            a -> x
+            b -> y
+            else -> z
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhen(
+            AstWhen(
+                listOf(AstWhenBranch(listOf(AstLiteral("a")), listOf(AstLiteral("x"))))
+            )
+        )
+        assertOutput(
+            """
+            when {
+            a -> x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhen(
+            AstWhen(
+                emptyList(),
+                elseContent = listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            when {
+            else -> {
+            x
+            y
+            }
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOutput(expected: String) {
         assertThat(out.toString())
             .isEqualTo(expected)

@@ -118,6 +118,45 @@ class AstPrinter(
         }
     }
 
+    override fun visitWhen(node: AstWhen) {
+        write("when ")
+        if (node.subject != null) {
+            write("(")
+            visit(node.subject)
+            write(") ")
+        }
+        write("{")
+        writeln()
+        writeLnSeparated(node.branches)
+        if (node.elseContent.isNotEmpty()) {
+            if (node.branches.isNotEmpty()) {
+                writeln()
+            }
+            write("else")
+            writeBranchContent(node.elseContent)
+        }
+        writeln()
+        write("}")
+    }
+
+    override fun visitWhenBranch(node: AstWhenBranch) {
+        writeCommaSeparated(node.conditions)
+        writeBranchContent(node.content)
+    }
+
+    private fun writeBranchContent(content: List<AstExpression>) {
+        write(" -> ")
+        if (content.size == 1) {
+            visit(content[0])
+        } else {
+            write("{")
+            writeln()
+            writeLnSeparated(content)
+            writeln()
+            write("}")
+        }
+    }
+
     private fun writeTypeArguments(items: List<AstExpression>) {
         if (items.isNotEmpty()) {
             write("<")

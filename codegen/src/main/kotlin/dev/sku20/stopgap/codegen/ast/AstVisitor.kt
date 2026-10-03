@@ -11,6 +11,8 @@ interface AstVisitor {
     fun visitReturn(node: AstReturn)
     fun visitStringLiteral(node: AstStringLiteral)
     fun visitType(node: AstType)
+    fun visitWhen(node: AstWhen)
+    fun visitWhenBranch(node: AstWhenBranch)
 }
 
 fun AstVisitor.visit(node: AstExpression) = when (node) {
@@ -24,4 +26,6 @@ fun AstVisitor.visit(node: AstExpression) = when (node) {
     is AstReturn -> visitReturn(node)
     is AstStringLiteral -> visitStringLiteral(node)
     is AstType -> visitType(node)
+    is AstWhen -> visitWhen(node)
+    is AstWhenBranch -> visitWhenBranch(node)
 }
