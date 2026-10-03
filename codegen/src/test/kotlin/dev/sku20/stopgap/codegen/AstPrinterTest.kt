@@ -12,10 +12,7 @@ class AstPrinterTest {
     @Test
     fun astFileSimple() {
         val out = ByteArrayOutputStream()
-        val file = AstFile(
-            packageName = AstLiteral("dev.sku20.example"),
-            content = emptyList(),
-        )
+        val file = AstFile(AstLiteral("dev.sku20.example"), emptyList())
 
         file.accept(AstPrinter(out))
 
