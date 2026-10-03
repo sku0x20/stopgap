@@ -20,10 +20,10 @@ class AstPrinter(
         write("(")
         if (node.arguments.isNotEmpty()) {
             visit(node.arguments[0])
-        }
-        for (index in 1 until node.arguments.size) {
-            write(", ")
-            visit(node.arguments[index])
+            for (index in 1 until node.arguments.size) {
+                write(", ")
+                visit(node.arguments[index])
+            }
         }
         write(")")
     }
