@@ -8,6 +8,7 @@ class AstPrinter(
 ) : AstVisitor {
 
     override fun visitAssignment(node: AstAssignment) {
+        writeVisibility(node.visibility)
         when (node.variableType) {
             VariableType.VAL -> write("val ")
             VariableType.VAR -> write("var ")
@@ -65,6 +66,7 @@ class AstPrinter(
     }
 
     override fun visitFunction(node: AstFunction) {
+        writeVisibility(node.visibility)
         write("fun ")
         if (node.typeArguments.isNotEmpty()) {
             writeTypeArguments(node.typeArguments)
@@ -232,6 +234,16 @@ class AstPrinter(
             visit(content[0])
         } else {
             writeBlock(content)
+        }
+    }
+
+    private fun writeVisibility(visibility: Visibility?) {
+        when (visibility) {
+            Visibility.PUBLIC -> write("public ")
+            Visibility.INTERNAL -> write("internal ")
+            Visibility.PROTECTED -> write("protected ")
+            Visibility.PRIVATE -> write("private ")
+            null -> {}
         }
     }
 

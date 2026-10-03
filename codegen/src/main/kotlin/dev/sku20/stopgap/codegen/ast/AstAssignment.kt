@@ -5,6 +5,7 @@ data class AstAssignment(
     val type: AstExpression? = null,
     val variableType: VariableType? = null,
     val value: AstExpression? = null,
+    val visibility: Visibility? = null,
 ) : AstExpression
 
 @Suppress("SpellCheckingInspection")

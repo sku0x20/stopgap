@@ -285,6 +285,18 @@ class AstPrinterTest {
             )
         )
         assertOutput("a = 1")
+
+        out.reset()
+
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                variableType = VariableType.VAL,
+                value = AstLiteral("1"),
+                visibility = Visibility.PRIVATE
+            )
+        )
+        assertOutput("private val a = 1")
     }
 
     @Test
@@ -343,6 +355,24 @@ class AstPrinterTest {
         assertOutput(
             """
             fun <T> f(a: T) {
+            x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                emptyList(),
+                listOf(AstLiteral("x")),
+                visibility = Visibility.INTERNAL
+            )
+        )
+        assertOutput(
+            """
+            internal fun f() {
             x
             }
             """.trimIndent()

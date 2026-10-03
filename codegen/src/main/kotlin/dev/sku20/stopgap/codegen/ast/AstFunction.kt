@@ -6,4 +6,5 @@ data class AstFunction(
     val content: List<AstExpression>,
     val returnType: AstExpression? = null,
     val typeArguments: List<AstExpression> = emptyList(),
+    val visibility: Visibility? = null,
 ) : AstExpression
