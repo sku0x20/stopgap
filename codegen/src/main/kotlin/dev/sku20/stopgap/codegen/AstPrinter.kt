@@ -19,9 +19,9 @@ class AstPrinter(
         write("package ")
         visit(node.packageName)
         writeln()
-        node.content.forEach {
+        for (node in node.content) {
             writeln()
-            visit(it)
+            visit(node)
             writeln()
         }
     }
