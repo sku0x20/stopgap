@@ -23,4 +23,16 @@ class AstPrinterTest {
             .isEqualTo("package dev.sku20.example\n")
     }
 
+    @Test
+    fun astLiteral() {
+        val out = ByteArrayOutputStream()
+
+        val literal = AstLiteral("42")
+        val printer = AstPrinter(out)
+        printer.visitLiteral(literal)
+
+        assertThat(out.toString())
+            .isEqualTo("42")
+    }
+
 }
