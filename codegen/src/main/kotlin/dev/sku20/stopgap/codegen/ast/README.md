@@ -10,7 +10,7 @@ Open idea: distill every other node into these two, so the printer only has to k
 
 ## Reusing expressions
 
-Fields take `AstExpression` rather than `String`, even for plain names, so any node can be built once and reused across the tree, for consistency and deduplication.
+Every field prefers to take `AstExpression` rather than `String`, even for plain names, so any node can be built once and reused across the tree, for consistency and deduplication.
 
 ## Deliberate shortcuts
 
