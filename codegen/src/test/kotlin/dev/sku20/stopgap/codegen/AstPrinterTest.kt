@@ -2,6 +2,7 @@ package dev.sku20.stopgap.codegen
 
 import dev.sku20.stopgap.codegen.ast.AstFile
 import dev.sku20.stopgap.codegen.ast.AstLiteral
+import dev.sku20.stopgap.codegen.ast.AstStringLiteral
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -30,6 +31,15 @@ class AstPrinterTest {
 
         assertThat(out.toString())
             .isEqualTo("42")
+    }
+
+    @Test
+    fun astStringLiteral() {
+        val literal = AstStringLiteral("hello")
+        printer.visitStringLiteral(literal)
+
+        assertThat(out.toString())
+            .isEqualTo("\"hello\"")
     }
 
 }
