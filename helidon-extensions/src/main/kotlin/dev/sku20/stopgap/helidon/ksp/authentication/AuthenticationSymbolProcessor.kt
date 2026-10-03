@@ -1,18 +1,9 @@
 package dev.sku20.stopgap.helidon.ksp.authentication
 
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import dev.sku20.stopgap.codegen.AstPrinter
-import dev.sku20.stopgap.codegen.ast.AstCall
-import dev.sku20.stopgap.codegen.ast.AstFile
-import dev.sku20.stopgap.codegen.ast.AstFunction
-import dev.sku20.stopgap.codegen.ast.AstLiteral
-import dev.sku20.stopgap.codegen.ast.AstParam
-import dev.sku20.stopgap.codegen.ast.AstType
+import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.AuthenticationFilter
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import io.helidon.webserver.http.HttpRouting
@@ -55,13 +46,24 @@ class AuthenticationSymbolProcessor(
                 AstFunction(
                     "initAuthentication",
                     listOf(
-                        AstParam(resolver, AstType(AuthenticationResolver::class.qualifiedName!!)),
-                        AstParam(routes, AstType(HttpRouting.Builder::class.qualifiedName!!)),
+                        AstParam(
+                            resolver,
+                            AstType(AuthenticationResolver::class.qualifiedName!!)
+                        ),
+                        AstParam(
+                            routes,
+                            AstType(HttpRouting.Builder::class.qualifiedName!!)
+                        ),
                     ),
                     listOf(
                         AstCall(
                             AstLiteral("addFilter"),
-                            listOf(AstCall(AstType(AuthenticationFilter::class.qualifiedName!!), listOf(resolver))),
+                            listOf(
+                                AstCall(
+                                    AstType(AuthenticationFilter::class.qualifiedName!!),
+                                    listOf(resolver)
+                                )
+                            ),
                             routes
                         )
                     )
