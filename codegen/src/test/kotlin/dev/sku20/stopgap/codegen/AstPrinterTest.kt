@@ -97,33 +97,22 @@ class AstPrinterTest {
 
     @Test
     fun astReturn() {
-        val ret = AstReturn()
-        printer.visitReturn(ret)
-
+        printer.visitReturn(AstReturn())
         assertOutput("return")
-    }
 
-    @Test
-    fun astReturnValue() {
-        val ret = AstReturn(AstLiteral("a"))
-        printer.visitReturn(ret)
+        out.reset()
 
+        printer.visitReturn(AstReturn(AstLiteral("a")))
         assertOutput("return a")
-    }
 
-    @Test
-    fun astReturnLabel() {
-        val ret = AstReturn(label = AstLiteral("l"))
-        printer.visitReturn(ret)
+        out.reset()
 
+        printer.visitReturn(AstReturn(label = AstLiteral("l")))
         assertOutput("return@l")
-    }
 
-    @Test
-    fun astReturnLabelValue() {
-        val ret = AstReturn(AstLiteral("a"), AstLiteral("l"))
-        printer.visitReturn(ret)
+        out.reset()
 
+        printer.visitReturn(AstReturn(AstLiteral("a"), AstLiteral("l")))
         assertOutput("return@l a")
     }
 
