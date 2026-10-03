@@ -5,6 +5,4 @@ object GeneratedNames {
     const val FILE_NAME = "AuthenticationInitializer"
     const val EXTENSION = "kt"
 
-    const val RESOLVER = "resolver"
-    const val ROUTES = "routes"
 }
