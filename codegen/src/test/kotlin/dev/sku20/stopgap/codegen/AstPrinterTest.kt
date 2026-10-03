@@ -116,8 +116,8 @@ class AstPrinterTest {
         printer.visitAssignment(
             AstAssignment(
                 AstLiteral("a"),
-                VariableType.VAL,
-                AstLiteral("1")
+                variableType = VariableType.VAL,
+                value = AstLiteral("1")
             )
         )
         assertOutput("val a = 1")
@@ -127,8 +127,8 @@ class AstPrinterTest {
         printer.visitAssignment(
             AstAssignment(
                 AstLiteral("a"),
-                VariableType.VAR,
-                AstLiteral("1")
+                variableType = VariableType.VAR,
+                value = AstLiteral("1")
             )
         )
         assertOutput("var a = 1")
@@ -138,8 +138,8 @@ class AstPrinterTest {
         printer.visitAssignment(
             AstAssignment(
                 AstLiteral("a"),
-                VariableType.LATEINIT_VAR,
-                AstType("String", "kotlin.String")
+                AstType("String", "kotlin.String"),
+                VariableType.LATEINIT_VAR
             )
         )
         assertOutput("lateinit var a: kotlin.String")
@@ -149,8 +149,7 @@ class AstPrinterTest {
         printer.visitAssignment(
             AstAssignment(
                 AstLiteral("a"),
-                VariableType.EMPTY,
-                AstLiteral("1")
+                value = AstLiteral("1")
             )
         )
         assertOutput("a = 1")
