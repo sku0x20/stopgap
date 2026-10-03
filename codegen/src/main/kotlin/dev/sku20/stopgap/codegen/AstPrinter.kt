@@ -40,9 +40,9 @@ class AstPrinter(
 
     override fun visitParam(node: AstParam) {
         visit(node.name)
-        node.type?.let {
+        if (node.type != null) {
             write(": ")
-            visit(it)
+            visit(node.type)
         }
     }
 
