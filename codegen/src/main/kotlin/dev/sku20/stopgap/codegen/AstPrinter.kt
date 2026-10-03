@@ -18,11 +18,12 @@ class AstPrinter(
         }
         visit(node.name)
         write("(")
-        for ((index, argument) in node.arguments.withIndex()) {
-            if (index > 0) {
-                write(", ")
-            }
-            visit(argument)
+        if (node.arguments.isNotEmpty()) {
+            visit(node.arguments[0])
+        }
+        for (index in 1 until node.arguments.size) {
+            write(", ")
+            visit(node.arguments[index])
         }
         write(")")
     }
