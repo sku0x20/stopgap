@@ -72,17 +72,26 @@ class AstPrinterTest {
 
     @Test
     fun astCall() {
-        val call = AstCall(AstLiteral("f"), listOf(AstLiteral("a"), AstLiteral("b")))
-        printer.visitCall(call)
-
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(
+                    AstLiteral("a"),
+                    AstLiteral("b")
+                )
+            )
+        )
         assertOutput("f(a, b)")
-    }
 
-    @Test
-    fun astCallReceiver() {
-        val call = AstCall(AstLiteral("f"), listOf(AstLiteral("a")), AstLiteral("r"))
-        printer.visitCall(call)
+        out.reset()
 
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(AstLiteral("a")),
+                AstLiteral("r")
+            )
+        )
         assertOutput("r.f(a)")
     }
 
