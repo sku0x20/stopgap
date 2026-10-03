@@ -60,11 +60,8 @@ class AstPrinter(
             write(": ")
             visit(node.returnType)
         }
-        write(" {")
-        writeln()
-        writeLnSeparated(node.content)
-        writeln()
-        write("}")
+        write(" ")
+        writeBlock(node.content)
     }
 
     override fun visitIf(node: AstIf) {
@@ -178,11 +175,7 @@ class AstPrinter(
         if (content.size == 1) {
             visit(content[0])
         } else {
-            write("{")
-            writeln()
-            writeLnSeparated(content)
-            writeln()
-            write("}")
+            writeBlock(content)
         }
     }
 
