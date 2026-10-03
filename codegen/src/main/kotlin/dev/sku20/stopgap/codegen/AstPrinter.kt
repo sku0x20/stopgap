@@ -145,6 +145,11 @@ class AstPrinter(
         write("\"")
     }
 
+    override fun visitThrow(node: AstThrow) {
+        write("throw ")
+        visit(node.value)
+    }
+
     override fun visitType(node: AstType) {
         write(node.fqn)
         writeTypeArguments(node.typeArguments)

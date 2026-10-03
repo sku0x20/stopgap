@@ -147,6 +147,19 @@ class AstPrinterTest {
     }
 
     @Test
+    fun astThrow() {
+        printer.visitThrow(
+            AstThrow(
+                AstCall(
+                    AstLiteral("E"),
+                    listOf(AstStringLiteral("m"))
+                )
+            )
+        )
+        assertOutput("throw E(\"m\")")
+    }
+
+    @Test
     fun astAssignment() {
         printer.visitAssignment(
             AstAssignment(
