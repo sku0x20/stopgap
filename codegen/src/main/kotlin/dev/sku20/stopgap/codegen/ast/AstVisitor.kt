@@ -1,17 +1,4 @@
-package dev.sku20.stopgap.codegen
-
-import dev.sku20.stopgap.codegen.ast.AstAssignment
-import dev.sku20.stopgap.codegen.ast.AstCall
-import dev.sku20.stopgap.codegen.ast.AstExpression
-import dev.sku20.stopgap.codegen.ast.AstFile
-import dev.sku20.stopgap.codegen.ast.AstFunction
-import dev.sku20.stopgap.codegen.ast.AstImport
-import dev.sku20.stopgap.codegen.ast.AstLambda
-import dev.sku20.stopgap.codegen.ast.AstLiteral
-import dev.sku20.stopgap.codegen.ast.AstParam
-import dev.sku20.stopgap.codegen.ast.AstReturn
-import dev.sku20.stopgap.codegen.ast.AstStringLiteral
-import dev.sku20.stopgap.codegen.ast.AstType
+package dev.sku20.stopgap.codegen.ast
 
 interface AstVisitor {
     fun visitAssignment(node: AstAssignment)
