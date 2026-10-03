@@ -528,6 +528,24 @@ class AstPrinterTest {
             }
             """.trimIndent()
         )
+
+        out.reset()
+
+        printer.visitFor(
+            AstFor(
+                AstLiteral("i"),
+                AstLiteral("xs"),
+                listOf(AstLiteral("x")),
+                AstLiteral("l")
+            )
+        )
+        assertOutput(
+            """
+            l@ for (i in xs) {
+            x
+            }
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -546,6 +564,23 @@ class AstPrinterTest {
             while (c) {
             x
             y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhile(
+            AstWhile(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                AstLiteral("l")
+            )
+        )
+        assertOutput(
+            """
+            l@ while (c) {
+            x
             }
             """.trimIndent()
         )

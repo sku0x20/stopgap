@@ -52,6 +52,10 @@ class AstPrinter(
     }
 
     override fun visitFor(node: AstFor) {
+        if (node.label != null) {
+            visit(node.label)
+            write("@ ")
+        }
         write("for (")
         visit(node.item)
         write(" in ")
@@ -192,6 +196,10 @@ class AstPrinter(
     }
 
     override fun visitWhile(node: AstWhile) {
+        if (node.label != null) {
+            visit(node.label)
+            write("@ ")
+        }
         write("while (")
         visit(node.condition)
         write(") ")

@@ -4,4 +4,5 @@ data class AstFor(
     val item: AstExpression,
     val iterable: AstExpression,
     val content: List<AstExpression>,
+    val label: AstExpression? = null,
 ) : AstExpression
