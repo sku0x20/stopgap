@@ -18,7 +18,7 @@ class AstPrinter(
     override fun visitFile(node: AstFile) {
         write("package ")
         node.packageName.accept(this)
-        write("\n")
+        writeln()
     }
 
     override fun visitFunction(node: AstFunction) {
@@ -51,6 +51,10 @@ class AstPrinter(
 
     private fun write(text: String) {
         out.write(text.toByteArray())
+    }
+
+    private fun writeln() {
+        write("\n")
     }
 
 }
