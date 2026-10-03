@@ -107,6 +107,9 @@ class AstPrinter(
 
     override fun visitType(node: AstType) {
         write(node.fqn)
+        if (node.nullable) {
+            write("?")
+        }
     }
 
     private fun writeCommaSeparated(items: List<AstExpression>) = writeSeparated(items, ", ")

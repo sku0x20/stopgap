@@ -48,10 +48,13 @@ class AstPrinterTest {
 
     @Test
     fun astType() {
-        val type = AstType("kotlin.String")
-        printer.visitType(type)
-
+        printer.visitType(AstType("kotlin.String"))
         assertOutput("kotlin.String")
+
+        out.reset()
+
+        printer.visitType(AstType("kotlin.String", true))
+        assertOutput("kotlin.String?")
     }
 
     @Test
