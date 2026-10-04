@@ -20,26 +20,23 @@ class IrSymbolProcessor(
         return emptyList()
     }
 
-    private val packageName = "dev.sku20.stopgap.ir.generated"
-    private val fileName = "Initializers"
-
     private fun generateFile(symbols: List<KSFunctionDeclaration>) {
         val file = codeGenerator.createNewFile(
             Dependencies(true),
-            packageName,
-            fileName,
-            "kt"
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         codeGenerator.associateWithFunctions(
             symbols,
-            packageName,
-            fileName,
-            "kt"
+            GeneratedNames.PACKAGE,
+            GeneratedNames.FILE_NAME,
+            GeneratedNames.EXTENSION
         )
         val initWriter = InitializersGenerator(
             file,
             symbols,
-            packageName
+            GeneratedNames.PACKAGE
         )
         initWriter.write()
     }
