@@ -9,17 +9,19 @@ import dev.sku20.stopgap.codegen.ast.AstParam
 import dev.sku20.stopgap.codegen.ast.AstType
 import dev.sku20.stopgap.codegen.ast.Visibility
 import dev.sku20.stopgap.ir.InstanceRegistry
-import dev.sku20.stopgap.ir.ksp.GeneratedNames
 import dev.sku20.stopgap.ir.ksp.creator.CreatorModelAstGen
 
-class RegistryModelAstGen(private val model: RegistryModel) {
+class RegistryModelAstGen(
+    private val model: RegistryModel,
+    private val packageName: String
+) {
 
     private val registry = AstLiteral("registry")
     private val registerCreators = "registerCreators"
     private val createInstancesEagerly = "createInstancesEagerly"
 
     fun file(): AstFile = AstFile(
-        AstLiteral(GeneratedNames.PACKAGE),
+        AstLiteral(packageName),
         listOf(initRegistryFn(), registerCreatorsFn(), createInstancesEagerlyFn())
     )
 
