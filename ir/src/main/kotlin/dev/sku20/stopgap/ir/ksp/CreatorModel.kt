@@ -5,9 +5,9 @@ data class CreatorModel(
     val returnType: String,
     val qualifier: String?,
     val eagerly: Boolean,
-    val dependencies: List<Dependency>
+    val parameters: List<Parameter>
 ) {
-    data class Dependency(
+    data class Parameter(
         val type: String,
         val qualifier: String?
     )

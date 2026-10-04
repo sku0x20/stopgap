@@ -10,21 +10,21 @@ import dev.sku20.stopgap.ir.Qualifier
 class CreatorModelParser {
 
     fun parse(function: KSFunctionDeclaration): CreatorModel {
-        val dependencies = mutableListOf<CreatorModel.Dependency>()
+        val parameters = mutableListOf<CreatorModel.Parameter>()
         for (param in function.parameters) {
-            dependencies.add(parseDependency(param))
+            parameters.add(parseParameter(param))
         }
         return CreatorModel(
             function.qualifiedName!!.asString(),
             qualifiedTypeName(function.returnType!!),
             qualifierValue(function.annotations),
             eagerly(function),
-            dependencies
+            parameters
         )
     }
 
-    private fun parseDependency(param: KSValueParameter): CreatorModel.Dependency =
-        CreatorModel.Dependency(
+    private fun parseParameter(param: KSValueParameter): CreatorModel.Parameter =
+        CreatorModel.Parameter(
             qualifiedTypeName(param.type),
             qualifierValue(param.annotations)
         )
