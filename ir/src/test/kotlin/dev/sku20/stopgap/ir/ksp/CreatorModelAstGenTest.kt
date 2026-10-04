@@ -19,7 +19,11 @@ class CreatorModelAstGenTest {
         val gen = CreatorModelAstGen(model(null, false, emptyList()))
 
         assertThat(gen.registration()).isEqualTo(
-            AstCall(AstLiteral("registerForType"), listOf(creator(emptyList())), registry)
+            AstCall(
+                AstLiteral("registerForType"),
+                listOf(creator(emptyList())),
+                registry
+            )
         )
     }
 
@@ -60,7 +64,13 @@ class CreatorModelAstGenTest {
                 AstLiteral("registerForType"),
                 listOf(
                     creator(
-                        listOf(AstCall(AstLiteral("getInstanceForQualifier"), listOf(AstStringLiteral("dep")), registry))
+                        listOf(
+                            AstCall(
+                                AstLiteral("getInstanceForQualifier"),
+                                listOf(AstStringLiteral("dep")),
+                                registry
+                            )
+                        )
                     )
                 ),
                 registry
@@ -74,7 +84,11 @@ class CreatorModelAstGenTest {
         val gen = CreatorModelAstGen(model(null, false, listOf(parameter)))
 
         assertThat(gen.registration()).isEqualTo(
-            AstCall(AstLiteral("registerForType"), listOf(creator(listOf(registry))), registry)
+            AstCall(
+                AstLiteral("registerForType"),
+                listOf(creator(listOf(registry))),
+                registry
+            )
         )
     }
 
@@ -116,5 +130,10 @@ class CreatorModelAstGenTest {
         AstLambda(emptyList(), listOf(AstCall(AstLiteral("a.createFoo"), arguments)))
 
     private fun getInstanceForType(type: String) =
-        AstCall(AstLiteral("getInstanceForType"), emptyList(), registry, listOf(AstType(type)))
+        AstCall(
+            AstLiteral("getInstanceForType"),
+            emptyList(),
+            registry,
+            listOf(AstType(type))
+        )
 }
