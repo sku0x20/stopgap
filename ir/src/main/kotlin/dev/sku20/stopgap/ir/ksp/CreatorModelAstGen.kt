@@ -26,6 +26,14 @@ class CreatorModelAstGen(private val model: CreatorModel) {
 
     fun eagerCreation(): AstCall? {
         if (!model.eagerly) return null
+        if (model.qualifier != null) {
+            return AstCall(
+                AstLiteral("getInstanceForQualifier"),
+                listOf(AstStringLiteral(model.qualifier)),
+                registry,
+                listOf(AstType(model.returnType))
+            )
+        }
         return AstCall(
             AstLiteral("getInstanceForType"),
             emptyList(),

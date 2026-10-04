@@ -86,6 +86,20 @@ class CreatorModelAstGenTest {
     }
 
     @Test
+    fun eagerCreationViaQualifier() {
+        val gen = CreatorModelAstGen(model("q", true, emptyList()))
+
+        assertThat(gen.eagerCreation()).isEqualTo(
+            AstCall(
+                AstLiteral("getInstanceForQualifier"),
+                listOf(AstStringLiteral("q")),
+                registry,
+                listOf(AstType("a.Foo"))
+            )
+        )
+    }
+
+    @Test
     fun eagerCreationNullWhenLazy() {
         val gen = CreatorModelAstGen(model(null, false, emptyList()))
 
