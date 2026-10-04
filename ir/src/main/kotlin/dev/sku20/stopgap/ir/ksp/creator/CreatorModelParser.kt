@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.ir.ksp
+package dev.sku20.stopgap.ir.ksp.creator
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration

@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.ir.ksp
+package dev.sku20.stopgap.ir.ksp.creator
 
 import dev.sku20.stopgap.codegen.ast.AstCall
 import dev.sku20.stopgap.codegen.ast.AstExpression

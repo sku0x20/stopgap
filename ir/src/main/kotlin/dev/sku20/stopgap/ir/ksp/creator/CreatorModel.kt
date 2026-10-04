@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.ir.ksp
+package dev.sku20.stopgap.ir.ksp.creator
 
 data class CreatorModel(
     val functionName: String,
