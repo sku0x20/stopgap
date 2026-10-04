@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.app.generator
 
 import dev.sku20.stopgap.app.generator.web.GeneratorEndpoint
-import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.annotation.Creates
 import dev.sku20.stopgap.ir.InstanceRegistry
 import io.helidon.config.Config
 

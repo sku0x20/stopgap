@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.app.param
 
-import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.annotation.Creates
 
 object ParamConfig {
 

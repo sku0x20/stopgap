@@ -4,8 +4,8 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
-import dev.sku20.stopgap.ir.Creates
-import dev.sku20.stopgap.ir.Qualifier
+import dev.sku20.stopgap.ir.annotation.Creates
+import dev.sku20.stopgap.ir.annotation.Qualifier
 
 class CreatorModelParser(private val function: KSFunctionDeclaration) {
 

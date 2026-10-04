@@ -2,7 +2,7 @@ package dev.sku20.stopgap.app.serde
 
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.app.serde.plain.PlainTextSerdeCatalog
-import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.annotation.Creates
 
 object SerdeConfig {
 

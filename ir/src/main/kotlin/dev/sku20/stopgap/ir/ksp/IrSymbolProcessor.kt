@@ -4,7 +4,7 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.stopgap.codegen.AstPrinter
-import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.annotation.Creates
 import dev.sku20.stopgap.ir.ksp.registry.RegistryModelAstGen
 import dev.sku20.stopgap.ir.ksp.registry.RegistryModelParser
 
