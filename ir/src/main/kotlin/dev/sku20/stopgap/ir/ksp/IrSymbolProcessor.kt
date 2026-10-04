@@ -3,7 +3,10 @@ package dev.sku20.stopgap.ir.ksp
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import dev.sku20.stopgap.codegen.AstPrinter
 import dev.sku20.stopgap.ir.Creates
+import dev.sku20.stopgap.ir.ksp.registry.RegistryModelAstGen
+import dev.sku20.stopgap.ir.ksp.registry.RegistryModelParser
 
 class IrSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -33,12 +36,11 @@ class IrSymbolProcessor(
             GeneratedNames.FILE_NAME,
             GeneratedNames.EXTENSION
         )
-        val initWriter = InitializersGenerator(
-            file,
-            symbols,
-            GeneratedNames.PACKAGE
-        )
-        initWriter.write()
+        val model = RegistryModelParser(symbols).parse()
+        val astFile = RegistryModelAstGen(model, GeneratedNames.PACKAGE).file()
+        file.buffered().use { out ->
+            AstPrinter(out).visitFile(astFile)
+        }
     }
 
 }
