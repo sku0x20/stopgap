@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.ir.ksp
 
-internal data class CreatorModel(
+data class CreatorModel(
     val functionName: String,
     val returnType: String,
     val qualifier: String?,
