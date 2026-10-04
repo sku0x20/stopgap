@@ -20,6 +20,7 @@ class AuthenticationSymbolProcessor(
     }
 
     private fun generateFile() {
+        val astFile = AuthenticationAstGen(GeneratedNames.PACKAGE).file()
         val file = codeGenerator.createNewFile(
             Dependencies(false),
             GeneratedNames.PACKAGE,
@@ -28,7 +29,7 @@ class AuthenticationSymbolProcessor(
         )
         file.buffered().use { out ->
             AstPrinter(out)
-                .visitFile(AuthenticationAstGen(GeneratedNames.PACKAGE).file())
+                .visitFile(astFile)
         }
     }
 }
