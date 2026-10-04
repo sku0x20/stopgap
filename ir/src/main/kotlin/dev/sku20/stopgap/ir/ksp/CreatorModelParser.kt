@@ -7,9 +7,9 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.stopgap.ir.Creates
 import dev.sku20.stopgap.ir.Qualifier
 
-class CreatorModelParser {
+class CreatorModelParser(private val function: KSFunctionDeclaration) {
 
-    fun parse(function: KSFunctionDeclaration): CreatorModel {
+    fun parse(): CreatorModel {
         val parameters = mutableListOf<CreatorModel.Parameter>()
         for (param in function.parameters) {
             parameters.add(parseParameter(param))
@@ -18,7 +18,7 @@ class CreatorModelParser {
             function.qualifiedName!!.asString(),
             qualifiedTypeName(function.returnType!!),
             qualifierValue(function.annotations),
-            eagerly(function),
+            eagerly(),
             parameters
         )
     }
@@ -29,7 +29,7 @@ class CreatorModelParser {
             qualifierValue(param.annotations)
         )
 
-    private fun eagerly(function: KSFunctionDeclaration): Boolean {
+    private fun eagerly(): Boolean {
         val annotation = function.annotations.first { it.shortName.asString() == Creates::class.simpleName }
         return annotation.arguments.first { it.name?.getShortName() == "eagerly" }.value as Boolean
     }
