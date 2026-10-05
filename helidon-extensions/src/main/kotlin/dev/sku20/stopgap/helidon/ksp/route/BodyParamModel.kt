@@ -1,5 +1,5 @@
 package dev.sku20.stopgap.helidon.ksp.route
 
-data class BodyParam(
+data class BodyParamModel(
     val type: TypeModel,
-) : Param
+) : ParamModel

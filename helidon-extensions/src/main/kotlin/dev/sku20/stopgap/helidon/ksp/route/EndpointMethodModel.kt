@@ -7,6 +7,6 @@ data class EndpointMethodModel(
     val customSerdeCatalog: CustomSerdeCatalogModel,
     val auth: Auth,
     // in declaration order
-    val params: List<Param> = emptyList(),
+    val params: List<ParamModel> = emptyList(),
     val response: String? = null,
 )

@@ -1,3 +1,3 @@
 package dev.sku20.stopgap.helidon.ksp.route
 
-sealed interface Param
+data object ResponseParamModel : ParamModel

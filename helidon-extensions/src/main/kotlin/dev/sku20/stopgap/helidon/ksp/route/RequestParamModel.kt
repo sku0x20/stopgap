@@ -1,3 +1,3 @@
 package dev.sku20.stopgap.helidon.ksp.route
 
-data object AuthParam : Param
+data object RequestParamModel : ParamModel

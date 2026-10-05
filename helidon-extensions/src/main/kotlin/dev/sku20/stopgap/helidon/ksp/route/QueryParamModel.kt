@@ -1,5 +1,5 @@
 package dev.sku20.stopgap.helidon.ksp.route
 
-data class HeaderParam(
+data class QueryParamModel(
     val name: String,
-) : Param
+) : ParamModel
