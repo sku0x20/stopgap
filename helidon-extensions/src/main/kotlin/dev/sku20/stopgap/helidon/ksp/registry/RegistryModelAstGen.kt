@@ -1,17 +1,10 @@
 package dev.sku20.stopgap.helidon.ksp.registry
 
-import dev.sku20.stopgap.codegen.ast.AstCall
-import dev.sku20.stopgap.codegen.ast.AstExpression
-import dev.sku20.stopgap.codegen.ast.AstFile
-import dev.sku20.stopgap.codegen.ast.AstFunction
-import dev.sku20.stopgap.codegen.ast.AstLiteral
-import dev.sku20.stopgap.codegen.ast.AstParam
-import dev.sku20.stopgap.codegen.ast.AstStringLiteral
-import dev.sku20.stopgap.codegen.ast.AstType
+import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
+import io.helidon.webserver.http.HttpRouting
 import dev.sku20.stopgap.helidon.ksp.authentication.GeneratedNames as AuthGeneratedNames
 import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
-import io.helidon.webserver.http.HttpRouting
 
 class RegistryModelAstGen(
     private val model: RegistryModel,
@@ -57,7 +50,7 @@ class RegistryModelAstGen(
         return AstCall(AstLiteral("${EndpointGeneratedNames.PACKAGE}.registerRoutesFor"), arguments)
     }
 
-    private fun catalogArgument(catalog: RegistryModel.Catalog): AstCall {
+    private fun catalogArgument(catalog: RegistryModel.SerdeCatalog): AstCall {
         if (catalog.qualifier != null) {
             return AstCall(
                 AstLiteral("getInstanceForQualifier"),

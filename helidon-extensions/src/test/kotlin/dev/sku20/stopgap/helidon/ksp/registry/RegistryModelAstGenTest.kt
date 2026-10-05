@@ -1,11 +1,6 @@
 package dev.sku20.stopgap.helidon.ksp.registry
 
-import dev.sku20.stopgap.codegen.ast.AstCall
-import dev.sku20.stopgap.codegen.ast.AstFunction
-import dev.sku20.stopgap.codegen.ast.AstLiteral
-import dev.sku20.stopgap.codegen.ast.AstParam
-import dev.sku20.stopgap.codegen.ast.AstStringLiteral
-import dev.sku20.stopgap.codegen.ast.AstType
+import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import io.helidon.webserver.http.HttpRouting
 import org.assertj.core.api.Assertions.assertThat
@@ -49,8 +44,8 @@ class RegistryModelAstGenTest {
         val endpoint = RegistryModel.Endpoint(
             "a.FooEndpoint",
             listOf(
-                RegistryModel.Catalog("a.FooCatalog", null),
-                RegistryModel.Catalog(null, "q")
+                RegistryModel.SerdeCatalog("a.FooCatalog", null),
+                RegistryModel.SerdeCatalog(null, "q")
             )
         )
         val file = RegistryModelAstGen(RegistryModel(listOf(endpoint)), "a.generated").file()

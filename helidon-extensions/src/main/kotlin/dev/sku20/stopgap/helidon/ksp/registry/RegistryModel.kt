@@ -5,10 +5,10 @@ data class RegistryModel(
 ) {
     data class Endpoint(
         val type: String,
-        val catalogs: List<Catalog>
+        val catalogs: List<SerdeCatalog>
     )
 
-    data class Catalog(
+    data class SerdeCatalog(
         val type: String?,
         val qualifier: String?
     )
