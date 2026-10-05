@@ -15,19 +15,19 @@ class RegistryModelParser(private val functions: List<KSFunctionDeclaration>) {
     }
 
     private fun parseEndpoint(function: KSFunctionDeclaration): RegistryModel.Endpoint {
-        val catalogs = mutableListOf<RegistryModel.SerdeCatalog>()
+        val params = mutableListOf<RegistryModel.Param>()
         for (i in 2 until function.parameters.size) {
-            catalogs.add(parseCatalog(function.parameters[i]))
+            params.add(parseParam(function.parameters[i]))
         }
-        return RegistryModel.Endpoint(qualifiedTypeName(function.parameters.first()), catalogs)
+        return RegistryModel.Endpoint(qualifiedTypeName(function.parameters.first()), params)
     }
 
-    private fun parseCatalog(param: KSValueParameter): RegistryModel.SerdeCatalog {
+    private fun parseParam(param: KSValueParameter): RegistryModel.Param {
         val catalog = CustomSerdeCatalogData.from(param)
         if (!catalog.qualifier.isNullOrEmpty()) {
-            return RegistryModel.SerdeCatalog(null, catalog.qualifier)
+            return RegistryModel.Param(qualifiedTypeName(param), catalog.qualifier)
         }
-        return RegistryModel.SerdeCatalog(catalog.clazz!!.declaration.qualifiedName!!.asString(), null)
+        return RegistryModel.Param(catalog.clazz!!.declaration.qualifiedName!!.asString(), null)
     }
 
     private fun qualifiedTypeName(param: KSValueParameter): String =

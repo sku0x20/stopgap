@@ -44,21 +44,21 @@ class RegistryModelAstGen(
         val arguments = mutableListOf<AstExpression>()
         arguments.add(getInstanceForType(endpoint.type))
         arguments.add(routes)
-        for (catalog in endpoint.catalogs) {
-            arguments.add(catalogArgument(catalog))
+        for (param in endpoint.params) {
+            arguments.add(paramArgument(param))
         }
         return AstCall(AstLiteral("${EndpointGeneratedNames.PACKAGE}.registerRoutesFor"), arguments)
     }
 
-    private fun catalogArgument(catalog: RegistryModel.SerdeCatalog): AstCall {
-        if (catalog.qualifier != null) {
+    private fun paramArgument(param: RegistryModel.Param): AstCall {
+        if (param.qualifier != null) {
             return AstCall(
                 AstLiteral("getInstanceForQualifier"),
-                listOf(AstStringLiteral(catalog.qualifier)),
+                listOf(AstStringLiteral(param.qualifier)),
                 registry
             )
         }
-        return getInstanceForType(catalog.type!!)
+        return getInstanceForType(param.type)
     }
 
     private fun getInstanceForType(type: String): AstCall = AstCall(

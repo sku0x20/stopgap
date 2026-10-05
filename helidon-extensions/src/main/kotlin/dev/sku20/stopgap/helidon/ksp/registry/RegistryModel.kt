@@ -5,11 +5,11 @@ data class RegistryModel(
 ) {
     data class Endpoint(
         val type: String,
-        val catalogs: List<SerdeCatalog>
+        val params: List<Param>
     )
 
-    data class SerdeCatalog(
-        val type: String?,
+    data class Param(
+        val type: String,
         val qualifier: String?
     )
 }
