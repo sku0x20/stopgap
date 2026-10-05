@@ -8,5 +8,5 @@ data class EndpointMethodModel(
     val auth: Auth,
     // in declaration order
     val params: List<Param> = emptyList(),
-    val responseFqn: String? = null,
+    val response: String? = null,
 )
