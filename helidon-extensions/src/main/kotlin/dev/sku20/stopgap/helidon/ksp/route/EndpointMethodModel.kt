@@ -5,12 +5,7 @@ data class EndpointMethodModel(
     val type: String,
     val path: String,
     val customSerdeCatalog: CustomSerdeCatalogModel? = null,
-    val req: Boolean = false,
-    val rest: Boolean = false,
-    val authentication: Param? = null,
-    val body: Param? = null,
+    // in declaration order
+    val params: List<Param> = emptyList(),
     val responseFqn: String? = null,
-    val headers: List<HeaderParam> = emptyList(),
-    val queryParams: List<QueryParam> = emptyList(),
-    val pathParams: List<PathParam> = emptyList(),
 )
