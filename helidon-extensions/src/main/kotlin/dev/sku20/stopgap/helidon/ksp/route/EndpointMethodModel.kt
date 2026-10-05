@@ -4,7 +4,7 @@ data class EndpointMethodModel(
     val name: String,
     val type: String,
     val path: String,
-    val customSerdeCatalog: CustomSerdeCatalogModel? = null,
+    val customSerdeCatalog: CustomSerdeCatalogModel,
     // in declaration order
     val params: List<Param> = emptyList(),
     val responseFqn: String? = null,
