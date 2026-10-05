@@ -2,7 +2,8 @@ package dev.sku20.stopgap.helidon.ksp.registry
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
-import dev.sku20.stopgap.helidon.ksp.annotation.CustomSerdeCatalogData
+import dev.sku20.stopgap.helidon.ksp.argument
+import dev.sku20.stopgap.helidon.ksp.findAnnotation
 
 class RegistryModelParser(private val functions: List<KSFunctionDeclaration>) {
 
@@ -23,11 +24,8 @@ class RegistryModelParser(private val functions: List<KSFunctionDeclaration>) {
     }
 
     private fun parseParam(param: KSValueParameter): RegistryModel.Param {
-        val catalog = CustomSerdeCatalogData.from(param)
-        if (!catalog.qualifier.isNullOrEmpty()) {
-            return RegistryModel.Param(qualifiedTypeName(param), catalog.qualifier)
-        }
-        return RegistryModel.Param(catalog.clazz!!.declaration.qualifiedName!!.asString(), null)
+        val qualifier = param.findAnnotation(RegistryQualifier::class)?.argument<String>("value")
+        return RegistryModel.Param(qualifiedTypeName(param), qualifier)
     }
 
     private fun qualifiedTypeName(param: KSValueParameter): String =

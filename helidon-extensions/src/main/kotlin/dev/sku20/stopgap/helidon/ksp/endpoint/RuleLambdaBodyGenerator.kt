@@ -121,7 +121,7 @@ class RuleLambdaBodyGenerator(
 
     private fun addSerdeCatalog() {
         imports.add("dev.sku20.stopgap.helidon.serde.SerdeCatalog")
-        params.add("${functionCatalog.asAnnotationString()} ${functionCatalog.paramName()}: SerdeCatalog")
+        params.add(functionCatalog.paramDeclaration())
     }
 
     private fun isUnit(type: KSType): Boolean =

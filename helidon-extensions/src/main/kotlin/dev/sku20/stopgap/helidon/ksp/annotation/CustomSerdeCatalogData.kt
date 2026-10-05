@@ -12,10 +12,10 @@ class CustomSerdeCatalogData(
     val qualifier: String? = null,
     val clazz: KSType? = null
 ) {
-    fun asAnnotationString(): String = if (!qualifier.isNullOrEmpty()) {
-        "@CustomSerdeCatalog(\"$qualifier\")"
+    fun paramDeclaration(): String = if (!qualifier.isNullOrEmpty()) {
+        "@RegistryQualifier(\"$qualifier\") ${paramName()}: SerdeCatalog"
     } else {
-        "@CustomSerdeCatalog(clazz=${clazz!!.declaration.qualifiedName!!.asString()}::class)"
+        "${paramName()}: ${clazz!!.declaration.qualifiedName!!.asString()}"
     }
 
     fun paramName(): String {
