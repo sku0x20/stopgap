@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.customserde
+package dev.sku20.stopgap.helidon.ksp.customserdecatalog
 
 data class CustomSerdeCatalogModel(
     val type: String?,
