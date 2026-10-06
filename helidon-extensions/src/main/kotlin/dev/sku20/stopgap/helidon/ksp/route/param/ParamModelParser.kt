@@ -51,11 +51,7 @@ class ParamModelParser(private val param: KSValueParameter) {
         val typeArguments = mutableListOf<TypeModel>()
         for (argument in type.arguments) {
             val argumentType = argument.type
-            if (argumentType == null) {
-                throw IllegalArgumentException(
-                    "Star projection not supported in body param: ${param.name!!.asString()}"
-                )
-            }
+                ?: throw IllegalArgumentException("Star projection not supported in body param: ${param.name!!.asString()}")
             typeArguments.add(toTypeModel(argumentType.resolve()))
         }
         return TypeModel(
