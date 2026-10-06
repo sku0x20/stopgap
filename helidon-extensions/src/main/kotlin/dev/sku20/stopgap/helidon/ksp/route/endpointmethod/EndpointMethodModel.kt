@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.route
+package dev.sku20.stopgap.helidon.ksp.route.endpointmethod
 
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.param.AuthParamModel
