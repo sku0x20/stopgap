@@ -15,6 +15,20 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
 }
 
+testing {
+    suites {
+        register<JvmTestSuite>("integrationTest") {
+            dependencies {
+                implementation(project())
+                implementation(libs.ksp.api)
+                implementation(libs.ksp.aa.embeddable)
+                implementation(libs.ksp.common.deps)
+                implementation(libs.assertj.core)
+            }
+        }
+    }
+}
+
 configurations {
     val kspApi = libs.ksp.api.get()
     runtimeElements {
