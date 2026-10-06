@@ -19,18 +19,26 @@ class ParamModelParser(private val param: KSValueParameter) {
     private val type = param.type.resolve()
     private val fqn = type.declaration.qualifiedName!!.asString()
 
-    fun parse(): ParamModel = when {
-        isType(ServerRequest::class) -> RequestParamModel
-        isType(ServerResponse::class) -> ResponseParamModel
+    fun parse(): ParamModel =
+        parseServerParam() ?: parseAnnotatedParam() ?: parseTypedParam()
+
+    private fun parseServerParam(): ParamModel? = when (fqn) {
+        ServerRequest::class.qualifiedName -> RequestParamModel
+        ServerResponse::class.qualifiedName -> ResponseParamModel
+        else -> null
+    }
+
+    private fun parseAnnotatedParam(): ParamModel? = when {
         hasAnnotation(PathParam::class) -> PathParamModel(nameArgument(PathParam::class))
         hasAnnotation(QueryParam::class) -> QueryParamModel(nameArgument(QueryParam::class))
         hasAnnotation(HeaderParam::class) -> HeaderParamModel(nameArgument(HeaderParam::class))
+        else -> null
+    }
+
+    private fun parseTypedParam(): ParamModel = when {
         isAuthentication() -> AuthParamModel(fqn)
         else -> BodyParamModel(toTypeModel(type))
     }
-
-    private fun isType(klass: KClass<*>): Boolean =
-        fqn == klass.qualifiedName
 
     private fun hasAnnotation(klass: KClass<*>): Boolean =
         param.findAnnotation(klass) != null
