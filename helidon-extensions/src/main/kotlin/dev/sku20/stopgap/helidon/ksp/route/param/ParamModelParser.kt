@@ -13,17 +13,10 @@ import dev.sku20.stopgap.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
-private val PARAM_ANNOTATION_NAMES = setOf(
-    PathParam::class.simpleName,
-    QueryParam::class.simpleName,
-    HeaderParam::class.simpleName,
-)
-
 class ParamModelParser(private val param: KSValueParameter) {
 
     private val type = param.type.resolve()
     private val fqn = type.declaration.qualifiedName!!.asString()
-    private val paramAnnotation = findParamAnnotation()
 
     fun parse(): ParamModel =
         parseServerParam() ?: parseAnnotatedParam() ?: parseTypedParam()
@@ -34,10 +27,16 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> null
     }
 
+    private val paramAnnotationNames = setOf(
+        PathParam::class.simpleName,
+        QueryParam::class.simpleName,
+        HeaderParam::class.simpleName,
+    )
+
     private fun parseAnnotatedParam(): ParamModel? {
-        val annotation = paramAnnotation ?: return null
-        val name = annotation.argument<String>("name")
-        return when (annotation.shortName.asString()) {
+        val paramAnnotation = findParamAnnotation() ?: return null
+        val name = paramAnnotation.argument<String>("name")
+        return when (paramAnnotation.shortName.asString()) {
             PathParam::class.simpleName -> PathParamModel(name)
             QueryParam::class.simpleName -> QueryParamModel(name)
             HeaderParam::class.simpleName -> HeaderParamModel(name)
@@ -48,7 +47,7 @@ class ParamModelParser(private val param: KSValueParameter) {
     private fun findParamAnnotation(): KSAnnotation? {
         var found: KSAnnotation? = null
         for (annotation in param.annotations) {
-            if (annotation.shortName.asString() !in PARAM_ANNOTATION_NAMES) continue
+            if (annotation.shortName.asString() !in paramAnnotationNames) continue
             if (found != null) {
                 throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
             }
