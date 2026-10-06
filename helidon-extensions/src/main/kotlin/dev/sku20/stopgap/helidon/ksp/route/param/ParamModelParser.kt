@@ -45,15 +45,13 @@ class ParamModelParser(private val param: KSValueParameter) {
     }
 
     private fun findParamAnnotation(): KSAnnotation? {
-        var found: KSAnnotation? = null
-        for (annotation in param.annotations) {
-            if (annotation.shortName.asString() !in paramAnnotationNames) continue
-            if (found != null) {
-                throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
-            }
-            found = annotation
+        val found = param.annotations
+            .filter { it.shortName.asString() in paramAnnotationNames }
+            .toList()
+        if (found.size > 1) {
+            throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
         }
-        return found
+        return found.firstOrNull()
     }
 
     private fun parseTypedParam(): ParamModel = when {
