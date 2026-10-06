@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.route
+package dev.sku20.stopgap.helidon.ksp.route.endpoint
 
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.EndpointMethodModel
