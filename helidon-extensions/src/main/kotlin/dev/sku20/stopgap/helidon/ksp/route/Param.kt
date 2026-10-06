@@ -1,6 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.route.param
-
-import dev.sku20.stopgap.helidon.ksp.route.TypeModel
+package dev.sku20.stopgap.helidon.ksp.route
 
 sealed interface ParamModel
 
@@ -20,7 +18,9 @@ data class HeaderParamModel(
     val name: String,
 ) : ParamModel
 
-data object AuthParamModel : ParamModel
+data class AuthParamModel(
+    val type: String,
+) : ParamModel
 
 data class BodyParamModel(
     val type: TypeModel,
