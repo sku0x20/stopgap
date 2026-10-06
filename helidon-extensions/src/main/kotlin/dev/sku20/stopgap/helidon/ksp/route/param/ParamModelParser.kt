@@ -27,16 +27,16 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> null
     }
 
-    private val annotatedParamModels: Map<String?, (String) -> ParamModel> = mapOf(
-        PathParam::class.simpleName to ::PathParamModel,
-        QueryParam::class.simpleName to ::QueryParamModel,
-        HeaderParam::class.simpleName to ::HeaderParamModel,
+    private val annotatedParamModels: Map<String?, (KSAnnotation) -> ParamModel> = mapOf(
+        PathParam::class.simpleName to { PathParamModel(it.argument("name")) },
+        QueryParam::class.simpleName to { QueryParamModel(it.argument("name")) },
+        HeaderParam::class.simpleName to { HeaderParamModel(it.argument("name")) },
     )
 
     private fun parseAnnotatedParam(): ParamModel? {
         val paramAnnotation = findParamAnnotation() ?: return null
         val toParamModel = annotatedParamModels.getValue(paramAnnotation.shortName.asString())
-        return toParamModel(paramAnnotation.argument("name"))
+        return toParamModel(paramAnnotation)
     }
 
     private fun findParamAnnotation(): KSAnnotation? {
