@@ -27,26 +27,21 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> null
     }
 
-    private val paramAnnotationNames = setOf(
-        PathParam::class.simpleName,
-        QueryParam::class.simpleName,
-        HeaderParam::class.simpleName,
+    private val annotatedParamModels: Map<String?, (String) -> ParamModel> = mapOf(
+        PathParam::class.simpleName to ::PathParamModel,
+        QueryParam::class.simpleName to ::QueryParamModel,
+        HeaderParam::class.simpleName to ::HeaderParamModel,
     )
 
     private fun parseAnnotatedParam(): ParamModel? {
         val paramAnnotation = findParamAnnotation() ?: return null
-        val name = paramAnnotation.argument<String>("name")
-        return when (paramAnnotation.shortName.asString()) {
-            PathParam::class.simpleName -> PathParamModel(name)
-            QueryParam::class.simpleName -> QueryParamModel(name)
-            HeaderParam::class.simpleName -> HeaderParamModel(name)
-            else -> null
-        }
+        val toParamModel = annotatedParamModels.getValue(paramAnnotation.shortName.asString())
+        return toParamModel(paramAnnotation.argument("name"))
     }
 
     private fun findParamAnnotation(): KSAnnotation? {
         val found = param.annotations
-            .filter { it.shortName.asString() in paramAnnotationNames }
+            .filter { it.shortName.asString() in annotatedParamModels }
             .toList()
         if (found.size > 1) {
             throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
