@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.ksp.route.param
 
 import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -12,10 +13,17 @@ import dev.sku20.stopgap.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
 
+private val PARAM_ANNOTATION_NAMES = setOf(
+    PathParam::class.simpleName,
+    QueryParam::class.simpleName,
+    HeaderParam::class.simpleName,
+)
+
 class ParamModelParser(private val param: KSValueParameter) {
 
     private val type = param.type.resolve()
     private val fqn = type.declaration.qualifiedName!!.asString()
+    private val paramAnnotation = findParamAnnotation()
 
     fun parse(): ParamModel =
         parseServerParam() ?: parseAnnotatedParam() ?: parseTypedParam()
@@ -27,14 +35,26 @@ class ParamModelParser(private val param: KSValueParameter) {
     }
 
     private fun parseAnnotatedParam(): ParamModel? {
-        for (annotation in param.annotations) {
-            when (annotation.shortName.asString()) {
-                PathParam::class.simpleName -> return PathParamModel(annotation.argument("name"))
-                QueryParam::class.simpleName -> return QueryParamModel(annotation.argument("name"))
-                HeaderParam::class.simpleName -> return HeaderParamModel(annotation.argument("name"))
-            }
+        val annotation = paramAnnotation ?: return null
+        val name = annotation.argument<String>("name")
+        return when (annotation.shortName.asString()) {
+            PathParam::class.simpleName -> PathParamModel(name)
+            QueryParam::class.simpleName -> QueryParamModel(name)
+            HeaderParam::class.simpleName -> HeaderParamModel(name)
+            else -> null
         }
-        return null
+    }
+
+    private fun findParamAnnotation(): KSAnnotation? {
+        var found: KSAnnotation? = null
+        for (annotation in param.annotations) {
+            if (annotation.shortName.asString() !in PARAM_ANNOTATION_NAMES) continue
+            if (found != null) {
+                throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
+            }
+            found = annotation
+        }
+        return found
     }
 
     private fun parseTypedParam(): ParamModel = when {
