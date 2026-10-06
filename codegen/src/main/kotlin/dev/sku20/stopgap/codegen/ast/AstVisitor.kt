@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.codegen.ast
 
 interface AstVisitor {
+    fun visitAnnotation(node: AstAnnotation)
     fun visitAssignment(node: AstAssignment)
     fun visitBreak(node: AstBreak)
     fun visitCall(node: AstCall)
@@ -25,6 +26,7 @@ interface AstVisitor {
 }
 
 fun AstVisitor.visit(node: AstExpression) = when (node) {
+    is AstAnnotation -> visitAnnotation(node)
     is AstAssignment -> visitAssignment(node)
     is AstBreak -> visitBreak(node)
     is AstCall -> visitCall(node)

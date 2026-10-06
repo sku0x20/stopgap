@@ -7,6 +7,16 @@ class AstPrinter(
     private val out: OutputStream,
 ) : AstVisitor {
 
+    override fun visitAnnotation(node: AstAnnotation) {
+        write("@")
+        visit(node.name)
+        if (node.arguments.isNotEmpty()) {
+            write("(")
+            writeCommaSeparated(node.arguments)
+            write(")")
+        }
+    }
+
     override fun visitAssignment(node: AstAssignment) {
         writeVisibility(node.visibility)
         when (node.variableType) {
@@ -143,6 +153,10 @@ class AstPrinter(
     }
 
     override fun visitParam(node: AstParam) {
+        for (annotation in node.annotations) {
+            visit(annotation)
+            write(" ")
+        }
         visit(node.name)
         if (node.type != null) {
             write(": ")

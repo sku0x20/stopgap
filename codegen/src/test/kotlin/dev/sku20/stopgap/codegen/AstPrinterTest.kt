@@ -88,6 +88,33 @@ class AstPrinterTest {
             )
         )
         assertOutput("a: kotlin.String")
+
+        out.reset()
+
+        printer.visitParam(
+            AstParam(
+                AstLiteral("a"),
+                AstType("kotlin.String"),
+                listOf(AstAnnotation(AstLiteral("A")), AstAnnotation(AstLiteral("B")))
+            )
+        )
+        assertOutput("@A @B a: kotlin.String")
+    }
+
+    @Test
+    fun astAnnotation() {
+        printer.visitAnnotation(AstAnnotation(AstLiteral("a.A")))
+        assertOutput("@a.A")
+
+        out.reset()
+
+        printer.visitAnnotation(
+            AstAnnotation(
+                AstLiteral("a.A"),
+                listOf(AstStringLiteral("q"), AstLiteral("1"))
+            )
+        )
+        assertOutput("@a.A(\"q\", 1)")
     }
 
     @Test
