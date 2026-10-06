@@ -8,5 +8,5 @@ data class EndpointMethodModel(
     // its a param but to save lookup since it has to be on each method.
     val authParamModel: AuthParamModel? = null,
     val params: List<ParamModel> = emptyList(),
-    val responseFqn: String? = null,
+    val isResponseUnit: Boolean = true,
 )
