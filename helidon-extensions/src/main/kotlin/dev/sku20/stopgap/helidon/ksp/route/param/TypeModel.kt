@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.route
+package dev.sku20.stopgap.helidon.ksp.route.param
 
 data class TypeModel(
     val fqn: String,

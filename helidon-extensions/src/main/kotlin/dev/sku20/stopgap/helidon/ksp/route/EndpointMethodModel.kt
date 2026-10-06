@@ -1,6 +1,8 @@
 package dev.sku20.stopgap.helidon.ksp.route
 
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
+import dev.sku20.stopgap.helidon.ksp.route.param.AuthParamModel
+import dev.sku20.stopgap.helidon.ksp.route.param.ParamModel
 
 data class EndpointMethodModel(
     val name: String,
