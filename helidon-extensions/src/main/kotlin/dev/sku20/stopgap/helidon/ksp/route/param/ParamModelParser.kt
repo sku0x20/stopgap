@@ -6,13 +6,11 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.argument
-import dev.sku20.stopgap.helidon.ksp.findAnnotation
 import dev.sku20.stopgap.helidon.param.HeaderParam
 import dev.sku20.stopgap.helidon.param.PathParam
 import dev.sku20.stopgap.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
-import kotlin.reflect.KClass
 
 class ParamModelParser(private val param: KSValueParameter) {
 
@@ -28,23 +26,21 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> null
     }
 
-    private fun parseAnnotatedParam(): ParamModel? = when {
-        hasAnnotation(PathParam::class) -> PathParamModel(nameArgument(PathParam::class))
-        hasAnnotation(QueryParam::class) -> QueryParamModel(nameArgument(QueryParam::class))
-        hasAnnotation(HeaderParam::class) -> HeaderParamModel(nameArgument(HeaderParam::class))
-        else -> null
+    private fun parseAnnotatedParam(): ParamModel? {
+        for (annotation in param.annotations) {
+            when (annotation.shortName.asString()) {
+                PathParam::class.simpleName -> return PathParamModel(annotation.argument("name"))
+                QueryParam::class.simpleName -> return QueryParamModel(annotation.argument("name"))
+                HeaderParam::class.simpleName -> return HeaderParamModel(annotation.argument("name"))
+            }
+        }
+        return null
     }
 
     private fun parseTypedParam(): ParamModel = when {
         isAuthentication() -> AuthParamModel(fqn)
         else -> BodyParamModel(toTypeModel(type))
     }
-
-    private fun hasAnnotation(klass: KClass<*>): Boolean =
-        param.findAnnotation(klass) != null
-
-    private fun nameArgument(klass: KClass<*>): String =
-        param.findAnnotation(klass)!!.argument("name")
 
     private fun isAuthentication(): Boolean {
         val declaration = type.declaration
