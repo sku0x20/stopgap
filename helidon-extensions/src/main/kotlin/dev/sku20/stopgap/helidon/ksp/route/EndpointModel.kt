@@ -4,4 +4,5 @@ data class EndpointModel(
     val fqn: String,
     val path: String,
     val methods: List<EndpointMethodModel>,
+    val customSerdeCatalogModel: CustomSerdeCatalogModel?,
 )
