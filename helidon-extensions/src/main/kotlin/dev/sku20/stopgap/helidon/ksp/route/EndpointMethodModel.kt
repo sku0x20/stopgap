@@ -4,7 +4,7 @@ data class EndpointMethodModel(
     val name: String,
     val httpMethod: HttpMethod,
     val path: String,
-    val customSerdeCatalog: CustomSerdeCatalogModel? = null,
+    val customSerdeCatalogModel: CustomSerdeCatalogModel? = null,
     // its a param but to save lookup since it has to be on each method.
     val authParamModel: AuthParamModel? = null,
     val params: List<ParamModel> = emptyList(),
