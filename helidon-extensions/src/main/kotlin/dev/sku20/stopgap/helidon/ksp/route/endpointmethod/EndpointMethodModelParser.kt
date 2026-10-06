@@ -46,7 +46,7 @@ class EndpointMethodModelParser(private val function: KSFunctionDeclaration) {
 
     private fun findHttpMethodAnnotation(): KSAnnotation =
         function.annotations.firstOrNull { it.shortName.asString() in httpMethods }
-            ?: throw IllegalArgumentException("No Http Method annotation found on function: $name")
+            ?: throw IllegalArgumentException("No Http Method annotation found on function: ${function.qualifiedName!!.asString()}")
 
     private fun isResponseUnit(): Boolean =
         function.returnType!!.resolve().declaration.qualifiedName!!.asString() == Unit::class.qualifiedName!!
