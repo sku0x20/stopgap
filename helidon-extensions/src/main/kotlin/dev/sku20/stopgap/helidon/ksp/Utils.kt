@@ -16,6 +16,8 @@ object Utils {
     }
 }
 
+// TODO: annotations are matched by simple name across ksp (grep `shortName`), so a same-named
+//  annotation from another library also matches. Match by qualified name instead.
 fun KSAnnotated.findAnnotation(klass: KClass<*>): KSAnnotation? =
     annotations.firstOrNull { it.shortName.asString() == klass.simpleName }
 

@@ -17,6 +17,7 @@ class ParamModelParser(private val param: KSValueParameter) {
 
     private val type = param.type.resolve()
     private val fqn = type.declaration.qualifiedName!!.asString()
+    private val paramName = param.name!!.asString()
 
     fun parse(): ParamModel =
         parseServerParam() ?: parseAnnotatedParam() ?: parseTypedParam()
@@ -27,15 +28,15 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> null
     }
 
-    private val annotatedParamModels: Map<String?, (KSAnnotation) -> ParamModel> = mapOf(
-        PathParam::class.simpleName to { PathParamModel(it.argument("name")) },
-        QueryParam::class.simpleName to { QueryParamModel(it.argument("name")) },
-        HeaderParam::class.simpleName to { HeaderParamModel(it.argument("name")) },
+    private val annotatedParamModels: Map<String, (KSAnnotation) -> ParamModel> = mapOf(
+        PathParam::class.simpleName!! to { PathParamModel(it.argument("name")) },
+        QueryParam::class.simpleName!! to { QueryParamModel(it.argument("name")) },
+        HeaderParam::class.simpleName!! to { HeaderParamModel(it.argument("name")) },
     )
 
     private fun parseAnnotatedParam(): ParamModel? {
         val paramAnnotation = findParamAnnotation() ?: return null
-        val toParamModel = annotatedParamModels.getValue(paramAnnotation.shortName.asString())
+        val toParamModel = annotatedParamModels[paramAnnotation.shortName.asString()]!!
         return toParamModel(paramAnnotation)
     }
 
@@ -44,7 +45,7 @@ class ParamModelParser(private val param: KSValueParameter) {
             .filter { it.shortName.asString() in annotatedParamModels }
             .toList()
         if (found.size > 1) {
-            throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
+            throw IllegalArgumentException("Multiple param annotations on: $paramName")
         }
         return found.firstOrNull()
     }
@@ -59,7 +60,7 @@ class ParamModelParser(private val param: KSValueParameter) {
         if (declaration !is KSClassDeclaration) return false
         // raw Authentication doesn't make sense.
         if (declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!) {
-            throw IllegalArgumentException("Raw Authentication not supported in param: ${param.name!!.asString()}, use a concrete subtype")
+            throw IllegalArgumentException("Raw Authentication not supported in param: $paramName, use a concrete subtype")
         }
         if (declaration.getAllSuperTypes().any {
                 it.declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!
@@ -73,7 +74,7 @@ class ParamModelParser(private val param: KSValueParameter) {
         val typeArguments = mutableListOf<TypeModel>()
         for (argument in type.arguments) {
             val argumentType = argument.type
-                ?: throw IllegalArgumentException("Star projection not supported in body param: ${param.name!!.asString()}")
+                ?: throw IllegalArgumentException("Star projection not supported in body param: $paramName")
             typeArguments.add(toTypeModel(argumentType.resolve()))
         }
         return TypeModel(
