@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.customserdecatalog
+package dev.sku20.stopgap.helidon.ksp.route.customserdecatalog
 
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSType
