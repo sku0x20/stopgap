@@ -186,7 +186,7 @@ class AstPrinter(
     override fun visitType(node: AstType) {
         write(node.fqn)
         writeTypeArguments(node.typeArguments)
-        if (node.nullable) {
+        if (node.isNullable) {
             write("?")
         }
     }
