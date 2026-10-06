@@ -12,31 +12,30 @@ import dev.sku20.stopgap.helidon.param.PathParam
 import dev.sku20.stopgap.helidon.param.QueryParam
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
+import kotlin.reflect.KClass
 
 class ParamModelParser(private val param: KSValueParameter) {
 
-    fun parse(): ParamModel {
-        val type = param.type.resolve()
-        val fqn = type.declaration.qualifiedName!!.asString()
+    private val type = param.type.resolve()
+    private val fqn = type.declaration.qualifiedName!!.asString()
 
-        if (fqn == ServerRequest::class.qualifiedName) return RequestParamModel
-        if (fqn == ServerResponse::class.qualifiedName) return ResponseParamModel
-
-        val pathParam = param.findAnnotation(PathParam::class)
-        if (pathParam != null) return PathParamModel(pathParam.argument("name"))
-
-        val queryParam = param.findAnnotation(QueryParam::class)
-        if (queryParam != null) return QueryParamModel(queryParam.argument("name"))
-
-        val headerParam = param.findAnnotation(HeaderParam::class)
-        if (headerParam != null) return HeaderParamModel(headerParam.argument("name"))
-
-        if (isAuthentication(type)) return AuthParamModel(fqn)
-
-        return BodyParamModel(toTypeModel(type))
+    fun parse(): ParamModel = when {
+        isType(ServerRequest::class) -> RequestParamModel
+        isType(ServerResponse::class) -> ResponseParamModel
+        hasAnnotation(PathParam::class) -> PathParamModel(nameArgument(PathParam::class))
+        hasAnnotation(QueryParam::class) -> QueryParamModel(nameArgument(QueryParam::class))
+        hasAnnotation(HeaderParam::class) -> HeaderParamModel(nameArgument(HeaderParam::class))
+        isAuthentication() -> AuthParamModel(fqn)
+        else -> BodyParamModel(toTypeModel(type))
     }
 
-    private fun isAuthentication(type: KSType): Boolean {
+    private fun isType(klass: KClass<*>): Boolean = fqn == klass.qualifiedName
+
+    private fun hasAnnotation(klass: KClass<*>): Boolean = param.findAnnotation(klass) != null
+
+    private fun nameArgument(klass: KClass<*>): String = param.findAnnotation(klass)!!.argument("name")
+
+    private fun isAuthentication(): Boolean {
         val authFqn = Authentication::class.qualifiedName!!
         val declaration = type.declaration
         if (declaration.qualifiedName?.asString() == authFqn) return true
