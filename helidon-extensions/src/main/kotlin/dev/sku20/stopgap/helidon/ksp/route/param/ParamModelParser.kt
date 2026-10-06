@@ -29,19 +29,26 @@ class ParamModelParser(private val param: KSValueParameter) {
         else -> BodyParamModel(toTypeModel(type))
     }
 
-    private fun isType(klass: KClass<*>): Boolean = fqn == klass.qualifiedName
+    private fun isType(klass: KClass<*>): Boolean =
+        fqn == klass.qualifiedName
 
-    private fun hasAnnotation(klass: KClass<*>): Boolean = param.findAnnotation(klass) != null
+    private fun hasAnnotation(klass: KClass<*>): Boolean =
+        param.findAnnotation(klass) != null
 
-    private fun nameArgument(klass: KClass<*>): String = param.findAnnotation(klass)!!.argument("name")
+    private fun nameArgument(klass: KClass<*>): String =
+        param.findAnnotation(klass)!!.argument("name")
 
     private fun isAuthentication(): Boolean {
-        val authFqn = Authentication::class.qualifiedName!!
         val declaration = type.declaration
-        if (declaration.qualifiedName?.asString() == authFqn) return true
         if (declaration !is KSClassDeclaration) return false
-        for (superType in declaration.getAllSuperTypes()) {
-            if (superType.declaration.qualifiedName?.asString() == authFqn) return true
+        // raw Authentication doesn't make sense.
+        if (declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!) {
+            throw IllegalArgumentException("Raw Authentication not supported in param: ${param.name!!.asString()}, use a concrete subtype")
+        }
+        if (declaration.getAllSuperTypes().any {
+                it.declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!
+            }) {
+            return true
         }
         return false
     }
