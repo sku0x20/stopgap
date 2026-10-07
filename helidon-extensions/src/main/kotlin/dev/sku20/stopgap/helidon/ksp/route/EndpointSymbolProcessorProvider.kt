@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.ksp.endpoint
+package dev.sku20.stopgap.helidon.ksp.route
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

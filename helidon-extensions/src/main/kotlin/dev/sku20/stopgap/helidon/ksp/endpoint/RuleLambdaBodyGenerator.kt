@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.ksp.endpoint
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import dev.sku20.stopgap.helidon.ksp.route.EndpointSymbolProcessor
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.CustomWriter

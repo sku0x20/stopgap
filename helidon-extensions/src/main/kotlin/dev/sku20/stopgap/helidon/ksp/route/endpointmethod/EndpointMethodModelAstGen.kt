@@ -2,7 +2,7 @@ package dev.sku20.stopgap.helidon.ksp.route.endpointmethod
 
 import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.Authentication
-import dev.sku20.stopgap.helidon.ksp.endpoint.EndpointSymbolProcessor
+import dev.sku20.stopgap.helidon.ksp.route.EndpointSymbolProcessor
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelAstGen
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelAstGen

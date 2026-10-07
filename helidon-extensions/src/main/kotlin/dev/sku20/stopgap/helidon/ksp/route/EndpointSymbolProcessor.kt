@@ -1,9 +1,11 @@
-package dev.sku20.stopgap.helidon.ksp.endpoint
+package dev.sku20.stopgap.helidon.ksp.route
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.ksp.endpoint.EndpointRoutesGenerator
+import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames
 
 class EndpointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
