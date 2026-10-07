@@ -1,0 +1,713 @@
+package dev.sku20.stopgap.codegen
+
+import dev.sku20.stopgap.codegen.ast.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import java.io.ByteArrayOutputStream
+
+class AstPrinterTest {
+
+    private val out = ByteArrayOutputStream()
+    private val printer = AstPrinter(out)
+
+    @Test
+    fun astFile() {
+        val file = AstFile(
+            AstLiteral("dev.sku20.example"),
+            listOf(AstLiteral("a"), AstLiteral("b"))
+        )
+        printer.visitFile(file)
+
+        assertOutput(
+            """
+            package dev.sku20.example
+
+            a
+
+            b
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astLiteral() {
+        val literal = AstLiteral("42")
+        printer.visitLiteral(literal)
+
+        assertOutput("42")
+    }
+
+    @Test
+    fun astStringLiteral() {
+        val literal = AstStringLiteral("hello")
+        printer.visitStringLiteral(literal)
+
+        assertOutput("\"hello\"")
+    }
+
+    @Test
+    fun astType() {
+        printer.visitType(AstType("kotlin.String"))
+        assertOutput("kotlin.String")
+
+        out.reset()
+
+        printer.visitType(AstType("kotlin.String", emptyList(), true))
+        assertOutput("kotlin.String?")
+
+        out.reset()
+
+        printer.visitType(
+            AstType(
+                "kotlin.collections.Map",
+                listOf(
+                    AstType("kotlin.String"),
+                    AstType(
+                        "kotlin.collections.List",
+                        listOf(AstType("kotlin.Int", emptyList(), true))
+                    )
+                ),
+                true
+            )
+        )
+        assertOutput("kotlin.collections.Map<kotlin.String, kotlin.collections.List<kotlin.Int?>>?")
+    }
+
+    @Test
+    fun astParam() {
+        printer.visitParam(AstParam(AstLiteral("a")))
+        assertOutput("a")
+
+        out.reset()
+
+        printer.visitParam(
+            AstParam(
+                AstLiteral("a"),
+                AstType("kotlin.String")
+            )
+        )
+        assertOutput("a: kotlin.String")
+
+        out.reset()
+
+        printer.visitParam(
+            AstParam(
+                AstLiteral("a"),
+                AstType("kotlin.String"),
+                listOf(AstAnnotation(AstLiteral("A")), AstAnnotation(AstLiteral("B")))
+            )
+        )
+        assertOutput("@A @B a: kotlin.String")
+    }
+
+    @Test
+    fun astAnnotation() {
+        printer.visitAnnotation(AstAnnotation(AstLiteral("a.A")))
+        assertOutput("@a.A")
+
+        out.reset()
+
+        printer.visitAnnotation(
+            AstAnnotation(
+                AstLiteral("a.A"),
+                listOf(AstStringLiteral("q"), AstLiteral("1"))
+            )
+        )
+        assertOutput("@a.A(\"q\", 1)")
+    }
+
+    @Test
+    fun astCall() {
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(
+                    AstLiteral("a"),
+                    AstLiteral("b")
+                )
+            )
+        )
+        assertOutput("f(a, b)")
+
+        out.reset()
+
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(AstLiteral("a")),
+                AstLiteral("r")
+            )
+        )
+        assertOutput("r.f(a)")
+
+        out.reset()
+
+        printer.visitCall(
+            AstCall(
+                AstLiteral("f"),
+                listOf(AstLiteral("a")),
+                AstLiteral("r"),
+                listOf(
+                    AstType("kotlin.String"),
+                    AstType("kotlin.Int")
+                )
+            )
+        )
+        assertOutput("r.f<kotlin.String, kotlin.Int>(a)")
+    }
+
+    @Test
+    fun astReturn() {
+        printer.visitReturn(AstReturn())
+        assertOutput("return")
+
+        out.reset()
+
+        printer.visitReturn(AstReturn(AstLiteral("a")))
+        assertOutput("return a")
+
+        out.reset()
+
+        printer.visitReturn(AstReturn(label = AstLiteral("l")))
+        assertOutput("return@l")
+    }
+
+    @Test
+    fun astBreak() {
+        printer.visitBreak(AstBreak())
+        assertOutput("break")
+
+        out.reset()
+
+        printer.visitBreak(AstBreak(AstLiteral("l")))
+        assertOutput("break@l")
+    }
+
+    @Test
+    fun astContinue() {
+        printer.visitContinue(AstContinue())
+        assertOutput("continue")
+
+        out.reset()
+
+        printer.visitContinue(AstContinue(AstLiteral("l")))
+        assertOutput("continue@l")
+    }
+
+    @Test
+    fun astThrow() {
+        printer.visitThrow(
+            AstThrow(
+                AstCall(
+                    AstLiteral("E"),
+                    listOf(AstStringLiteral("m"))
+                )
+            )
+        )
+        assertOutput("throw E(\"m\")")
+    }
+
+    @Test
+    fun astCatch() {
+        printer.visitCatch(
+            AstCatch(
+                AstParam(AstLiteral("e"), AstLiteral("E")),
+                listOf(AstLiteral("x"))
+            )
+        )
+        assertOutput(
+            """
+            catch (e: E) {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astTry() {
+        printer.visitTry(
+            AstTry(
+                listOf(AstLiteral("x")),
+                finallyContent = listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            try {
+            x
+            } finally {
+            z
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitTry(
+            AstTry(
+                listOf(AstLiteral("x")),
+                listOf(
+                    AstCatch(AstLiteral("a: A"), listOf(AstLiteral("y"))),
+                    AstCatch(AstLiteral("b: B"), listOf(AstLiteral("w")))
+                ),
+                listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            try {
+            x
+            } catch (a: A) {
+            y
+            } catch (b: B) {
+            w
+            } finally {
+            z
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astAssignment() {
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                variableType = VariableType.VAL,
+                value = AstLiteral("1")
+            )
+        )
+        assertOutput("val a = 1")
+
+        out.reset()
+
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                variableType = VariableType.VAR,
+                value = AstLiteral("1")
+            )
+        )
+        assertOutput("var a = 1")
+
+        out.reset()
+
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                AstType("kotlin.String"),
+                VariableType.LATEINIT_VAR
+            )
+        )
+        assertOutput("lateinit var a: kotlin.String")
+
+        out.reset()
+
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                value = AstLiteral("1")
+            )
+        )
+        assertOutput("a = 1")
+
+        out.reset()
+
+        printer.visitAssignment(
+            AstAssignment(
+                AstLiteral("a"),
+                variableType = VariableType.VAL,
+                value = AstLiteral("1"),
+                visibility = Visibility.PRIVATE
+            )
+        )
+        assertOutput("private val a = 1")
+    }
+
+    @Test
+    fun astFunction() {
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                listOf(
+                    AstParam(AstLiteral("a")),
+                    AstParam(AstLiteral("b"))
+                ),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            fun f(a, b) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                emptyList(),
+                listOf(AstLiteral("x")),
+                AstType("kotlin.String")
+            )
+        )
+        assertOutput(
+            """
+            fun f(): kotlin.String {
+            x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                listOf(AstParam(AstLiteral("a"), AstLiteral("T"))),
+                listOf(AstLiteral("x")),
+                null,
+                listOf(AstLiteral("T"))
+            )
+        )
+        assertOutput(
+            """
+            fun <T> f(a: T) {
+            x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitFunction(
+            AstFunction(
+                "f",
+                emptyList(),
+                listOf(AstLiteral("x")),
+                visibility = Visibility.INTERNAL
+            )
+        )
+        assertOutput(
+            """
+            internal fun f() {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astLambda() {
+        printer.visitLambda(
+            AstLambda(
+                listOf(
+                    AstParam(AstLiteral("a")),
+                    AstParam(AstLiteral("b"))
+                ),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            { a, b ->
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitLambda(
+            AstLambda(
+                emptyList(),
+                listOf(AstLiteral("x"))
+            )
+        )
+        assertOutput(
+            """
+            {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astIf() {
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                listOf(AstElse(content = listOf(AstLiteral("y"))))
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            } else {
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitIf(
+            AstIf(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                listOf(
+                    AstElse(AstLiteral("d"), listOf(AstLiteral("y"))),
+                    AstElse(content = listOf(AstLiteral("z")))
+                )
+            )
+        )
+        assertOutput(
+            """
+            if (c) {
+            x
+            } else if (d) {
+            y
+            } else {
+            z
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astElse() {
+        printer.visitElse(AstElse(content = listOf(AstLiteral("x"))))
+        assertOutput(
+            """
+            else {
+            x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitElse(AstElse(AstLiteral("c"), listOf(AstLiteral("x"))))
+        assertOutput(
+            """
+            else if (c) {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astWhenBranch() {
+        printer.visitWhenBranch(
+            AstWhenBranch(
+                listOf(
+                    AstLiteral("a"),
+                    AstLiteral("b")
+                ),
+                listOf(AstLiteral("x"))
+            )
+        )
+        assertOutput("a, b -> x")
+
+        out.reset()
+
+        printer.visitWhenBranch(
+            AstWhenBranch(
+                listOf(AstLiteral("a")),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            a -> {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astWhen() {
+        printer.visitWhen(
+            AstWhen(
+                listOf(
+                    AstWhenBranch(listOf(AstLiteral("a")), listOf(AstLiteral("x"))),
+                    AstWhenBranch(listOf(AstLiteral("b")), listOf(AstLiteral("y")))
+                ),
+                AstLiteral("s"),
+                listOf(AstLiteral("z"))
+            )
+        )
+        assertOutput(
+            """
+            when (s) {
+            a -> x
+            b -> y
+            else -> z
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhen(
+            AstWhen(
+                listOf(AstWhenBranch(listOf(AstLiteral("a")), listOf(AstLiteral("x"))))
+            )
+        )
+        assertOutput(
+            """
+            when {
+            a -> x
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhen(
+            AstWhen(
+                emptyList(),
+                elseContent = listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            when {
+            else -> {
+            x
+            y
+            }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astFor() {
+        printer.visitFor(
+            AstFor(
+                AstLiteral("i"),
+                AstLiteral("xs"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            for (i in xs) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitFor(
+            AstFor(
+                AstLiteral("i"),
+                AstLiteral("xs"),
+                listOf(AstLiteral("x")),
+                AstLiteral("l")
+            )
+        )
+        assertOutput(
+            """
+            l@ for (i in xs) {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun astWhile() {
+        printer.visitWhile(
+            AstWhile(
+                AstLiteral("c"),
+                listOf(
+                    AstLiteral("x"),
+                    AstLiteral("y")
+                )
+            )
+        )
+        assertOutput(
+            """
+            while (c) {
+            x
+            y
+            }
+            """.trimIndent()
+        )
+
+        out.reset()
+
+        printer.visitWhile(
+            AstWhile(
+                AstLiteral("c"),
+                listOf(AstLiteral("x")),
+                AstLiteral("l")
+            )
+        )
+        assertOutput(
+            """
+            l@ while (c) {
+            x
+            }
+            """.trimIndent()
+        )
+    }
+
+    private fun assertOutput(expected: String) {
+        assertThat(out.toString())
+            .isEqualTo(expected)
+    }
+
+}

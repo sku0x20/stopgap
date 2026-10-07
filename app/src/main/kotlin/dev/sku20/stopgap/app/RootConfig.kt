@@ -6,8 +6,8 @@ import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.serde.SerdeCatalog
 import dev.sku20.stopgap.helidon.serde.SerdeExtras
-import dev.sku20.stopgap.ir.Creates
-import dev.sku20.stopgap.ir.Qualifier
+import dev.sku20.stopgap.ir.annotation.Creates
+import dev.sku20.stopgap.ir.annotation.Qualifier
 import io.helidon.config.Config
 
 object RootConfig {

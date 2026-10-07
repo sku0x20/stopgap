@@ -8,6 +8,7 @@ version = findProperty("publishVersion") as? String ?: "rolling"
 
 dependencies {
     implementation(libs.ksp.api)
+    implementation(project(":codegen"))
     implementation(libs.helidon.webserver)
 
     testImplementation(libs.assertj.core)

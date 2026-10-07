@@ -1,5 +1,7 @@
 package dev.sku20.stopgap.ir
 
+import dev.sku20.stopgap.ir.annotation.Creates
+
 object EagerlyConfig {
 
     @Creates(eagerly = true)

@@ -5,5 +5,6 @@ pluginManagement {
 rootProject.name = "stopgap"
 include("app")
 include("ir")
+include("codegen")
 include("helidon-extensions")
 include("helidon-test")

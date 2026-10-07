@@ -1,11 +1,8 @@
 package dev.sku20.stopgap.helidon.ksp.authentication
 
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
+import dev.sku20.stopgap.codegen.AstPrinter
 
 class AuthenticationSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -23,12 +20,16 @@ class AuthenticationSymbolProcessor(
     }
 
     private fun generateFile() {
+        val astFile = AuthenticationAstGen(GeneratedNames.PACKAGE).file()
         val file = codeGenerator.createNewFile(
             Dependencies(false),
             GeneratedNames.PACKAGE,
             GeneratedNames.FILE_NAME,
             GeneratedNames.EXTENSION
         )
-        AuthenticationInitializerGenerator(file, GeneratedNames.PACKAGE).write()
+        file.buffered().use { out ->
+            AstPrinter(out)
+                .visitFile(astFile)
+        }
     }
 }

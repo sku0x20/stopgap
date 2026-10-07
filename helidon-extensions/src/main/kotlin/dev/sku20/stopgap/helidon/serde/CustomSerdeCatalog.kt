@@ -4,8 +4,7 @@ import kotlin.reflect.KClass
 
 @Target(
     AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.VALUE_PARAMETER
+    AnnotationTarget.FUNCTION
 )
 @Retention(AnnotationRetention.SOURCE)
 annotation class CustomSerdeCatalog(
