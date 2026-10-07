@@ -60,8 +60,7 @@ class EndpointMethodModelAstGen(
     }
 
     private fun authCheck(): List<AstExpression> {
-        val authType = authType()
-        if (authType == null) return emptyList()
+        val authType = authType() ?: return emptyList()
         val authentication = AstLiteral("${Authentication::class.qualifiedName}::class.java")
         val forbidden = AstCall(
             AstLiteral(HttpException::class.qualifiedName!!),
