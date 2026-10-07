@@ -89,16 +89,16 @@ pluginManagement {
 ```kotlin
 // build.gradle.kts
 plugins {
-    id("dev.sku20.stopgap") version "3.1.0"
+    id("dev.sku20.stopgap") version "4.0.0"
 }
 
 dependencies {
-    implementation("dev.sku20.stopgap:ir:3.1.0")
-    ksp("dev.sku20.stopgap:ir:3.1.0")
-    implementation("dev.sku20.stopgap:helidon-extensions:3.1.0")
-    ksp("dev.sku20.stopgap:helidon-extensions:3.1.0")
+    implementation("dev.sku20.stopgap:ir:4.0.0")
+    ksp("dev.sku20.stopgap:ir:4.0.0")
+    implementation("dev.sku20.stopgap:helidon-extensions:4.0.0")
+    ksp("dev.sku20.stopgap:helidon-extensions:4.0.0")
 
-    testImplementation("dev.sku20.stopgap:helidon-test:3.1.0")
+    testImplementation("dev.sku20.stopgap:helidon-test:4.0.0")
 }
 ```
 
