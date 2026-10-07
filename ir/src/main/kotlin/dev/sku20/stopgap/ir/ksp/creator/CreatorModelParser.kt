@@ -30,16 +30,19 @@ class CreatorModelParser(private val function: KSFunctionDeclaration) {
         )
 
     private fun eagerly(): Boolean {
-        val annotation = function.annotations.first { it.shortName.asString() == Creates::class.simpleName }
+        val annotation = function.annotations.first { qualifiedName(it) == Creates::class.qualifiedName }
         return annotation.arguments.first { it.name?.getShortName() == "eagerly" }.value as Boolean
     }
 
     private fun qualifierValue(annotations: Sequence<KSAnnotation>): String? {
-        val qualifier = annotations.firstOrNull { it.shortName.asString() == Qualifier::class.simpleName }
+        val qualifier = annotations.firstOrNull { qualifiedName(it) == Qualifier::class.qualifiedName }
         if (qualifier == null) return null
         return qualifier.arguments.first { it.name?.getShortName() == "value" }.value as String
     }
 
     private fun qualifiedTypeName(type: KSTypeReference): String =
         type.resolve().declaration.qualifiedName!!.asString()
+
+    private fun qualifiedName(annotation: KSAnnotation): String? =
+        annotation.annotationType.resolve().declaration.qualifiedName?.asString()
 }
