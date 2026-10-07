@@ -4,7 +4,7 @@ import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import io.helidon.webserver.http.HttpRouting
 import dev.sku20.stopgap.helidon.ksp.authentication.GeneratedNames as AuthGeneratedNames
-import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
+import dev.sku20.stopgap.helidon.ksp.route.GeneratedNames as EndpointGeneratedNames
 
 class RegistryModelAstGen(
     private val model: RegistryModel,

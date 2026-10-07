@@ -2,19 +2,7 @@ package dev.sku20.stopgap.helidon.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import kotlin.reflect.KClass
-
-object Utils {
-    fun capturing(block: (CustomWriter) -> Unit): InputStream {
-        val buffer = ByteArrayOutputStream()
-        val writer = CustomWriter(buffer)
-        block(writer)
-        writer.close()
-        return buffer.toByteArray().inputStream()
-    }
-}
 
 // TODO: annotations are matched by simple name across ksp (grep `shortName`), so a same-named
 //  annotation from another library also matches. Match by qualified name instead.

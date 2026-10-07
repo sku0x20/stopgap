@@ -3,9 +3,13 @@ package dev.sku20.stopgap.helidon.ksp.route
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import dev.sku20.stopgap.codegen.AstPrinter
+import dev.sku20.stopgap.codegen.ast.AstExpression
+import dev.sku20.stopgap.codegen.ast.AstFile
+import dev.sku20.stopgap.codegen.ast.AstLiteral
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
-import dev.sku20.stopgap.helidon.ksp.endpoint.EndpointRoutesGenerator
-import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames
+import dev.sku20.stopgap.helidon.ksp.route.endpoint.EndpointModelAstGen
+import dev.sku20.stopgap.helidon.ksp.route.endpoint.EndpointModelParser
 
 class EndpointSymbolProcessor(
     private val codeGenerator: CodeGenerator,
@@ -28,6 +32,7 @@ class EndpointSymbolProcessor(
     }
 
     private fun generateFile(symbols: List<KSClassDeclaration>) {
+        val astFile = AstFile(AstLiteral(GeneratedNames.PACKAGE), functions(symbols))
         val file = codeGenerator.createNewFile(
             Dependencies(true),
             GeneratedNames.PACKAGE,
@@ -40,12 +45,18 @@ class EndpointSymbolProcessor(
             GeneratedNames.FILE_NAME,
             GeneratedNames.EXTENSION
         )
-        val routesGen = EndpointRoutesGenerator(
-            file,
-            symbols,
-            GeneratedNames.PACKAGE,
-            options[DEFAULT_AUTH_TYPE_OPTION]
-        )
-        routesGen.write()
+        file.buffered().use { out ->
+            AstPrinter(out).visitFile(astFile)
+        }
+    }
+
+    private fun functions(symbols: List<KSClassDeclaration>): List<AstExpression> {
+        val defaultAuthType = options[DEFAULT_AUTH_TYPE_OPTION]
+        val functions = mutableListOf<AstExpression>()
+        for (symbol in symbols) {
+            val model = EndpointModelParser(symbol).parse()
+            functions.add(EndpointModelAstGen(model, defaultAuthType).function())
+        }
+        return functions
     }
 }

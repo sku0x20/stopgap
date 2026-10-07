@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import dev.sku20.stopgap.codegen.AstPrinter
-import dev.sku20.stopgap.helidon.ksp.endpoint.GeneratedNames as EndpointGeneratedNames
+import dev.sku20.stopgap.helidon.ksp.route.GeneratedNames as EndpointGeneratedNames
 
 class RegistrySymbolProcessor(
     private val codeGenerator: CodeGenerator,
