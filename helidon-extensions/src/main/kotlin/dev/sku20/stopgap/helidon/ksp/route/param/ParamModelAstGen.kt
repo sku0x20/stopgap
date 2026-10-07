@@ -9,6 +9,7 @@ class ParamModelAstGen(
 ) {
 
     private val req = AstLiteral("req")
+    private val deser = AstLiteral("deser")
 
     fun argument(): AstExpression = when (model) {
         RequestParamModel -> req
@@ -31,11 +32,15 @@ class ParamModelAstGen(
         is BodyParamModel -> bodyKTypeVariable(model)
     }
 
+    fun isUsingCatalog(): Boolean = model is BodyParamModel
+
+    fun isSendingResponse(): Boolean = model == ResponseParamModel
+
     fun ruleVariable(): AstAssignment? {
         if (model !is BodyParamModel) return null
         val contentType = AstCall(AstLiteral("orElse"), listOf(AstLiteral("null")), call("contentType", call("headers", req)))
         return AstAssignment(
-            AstLiteral("deser"),
+            deser,
             null,
             VariableType.VAL,
             AstCall(AstLiteral("getDeserializer"), listOf(contentType), catalogName)
@@ -45,7 +50,7 @@ class ParamModelAstGen(
     private fun bodyArgument(model: BodyParamModel): AstCall {
         val bytes = AstCall(AstLiteral("readAllBytes"), emptyList(), call("inputStream", call("content", req)))
         val type = if (model.type.typeArguments.isEmpty()) AstLiteral("${model.type.fqn}::class") else bodyKType
-        return AstCall(AstLiteral("deserialize"), listOf(bytes, type), AstLiteral("deser"))
+        return AstCall(AstLiteral("deserialize"), listOf(bytes, type), deser)
     }
 
     private fun bodyKTypeVariable(model: BodyParamModel): AstAssignment? {

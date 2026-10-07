@@ -5,9 +5,7 @@ import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.endpoint.EndpointSymbolProcessor
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelAstGen
-import dev.sku20.stopgap.helidon.ksp.route.param.BodyParamModel
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelAstGen
-import dev.sku20.stopgap.helidon.ksp.route.param.ResponseParamModel
 import io.helidon.http.HttpException
 import io.helidon.http.Status
 
@@ -24,8 +22,6 @@ class EndpointMethodModelAstGen(
     private val ser = AstLiteral("ser")
     private val resp = AstLiteral("resp")
 
-    private val hasBody = model.params.any { it is BodyParamModel }
-    private val hasResponseParam = model.params.contains(ResponseParamModel)
     private val catalogGen = CustomSerdeCatalogModelAstGen(model.customSerdeCatalogModel ?: endpointCatalog)
     private val paramGens = model.params.map { ParamModelAstGen(it, model.name, catalogGen.name()) }
 
@@ -45,7 +41,7 @@ class EndpointMethodModelAstGen(
     }
 
     fun catalogParam(): AstParam? {
-        if (!hasBody && model.isResponseUnit) return null
+        if (!isUsingCatalog() && model.isResponseUnit) return null
         return catalogGen.param()
     }
 
@@ -115,8 +111,22 @@ class EndpointMethodModelAstGen(
                 call("send", res, call("serialize", ser, resp)),
             )
         }
-        if (hasResponseParam) return listOf(invocation)
+        if (isSendingResponse()) return listOf(invocation)
         return listOf(invocation, call("send", res))
+    }
+
+    private fun isUsingCatalog(): Boolean {
+        for (paramGen in paramGens) {
+            if (paramGen.isUsingCatalog()) return true
+        }
+        return false
+    }
+
+    private fun isSendingResponse(): Boolean {
+        for (paramGen in paramGens) {
+            if (paramGen.isSendingResponse()) return true
+        }
+        return false
     }
 
     private fun headers() = call("headers", req)

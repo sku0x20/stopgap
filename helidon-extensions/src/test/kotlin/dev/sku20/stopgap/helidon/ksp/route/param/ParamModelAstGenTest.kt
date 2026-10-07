@@ -13,6 +13,8 @@ class ParamModelAstGenTest {
     fun request() {
         val gen = ParamModelAstGen(RequestParamModel, "fn", catalog)
 
+        assertThat(gen.isUsingCatalog()).isFalse()
+        assertThat(gen.isSendingResponse()).isFalse()
         assertThat(gen.argument()).isEqualTo(req)
         assertThat(gen.endpointVariable()).isNull()
         assertThat(gen.ruleVariable()).isNull()
@@ -22,6 +24,7 @@ class ParamModelAstGenTest {
     fun response() {
         val gen = ParamModelAstGen(ResponseParamModel, "fn", catalog)
 
+        assertThat(gen.isSendingResponse()).isTrue()
         assertThat(gen.argument()).isEqualTo(AstLiteral("res"))
         assertThat(gen.endpointVariable()).isNull()
         assertThat(gen.ruleVariable()).isNull()
@@ -76,6 +79,7 @@ class ParamModelAstGenTest {
     fun body() {
         val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body")), "fn", catalog)
 
+        assertThat(gen.isUsingCatalog()).isTrue()
         assertThat(gen.argument()).isEqualTo(deserialize(AstLiteral("a.Body::class")))
         assertThat(gen.endpointVariable()).isNull()
         assertThat(gen.ruleVariable()).isEqualTo(deserVal)
