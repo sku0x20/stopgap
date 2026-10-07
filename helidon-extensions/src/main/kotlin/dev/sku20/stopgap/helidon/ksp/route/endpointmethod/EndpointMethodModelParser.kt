@@ -11,6 +11,7 @@ import dev.sku20.stopgap.helidon.endpoint.Post
 import dev.sku20.stopgap.helidon.endpoint.Put
 import dev.sku20.stopgap.helidon.endpoint.Trace
 import dev.sku20.stopgap.helidon.ksp.argument
+import dev.sku20.stopgap.helidon.ksp.qualifiedName
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelParser
 import dev.sku20.stopgap.helidon.ksp.route.param.AuthParamModel
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelParser
@@ -24,7 +25,7 @@ class EndpointMethodModelParser(private val function: KSFunctionDeclaration) {
         val params = function.parameters.map { ParamModelParser(it).parse() }
         return EndpointMethodModel(
             name,
-            httpMethods[annotation.shortName.asString()]!!,
+            httpMethods[annotation.qualifiedName()]!!,
             annotation.argument("path"),
             CustomSerdeCatalogModelParser(function).parse(),
             params.filterIsInstance<AuthParamModel>().firstOrNull(),
@@ -34,18 +35,18 @@ class EndpointMethodModelParser(private val function: KSFunctionDeclaration) {
     }
 
     private val httpMethods: Map<String, HttpMethod> = mapOf(
-        Get::class.simpleName!! to HttpMethod.GET,
-        Post::class.simpleName!! to HttpMethod.POST,
-        Put::class.simpleName!! to HttpMethod.PUT,
-        Patch::class.simpleName!! to HttpMethod.PATCH,
-        Delete::class.simpleName!! to HttpMethod.DELETE,
-        Head::class.simpleName!! to HttpMethod.HEAD,
-        Options::class.simpleName!! to HttpMethod.OPTIONS,
-        Trace::class.simpleName!! to HttpMethod.TRACE,
+        Get::class.qualifiedName!! to HttpMethod.GET,
+        Post::class.qualifiedName!! to HttpMethod.POST,
+        Put::class.qualifiedName!! to HttpMethod.PUT,
+        Patch::class.qualifiedName!! to HttpMethod.PATCH,
+        Delete::class.qualifiedName!! to HttpMethod.DELETE,
+        Head::class.qualifiedName!! to HttpMethod.HEAD,
+        Options::class.qualifiedName!! to HttpMethod.OPTIONS,
+        Trace::class.qualifiedName!! to HttpMethod.TRACE,
     )
 
     private fun findHttpMethodAnnotation(): KSAnnotation =
-        function.annotations.firstOrNull { it.shortName.asString() in httpMethods }
+        function.annotations.firstOrNull { it.qualifiedName() in httpMethods }
             ?: throw IllegalArgumentException("No Http Method annotation found on function: ${function.qualifiedName!!.asString()}")
 
     private fun isResponseUnit(): Boolean =

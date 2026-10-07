@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.argument
+import dev.sku20.stopgap.helidon.ksp.qualifiedName
 import dev.sku20.stopgap.helidon.param.HeaderParam
 import dev.sku20.stopgap.helidon.param.PathParam
 import dev.sku20.stopgap.helidon.param.QueryParam
@@ -28,20 +29,20 @@ class ParamModelParser(private val param: KSValueParameter) {
     }
 
     private val annotatedParamModels: Map<String, (KSAnnotation) -> ParamModel> = mapOf(
-        PathParam::class.simpleName!! to { PathParamModel(it.argument("name")) },
-        QueryParam::class.simpleName!! to { QueryParamModel(it.argument("name")) },
-        HeaderParam::class.simpleName!! to { HeaderParamModel(it.argument("name")) },
+        PathParam::class.qualifiedName!! to { PathParamModel(it.argument("name")) },
+        QueryParam::class.qualifiedName!! to { QueryParamModel(it.argument("name")) },
+        HeaderParam::class.qualifiedName!! to { HeaderParamModel(it.argument("name")) },
     )
 
     private fun parseAnnotatedParam(): ParamModel? {
         val paramAnnotation = findParamAnnotation() ?: return null
-        val toParamModel = annotatedParamModels[paramAnnotation.shortName.asString()]!!
+        val toParamModel = annotatedParamModels[paramAnnotation.qualifiedName()]!!
         return toParamModel(paramAnnotation)
     }
 
     private fun findParamAnnotation(): KSAnnotation? {
         val found = param.annotations
-            .filter { it.shortName.asString() in annotatedParamModels }
+            .filter { it.qualifiedName() in annotatedParamModels }
             .toList()
         if (found.size > 1) {
             throw IllegalArgumentException("Multiple param annotations on: ${param.name!!.asString()}")
