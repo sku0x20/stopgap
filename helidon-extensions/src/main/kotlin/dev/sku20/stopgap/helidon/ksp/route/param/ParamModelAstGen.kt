@@ -5,6 +5,7 @@ import dev.sku20.stopgap.codegen.ast.*
 class ParamModelAstGen(
     private val model: ParamModel,
     private val functionName: String,
+    private val catalogName: AstLiteral,
 ) {
 
     private val req = AstLiteral("req")
@@ -28,6 +29,17 @@ class ParamModelAstGen(
             AstCall(AstLiteral("io.helidon.http.HeaderNames.create"), listOf(AstStringLiteral(model.name)))
         )
         is BodyParamModel -> bodyKTypeVariable(model)
+    }
+
+    fun ruleVariable(): AstAssignment? {
+        if (model !is BodyParamModel) return null
+        val contentType = AstCall(AstLiteral("orElse"), listOf(AstLiteral("null")), call("contentType", call("headers", req)))
+        return AstAssignment(
+            AstLiteral("deser"),
+            null,
+            VariableType.VAL,
+            AstCall(AstLiteral("getDeserializer"), listOf(contentType), catalogName)
+        )
     }
 
     private fun bodyArgument(model: BodyParamModel): AstCall {

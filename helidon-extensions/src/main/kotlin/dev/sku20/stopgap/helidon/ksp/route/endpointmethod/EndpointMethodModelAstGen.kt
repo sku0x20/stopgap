@@ -21,14 +21,13 @@ class EndpointMethodModelAstGen(
     private val req = AstLiteral("req")
     private val res = AstLiteral("res")
     private val auth = AstLiteral("auth")
-    private val deser = AstLiteral("deser")
     private val ser = AstLiteral("ser")
     private val resp = AstLiteral("resp")
 
-    private val paramGens = model.params.map { ParamModelAstGen(it, model.name) }
     private val hasBody = model.params.any { it is BodyParamModel }
     private val hasResponseParam = model.params.contains(ResponseParamModel)
     private val catalogGen = CustomSerdeCatalogModelAstGen(model.customSerdeCatalogModel ?: endpointCatalog)
+    private val paramGens = model.params.map { ParamModelAstGen(it, model.name, catalogGen.name()) }
 
     fun rule(): AstCall = AstCall(
         AstLiteral(model.httpMethod.name.lowercase()),
@@ -53,8 +52,9 @@ class EndpointMethodModelAstGen(
     private fun body(): List<AstExpression> {
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
-        if (hasBody) {
-            body.add(serdeVal(deser, "getDeserializer", call("orElse", call("contentType", headers()), AstLiteral("null"))))
+        for (paramGen in paramGens) {
+            val variable = paramGen.ruleVariable()
+            if (variable != null) body.add(variable)
         }
         if (!model.isResponseUnit) {
             body.add(serdeVal(ser, "getSerializer", call("acceptedTypes", headers())))
