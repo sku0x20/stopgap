@@ -8,6 +8,8 @@
 - Only do what's asked. Asked for a test → write only the test, not the implementation it needs.
 - Check existing code for an established pattern before proposing a design.
 - Keep IDE import changes (star imports, reordering); don't revert them.
+- Scratch files (logs, decompiled classes, scripts) go in `.tmp/` at the repo root (gitignored), not the system temp
+  or scratchpad directory, so they're visible to me.
 
 ## Communication
 
