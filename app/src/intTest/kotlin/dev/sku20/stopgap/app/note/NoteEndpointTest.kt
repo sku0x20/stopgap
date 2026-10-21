@@ -24,7 +24,7 @@ class NoteEndpointTest {
     lateinit var noteStore: NoteStore
 
     // Reset is usually a smell, but the server, and so this mock, is shared by every test in the class: without it,
-    // stubs and recorded calls leak between tests, e.g. into invalidId's verifyNoInteractions.
+    // stubs and recorded calls leak between tests.
     @BeforeEach
     fun resetStore() {
         reset(noteStore)
