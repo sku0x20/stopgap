@@ -40,10 +40,7 @@ class NoteEndpoint {
         body: NoteReq
     ): Note {
         val id = parseId(noteId)
-        find(id)
-        val note = Note(id, body.text)
-        notes[id] = note
-        return note
+        return notes.computeIfPresent(id) { _, _ -> Note(id, body.text) } ?: throw NoteNotFoundException(id)
     }
 
     @Delete("/{noteId}")
