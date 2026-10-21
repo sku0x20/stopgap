@@ -14,7 +14,8 @@ class InMemStoreStressTest {
 
     @Test
     fun updateRacingDeleteKeepsNoteDeleted() {
-        Executors.newFixedThreadPool(2).use { executor ->
+        val executor = Executors.newFixedThreadPool(2)
+        try {
             for (i in 0 until ITERATIONS) {
                 val noteId = store.create(NoteReq("foo")).noteId
                 val gate = CountDownLatch(2)
@@ -28,6 +29,8 @@ class InMemStoreStressTest {
                     .describedAs("iteration $i")
                     .isThrownBy { store.get(noteId) }
             }
+        } finally {
+            executor.close()
         }
     }
 
