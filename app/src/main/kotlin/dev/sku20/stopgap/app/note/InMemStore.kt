@@ -15,6 +15,7 @@ class InMemStore : NoteStore {
         return note
     }
 
+    // Weakly consistent: never throws on concurrent writes, but may miss or include them; not a snapshot.
     override fun list(): List<Note> = notes.values.sortedBy { it.noteId }
 
     override fun get(noteId: Uuid): Note = notes[noteId] ?: throw NoteNotFoundException(noteId)
