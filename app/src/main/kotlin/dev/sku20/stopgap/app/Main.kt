@@ -6,8 +6,13 @@ import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 fun main(args: Array<String>) {
+    // pgjdbc logs via JUL; route it to slf4j
+    SLF4JBridgeHandler.removeHandlersForRootLogger()
+    SLF4JBridgeHandler.install()
+
     val registry = InstanceRegistry()
     initRegistry(registry)
 
