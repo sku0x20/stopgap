@@ -25,7 +25,9 @@ class InMemStoreTest {
     fun list() {
         val first = store.create(NoteReq("foo"))
         val second = store.create(NoteReq("bar"))
-        assertThat(store.list()).containsExactly(first, second)
+        assertThat(store.list())
+            .containsExactlyInAnyOrder(first, second)
+            .isSortedAccordingTo(compareBy { it.noteId })
     }
 
     @Test
