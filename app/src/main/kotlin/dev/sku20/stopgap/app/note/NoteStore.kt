@@ -4,13 +4,13 @@ import kotlin.uuid.Uuid
 
 interface NoteStore {
 
-    fun create(text: String): Note
+    fun create(req: NoteReq): Note
 
     fun list(): List<Note>
 
     fun get(noteId: Uuid): Note?
 
-    fun updateText(noteId: Uuid, text: String): Note?
+    fun update(noteId: Uuid, req: NoteReq): Note?
 
     fun delete(noteId: Uuid): Boolean
 
