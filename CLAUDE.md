@@ -41,6 +41,7 @@
       Uuid.parseOrNull(noteId) ?: throw InvalidNoteIdException(noteId)
   ```
 - No `inline` on functions that don't take lambdas.
+- Pass a bare lambda to Java functional interfaces (`executor.submit { ... }`), no explicit `Runnable { ... }` wrapper.
 - Any annotated param → one param per line, annotation on its own line above the param:
   ```kotlin
   fun update(
