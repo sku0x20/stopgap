@@ -2,7 +2,7 @@ package dev.sku20.stopgap.app.note
 
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
 import kotlin.uuid.Uuid
 
@@ -15,12 +15,19 @@ class InMemStoreStressTest {
     @Test
     fun updateRacingDeleteKeepsNoteDeleted() {
         val executor = Executors.newFixedThreadPool(2)
+        // Last thread to arrive releases both, so the actions start as close together as possible.
+        val gate = CyclicBarrier(2)
         for (i in 0 until ITERATIONS) {
             val noteId = store.create(NoteReq("foo")).noteId
-            val gate = CountDownLatch(2)
 
-            val update = executor.submit { startTogether(gate) { updateIfPresent(noteId) } }
-            val delete = executor.submit { startTogether(gate) { store.delete(noteId) } }
+            val update = executor.submit {
+                gate.await()
+                updateIfPresent(noteId)
+            }
+            val delete = executor.submit {
+                gate.await()
+                store.delete(noteId)
+            }
             update.get()
             delete.get()
 
@@ -30,13 +37,6 @@ class InMemStoreStressTest {
         }
         // Not in a finally: on failure the idle pool threads live only until the test JVM exits.
         executor.close()
-    }
-
-    // Last thread to arrive releases all, so the actions start as close together as possible.
-    private fun startTogether(gate: CountDownLatch, action: () -> Unit) {
-        gate.countDown()
-        gate.await()
-        action()
     }
 
     // Losing the race to delete is a valid outcome.
