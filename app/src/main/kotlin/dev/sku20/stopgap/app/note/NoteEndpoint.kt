@@ -47,25 +47,15 @@ class NoteEndpoint {
     @Delete("/{noteId}")
     fun delete(@PathParam("noteId") noteId: String) {
         val id = parseId(noteId)
-        if (notes.remove(id) == null) {
-            throw NoteNotFoundException(id)
-        }
+        notes.remove(id) ?: throw NoteNotFoundException(id)
     }
 
     private fun find(id: Uuid): Note {
-        val note = notes[id]
-        if (note == null) {
-            throw NoteNotFoundException(id)
-        }
-        return note
+        return notes[id] ?: throw NoteNotFoundException(id)
     }
 
     private fun parseId(noteId: String): Uuid {
-        val id = Uuid.parseOrNull(noteId)
-        if (id == null) {
-            throw InvalidNoteIdException(noteId)
-        }
-        return id
+        return Uuid.parseOrNull(noteId) ?: throw InvalidNoteIdException(noteId)
     }
 
 }
