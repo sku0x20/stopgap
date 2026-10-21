@@ -1,6 +1,5 @@
 package dev.sku20.stopgap.app.note
 
-import com.alibaba.fastjson2.JSON
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance
@@ -10,7 +9,9 @@ import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import kotlin.uuid.Uuid
 
 @WebserverTest
@@ -19,72 +20,90 @@ class NoteEndpointTest {
     @InjectInstance
     lateinit var client: WebClient
 
+    @InjectInstance
+    lateinit var noteStore: NoteStore
+
+    // One server, and so one mock, per class.
+    @BeforeEach
+    fun resetStore() {
+        reset(noteStore)
+    }
+
     @Test
     fun create() {
+        val note = Note(Uuid.random(), "foo")
+        whenever(noteStore.create(NoteReq("foo"))).thenReturn(note)
+
         val response = client.post("/notes")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"foo"}""")
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        val note = JSON.parseObject(response.`as`(String::class.java), Note::class.java)
-        assertThat(note.text).isEqualTo("foo")
+        assertThat(response.`as`(String::class.java)).isEqualTo(json(note))
     }
 
     @Test
     fun get() {
-        val created = create("foo")
+        val note = Note(Uuid.random(), "foo")
+        whenever(noteStore.get(note.noteId)).thenReturn(note)
 
-        val response = client.get("/notes/${created.noteId}")
+        val response = client.get("/notes/${note.noteId}")
             .accept(HttpMediaTypes.JSON_UTF_8)
             .request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        assertThat(response.`as`(String::class.java))
-            .isEqualTo("""{"noteId":"${created.noteId}","text":"foo"}""")
+        assertThat(response.`as`(String::class.java)).isEqualTo(json(note))
     }
 
     @Test
     fun list() {
-        val first = create("foo")
-        val second = create("bar")
+        val first = Note(Uuid.random(), "foo")
+        val second = Note(Uuid.random(), "bar")
+        whenever(noteStore.list()).thenReturn(listOf(first, second))
 
         val response = client.get("/notes")
             .accept(HttpMediaTypes.JSON_UTF_8)
             .request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        val notes = JSON.parseArray(response.`as`(String::class.java), Note::class.java)
-        assertThat(notes).contains(first, second)
+        assertThat(response.`as`(String::class.java)).isEqualTo("[${json(first)},${json(second)}]")
     }
 
     @Test
     fun update() {
-        val created = create("foo")
+        val note = Note(Uuid.random(), "bar")
+        whenever(noteStore.update(UpdateReq(note.noteId, "bar"))).thenReturn(note)
 
-        val response = client.patch("/notes/${created.noteId}")
+        val response = client.patch("/notes/${note.noteId}")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"bar"}""")
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        assertThat(get(created.noteId).text).isEqualTo("bar")
+        assertThat(response.`as`(String::class.java)).isEqualTo(json(note))
     }
 
     @Test
     fun delete() {
-        val created = create("foo")
+        val noteId = Uuid.random()
 
-        val response = client.delete("/notes/${created.noteId}").accept(HttpMediaTypes.JSON_UTF_8).request()
+        val response = client.delete("/notes/$noteId").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
-        assertThat(client.get("/notes/${created.noteId}").accept(HttpMediaTypes.JSON_UTF_8).request().status()).isEqualTo(Status.NOT_FOUND_404)
+        verify(noteStore).delete(noteId)
     }
 
     @Test
     fun getMissing() {
-        val response = client.get("/notes/${Uuid.random()}").accept(HttpMediaTypes.JSON_UTF_8).request()
+        val noteId = Uuid.random()
+        whenever(noteStore.get(noteId)).thenThrow(NoteNotFoundException(noteId))
+
+        val response = client.get("/notes/$noteId").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
     }
 
     @Test
     fun updateMissing() {
-        val response = client.patch("/notes/${Uuid.random()}")
+        val noteId = Uuid.random()
+        whenever(noteStore.update(UpdateReq(noteId, "bar"))).thenThrow(NoteNotFoundException(noteId))
+
+        val response = client.patch("/notes/$noteId")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"bar"}""")
@@ -93,7 +112,10 @@ class NoteEndpointTest {
 
     @Test
     fun deleteMissing() {
-        val response = client.delete("/notes/${Uuid.random()}").accept(HttpMediaTypes.JSON_UTF_8).request()
+        val noteId = Uuid.random()
+        doThrow(NoteNotFoundException(noteId)).whenever(noteStore).delete(noteId)
+
+        val response = client.delete("/notes/$noteId").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
     }
 
@@ -101,22 +123,10 @@ class NoteEndpointTest {
     fun invalidId() {
         val response = client.get("/notes/abc").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
+        verifyNoInteractions(noteStore)
     }
 
-    private fun create(text: String): Note {
-        val response = client.post("/notes")
-            .contentType(HttpMediaTypes.JSON_UTF_8)
-            .accept(HttpMediaTypes.JSON_UTF_8)
-            .submit("""{"text":"$text"}""")
-        return JSON.parseObject(response.`as`(String::class.java), Note::class.java)
-    }
-
-    private fun get(noteId: Uuid): Note {
-        val response = client.get("/notes/$noteId")
-            .accept(HttpMediaTypes.JSON_UTF_8)
-            .request()
-        return JSON.parseObject(response.`as`(String::class.java), Note::class.java)
-    }
+    private fun json(note: Note): String = """{"noteId":"${note.noteId}","text":"${note.text}"}"""
 
     companion object {
         @JvmStatic
@@ -124,7 +134,12 @@ class NoteEndpointTest {
         fun setup(): SetupCapture {
             val catalog = MapSerdeCatalog()
             catalog.add(FastjsonSerde())
-            return SetupCapture(NoteEndpoint(InMemStore()),registerParams = arrayOf(catalog))
+            val noteStore = mock<NoteStore>()
+            return SetupCapture(
+                NoteEndpoint(noteStore),
+                registerParams = arrayOf(catalog),
+                instances = mapOf(NoteStore::class.java to noteStore)
+            )
         }
     }
 }
