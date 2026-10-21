@@ -25,12 +25,19 @@ class NoteEndpoint {
     }
 
     @Get("/{noteId}")
-    fun get(@PathParam("noteId") noteId: String): Note {
+    fun get(
+        @PathParam("noteId")
+        noteId: String
+    ): Note {
         return find(parseId(noteId))
     }
 
     @Patch("/{noteId}")
-    fun update(@PathParam("noteId") noteId: String, body: NoteReq): Note {
+    fun update(
+        @PathParam("noteId")
+        noteId: String,
+        body: NoteReq
+    ): Note {
         val id = parseId(noteId)
         find(id)
         val note = Note(id, body.text)
@@ -39,7 +46,10 @@ class NoteEndpoint {
     }
 
     @Delete("/{noteId}")
-    fun delete(@PathParam("noteId") noteId: String) {
+    fun delete(
+        @PathParam("noteId")
+        noteId: String
+    ) {
         val id = parseId(noteId)
         notes.remove(id) ?: throw NoteNotFoundException(id)
     }

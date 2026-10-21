@@ -14,17 +14,29 @@ class ParamEndpoint {
 
     // literal routes must be declared before path param routes; Helidon matches first-registered wins
     @Get("/query")
-    fun getByQuery(@QueryParam("name") name: String, res: ServerResponse) {
+    fun getByQuery(
+        @QueryParam("name")
+        name: String,
+        res: ServerResponse
+    ) {
         res.send(name)
     }
 
     @Get("/header")
-    fun getByHeader(@HeaderParam(HeaderNames.ACCEPT_LANGUAGE_NAME) name: Header, res: ServerResponse) {
+    fun getByHeader(
+        @HeaderParam(HeaderNames.ACCEPT_LANGUAGE_NAME)
+        name: Header,
+        res: ServerResponse
+    ) {
         res.send(name.get())
     }
 
     @Get("/{id}")
-    fun getById(@PathParam("id") id: String, res: ServerResponse) {
+    fun getById(
+        @PathParam("id")
+        id: String,
+        res: ServerResponse
+    ) {
         res.send(id)
     }
 
