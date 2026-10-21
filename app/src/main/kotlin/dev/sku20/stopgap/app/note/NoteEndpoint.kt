@@ -2,27 +2,22 @@ package dev.sku20.stopgap.app.note
 
 import dev.sku20.stopgap.helidon.endpoint.*
 import dev.sku20.stopgap.helidon.param.PathParam
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 // TODO: explore ETag;
 @Endpoint("/notes")
-class NoteEndpoint {
+class NoteEndpoint(
+    private val noteStore: NoteStore
+) {
 
-    private val notes = ConcurrentHashMap<Uuid, Note>()
-
-    @OptIn(ExperimentalUuidApi::class)
     @Post("/")
     fun create(body: NoteReq): Note {
-        val note = Note(Uuid.generateV7(), body.text)
-        notes[note.noteId] = note
-        return note
+        return noteStore.create(body)
     }
 
     @Get("/")
     fun list(): List<Note> {
-        return notes.values.sortedBy { it.noteId }
+        return noteStore.list()
     }
 
     @Get("/{noteId}")
@@ -30,7 +25,7 @@ class NoteEndpoint {
         @PathParam("noteId")
         noteId: String
     ): Note {
-        return find(parseId(noteId))
+        return noteStore.get(parseId(noteId))
     }
 
     @Patch("/{noteId}")
@@ -39,12 +34,7 @@ class NoteEndpoint {
         noteId: String,
         body: NoteReq
     ): Note {
-        val id = parseId(noteId)
-        // Atomic, unlike find-then-put, where a DELETE in between brings the note back:
-        //   PATCH  (thread 1): find(id)                // exists
-        //   DELETE (thread 2): notes.remove(id)
-        //   PATCH  (thread 1): notes[id] = Note(...)   // deleted note is back
-        return notes.computeIfPresent(id) { _, _ -> Note(id, body.text) } ?: throw NoteNotFoundException(id)
+        return noteStore.update(UpdateReq(parseId(noteId), body.text))
     }
 
     @Delete("/{noteId}")
@@ -52,11 +42,8 @@ class NoteEndpoint {
         @PathParam("noteId")
         noteId: String
     ) {
-        val id = parseId(noteId)
-        notes.remove(id) ?: throw NoteNotFoundException(id)
+        noteStore.delete(parseId(noteId))
     }
-
-    private fun find(id: Uuid): Note = notes[id] ?: throw NoteNotFoundException(id)
 
     private fun parseId(noteId: String): Uuid =
         Uuid.parseOrNull(noteId) ?: throw InvalidNoteIdException(noteId)

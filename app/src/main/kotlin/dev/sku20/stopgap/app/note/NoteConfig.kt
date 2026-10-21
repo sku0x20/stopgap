@@ -5,8 +5,15 @@ import dev.sku20.stopgap.ir.annotation.Creates
 object NoteConfig {
 
     @Creates
-    fun noteEndpoint(): NoteEndpoint {
-        return NoteEndpoint()
+    fun noteEndpoint(
+        noteStore: NoteStore
+    ): NoteEndpoint {
+        return NoteEndpoint(noteStore)
+    }
+
+    @Creates
+    fun noteStore(): NoteStore {
+        return InMemStore()
     }
 
 }

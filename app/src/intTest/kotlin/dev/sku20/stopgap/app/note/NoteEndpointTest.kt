@@ -124,7 +124,7 @@ class NoteEndpointTest {
         fun setup(): SetupCapture {
             val catalog = MapSerdeCatalog()
             catalog.add(FastjsonSerde())
-            return SetupCapture(NoteEndpoint(), registerParams = arrayOf(catalog))
+            return SetupCapture(NoteEndpoint(InMemStore()),registerParams = arrayOf(catalog))
         }
     }
 }
