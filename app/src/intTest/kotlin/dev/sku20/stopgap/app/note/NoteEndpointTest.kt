@@ -23,7 +23,8 @@ class NoteEndpointTest {
     @InjectInstance
     lateinit var noteStore: NoteStore
 
-    // One server, and so one mock, per class.
+    // Reset is usually a smell, but the server, and so this mock, is shared by every test in the class: without it,
+    // stubs and recorded calls leak between tests, e.g. into invalidId's verifyNoInteractions.
     @BeforeEach
     fun resetStore() {
         reset(noteStore)
