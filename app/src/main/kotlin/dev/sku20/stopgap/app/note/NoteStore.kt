@@ -10,7 +10,7 @@ interface NoteStore {
 
     fun get(noteId: Uuid): Note?
 
-    fun update(noteId: Uuid, req: NoteReq): Note?
+    fun update(req: UpdateReq): Note?
 
     fun delete(noteId: Uuid): Boolean
 
