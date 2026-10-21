@@ -15,23 +15,21 @@ class InMemStoreStressTest {
     @Test
     fun updateRacingDeleteKeepsNoteDeleted() {
         val executor = Executors.newFixedThreadPool(2)
-        try {
-            for (i in 0 until ITERATIONS) {
-                val noteId = store.create(NoteReq("foo")).noteId
-                val gate = CountDownLatch(2)
+        for (i in 0 until ITERATIONS) {
+            val noteId = store.create(NoteReq("foo")).noteId
+            val gate = CountDownLatch(2)
 
-                val update = executor.submit { startTogether(gate) { updateIfPresent(noteId) } }
-                val delete = executor.submit { startTogether(gate) { store.delete(noteId) } }
-                update.get()
-                delete.get()
+            val update = executor.submit { startTogether(gate) { updateIfPresent(noteId) } }
+            val delete = executor.submit { startTogether(gate) { store.delete(noteId) } }
+            update.get()
+            delete.get()
 
-                assertThatExceptionOfType(NoteNotFoundException::class.java)
-                    .describedAs("iteration $i")
-                    .isThrownBy { store.get(noteId) }
-            }
-        } finally {
-            executor.close()
+            assertThatExceptionOfType(NoteNotFoundException::class.java)
+                .describedAs("iteration $i")
+                .isThrownBy { store.get(noteId) }
         }
+        // Not in a finally: on failure the idle pool threads live only until the test JVM exits.
+        executor.close()
     }
 
     // Last thread to arrive releases all, so the actions start as close together as possible.
