@@ -46,6 +46,7 @@ class NoteEndpoint {
 
     private fun find(id: Uuid): Note = notes[id] ?: throw NoteNotFoundException(id)
 
-    private fun parseId(noteId: String): Uuid = Uuid.parseOrNull(noteId) ?: throw InvalidNoteIdException(noteId)
+    private fun parseId(noteId: String): Uuid =
+        Uuid.parseOrNull(noteId) ?: throw InvalidNoteIdException(noteId)
 
 }
