@@ -12,6 +12,8 @@ testcontainers = "2.0.5"
 fastjson2 = "2.0.65"
 postgresql = "42.7.14"
 hikaricp = "7.1.0"
+logback = "1.6.5"
+slf4j = "2.0.19"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -23,6 +25,7 @@ maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publ
 helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
 helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
+helidon-logging-slf4j = { group = "io.helidon.logging", name = "helidon-logging-slf4j", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
@@ -33,6 +36,8 @@ ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", v
 fastjson2-kotlin = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
 postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
 hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+jul-to-slf4j = { group = "org.slf4j", name = "jul-to-slf4j", version.ref = "slf4j" }
 
 [bundles]
 helidon = [

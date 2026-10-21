@@ -19,6 +19,9 @@ dependencies {
     implementation(libs.fastjson2.kotlin)
     implementation(libs.postgresql)
     implementation(libs.hikaricp)
+    implementation(libs.jul.to.slf4j)
+    runtimeOnly(libs.logback.classic)
+    runtimeOnly(libs.helidon.logging.slf4j)
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
