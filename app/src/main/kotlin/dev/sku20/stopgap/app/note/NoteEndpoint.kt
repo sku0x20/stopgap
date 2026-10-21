@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-// TODO: ETag via a version column; If-Match on PATCH/DELETE → 412 on stale version, to prevent lost updates.
+// TODO: explore ETag;
 @Endpoint("/notes")
 class NoteEndpoint {
 
