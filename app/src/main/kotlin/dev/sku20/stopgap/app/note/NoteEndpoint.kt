@@ -40,7 +40,7 @@ class NoteEndpoint {
         body: NoteReq
     ): Note {
         val id = parseId(noteId)
-        // Atomic check-and-write: a separate find-then-put could resurrect a note deleted in between.
+        // Atomic, unlike find-then-put: PATCH finds, DELETE removes, PATCH puts → deleted note is back.
         return notes.computeIfPresent(id) { _, _ -> Note(id, body.text) } ?: throw NoteNotFoundException(id)
     }
 
