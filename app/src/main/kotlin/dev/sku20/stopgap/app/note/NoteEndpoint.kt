@@ -26,7 +26,6 @@ class NoteEndpoint {
 
     @Get("/")
     fun list(): List<Note> {
-        // uuid7 sorts by creation time (ms precision)
         return notes.values.sortedBy { it.noteId }
     }
 
