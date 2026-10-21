@@ -19,8 +19,8 @@ class InMemStoreStressTest {
                 val noteId = store.create(NoteReq("foo")).noteId
                 val gate = CountDownLatch(2)
 
-                val update = executor.submit(Runnable { startTogether(gate) { updateIfPresent(noteId) } })
-                val delete = executor.submit(Runnable { startTogether(gate) { store.delete(noteId) } })
+                val update = executor.submit { startTogether(gate) { updateIfPresent(noteId) } }
+                val delete = executor.submit { startTogether(gate) { store.delete(noteId) } }
                 update.get()
                 delete.get()
 
