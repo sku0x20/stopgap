@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Test
  *
  * References:
  * - Herlihy & Wing, "Linearizability: A Correctness Condition for Concurrent Objects" (1990).
+ * - Herlihy & Shavit, "The Art of Multiprocessor Programming": the classic book on linearizability.
+ * - Clarke, Emerson & Sifakis: model checking, 2007 Turing Award.
  * - Koval et al., "Lincheck: A Practical Framework for Testing Concurrent Data Structures on JVM" (CAV 2023).
  * - Musuvathi & Qadeer, CHESS and iterative context bounding (2007): most races need only a few thread switches.
  * - Kleppmann, "Designing Data-Intensive Applications", ch. 9: the same guarantee across database replicas.
