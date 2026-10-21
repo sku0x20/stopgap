@@ -1,24 +1,30 @@
 # Claude Code Guidelines
 
 ## Workflow
+
 - Commit after every change, no matter how small. Stage the edited files by name and commit directly;
-  no `git status`/`git diff` first. Add the `Co-Authored-By` trailer.
+  no `git status`/`git diff` first.
 - For large refactors, ambiguous tasks, or research requests: propose a plan first, get approval, then make changes.
 - Only do what's asked. Asked for a test → write only the test, not the implementation it needs.
 - Check existing code for an established pattern before proposing a design.
 - Keep IDE import changes (star imports, reordering); don't revert them.
 
 ## Communication
+
 - Terse responses. No preamble ("I'll now do X") or trailing summaries.
 - KDoc/comments: one or two short sentences stating the fact. No comments that restate the code.
+- Follow style of self documenting code style. name of class, function, etc. tells what, body tells how, and comment
+  tells why. and when comments do get added, keep them short and crisp.
 
 ## Token Efficiency
+
 - Skip `git diff`, `git log`, `git status` unless directly needed.
 - Don't re-read files after writing or editing them.
 - Search directly (grep/find); don't spawn subagents for simple searches.
 - Use `offset`/`limit` when only a section of a file is needed.
 
 ## Kotlin Style
+
 - `private` by default. Only make something public if it cannot be private.
 - No class inheritance: no `open`/`abstract`/base classes, no template method. Use interfaces, `by` delegation, strategy
   (interfaces / function types), sealed interfaces + a single `when`. Interface-extends-interface is fine. Exception:
@@ -50,6 +56,7 @@
   if the method is called more than once or deferred from construction. Otherwise put it in the constructor.
 
 ## API Design
+
 - Storage interfaces are named `*Store`, not repository.
 - Store methods take a single request object (`create(NoteReq)`, `update(UpdateReq)`), not multiple params.
 - Clean contracts: non-null returns; throw a named exception for missing entities, no `T?`/`Boolean` for absence.
@@ -60,17 +67,16 @@
 - `400` for malformed input (e.g. invalid UUID), `404` for a missing resource on get/update/delete.
 
 ## Tests
+
 - Name test functions in camelCase, no backtick-quoted strings or spaces. Keep them short and crisp (e.g.
   `serializeNonEmpty` not `"serialize produces non-empty bytes"`).
 
 ## Subagents
+
 - When spawning via the `Agent` tool, always pass `model: "haiku"`.
 
-## Tool Usage
-- Web search, doc fetching, etc. can be done without asking permission first.
-- Keep confirmation prompts for external/destructive tools minimal — only ask when the risk is genuinely high.
-
 ## IntelliJ MCP Tools
+
 - When `mcp__idea__*` tools are available, prefer them for semantic work:
   - Renames: `rename_refactoring`, not multi-file `Edit`/`sed`.
   - Symbol lookup / usages / call sites: `search_symbol`, `get_symbol_info`, `analyze_calls` over grep.
