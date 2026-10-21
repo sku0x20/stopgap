@@ -20,10 +20,10 @@ class InMemStore : NoteStore {
 
     override fun get(noteId: Uuid): Note = notes[noteId] ?: throw NoteNotFoundException(noteId)
 
-    // Atomic, unlike find-then-put, where a DELETE in between brings the note back:
-    //   PATCH  (thread 1): find(id)                // exists
-    //   DELETE (thread 2): notes.remove(id)
-    //   PATCH  (thread 1): notes[id] = Note(...)   // deleted note is back
+    // Atomic, unlike find-then-put, where a delete in between brings the note back:
+    //   update (thread 1): find(id)                // exists
+    //   delete (thread 2): notes.remove(id)
+    //   update (thread 1): notes[id] = Note(...)   // deleted note is back
     override fun update(req: UpdateReq): Note =
         notes.computeIfPresent(req.noteId) { _, _ -> Note(req.noteId, req.text) }
             ?: throw NoteNotFoundException(req.noteId)
