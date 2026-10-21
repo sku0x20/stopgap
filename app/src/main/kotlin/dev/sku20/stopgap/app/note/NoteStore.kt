@@ -8,10 +8,10 @@ interface NoteStore {
 
     fun list(): List<Note>
 
-    fun get(noteId: Uuid): Note?
+    fun get(noteId: Uuid): Note
 
-    fun update(req: UpdateReq): Note?
+    fun update(req: UpdateReq): Note
 
-    fun delete(noteId: Uuid): Boolean
+    fun delete(noteId: Uuid)
 
 }
