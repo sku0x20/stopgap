@@ -1,5 +1,8 @@
 package dev.sku20.stopgap.app.note
 
+import io.helidon.http.HttpException
+import io.helidon.http.Status
 import kotlin.uuid.Uuid
 
-class NoteNotFoundException(val noteId: Uuid) : RuntimeException("Note not found: $noteId")
+class NoteNotFoundException(noteId: Uuid) :
+    HttpException("Note not found: $noteId", Status.NOT_FOUND_404)
