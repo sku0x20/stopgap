@@ -41,9 +41,9 @@ class NoteEndpoint {
     ): Note {
         val id = parseId(noteId)
         // Atomic, unlike find-then-put, where a DELETE in between brings the note back:
-        //   PATCH:  find(id)                    // exists
-        //   DELETE: notes.remove(id)
-        //   PATCH:  notes[id] = Note(...)       // deleted note is back
+        //   PATCH  (thread 1): find(id)                // exists
+        //   DELETE (thread 2): notes.remove(id)
+        //   PATCH  (thread 1): notes[id] = Note(...)   // deleted note is back
         return notes.computeIfPresent(id) { _, _ -> Note(id, body.text) } ?: throw NoteNotFoundException(id)
     }
 
