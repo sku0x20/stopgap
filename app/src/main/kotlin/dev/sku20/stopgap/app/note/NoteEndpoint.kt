@@ -24,12 +24,16 @@ class NoteEndpoint {
         return note
     }
 
-    // uuid7 sorts by creation time (ms precision)
     @Get("/")
-    fun list(): List<Note> = notes.values.sortedBy { it.noteId }
+    fun list(): List<Note> {
+        // uuid7 sorts by creation time (ms precision)
+        return notes.values.sortedBy { it.noteId }
+    }
 
     @Get("/{noteId}")
-    fun get(@PathParam("noteId") noteId: String): Note = find(parseId(noteId))
+    fun get(@PathParam("noteId") noteId: String): Note {
+        return find(parseId(noteId))
+    }
 
     @Patch("/{noteId}")
     fun update(@PathParam("noteId") noteId: String, body: NoteReq): Note {
