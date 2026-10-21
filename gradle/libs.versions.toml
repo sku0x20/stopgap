@@ -14,6 +14,7 @@ postgresql = "42.7.14"
 hikaricp = "7.1.0"
 logback = "1.6.5"
 slf4j = "2.0.19"
+lincheck = "3.7"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -38,6 +39,7 @@ postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "pos
 hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
 logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 jul-to-slf4j = { group = "org.slf4j", name = "jul-to-slf4j", version.ref = "slf4j" }
+lincheck = { group = "org.jetbrains.lincheck", name = "lincheck", version.ref = "lincheck" }
 
 [bundles]
 helidon = [

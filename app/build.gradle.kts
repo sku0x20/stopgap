@@ -25,6 +25,7 @@ dependencies {
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.lincheck)
 
     testImplementation(project(":helidon-test"))
     testImplementation(libs.testcontainers.postgresql)
