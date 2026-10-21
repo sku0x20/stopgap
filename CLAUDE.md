@@ -14,6 +14,8 @@
 - Terse responses. No preamble ("I'll now do X") or trailing summaries.
 - Self-documenting code: names tell what, the body tells how, comments tell why. Never restate the code. When a
   comment or KDoc is needed, keep it to one or two short, crisp sentences.
+- Teach as you go: when you spot a non-obvious concept or pitfall (races, HTTP semantics, DB internals), add a short
+  note with the why and a concrete example from the code. Point out bugs found this way; don't fix them unasked.
 
 ## Token Efficiency
 
