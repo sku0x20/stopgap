@@ -16,6 +16,7 @@ class InMemStoreStressTest {
     fun updateRacingDeleteKeepsNoteDeleted() {
         val executor = Executors.newFixedThreadPool(2)
         // Last thread to arrive releases both, so the actions start as close together as possible.
+        // Starting gate from "Java Concurrency in Practice" §5.5.1; a barrier, not its latch, as it resets per iteration.
         val gate = CyclicBarrier(2)
         for (i in 0 until ITERATIONS) {
             val noteId = store.create(NoteReq("foo")).noteId
