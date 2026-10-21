@@ -6,8 +6,6 @@ import dev.sku20.stopgap.helidon.endpoint.Get
 import dev.sku20.stopgap.helidon.endpoint.Post
 import dev.sku20.stopgap.helidon.endpoint.Put
 import dev.sku20.stopgap.helidon.param.PathParam
-import io.helidon.http.HttpException
-import io.helidon.http.Status
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -50,14 +48,14 @@ class NoteEndpoint {
     fun delete(@PathParam("noteId") noteId: String) {
         val id = parseId(noteId)
         if (notes.remove(id) == null) {
-            throw notFound(id)
+            throw NoteNotFoundException(id)
         }
     }
 
     private fun find(id: Uuid): Note {
         val note = notes[id]
         if (note == null) {
-            throw notFound(id)
+            throw NoteNotFoundException(id)
         }
         return note
     }
@@ -65,13 +63,9 @@ class NoteEndpoint {
     private fun parseId(noteId: String): Uuid {
         val id = Uuid.parseOrNull(noteId)
         if (id == null) {
-            throw HttpException("Invalid note id: $noteId", Status.BAD_REQUEST_400)
+            throw InvalidNoteIdException(noteId)
         }
         return id
-    }
-
-    private fun notFound(id: Uuid): HttpException {
-        return HttpException("Note not found: $id", Status.NOT_FOUND_404)
     }
 
 }
