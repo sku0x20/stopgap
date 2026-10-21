@@ -23,7 +23,7 @@ class InMemStoreLincheckTest {
     fun modelChecking() {
         // Results alone can't expose a resurrected note: a read after both threads finish is needed.
         ModelCheckingOptions()
-            // No random scenarios, only the custom one: seconds instead of minutes, but misses races not pinned here.
+            // No random scenarios, only the custom one: seconds instead of minutes, but misses races it doesn't cover.
             .iterations(0)
             .addCustomScenario {
                 parallel {
