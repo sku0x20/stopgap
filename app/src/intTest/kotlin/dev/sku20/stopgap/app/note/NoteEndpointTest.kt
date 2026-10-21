@@ -59,7 +59,7 @@ class NoteEndpointTest {
     fun update() {
         val created = create("foo")
 
-        val response = client.put("/notes/${created.noteId}")
+        val response = client.patch("/notes/${created.noteId}")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"bar"}""")
@@ -84,7 +84,7 @@ class NoteEndpointTest {
 
     @Test
     fun updateMissing() {
-        val response = client.put("/notes/${Uuid.random()}")
+        val response = client.patch("/notes/${Uuid.random()}")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"bar"}""")
