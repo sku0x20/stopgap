@@ -11,7 +11,7 @@ import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @WebserverTest
 class NoteEndpointTest {
@@ -78,13 +78,13 @@ class NoteEndpointTest {
 
     @Test
     fun getMissing() {
-        val response = client.get("/notes/${UUID.randomUUID()}").accept(HttpMediaTypes.JSON_UTF_8).request()
+        val response = client.get("/notes/${Uuid.random()}").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
     }
 
     @Test
     fun updateMissing() {
-        val response = client.put("/notes/${UUID.randomUUID()}")
+        val response = client.put("/notes/${Uuid.random()}")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .accept(HttpMediaTypes.JSON_UTF_8)
             .submit("""{"text":"bar"}""")
@@ -93,7 +93,7 @@ class NoteEndpointTest {
 
     @Test
     fun deleteMissing() {
-        val response = client.delete("/notes/${UUID.randomUUID()}").accept(HttpMediaTypes.JSON_UTF_8).request()
+        val response = client.delete("/notes/${Uuid.random()}").accept(HttpMediaTypes.JSON_UTF_8).request()
         assertThat(response.status()).isEqualTo(Status.NOT_FOUND_404)
     }
 
@@ -111,7 +111,7 @@ class NoteEndpointTest {
         return JSON.parseObject(response.`as`(String::class.java), Note::class.java)
     }
 
-    private fun get(noteId: UUID): Note {
+    private fun get(noteId: Uuid): Note {
         val response = client.get("/notes/$noteId")
             .accept(HttpMediaTypes.JSON_UTF_8)
             .request()

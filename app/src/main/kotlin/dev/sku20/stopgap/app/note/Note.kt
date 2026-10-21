@@ -1,9 +1,9 @@
 package dev.sku20.stopgap.app.note
 
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @JvmRecord
 data class Note(
-    val noteId: UUID,
+    val noteId: Uuid,
     val text: String
 )
