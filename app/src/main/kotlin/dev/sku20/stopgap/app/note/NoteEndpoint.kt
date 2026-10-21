@@ -8,25 +8,29 @@ import dev.sku20.stopgap.helidon.endpoint.Put
 import dev.sku20.stopgap.helidon.param.PathParam
 import io.helidon.http.HttpException
 import io.helidon.http.Status
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 @Endpoint("/notes")
 class NoteEndpoint {
 
     // in-memory until postgres is wired
-    private val notes = ConcurrentHashMap<Long, Note>()
-    private val nextId = AtomicLong(1)
+    private val notes = ConcurrentHashMap<UUID, Note>()
 
+    @OptIn(ExperimentalUuidApi::class)
     @Post("/")
     fun create(body: NoteReq): Note {
-        val note = Note(nextId.getAndIncrement(), body.text)
+        val note = Note(Uuid.generateV7().toJavaUuid(), body.text)
         notes[note.noteId] = note
         return note
     }
 
     @Get("/")
     fun list(): List<Note> {
+        // uuid7 sorts by creation time (ms precision)
         return notes.values.sortedBy { it.noteId }
     }
 
@@ -52,7 +56,7 @@ class NoteEndpoint {
         }
     }
 
-    private fun find(id: Long): Note {
+    private fun find(id: UUID): Note {
         val note = notes[id]
         if (note == null) {
             throw notFound(id)
@@ -60,15 +64,15 @@ class NoteEndpoint {
         return note
     }
 
-    private fun parseId(noteId: String): Long {
-        val id = noteId.toLongOrNull()
+    private fun parseId(noteId: String): UUID {
+        val id = Uuid.parseOrNull(noteId)
         if (id == null) {
             throw HttpException("Invalid note id: $noteId", Status.BAD_REQUEST_400)
         }
-        return id
+        return id.toJavaUuid()
     }
 
-    private fun notFound(id: Long): HttpException {
+    private fun notFound(id: UUID): HttpException {
         return HttpException("Note not found: $id", Status.NOT_FOUND_404)
     }
 
