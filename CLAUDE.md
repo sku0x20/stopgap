@@ -12,9 +12,8 @@
 ## Communication
 
 - Terse responses. No preamble ("I'll now do X") or trailing summaries.
-- KDoc/comments: one or two short sentences stating the fact. No comments that restate the code.
-- Follow style of self documenting code style. name of class, function, etc. tells what, body tells how, and comment
-  tells why. and when comments do get added, keep them short and crisp.
+- Self-documenting code: names tell what, the body tells how, comments tell why. Never restate the code. When a
+  comment or KDoc is needed, keep it to one or two short, crisp sentences.
 
 ## Token Efficiency
 
