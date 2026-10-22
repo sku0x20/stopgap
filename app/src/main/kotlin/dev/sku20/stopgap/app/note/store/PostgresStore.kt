@@ -93,6 +93,7 @@ class PostgresStore(
         }
     }
 
+    // Statements
     private companion object {
 
         const val CREATE_TABLE = """
