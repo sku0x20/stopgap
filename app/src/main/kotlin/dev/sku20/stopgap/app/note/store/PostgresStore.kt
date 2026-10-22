@@ -3,6 +3,7 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
+import java.sql.PreparedStatement
 import javax.sql.DataSource
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -28,12 +29,10 @@ class PostgresStore(
     @OptIn(ExperimentalUuidApi::class)
     override fun create(req: NoteReq): Note {
         val note = Note(Uuid.generateV7(), req.text)
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(INSERT_NOTE).use {
-                it.setObject(1, note.noteId.toJavaUuid())
-                it.setString(2, note.text)
-                it.executeUpdate()
-            }
+        withStatement(INSERT_NOTE) {
+            it.setObject(1, note.noteId.toJavaUuid())
+            it.setString(2, note.text)
+            it.executeUpdate()
         }
         return note
     }
@@ -47,9 +46,10 @@ class PostgresStore(
     override fun delete(noteId: Uuid): Unit = TODO()
 
     private fun createTable() {
-        dataSource.connection.use { conn ->
-            conn.createStatement().use { it.execute(CREATE_TABLE) }
-        }
+        withStatement(CREATE_TABLE) { it.execute() }
     }
+
+    private fun <T> withStatement(sql: String, block: (PreparedStatement) -> T): T =
+        dataSource.connection.use { conn -> conn.prepareStatement(sql).use(block) }
 
 }
