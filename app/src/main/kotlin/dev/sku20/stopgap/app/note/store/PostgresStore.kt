@@ -19,7 +19,9 @@ private const val CREATE_TABLE = """
 
 private const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)"
 
-private const val SELECT_NOTE = "SELECT note_id, text FROM notes WHERE note_id = ?"
+private const val SELECT_NOTES = "SELECT note_id, text FROM notes ORDER BY note_id"
+
+private const val SELECT_NOTE ="SELECT note_id, text FROM notes WHERE note_id = ?"
 
 class PostgresStore(
     private val dataSource: DataSource,
@@ -42,7 +44,23 @@ class PostgresStore(
         return note
     }
 
-    override fun list(): List<Note> = TODO()
+    override fun list(): List<Note> {
+        return dataSource.connection.use { conn ->
+            conn.prepareStatement(SELECT_NOTES).use {
+                val rs = it.executeQuery()
+                val notes = mutableListOf<Note>()
+                while (rs.next()) {
+                    notes.add(
+                        Note(
+                            rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                            rs.getString("text"),
+                        )
+                    )
+                }
+                notes
+            }
+        }
+    }
 
     override fun get(noteId: Uuid): Note {
         return dataSource.connection.use { conn ->
