@@ -28,7 +28,13 @@ class PostgresStore(
     @OptIn(ExperimentalUuidApi::class)
     override fun create(req: NoteReq): Note {
         val note = Note(Uuid.generateV7(), req.text)
-        insert(note)
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(INSERT_NOTE).use {
+                it.setObject(1, note.noteId.toJavaUuid())
+                it.setString(2, note.text)
+                it.executeUpdate()
+            }
+        }
         return note
     }
 
@@ -43,16 +49,6 @@ class PostgresStore(
     private fun createTable() {
         dataSource.connection.use { conn ->
             conn.createStatement().use { it.execute(CREATE_TABLE) }
-        }
-    }
-
-    private fun insert(note: Note) {
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(INSERT_NOTE).use {
-                it.setObject(1, note.noteId.toJavaUuid())
-                it.setString(2, note.text)
-                it.executeUpdate()
-            }
         }
     }
 
