@@ -108,4 +108,10 @@ class PostgresStoreTest {
         assertThatThrownBy { store.get(Uuid.random()) }.isInstanceOf(NoteNotFoundException::class.java)
     }
 
+    @Test
+    fun updateMissing() {
+        assertThatThrownBy { store.update(UpdateReq(Uuid.random(), "foo")) }
+            .isInstanceOf(NoteNotFoundException::class.java)
+    }
+
 }
