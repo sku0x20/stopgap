@@ -84,7 +84,7 @@ class PostgresStore(
                 it.setString(1, req.text)
                 it.setObject(2, req.noteId.toJavaUuid())
                 val rs = it.executeQuery()
-                rs.next()
+                if (!rs.next()) throw NoteNotFoundException(req.noteId)
                 Note(
                     rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
                     rs.getString("text"),
