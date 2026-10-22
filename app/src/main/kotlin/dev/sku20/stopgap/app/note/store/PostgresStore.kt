@@ -3,6 +3,7 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.util.*
 import javax.sql.DataSource
@@ -39,9 +40,7 @@ class PostgresStore(
     override fun get(noteId: Uuid): Note = dataSource.withConnection {
         withStatement(SELECT_NOTE) {
             it.setObject(1, noteId.toJavaUuid())
-            val rs = it.executeQuery()
-            if (!rs.next()) throw NoteNotFoundException(noteId)
-            mapNote(rs)
+            it.queryNote(noteId)
         }
     }
 
@@ -49,9 +48,7 @@ class PostgresStore(
         withStatement(UPDATE_NOTE) {
             it.setString(1, req.text)
             it.setObject(2, req.noteId.toJavaUuid())
-            val rs = it.executeQuery()
-            if (!rs.next()) throw NoteNotFoundException(req.noteId)
-            mapNote(rs)
+            it.queryNote(req.noteId)
         }
     }
 
@@ -64,6 +61,12 @@ class PostgresStore(
 
     private fun createTable(): Unit = dataSource.withConnection {
         withStatement(CREATE_TABLE) { it.execute() }
+    }
+
+    private fun PreparedStatement.queryNote(noteId: Uuid): Note {
+        val rs = executeQuery()
+        if (!rs.next()) throw NoteNotFoundException(noteId)
+        return mapNote(rs)
     }
 
     private fun mapNote(rs: ResultSet): Note = Note(
