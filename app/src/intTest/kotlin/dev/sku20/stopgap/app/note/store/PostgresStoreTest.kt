@@ -104,6 +104,15 @@ class PostgresStoreTest {
     }
 
     @Test
+    fun delete() {
+        val created = store.create(NoteReq("foo"))
+
+        store.delete(created.noteId)
+
+        assertThatThrownBy { store.get(created.noteId) }.isInstanceOf(NoteNotFoundException::class.java)
+    }
+
+    @Test
     fun getMissing() {
         assertThatThrownBy { store.get(Uuid.random()) }.isInstanceOf(NoteNotFoundException::class.java)
     }
