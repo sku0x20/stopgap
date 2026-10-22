@@ -4,7 +4,9 @@ import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
 import javax.sql.DataSource
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 private const val CREATE_TABLE = """
     CREATE TABLE IF NOT EXISTS notes (
@@ -12,6 +14,8 @@ private const val CREATE_TABLE = """
         text    text NOT NULL
     )
 """
+
+private const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)"
 
 class PostgresStore(
     private val dataSource: DataSource,
@@ -21,7 +25,18 @@ class PostgresStore(
         createTable()
     }
 
-    override fun create(req: NoteReq): Note = TODO()
+    @OptIn(ExperimentalUuidApi::class)
+    override fun create(req: NoteReq): Note {
+        val note = Note(Uuid.generateV7(), req.text)
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(INSERT_NOTE).use {
+                it.setObject(1, note.noteId.toJavaUuid())
+                it.setString(2, note.text)
+                it.executeUpdate()
+            }
+        }
+        return note
+    }
 
     override fun list(): List<Note> = TODO()
 
