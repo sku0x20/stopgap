@@ -1,9 +1,9 @@
 package dev.sku20.stopgap.app.note.web
 
 import dev.sku20.stopgap.app.note.Note
-import dev.sku20.stopgap.app.note.NoteNotFoundException
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
+import dev.sku20.stopgap.app.note.store.NoteNotFoundException
 import dev.sku20.stopgap.app.note.store.NoteStore
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog

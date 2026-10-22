@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.app.note
+package dev.sku20.stopgap.app.note.store
 
 import io.helidon.http.HttpException
 import io.helidon.http.Status
