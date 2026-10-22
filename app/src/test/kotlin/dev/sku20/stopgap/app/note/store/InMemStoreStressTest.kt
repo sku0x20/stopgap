@@ -1,5 +1,8 @@
-package dev.sku20.stopgap.app.note
+package dev.sku20.stopgap.app.note.store
 
+import dev.sku20.stopgap.app.note.NoteNotFoundException
+import dev.sku20.stopgap.app.note.NoteReq
+import dev.sku20.stopgap.app.note.UpdateReq
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CyclicBarrier

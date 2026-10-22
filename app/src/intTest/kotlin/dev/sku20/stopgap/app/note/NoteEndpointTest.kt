@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.app.note
 
+import dev.sku20.stopgap.app.note.store.NoteStore
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance

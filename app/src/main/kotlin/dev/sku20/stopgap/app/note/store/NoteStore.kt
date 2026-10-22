@@ -1,5 +1,8 @@
-package dev.sku20.stopgap.app.note
+package dev.sku20.stopgap.app.note.store
 
+import dev.sku20.stopgap.app.note.Note
+import dev.sku20.stopgap.app.note.NoteReq
+import dev.sku20.stopgap.app.note.UpdateReq
 import kotlin.uuid.Uuid
 
 interface NoteStore {

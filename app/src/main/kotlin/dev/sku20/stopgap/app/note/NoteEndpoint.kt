@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.app.note
 
+import dev.sku20.stopgap.app.note.store.NoteStore
 import dev.sku20.stopgap.helidon.endpoint.*
 import dev.sku20.stopgap.helidon.param.PathParam
 import kotlin.uuid.Uuid
