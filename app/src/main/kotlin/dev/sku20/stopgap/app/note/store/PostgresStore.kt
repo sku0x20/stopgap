@@ -39,9 +39,7 @@ class PostgresStore(
     override fun get(noteId: Uuid): Note = dataSource.withConnection {
         withStatement(SELECT_NOTE) {
             it.setObject(1, noteId.toJavaUuid())
-            val rs = it.executeQuery()
-            if (!rs.next()) throw NoteNotFoundException(noteId)
-            mapNote(rs)
+            it.executeQuery().firstOrThrow(::mapNote) { NoteNotFoundException(noteId) }
         }
     }
 
@@ -49,9 +47,7 @@ class PostgresStore(
         withStatement(UPDATE_NOTE) {
             it.setString(1, req.text)
             it.setObject(2, req.noteId.toJavaUuid())
-            val rs = it.executeQuery()
-            if (!rs.next()) throw NoteNotFoundException(req.noteId)
-            mapNote(rs)
+            it.executeQuery().firstOrThrow(::mapNote) { NoteNotFoundException(req.noteId) }
         }
     }
 

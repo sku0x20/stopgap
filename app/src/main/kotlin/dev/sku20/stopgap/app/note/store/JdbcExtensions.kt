@@ -23,3 +23,8 @@ internal inline fun <T> ResultSet.map(transform: (ResultSet) -> T): List<T> {
     }
     return result
 }
+
+internal inline fun <T> ResultSet.firstOrThrow(transform: (ResultSet) -> T, exception: () -> Throwable): T {
+    if (!next()) throw exception()
+    return transform(this)
+}
