@@ -25,6 +25,8 @@ private const val SELECT_NOTE = "SELECT note_id, text FROM notes WHERE note_id =
 
 private const val UPDATE_NOTE = "UPDATE notes SET text = ? WHERE note_id = ? RETURNING note_id, text"
 
+private const val DELETE_NOTE = "DELETE FROM notes WHERE note_id = ?"
+
 class PostgresStore(
     private val dataSource: DataSource,
 ) : NoteStore {
@@ -93,7 +95,14 @@ class PostgresStore(
         }
     }
 
-    override fun delete(noteId: Uuid): Unit = TODO()
+    override fun delete(noteId: Uuid) {
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(DELETE_NOTE).use {
+                it.setObject(1, noteId.toJavaUuid())
+                it.executeUpdate()
+            }
+        }
+    }
 
     private fun createTable() {
         dataSource.connection.use { conn ->
