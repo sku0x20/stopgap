@@ -94,7 +94,7 @@ class PostgresStore(
         }
     }
 
-    private fun <T> withConnection(block: (Connection) -> T): T = dataSource.connection.use(block)
+    private inline fun <T> withConnection(block: (Connection) -> T): T = dataSource.connection.use(block)
 
     // Statements
     private companion object {
