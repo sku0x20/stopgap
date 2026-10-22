@@ -18,6 +18,11 @@ class SerdeEndpoint {
         res.send(body.data)
     }
 
+    @Post("/desDataClass")
+    fun desDataClass(body: DataClassReq): ResDto {
+        return ResDto("${body.id}:${body.name}")
+    }
+
     @Get("/serObj")
     fun serObj(
         req: ServerRequest,
