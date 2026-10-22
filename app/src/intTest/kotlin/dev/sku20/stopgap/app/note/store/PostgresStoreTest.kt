@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -33,6 +34,13 @@ class PostgresStoreTest {
         config.password = postgres.password
         dataSource = HikariDataSource(config)
         store = PostgresStore(dataSource)
+    }
+
+    @BeforeEach
+    fun truncateNotes() {
+        dataSource.connection.use { conn ->
+            conn.createStatement().use { it.execute("TRUNCATE notes") }
+        }
     }
 
     @AfterAll
@@ -72,6 +80,15 @@ class PostgresStoreTest {
     fun get() {
         val created = store.create(NoteReq("foo"))
         assertThat(store.get(created.noteId)).isEqualTo(created)
+    }
+
+    @Test
+    fun list() {
+        val first = store.create(NoteReq("foo"))
+        val second = store.create(NoteReq("bar"))
+        assertThat(store.list())
+            .containsExactlyInAnyOrder(first, second)
+            .isSortedAccordingTo(compareBy { it.noteId })
     }
 
     @Test
