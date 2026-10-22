@@ -21,7 +21,9 @@ private const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)
 
 private const val SELECT_NOTES = "SELECT note_id, text FROM notes ORDER BY note_id"
 
-private const val SELECT_NOTE ="SELECT note_id, text FROM notes WHERE note_id = ?"
+private const val SELECT_NOTE = "SELECT note_id, text FROM notes WHERE note_id = ?"
+
+private const val UPDATE_NOTE = "UPDATE notes SET text = ? WHERE note_id = ? RETURNING note_id, text"
 
 class PostgresStore(
     private val dataSource: DataSource,
@@ -76,7 +78,20 @@ class PostgresStore(
         }
     }
 
-    override fun update(req: UpdateReq): Note = TODO()
+    override fun update(req: UpdateReq): Note {
+        return dataSource.connection.use { conn ->
+            conn.prepareStatement(UPDATE_NOTE).use {
+                it.setString(1, req.text)
+                it.setObject(2, req.noteId.toJavaUuid())
+                val rs = it.executeQuery()
+                rs.next()
+                Note(
+                    rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                    rs.getString("text"),
+                )
+            }
+        }
+    }
 
     override fun delete(noteId: Uuid): Unit = TODO()
 
