@@ -3,7 +3,7 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
-import java.util.UUID
+import java.util.*
 import javax.sql.DataSource
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -50,7 +50,10 @@ class PostgresStore(
                 it.setObject(1, noteId.toJavaUuid())
                 val rs = it.executeQuery()
                 rs.next()
-                Note(rs.getObject("note_id", UUID::class.java).toKotlinUuid(), rs.getString("text"))
+                Note(
+                    rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                    rs.getString("text"),
+                )
             }
         }
     }
