@@ -99,7 +99,7 @@ class PostgresStore(
         dataSource.connection.use { conn ->
             conn.prepareStatement(DELETE_NOTE).use {
                 it.setObject(1, noteId.toJavaUuid())
-                it.executeUpdate()
+                if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
             }
         }
     }
