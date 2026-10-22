@@ -7,6 +7,7 @@ import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
+import io.helidon.webserver.observe.ObserveFeature
 import org.slf4j.bridge.SLF4JBridgeHandler
 
 fun main(args: Array<String>) {
@@ -24,6 +25,7 @@ fun main(args: Array<String>) {
     val server = WebServer.builder()
         .config(config.get("server"))
         .shutdownHook(false)
+        .addFeature(registry.getInstanceForType<ObserveFeature>())
         .routing(routing)
         .build()
     server.start()
