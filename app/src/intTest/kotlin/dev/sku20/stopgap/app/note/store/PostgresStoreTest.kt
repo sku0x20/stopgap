@@ -1,11 +1,12 @@
 package dev.sku20.stopgap.app.note.store
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.testcontainers.postgresql.PostgreSQLContainer
-import java.sql.DriverManager
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
@@ -13,13 +14,21 @@ class PostgresStoreTest {
 
     @Test
     fun learnJdbc() {
-        DriverManager.getConnection(postgres.jdbcUrl, postgres.username, postgres.password).use { conn ->
-            // CREATE DATABASE can't run inside a transaction; fine here since JDBC defaults to auto-commit.
-            conn.createStatement().use { it.execute("CREATE DATABASE learn") }
+        dataSource(postgres.jdbcUrl).use { ds ->
+            ds.connection.use { conn ->
+                // CREATE DATABASE can't run inside a transaction; fine here since Hikari defaults to auto-commit.
+                conn.createStatement().use { it.execute("CREATE DATABASE learn") }
+            }
         }
 
         val learnUrl = "jdbc:postgresql://${postgres.host}:${postgres.firstMappedPort}/learn"
-        DriverManager.getConnection(learnUrl, postgres.username, postgres.password).use { conn ->
+        dataSource(learnUrl).use { ds ->
+            learnCrud(ds)
+        }
+    }
+
+    private fun learnCrud(ds: HikariDataSource) {
+        ds.connection.use { conn ->
             conn.createStatement().use { it.execute("CREATE TABLE notes (note_id uuid PRIMARY KEY, text text NOT NULL)") }
 
             val noteId = Uuid.random().toJavaUuid()
@@ -50,6 +59,14 @@ class PostgresStoreTest {
                 }
             }
         }
+    }
+
+    private fun dataSource(jdbcUrl: String): HikariDataSource {
+        val config = HikariConfig()
+        config.jdbcUrl = jdbcUrl
+        config.username = postgres.username
+        config.password = postgres.password
+        return HikariDataSource(config)
     }
 
     companion object {
