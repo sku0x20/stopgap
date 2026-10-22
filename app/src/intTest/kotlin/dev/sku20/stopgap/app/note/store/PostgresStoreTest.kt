@@ -12,7 +12,7 @@ class PostgresStoreTest {
 
     companion object {
 
-        private val postgres = PostgreSQLContainer("postgres:18-alpine")
+        private val postgres = PostgreSQLContainer("postgres:18-alpine").withDatabaseName("stopgap")
 
         private lateinit var dataSource: HikariDataSource
 
