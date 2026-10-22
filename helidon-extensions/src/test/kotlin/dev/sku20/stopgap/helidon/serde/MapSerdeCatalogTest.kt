@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.serde
 
+import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -36,6 +37,15 @@ class MapSerdeCatalogTest {
 
         assertThat(catalog.getDeserializer(HttpMediaTypes.JSON_UTF_8)).isSameAs(serde)
         assertThat(catalog.getDeserializer(HttpMediaTypes.PLAINTEXT_UTF_8)).isSameAs(plainTextSerde)
+    }
+
+    @Test
+    fun ignoresMediaTypeParameters() {
+        catalog.add(serde)
+
+        assertThat(catalog.getDeserializer(HttpMediaTypes.JSON)).isSameAs(serde)
+        assertThat(catalog.getDeserializer(HttpMediaType.create("Application/JSON"))).isSameAs(serde)
+        assertThat(catalog.getSerializer(listOf(HttpMediaType.create("application/json;q=0.9")))).isSameAs(serde)
     }
 
     @Test
