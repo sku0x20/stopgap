@@ -3,6 +3,10 @@ server:
   host: localhost
   protocols:
     http_1_1:
+  content-encoding:
+    content-encodings-discover-services: false
+    content-encodings:
+      gzip:
 
 generator:
   static:
