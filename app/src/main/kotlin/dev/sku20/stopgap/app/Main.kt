@@ -24,7 +24,6 @@ fun main(args: Array<String>) {
     val server = WebServer.builder()
         .config(config.get("server"))
         .shutdownHook(false)
-        .protocolsDiscoverServices(false)
         .routing(routing)
         .build()
     server.start()

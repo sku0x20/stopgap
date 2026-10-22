@@ -1,6 +1,7 @@
 server:
   port: 8080
   host: localhost
+  protocols-discover-services: false
   protocols:
     http_1_1:
   content-encoding:
