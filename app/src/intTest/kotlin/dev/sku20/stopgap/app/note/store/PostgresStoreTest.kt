@@ -66,4 +66,10 @@ class PostgresStoreTest {
         }
     }
 
+    @Test
+    fun get() {
+        val created = store.create(NoteReq("foo"))
+        assertThat(store.get(created.noteId)).isEqualTo(created)
+    }
+
 }
