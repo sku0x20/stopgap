@@ -2,7 +2,9 @@ package dev.sku20.stopgap.app.note.store
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
+import dev.sku20.stopgap.app.note.UpdateReq
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterAll
@@ -89,6 +91,16 @@ class PostgresStoreTest {
         assertThat(store.list())
             .containsExactlyInAnyOrder(first, second)
             .isSortedAccordingTo(compareBy { it.noteId })
+    }
+
+    @Test
+    fun update() {
+        val created = store.create(NoteReq("foo"))
+
+        val updated = store.update(UpdateReq(created.noteId, "bar"))
+
+        assertThat(updated).isEqualTo(Note(created.noteId, "bar"))
+        assertThat(store.get(created.noteId)).isEqualTo(updated)
     }
 
     @Test
