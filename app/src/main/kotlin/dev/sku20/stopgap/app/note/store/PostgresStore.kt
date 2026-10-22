@@ -33,14 +33,7 @@ class PostgresStore(
     }
 
     override fun list(): List<Note> = dataSource.withConnection {
-        withStatement(SELECT_NOTES) {
-            val rs = it.executeQuery()
-            val notes = mutableListOf<Note>()
-            while (rs.next()) {
-                notes.add(mapNote(rs))
-            }
-            notes
-        }
+        withStatement(SELECT_NOTES) { it.executeQuery().map(::mapNote) }
     }
 
     override fun get(noteId: Uuid): Note = dataSource.withConnection {
