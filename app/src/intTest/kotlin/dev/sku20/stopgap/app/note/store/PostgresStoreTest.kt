@@ -123,4 +123,9 @@ class PostgresStoreTest {
             .isInstanceOf(NoteNotFoundException::class.java)
     }
 
+    @Test
+    fun deleteMissing() {
+        assertThatThrownBy { store.delete(Uuid.random()) }.isInstanceOf(NoteNotFoundException::class.java)
+    }
+
 }
