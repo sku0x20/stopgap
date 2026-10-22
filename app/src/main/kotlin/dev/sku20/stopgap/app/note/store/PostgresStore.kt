@@ -6,7 +6,9 @@ import dev.sku20.stopgap.app.note.UpdateReq
 import javax.sql.DataSource
 import kotlin.uuid.Uuid
 
-class PostgresStore(private val dataSource: DataSource) : NoteStore {
+class PostgresStore(
+    private val dataSource: DataSource,
+) : NoteStore {
 
     override fun create(req: NoteReq): Note = TODO()
 
