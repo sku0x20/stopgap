@@ -3,6 +3,7 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
+import java.sql.ResultSet
 import java.util.*
 import javax.sql.DataSource
 import kotlin.uuid.ExperimentalUuidApi
@@ -36,12 +37,7 @@ class PostgresStore(
             val rs = it.executeQuery()
             val notes = mutableListOf<Note>()
             while (rs.next()) {
-                notes.add(
-                    Note(
-                        rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                        rs.getString("text"),
-                    )
-                )
+                notes.add(mapNote(rs))
             }
             notes
         }
@@ -52,10 +48,7 @@ class PostgresStore(
             it.setObject(1, noteId.toJavaUuid())
             val rs = it.executeQuery()
             if (!rs.next()) throw NoteNotFoundException(noteId)
-            Note(
-                rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                rs.getString("text"),
-            )
+            mapNote(rs)
         }
     }
 
@@ -65,10 +58,7 @@ class PostgresStore(
             it.setObject(2, req.noteId.toJavaUuid())
             val rs = it.executeQuery()
             if (!rs.next()) throw NoteNotFoundException(req.noteId)
-            Note(
-                rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                rs.getString("text"),
-            )
+            mapNote(rs)
         }
     }
 
@@ -82,6 +72,11 @@ class PostgresStore(
     private fun createTable(): Unit = dataSource.withConnection {
         withStatement(CREATE_TABLE) { it.execute() }
     }
+
+    private fun mapNote(rs: ResultSet): Note = Note(
+        rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+        rs.getString("text"),
+    )
 
     // Statements
     private companion object {
