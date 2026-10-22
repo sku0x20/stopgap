@@ -33,7 +33,7 @@ class PostgresStore(
 
     override fun list(): List<Note> {
         return dataSource.withConnection {
-            prepareStatement(SELECT_NOTES).use {
+            withStatement(SELECT_NOTES) {
                 val rs = it.executeQuery()
                 val notes = mutableListOf<Note>()
                 while (rs.next()) {
@@ -65,7 +65,7 @@ class PostgresStore(
 
     override fun update(req: UpdateReq): Note {
         return dataSource.withConnection {
-            prepareStatement(UPDATE_NOTE).use {
+            withStatement(UPDATE_NOTE) {
                 it.setString(1, req.text)
                 it.setObject(2, req.noteId.toJavaUuid())
                 val rs = it.executeQuery()
@@ -80,7 +80,7 @@ class PostgresStore(
 
     override fun delete(noteId: Uuid) {
         dataSource.withConnection {
-            prepareStatement(DELETE_NOTE).use {
+            withStatement(DELETE_NOTE) {
                 it.setObject(1, noteId.toJavaUuid())
                 if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
             }
