@@ -23,8 +23,8 @@ class PostgresStore(
     @OptIn(ExperimentalUuidApi::class)
     override fun create(req: NoteReq): Note {
         val note = Note(Uuid.generateV7(), req.text)
-        withConnection { conn ->
-            conn.withStatement(INSERT_NOTE) {
+        withConnection {
+            withStatement(INSERT_NOTE) {
                 it.setObject(1, note.noteId.toJavaUuid())
                 it.setString(2, note.text)
                 it.executeUpdate()
@@ -34,8 +34,8 @@ class PostgresStore(
     }
 
     override fun list(): List<Note> {
-        return withConnection { conn ->
-            conn.prepareStatement(SELECT_NOTES).use {
+        return withConnection {
+            prepareStatement(SELECT_NOTES).use {
                 val rs = it.executeQuery()
                 val notes = mutableListOf<Note>()
                 while (rs.next()) {
@@ -52,8 +52,8 @@ class PostgresStore(
     }
 
     override fun get(noteId: Uuid): Note {
-        return withConnection { conn ->
-            conn.prepareStatement(SELECT_NOTE).use {
+        return withConnection {
+            prepareStatement(SELECT_NOTE).use {
                 it.setObject(1, noteId.toJavaUuid())
                 val rs = it.executeQuery()
                 if (!rs.next()) throw NoteNotFoundException(noteId)
@@ -66,8 +66,8 @@ class PostgresStore(
     }
 
     override fun update(req: UpdateReq): Note {
-        return withConnection { conn ->
-            conn.prepareStatement(UPDATE_NOTE).use {
+        return withConnection {
+            prepareStatement(UPDATE_NOTE).use {
                 it.setString(1, req.text)
                 it.setObject(2, req.noteId.toJavaUuid())
                 val rs = it.executeQuery()
@@ -81,8 +81,8 @@ class PostgresStore(
     }
 
     override fun delete(noteId: Uuid) {
-        withConnection { conn ->
-            conn.prepareStatement(DELETE_NOTE).use {
+        withConnection {
+            prepareStatement(DELETE_NOTE).use {
                 it.setObject(1, noteId.toJavaUuid())
                 if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
             }
@@ -90,12 +90,12 @@ class PostgresStore(
     }
 
     private fun createTable() {
-        withConnection { conn ->
-            conn.createStatement().use { it.execute(CREATE_TABLE) }
+        withConnection {
+            createStatement().use { it.execute(CREATE_TABLE) }
         }
     }
 
-    private inline fun <T> withConnection(block: (Connection) -> T): T = dataSource.connection.use(block)
+    private inline fun <T> withConnection(block: Connection.() -> T): T = dataSource.connection.use(block)
 
     private inline fun <T> Connection.withStatement(sql: String, block: (PreparedStatement) -> T): T =
         prepareStatement(sql).use(block)
