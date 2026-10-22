@@ -89,7 +89,7 @@ class PostgresStore(
 
     private fun createTable() {
         dataSource.withConnection {
-            createStatement().use { it.execute(CREATE_TABLE) }
+            withStatement(CREATE_TABLE) { it.execute() }
         }
     }
 
