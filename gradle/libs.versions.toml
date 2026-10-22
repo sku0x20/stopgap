@@ -27,6 +27,7 @@ helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver"
 helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
 helidon-logging-slf4j = { group = "io.helidon.logging", name = "helidon-logging-slf4j", version.ref = "helidon" }
+helidon-http-encoding-gzip = { group = "io.helidon.http.encoding", name = "helidon-http-encoding-gzip", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
@@ -44,5 +45,6 @@ lincheck = { group = "org.jetbrains.lincheck", name = "lincheck", version.ref = 
 [bundles]
 helidon = [
     "helidon-webserver",
-    "helidon-config-yaml"
+    "helidon-config-yaml",
+    "helidon-http-encoding-gzip"
 ]
