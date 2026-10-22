@@ -32,8 +32,8 @@ class DockerImageRunner : LauncherSessionListener {
         val envFile = store.get(E2eStore.NAMESPACE, E2eStoreKeys.ENV_FILE) as? String ?: return
         val resource = this::class.java.classLoader.getResourceAsStream(envFile)!!
         for (line in resource.bufferedReader().lines()) {
-            val split = line.split("=")
-            container.withEnv(split[0], split[1])
+            if (line.isBlank()) continue
+            container.withEnv(line.substringBefore("="), line.substringAfter("="))
         }
     }
 
