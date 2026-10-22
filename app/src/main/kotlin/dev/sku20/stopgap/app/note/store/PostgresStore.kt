@@ -51,7 +51,7 @@ class PostgresStore(
 
     override fun get(noteId: Uuid): Note {
         return dataSource.withConnection {
-            prepareStatement(SELECT_NOTE).use {
+            withStatement(SELECT_NOTE) {
                 it.setObject(1, noteId.toJavaUuid())
                 val rs = it.executeQuery()
                 if (!rs.next()) throw NoteNotFoundException(noteId)
