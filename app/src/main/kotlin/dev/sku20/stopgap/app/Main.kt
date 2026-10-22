@@ -5,6 +5,8 @@ import dev.sku20.stopgap.helidon.registry.generated.initHttpRouting
 import dev.sku20.stopgap.ir.InstanceRegistry
 import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config
+import io.helidon.http.encoding.ContentEncodingContext
+import io.helidon.http.encoding.gzip.GzipEncoding
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import org.slf4j.bridge.SLF4JBridgeHandler
@@ -25,6 +27,12 @@ fun main(args: Array<String>) {
         .config(config.get("server"))
         .shutdownHook(false)
         .protocolsDiscoverServices(false)
+        .contentEncoding(
+            ContentEncodingContext.builder()
+                .contentEncodingsDiscoverServices(false)
+                .addContentEncoding(GzipEncoding.create())
+                .build()
+        )
         .routing(routing)
         .build()
     server.start()
