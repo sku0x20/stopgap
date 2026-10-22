@@ -6,7 +6,12 @@ import dev.sku20.stopgap.app.note.UpdateReq
 import javax.sql.DataSource
 import kotlin.uuid.Uuid
 
-private const val CREATE_TABLE = "CREATE TABLE IF NOT EXISTS notes (note_id uuid PRIMARY KEY, text text NOT NULL)"
+private const val CREATE_TABLE = """
+    CREATE TABLE IF NOT EXISTS notes (
+        note_id uuid PRIMARY KEY,
+        text    text NOT NULL
+    )
+"""
 
 class PostgresStore(
     private val dataSource: DataSource,
