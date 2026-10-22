@@ -12,6 +12,8 @@ server:
       gzip:
   media-context:
     media-supports-discover-services: false
+  features:
+    access-log:
 
 generator:
   static:

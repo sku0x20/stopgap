@@ -28,6 +28,9 @@ helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
 helidon-logging-slf4j = { group = "io.helidon.logging", name = "helidon-logging-slf4j", version.ref = "helidon" }
 helidon-http-encoding-gzip = { group = "io.helidon.http.encoding", name = "helidon-http-encoding-gzip", version.ref = "helidon" }
+helidon-webserver-access-log = { group = "io.helidon.webserver", name = "helidon-webserver-access-log", version.ref = "helidon" }
+helidon-webserver-observe-health = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-health", version.ref = "helidon" }
+helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-checks", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
@@ -46,5 +49,8 @@ lincheck = { group = "org.jetbrains.lincheck", name = "lincheck", version.ref = 
 helidon = [
     "helidon-webserver",
     "helidon-config-yaml",
-    "helidon-http-encoding-gzip"
+    "helidon-http-encoding-gzip",
+    "helidon-webserver-access-log",
+    "helidon-webserver-observe-health",
+    "helidon-health-checks"
 ]
