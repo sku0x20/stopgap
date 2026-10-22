@@ -4,12 +4,14 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.sku20.stopgap.app.note.NoteReq
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.testcontainers.postgresql.PostgreSQLContainer
+import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
 @TestInstance(PER_CLASS)
@@ -70,6 +72,11 @@ class PostgresStoreTest {
     fun get() {
         val created = store.create(NoteReq("foo"))
         assertThat(store.get(created.noteId)).isEqualTo(created)
+    }
+
+    @Test
+    fun getMissing() {
+        assertThatThrownBy { store.get(Uuid.random()) }.isInstanceOf(NoteNotFoundException::class.java)
     }
 
 }
