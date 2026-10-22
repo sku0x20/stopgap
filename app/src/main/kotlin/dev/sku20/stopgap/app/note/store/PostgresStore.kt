@@ -72,19 +72,15 @@ class PostgresStore(
         }
     }
 
-    override fun delete(noteId: Uuid) {
-        dataSource.withConnection {
-            withStatement(DELETE_NOTE) {
-                it.setObject(1, noteId.toJavaUuid())
-                if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
-            }
+    override fun delete(noteId: Uuid) = dataSource.withConnection {
+        withStatement(DELETE_NOTE) {
+            it.setObject(1, noteId.toJavaUuid())
+            if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
         }
     }
 
-    private fun createTable() {
-        dataSource.withConnection {
-            withStatement(CREATE_TABLE) { it.execute() }
-        }
+    private fun createTable() = dataSource.withConnection {
+        withStatement(CREATE_TABLE) { it.execute() }
     }
 
     // Statements
