@@ -7,3 +7,9 @@ server:
 generator:
   static:
     value: "from static generator"
+
+db:
+  postgres:
+    url: jdbc:postgresql://localhost:5432/stopgap
+    username: postgres
+    password: postgres
