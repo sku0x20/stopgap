@@ -3,8 +3,6 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.util.*
 import javax.sql.DataSource
 import kotlin.uuid.ExperimentalUuidApi
@@ -23,7 +21,7 @@ class PostgresStore(
     @OptIn(ExperimentalUuidApi::class)
     override fun create(req: NoteReq): Note {
         val note = Note(Uuid.generateV7(), req.text)
-        withConnection {
+        dataSource.withConnection {
             withStatement(INSERT_NOTE) {
                 it.setObject(1, note.noteId.toJavaUuid())
                 it.setString(2, note.text)
@@ -34,7 +32,7 @@ class PostgresStore(
     }
 
     override fun list(): List<Note> {
-        return withConnection {
+        return dataSource.withConnection {
             prepareStatement(SELECT_NOTES).use {
                 val rs = it.executeQuery()
                 val notes = mutableListOf<Note>()
@@ -52,7 +50,7 @@ class PostgresStore(
     }
 
     override fun get(noteId: Uuid): Note {
-        return withConnection {
+        return dataSource.withConnection {
             prepareStatement(SELECT_NOTE).use {
                 it.setObject(1, noteId.toJavaUuid())
                 val rs = it.executeQuery()
@@ -66,7 +64,7 @@ class PostgresStore(
     }
 
     override fun update(req: UpdateReq): Note {
-        return withConnection {
+        return dataSource.withConnection {
             prepareStatement(UPDATE_NOTE).use {
                 it.setString(1, req.text)
                 it.setObject(2, req.noteId.toJavaUuid())
@@ -81,7 +79,7 @@ class PostgresStore(
     }
 
     override fun delete(noteId: Uuid) {
-        withConnection {
+        dataSource.withConnection {
             prepareStatement(DELETE_NOTE).use {
                 it.setObject(1, noteId.toJavaUuid())
                 if (it.executeUpdate() == 0) throw NoteNotFoundException(noteId)
@@ -90,15 +88,10 @@ class PostgresStore(
     }
 
     private fun createTable() {
-        withConnection {
+        dataSource.withConnection {
             createStatement().use { it.execute(CREATE_TABLE) }
         }
     }
-
-    private inline fun <T> withConnection(block: Connection.() -> T): T = dataSource.connection.use(block)
-
-    private inline fun <T> Connection.withStatement(sql: String, block: (PreparedStatement) -> T): T =
-        prepareStatement(sql).use(block)
 
     // Statements
     private companion object {
