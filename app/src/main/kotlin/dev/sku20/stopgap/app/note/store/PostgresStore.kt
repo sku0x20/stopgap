@@ -31,50 +31,44 @@ class PostgresStore(
         return note
     }
 
-    override fun list(): List<Note> {
-        return dataSource.withConnection {
-            withStatement(SELECT_NOTES) {
-                val rs = it.executeQuery()
-                val notes = mutableListOf<Note>()
-                while (rs.next()) {
-                    notes.add(
-                        Note(
-                            rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                            rs.getString("text"),
-                        )
+    override fun list(): List<Note> = dataSource.withConnection {
+        withStatement(SELECT_NOTES) {
+            val rs = it.executeQuery()
+            val notes = mutableListOf<Note>()
+            while (rs.next()) {
+                notes.add(
+                    Note(
+                        rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                        rs.getString("text"),
                     )
-                }
-                notes
+                )
             }
+            notes
         }
     }
 
-    override fun get(noteId: Uuid): Note {
-        return dataSource.withConnection {
-            withStatement(SELECT_NOTE) {
-                it.setObject(1, noteId.toJavaUuid())
-                val rs = it.executeQuery()
-                if (!rs.next()) throw NoteNotFoundException(noteId)
-                Note(
-                    rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                    rs.getString("text"),
-                )
-            }
+    override fun get(noteId: Uuid): Note = dataSource.withConnection {
+        withStatement(SELECT_NOTE) {
+            it.setObject(1, noteId.toJavaUuid())
+            val rs = it.executeQuery()
+            if (!rs.next()) throw NoteNotFoundException(noteId)
+            Note(
+                rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                rs.getString("text"),
+            )
         }
     }
 
-    override fun update(req: UpdateReq): Note {
-        return dataSource.withConnection {
-            withStatement(UPDATE_NOTE) {
-                it.setString(1, req.text)
-                it.setObject(2, req.noteId.toJavaUuid())
-                val rs = it.executeQuery()
-                if (!rs.next()) throw NoteNotFoundException(req.noteId)
-                Note(
-                    rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
-                    rs.getString("text"),
-                )
-            }
+    override fun update(req: UpdateReq): Note = dataSource.withConnection {
+        withStatement(UPDATE_NOTE) {
+            it.setString(1, req.text)
+            it.setObject(2, req.noteId.toJavaUuid())
+            val rs = it.executeQuery()
+            if (!rs.next()) throw NoteNotFoundException(req.noteId)
+            Note(
+                rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
+                rs.getString("text"),
+            )
         }
     }
 
