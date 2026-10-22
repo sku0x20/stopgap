@@ -24,5 +24,5 @@ internal inline fun <T> ResultSet.map(transform: (ResultSet) -> T): List<T> {
     return result
 }
 
-internal inline fun <T> ResultSet.firstOrNull(transform: (ResultSet) -> T): T? =
+internal inline fun <T : Any> ResultSet.firstOrNull(transform: (ResultSet) -> T): T? =
     if (next()) transform(this) else null
