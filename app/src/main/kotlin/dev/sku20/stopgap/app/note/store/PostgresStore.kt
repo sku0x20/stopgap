@@ -10,23 +10,6 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 
-private const val CREATE_TABLE = """
-    CREATE TABLE IF NOT EXISTS notes (
-        note_id uuid PRIMARY KEY,
-        text    text NOT NULL
-    )
-"""
-
-private const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)"
-
-private const val SELECT_NOTES = "SELECT note_id, text FROM notes ORDER BY note_id"
-
-private const val SELECT_NOTE = "SELECT note_id, text FROM notes WHERE note_id = ?"
-
-private const val UPDATE_NOTE = "UPDATE notes SET text = ? WHERE note_id = ? RETURNING note_id, text"
-
-private const val DELETE_NOTE = "DELETE FROM notes WHERE note_id = ?"
-
 class PostgresStore(
     private val dataSource: DataSource,
 ) : NoteStore {
@@ -108,6 +91,27 @@ class PostgresStore(
         dataSource.connection.use { conn ->
             conn.createStatement().use { it.execute(CREATE_TABLE) }
         }
+    }
+
+    private companion object {
+
+        const val CREATE_TABLE = """
+            CREATE TABLE IF NOT EXISTS notes (
+                note_id uuid PRIMARY KEY,
+                text    text NOT NULL
+            )
+        """
+
+        const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)"
+
+        const val SELECT_NOTES = "SELECT note_id, text FROM notes ORDER BY note_id"
+
+        const val SELECT_NOTE = "SELECT note_id, text FROM notes WHERE note_id = ?"
+
+        const val UPDATE_NOTE = "UPDATE notes SET text = ? WHERE note_id = ? RETURNING note_id, text"
+
+        const val DELETE_NOTE = "DELETE FROM notes WHERE note_id = ?"
+
     }
 
 }
