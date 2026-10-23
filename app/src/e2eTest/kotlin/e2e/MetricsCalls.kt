@@ -28,6 +28,18 @@ class MetricsCalls {
         assertThat(mean).isBetween(1.0, 5.0)
     }
 
+    // url.template is the raw path: Helidon's client metrics have no route template to use.
+    @Test
+    fun clientDuration() {
+        client.get("/httpbin/delay/1").request().close()
+
+        val series = """{url_template="/delay/1", http_response_status_code="200"}"""
+        val mean = awaitValue(
+            "sum(http_client_request_duration_seconds_sum$series) / sum(http_client_request_duration_seconds_count$series)"
+        )
+        assertThat(mean).isBetween(1.0, 5.0)
+    }
+
     // Helidon's Micrometer meters reach Prometheus only through the OTel bridge.
     @Test
     fun micrometerMeters() {
