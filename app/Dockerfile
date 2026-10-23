@@ -3,7 +3,9 @@ WORKDIR /project/stopgap
 ENV GRADLE_USER_HOME=/build/.gradle
 COPY ./ ./
 # If gradlew download hangs, pin a reachable IP (185.199.108/110/111.133): docker build --add-host release-assets.githubusercontent.com:185.199.110.133
-RUN --mount=type=cache,target=${GRADLE_USER_HOME} ./gradlew --no-daemon :app:jar :app:copyOtelAgent
+# The build has no git; the host passes the commit, which ends up as service.version.
+ARG GIT_SHA=unknown
+RUN --mount=type=cache,target=${GRADLE_USER_HOME} ./gradlew --no-daemon -PgitSha=${GIT_SHA} :app:jar :app:copyOtelAgent
 
 
 FROM ghcr.io/graalvm/jdk-community:25i-ol10

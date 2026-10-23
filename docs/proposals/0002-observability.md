@@ -42,6 +42,7 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - Connection pool, database operation and JVM metrics.
 - Business metrics recorded with the OTel `Meter` API, exported through the same SDK.
 - Duration histograms carry exemplars, so a latency spike leads to a trace that caused it.
+- Every span, log record and metric names the commit and the environment it came from.
 - Continuous CPU, allocation and lock profiles, with each server span linked to the samples taken while it ran.
 - A rolling JFR recording of JVM events (GC, locks, I/O, virtual-thread pinning) to dump when something looks wrong.
 
@@ -80,6 +81,11 @@ Helidon tracing           @WithSpan on our methods     JDBC library         Logb
   Helidon's default of 1000 writes it after the span has closed.
 - **The agent** has every instrumentation off except annotation support and the bridges it depends on. It's attached
   only in the container image and configured from a file in the repo.
+- **The resource** (attributes on every span, log record and metric) has `service.name` from `otel.properties`,
+  `service.version` from the jar manifest, and `deployment.environment.name` from each deployment's
+  `OTEL_RESOURCE_ATTRIBUTES`. The host passes the git commit to the image build, Gradle writes it as
+  `Implementation-Version`, and the agent's manifest resource provider reads it. The environment variable replaces
+  `otel.resource.attributes` rather than merging with it, so the version can't live in either.
 - **Our code** adds attributes to the current span first, and a new span only for a unit with its own latency or
   failure mode, or one that fans out.
 
@@ -309,6 +315,9 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   Spans shorter than the 10ms sampling interval may have no samples.
 - **Native access warning**: async-profiler loads its library through `System.load`, which JDK 25 warns about without
   `--enable-native-access` and a later release will block.
+- **Version is the commit, not the tree**: an image built with uncommitted changes reports the last commit's SHA.
+- **Profiles carry only the service name**: the profiler reads its own config, not the OTel resource, so Pyroscope
+  can't split by version or environment.
 - **The JFR recording dies with the container**: dump it before stopping the container; nothing ships it anywhere.
 
 ---

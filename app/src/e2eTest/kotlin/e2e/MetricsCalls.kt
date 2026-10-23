@@ -74,6 +74,14 @@ class MetricsCalls {
         assertThat(awaitValue("sum(thread_count)")).isPositive()
     }
 
+    // service.version comes from the jar manifest, deployment.environment.name from OTEL_RESOURCE_ATTRIBUTES; LGTM's
+    // Prometheus promotes both to labels.
+    @Test
+    fun resourceAttributes() {
+        val series = """{service_version=~"[0-9a-f]{7,}", deployment_environment_name="e2e"}"""
+        assertThat(awaitValue("count(jvm_thread_count$series)")).isPositive()
+    }
+
     // An exemplar is the trace id of a sampled request, stored next to the histogram bucket its value fell in; the SDK
     // attaches one only if the span is current while the value is recorded.
     @Test
