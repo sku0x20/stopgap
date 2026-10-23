@@ -12,7 +12,9 @@ COPY --from=build /project/stopgap/build/app/libs/libs libs
 COPY --from=build /project/stopgap/build/app/libs/stopgap-app.jar ./
 COPY --from=build /project/stopgap/build/app/otel otel
 COPY app/otel.properties otel/
+# otel.semconv-stability.opt-in is a system property: the JDBC library reads it directly, not from otel.properties.
 ENTRYPOINT ["java", \
     "-javaagent:otel/opentelemetry-javaagent.jar", \
     "-Dotel.javaagent.configuration-file=otel/otel.properties", \
+    "-Dotel.semconv-stability.opt-in=database", \
     "-jar", "stopgap-app.jar"]
