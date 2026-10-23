@@ -143,4 +143,4 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   error, and come with an extra `content-write` span. Helidon's telemetry-tracing module moves to current conventions
   and adds `http.route`, though the span name becomes only the method.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
-- **Local backend**: logs go to Grafana LGTM (Loki); traces default to VictoriaTraces. E2e sends both to LGTM.
+- **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs).
