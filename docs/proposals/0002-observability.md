@@ -115,7 +115,7 @@ Helidon OTel metrics      Micrometer bridge         OTel libraries            Me
 ```
 OTel agent ── Pyroscope extension ──┬── span processor on the agent's SDK: tags the root span with pyroscope.profile.id
                                     │   and the profiler's thread context with its span id
-                                    └── async-profiler (CPU, alloc, lock) ── JFR-format upload every 10s ──▶ Pyroscope
+                                    └── async-profiler (CPU via ctimer, alloc, lock) ── JFR every 10s ──▶ Pyroscope
 JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump on demand
 ```
 
@@ -128,8 +128,9 @@ JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump
 - **Profiler settings** live in `pyroscope.properties`, next to `otel.properties`: the profiler reads only its own file,
   environment and system properties. `pyroscope.application.name` must match `otel.service.name`, since Grafana finds a
   span's profile by service name; the default is a random `javaspy.*` name.
-- **CPU via `itimer`**: async-profiler's `cpu` event needs `perf_events`, which containers usually block. `itimer` is a
-  process timer signal: it works anywhere but records no kernel frames.
+- **CPU via `ctimer`**: async-profiler's `cpu` event needs `perf_events`, which containers usually block. `ctimer` is a
+  CPU-time timer per thread: it needs no permissions but records no kernel frames. `itimer`, the default, is one timer
+  for the whole process, so it takes at most one sample per tick however many threads are busy.
 - **Allocation and lock** samples ride in the same upload: one per 512 KiB allocated (`pyroscope.profiler.alloc`), and
   one per lock wait of 10ms or more (`pyroscope.profiler.lock`).
 - **The JFR recording** starts with the JVM (`-XX:StartFlightRecording`, default settings, `maxage=10m`) and stays in
