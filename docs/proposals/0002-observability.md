@@ -1,8 +1,8 @@
-# RFC-0002: Observability (Traces, Logs and Metrics)
+# RFC-0002: Observability (Traces, Logs, Metrics and Profiles)
 
 - **Date**: 2026-10-23
 - **Target**: `stopgap` / `app`
-- **Scope**: Traces, logs and metrics (profiles are a separate proposal)
+- **Scope**: Traces, logs, metrics and profiles
 
 ---
 
@@ -18,6 +18,10 @@ in.
 Metrics go through it too. Helidon records HTTP server and client durations with the OTel API, OTel's Micrometer bridge
 carries Helidon's own Micrometer meters, OTel libraries add the connection pool and the JVM, and our code records
 business metrics with the OTel `Meter` API. The agent exports them over OTLP; there's no scrape endpoint.
+
+Profiles come from Pyroscope's extension to the agent: it runs async-profiler in the process and tags each request's
+samples with its server span, so a slow span leads to the code that was running. A rolling JFR recording keeps the last
+ten minutes of JVM events to dump on demand.
 
 The guiding principle is **thin, decoupled layers with explicit control**: each layer does one job, is wired in our code,
 and receives the SDK from us. Nothing builds or discovers an SDK on its own.
@@ -37,6 +41,8 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - Request duration per route and per outbound call, under OTel semantic-convention names.
 - Connection pool, database operation and JVM metrics.
 - Business metrics recorded with the OTel `Meter` API, exported through the same SDK.
+- Continuous CPU profiles, with each server span linked to the samples taken while it ran.
+- A rolling JFR recording of JVM events (GC, locks, I/O, virtual-thread pinning) to dump when something looks wrong.
 
 ### Non-Goals
 - **Agent library instrumentation** (JDBC, HTTP clients, Helidon's server, Micrometer, JVM runtime): each layer is wired
@@ -45,7 +51,8 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - **Agent log instrumentation**: the appender is wired explicitly instead.
 - **Metrics annotations** (`@Timed`, `@Counted`): OTel has none; business metrics use the `Meter` API.
 - **Prometheus scrape endpoint**: metrics leave only over OTLP.
-- **Profiles**: separate proposal.
+- **OTLP profiles**: OTel has no in-process profiling for Java yet; only the out-of-process eBPF profiler exports
+  OTLP profiles, and it's alpha.
 
 ---
 
@@ -102,6 +109,29 @@ Helidon OTel metrics      Micrometer bridge         OTel libraries            Me
   from the same `OpenTelemetry`. Instruments are built once; attribute values stay a small fixed set, since each
   distinct combination is its own time series.
 - **The agent** exports metrics over OTLP every 60s (2s in e2e).
+
+### Profiles
+
+```
+OTel agent ── Pyroscope extension ──┬── span processor on the agent's SDK: tags the root span with pyroscope.profile.id
+                                    │   and the profiler's thread context with its span id
+                                    └── async-profiler (CPU, itimer) ── JFR-format upload every 10s ──▶ Pyroscope
+JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump on demand
+```
+
+- **The extension** is loaded into the agent with `otel.javaagent.extensions`, so there's still one agent and one SDK.
+  It adds a span processor to that SDK and starts the profiler it bundles. It comes from GitHub releases, not Maven
+  Central, through an Ivy repository limited to that one module.
+- **Span linking**: when a root span starts (Helidon's server span), the processor sets the span id as the profiler's
+  context on the current thread and adds `pyroscope.profile.id` to the span; it clears the context when the span ends.
+  Samples taken in between carry the span id, nested spans included.
+- **Profiler settings** live in `pyroscope.properties`, next to `otel.properties`: the profiler reads only its own file,
+  environment and system properties. `pyroscope.application.name` must match `otel.service.name`, since Grafana finds a
+  span's profile by service name; the default is a random `javaspy.*` name.
+- **CPU via `itimer`**: async-profiler's `cpu` event needs `perf_events`, which containers usually block. `itimer` is a
+  process timer signal: it works anywhere but records no kernel frames.
+- **The JFR recording** starts with the JVM (`-XX:StartFlightRecording`, default settings, `maxage=10m`) and stays in
+  the container; `jcmd 1 JFR.dump name=continuous filename=<file>` copies it out for JDK Mission Control or IntelliJ.
 
 ---
 
@@ -163,6 +193,23 @@ OTel has no metrics annotation
 second bytecode rewriter next to the agent, and they put Micrometer's API in our code. A business metric is a
 deliberate name and attribute set, so explicit code fits it; method timing already comes from `@WithSpan` spans.
 
+### Why the agent's Pyroscope extension?
+- **One agent**: Pyroscope's own `-javaagent` would be a second bytecode agent; the extension runs inside ours and
+  hooks into its SDK, the only place a span processor can go.
+- **Span links**: tagging samples with span ids needs a hook on span start and end, which the extension provides.
+- **Same shape as the agent**: it's configured from a file in the repo and attached only in the image. Starting the
+  profiler from our code instead would still need a span processor on the agent's SDK, which only an extension can add.
+
+### Why async-profiler, not JFR's sampler?
+Pyroscope already uploads JFR files; the question is which sampler fills them. JFR's execution sampler takes a few
+running Java threads per tick, stops at the Java boundary, and can't attach labels to samples. async-profiler records
+mixed Java and native stacks for every thread and keeps a per-thread context id, which is how samples carry span ids.
+
+### Why a JFR recording as well?
+JFR's value is its events, not its samples: GC pauses, JIT, safepoints, socket and file I/O, monitor waits, and
+`jdk.VirtualThreadPinned`, which flags a virtual thread stuck on its carrier. Pinning starves Helidon's carriers under
+load without showing in a flame graph. The default settings cost about 1%, and the JVM records it with no dependency.
+
 ### Why disable agent library instrumentation?
 - **Explicit**: spans exist only where we chose them; nothing silently appears or vanishes on a library upgrade.
 - **No duplicates**: running the agent's JDBC instrumentation next to the library records every statement twice.
@@ -200,6 +247,11 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 | **Own HTTP metrics filter** | Re-implements Helidon's semantic-convention code, which we'd then maintain. |
 | **Micrometer `@Timed`/`@Counted`** | AspectJ weaving next to the agent, and Micrometer's API in business code. |
 | **HikariCP's Micrometer tracker** | Hikari's own names instead of `db.client.connection.*`. |
+| **Pyroscope's `-javaagent`** | A second bytecode agent; it still needs the extension for span links. |
+| **Pyroscope as a library, started in `main`** | Still needs the extension's span processor on the agent's SDK, so two places to wire one profiler. |
+| **OTel eBPF profiler** | Out of process, needs root and Linux; alpha; no span links; profiles every process on the host. |
+| **JFR's sampler (`PYROSCOPE_PROFILER_TYPE=JFR`)** | Few threads per tick, Java frames only, no labels for span links. |
+| **Inferred spans (OTel contrib)** | Turns samples into spans, against the "Span per method" non-goal. |
 
 ---
 
@@ -241,6 +293,16 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **Helidon metric quirks, left as is**: the server metric sets `error.type` to the status text for every status but
   `200` (e.g. `Created` for `201`), where the conventions set it only for errors; and Helidon's `requests.count` KPI,
   exported through the bridge, repeats the count in `http.server.request.duration`.
+- **Profiles leave over Pyroscope's protocol**, not OTLP: a second path out, next to the agent's exporter. OTLP profiles
+  from inside the JVM aren't possible yet.
+- **Settings in three places**: `otel.properties`, `pyroscope.properties` and system properties on the command line.
+- **Outside Maven Central**: the extension is downloaded from GitHub releases; it bundles its own async-profiler, OkHttp
+  and Kotlin stdlib, shaded into the agent's extension class loader.
+- **Root spans only**: samples are tagged with the server span's id, so a child span's own profile can't be told apart.
+  Spans shorter than the 10ms sampling interval may have no samples.
+- **Native access warning**: async-profiler loads its library through `System.load`, which JDK 25 warns about without
+  `--enable-native-access` and a later release will block.
+- **The JFR recording dies with the container**: dump it before stopping the container; nothing ships it anywhere.
 
 ---
 
@@ -251,4 +313,11 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   and adds `http.route`, though the span name becomes only the method. Client spans have the same issue: named
   `GET-<url>` with `http.url`/`http.status_code`.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
-- **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics).
+- **Span links on virtual threads**: the processor sets the profiler's context on the current thread when the span
+  starts. Helidon runs each request on a virtual thread, which can park and resume on another carrier; if the context
+  sticks to the carrier, samples may land on the wrong span or none. Not yet checked.
+- **Traces-to-profiles in Grafana**: LGTM's Tempo data source doesn't set `tracesToProfiles`, so the "profiles for this
+  span" link has to be configured by hand.
+- **Allocation and lock profiles**: off; async-profiler can add them (`pyroscope.profiler.alloc`,
+  `pyroscope.profiler.lock`) to the same upload.
+- **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics, Pyroscope for profiles).
