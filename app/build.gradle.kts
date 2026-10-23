@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.otel.instrumentation.hikaricp)
     implementation(libs.otel.logback.appender)
     implementation(libs.otel.instrumentation.micrometer)
+    implementation(libs.otel.instrumentation.runtime.telemetry)
     otelAgent(libs.otel.javaagent)
     implementation(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)

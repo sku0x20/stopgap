@@ -12,6 +12,7 @@ import io.helidon.webserver.observe.ObserveFeature
 import io.micrometer.core.instrument.Metrics
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.instrumentation.micrometer.v1_5.OpenTelemetryMeterRegistry
+import io.opentelemetry.instrumentation.runtimetelemetry.RuntimeTelemetry
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.slf4j.bridge.SLF4JBridgeHandler
 
@@ -32,6 +33,8 @@ fun main(args: Array<String>) {
     // Helidon's Micrometer meters (request KPIs, system meters) live on Micrometer's global registry; this child sends
     // them to the same SDK. Added before any meter exists: a registry added later misses earlier recordings.
     Metrics.globalRegistry.add(OpenTelemetryMeterRegistry.builder(openTelemetry).build())
+    // JVM metrics under semconv jvm.* names, from JMX and JFR.
+    val runtimeTelemetry = RuntimeTelemetry.create(openTelemetry)
 
     val routing = HttpRouting.builder()
     initHttpRouting(registry, routing)
@@ -51,5 +54,6 @@ fun main(args: Array<String>) {
     Runtime.getRuntime().addShutdownHook(Thread {
         server.stop()
         dataSource.close()
+        runtimeTelemetry.close()
     })
 }
