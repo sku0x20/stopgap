@@ -85,6 +85,8 @@ class StopgapPluginApply(private val project: Project) {
                 (it as Exec).commandLine(
                     "docker", "build",
                     "-t", "${imageName.get()}:${imageTag.get()}",
+                    // The same commit as service.version, so a trace names the image it ran in.
+                    "-t", "${imageName.get()}:${gitSha.get()}",
                     "--build-arg", "GIT_SHA=${gitSha.get()}",
                     "-f", dockerfile.asFile.get().absolutePath,
                     dockerContext.asFile.get().absolutePath
