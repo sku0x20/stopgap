@@ -81,6 +81,9 @@ Helidon tracing           @WithSpan on our methods     JDBC library         Logb
   Helidon's default of 1000 writes it after the span has closed.
 - **The agent** has every instrumentation off except annotation support and the bridges it depends on. It's attached
   only in the container image and configured from a file in the repo.
+- **Sampling** keeps 10% of new traces (`parentbased_traceidratio`, 100% in e2e). A request carrying a `traceparent`
+  follows its caller's decision, so a trace is never kept in one service and dropped in the next. Metrics count every
+  request either way; only spans are sampled.
 - **The resource** (attributes on every span, log record and metric) has `service.name` from `otel.properties`,
   `service.version` from the jar manifest, and `deployment.environment.name` from each deployment's
   `OTEL_RESOURCE_ATTRIBUTES`. The host passes the git commit to the image build, Gradle writes it as
@@ -315,6 +318,8 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   Spans shorter than the 10ms sampling interval may have no samples.
 - **Native access warning**: async-profiler loads its library through `System.load`, which JDK 25 warns about without
   `--enable-native-access` and a later release will block.
+- **Sampled-out requests leave loose ends**: their log records still carry a trace id with no trace behind it, and
+  they add no exemplars or span-linked profile samples, since only a recorded span reaches the span processor.
 - **Version is the commit, not the tree**: an image built with uncommitted changes reports the last commit's SHA.
 - **Profiles carry only the service name**: the profiler reads its own config, not the OTel resource, so Pyroscope
   can't split by version or environment.
