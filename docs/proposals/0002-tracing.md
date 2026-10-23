@@ -68,8 +68,9 @@ fun tracer(config: Config): Tracer {
 
 ### 3.3 Agent: annotations only
 Configured from a file in the repo, `app/otel.properties`, passed with
-`-Dotel.javaagent.configuration-file=otel.properties`. The `:app:run` task resolves the agent from Maven and attaches
-it with that file.
+`-Dotel.javaagent.configuration-file=otel.properties`. Only the container image attaches the agent: `app/Dockerfile`
+downloads the jar (pinned by checksum) and adds both flags to the `ENTRYPOINT`. `OTEL_*` env vars override the file
+per deployment (e.g. `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`).
 ```
 otel.service.name=stopgap
 otel.instrumentation.common.default-enabled=false
@@ -164,9 +165,13 @@ doesn't touch the annotated code.
 
 ## 6. Trade-offs
 
-- **Agent required for annotated spans**: the jar must ship in the image (not yet done); `:app:run` attaches it today.
-- **Forced flag hides a missing agent**: with `otel.agent.present: true` and no agent (IDE run of `MainKt`, tests,
-  e2e image), `GlobalOpenTelemetry.get()` installs a no-op SDK for good. Tracing stops, with no error.
+- **Agent only in the image**: local runs (IDE, `:app:run`) and tests have no agent, so no spans.
+- **Agent version in two places**: the Dockerfile's agent URL and `otel-instrumentation` in `libs.versions.toml`
+  (annotations) must move together.
+- **e2e image runs the agent too**: without a backend it logs export failures, unless the test sets
+  `OTEL_TRACES_EXPORTER=none`.
+- **Forced flag hides a missing agent**: with `otel.agent.present: true` and no agent (IDE run of `MainKt`, `:app:run`,
+  tests), `GlobalOpenTelemetry.get()` installs a no-op SDK for good. Tracing stops, with no error.
 - **Fallback not configured yet**: there's no `tracing:` node, so with the flag off Helidon exports with its defaults
   (gRPC to `localhost:4317`), not to VictoriaTraces.
 - **Two config files**: `application.yaml` for Helidon, `otel.properties` for the agent's SDK. Only one SDK is active,
@@ -190,14 +195,13 @@ method only (`GET`).
 ---
 
 ### 7.2 Remaining plumbing
-- Agent jar and `otel.properties` in the container image.
 - Local backend: VictoriaTraces plus Grafana in a compose file.
 
 ---
 
 ## 8. Verification
 
-Agent 2.32.0, Helidon 4.5.5, `:app:run` exporting to VictoriaTraces v0.12.1:
+Agent 2.32.0, Helidon 4.5.5, the `stopgap` image exporting to VictoriaTraces v0.12.1:
 - Helidon's server spans (scope `io.helidon.tracing`) and `@WithSpan` spans arrive under service `stopgap` through the
   agent's SDK.
 - `@WithSpan` spans share the request's trace id and have the server span as parent.

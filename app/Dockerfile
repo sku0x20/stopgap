@@ -10,4 +10,9 @@ FROM ghcr.io/graalvm/jdk-community:25i-ol10
 WORKDIR /app/stopgap
 COPY --from=build /project/stopgap/build/app/libs/libs libs
 COPY --from=build /project/stopgap/build/app/libs/stopgap-app.jar ./
-ENTRYPOINT ["java", "-jar", "stopgap-app.jar"]
+# Keep in sync with otel-instrumentation in libs.versions.toml (RFC-0002).
+ADD --checksum=sha256:f787eb6c7f3d18e69a431e108a15278d25ee37f83d68b678f621e063f3988f82 \
+    https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/2.32.0/opentelemetry-javaagent-2.32.0.jar \
+    otel/opentelemetry-javaagent.jar
+COPY app/otel.properties otel/
+ENTRYPOINT ["java", "-javaagent:otel/opentelemetry-javaagent.jar", "-Dotel.javaagent.configuration-file=otel/otel.properties", "-jar", "stopgap-app.jar"]
