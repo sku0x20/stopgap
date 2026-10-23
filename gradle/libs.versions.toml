@@ -36,6 +36,8 @@ helidon-webserver-observe-health = { group = "io.helidon.webserver.observe", nam
 helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-checks", version.ref = "helidon" }
 helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-tracing", version.ref = "helidon" }
 helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
+helidon-webserver-observe-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-metrics", version.ref = "helidon" }
+helidon-webserver-observe-telemetry-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-telemetry-metrics", version.ref = "helidon" }
 otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 otel-instrumentation-jdbc = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-jdbc", version.ref = "otel-instrumentation-alpha" }
@@ -64,5 +66,7 @@ helidon = [
     "helidon-webserver-observe-health",
     "helidon-health-checks",
     "helidon-webserver-observe-tracing",
-    "helidon-tracing-providers-opentelemetry"
+    "helidon-tracing-providers-opentelemetry",
+    "helidon-webserver-observe-metrics",
+    "helidon-webserver-observe-telemetry-metrics"
 ]

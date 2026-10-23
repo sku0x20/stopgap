@@ -23,6 +23,21 @@ otel:
   agent:
     present: true
 
+# Read by Helidon's OTel metrics modules for their meter scope name. Disabled so they never build an SDK or set the
+# global one; the instance they use is the one main hands to Services (RFC-0002).
+telemetry:
+  service: stopgap
+  enabled: false
+
+metrics:
+  # OTLP through the agent's SDK only: with the publisher off there's no Prometheus registry or scrape endpoint.
+  publishers:
+    prometheus:
+      enabled: false
+  auto-http-metrics:
+    # Off by default in 4.x; without it the duration is recorded in ms into a histogram declared in s (helidon#12097).
+    use-updated-http-metrics: true
+
 generator:
   static:
     value: "from static generator"
