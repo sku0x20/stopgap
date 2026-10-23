@@ -55,7 +55,8 @@ class HttpbinCalls {
         assertThat(httpbin.getString("parentSpanId")).isEqualTo(server.getString("spanId"))
     }
 
-    // Spans are exported in batches, so the trace shows up in Tempo after a delay; wait for the client span.
+    // Spans are exported in batches, so the trace shows up in Tempo after a delay, and the server span (ending last)
+    // may land in a later batch than the client span; wait for both.
     private fun awaitSpans(traceId: String): List<JSONObject> {
         val tempo = WebClient.builder()
             .baseUri(System.getProperty(LgtmContainerRunner.TEMPO_URL_PROPERTY))
@@ -65,7 +66,8 @@ class HttpbinCalls {
             val response = tempo.get("/api/v2/traces/$traceId").request()
             if (response.status() == Status.OK_200) {
                 val spans = spans(response.`as`(String::class.java))
-                if (spans.any { it.getString("kind") == "SPAN_KIND_CLIENT" }) {
+                val kinds = spans.map { it.getString("kind") }
+                if ("SPAN_KIND_CLIENT" in kinds && "SPAN_KIND_SERVER" in kinds) {
                     return spans
                 }
             } else {
@@ -73,7 +75,7 @@ class HttpbinCalls {
             }
             Thread.sleep(500)
         }
-        throw AssertionError("Trace $traceId has no client span in Tempo")
+        throw AssertionError("Trace $traceId lacks a server or client span in Tempo")
     }
 
     private fun spans(body: String): List<JSONObject> {
