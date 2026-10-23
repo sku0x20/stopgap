@@ -10,7 +10,8 @@
 
 Helidon traces the HTTP edge with its own instrumentation. The OpenTelemetry (OTel) Java agent runs with every library
 instrumentation disabled and has one job: turning `@WithSpan` annotations on our code into spans. Both write to one
-OTel SDK and share one `Context`, so a request yields one trace from the server span down to our business methods.
+OTel SDK, the agent's, which Helidon reuses through an explicitly built `Tracer`. They share one `Context`, so a request
+yields one trace from the server span down to our business methods.
 
 The guiding principle is **thin, decoupled layers**: each layer does one job, with as little hidden behavior as possible.
 Removing the agent should leave the Helidon setup nearly untouched; we'd lose only the annotated spans.
@@ -48,15 +49,42 @@ Helidon TracingObserver              @WithSpan on our methods
 - `helidon-tracing-providers-opentelemetry`: backs Helidon's tracing API with OTel.
 - Wired explicitly through our registry (`TracingConfig`, `ObserveConfig`); no service discovery.
 
-### 3.2 Agent: annotations only
+### 3.2 SDK ownership: the agent's SDK, Helidon reuses it
+The agent always runs its own SDK and can't adopt one built by the app, so it owns the single SDK. `TracingConfig`
+builds Helidon's `Tracer` on top of it:
+```kotlin
+@Creates
+fun tracer(config: Config): Tracer {
+    if (HelidonOpenTelemetry.AgentDetector.isAgentPresent(config)) {
+        val openTelemetry = GlobalOpenTelemetry.get()
+        return HelidonOpenTelemetry.create(openTelemetry, openTelemetry.getTracer("io.helidon.tracing"), mapOf())
+    }
+    return TracerBuilder.create(config.get("tracing")).build()
+}
 ```
+- **Agent attached**: Helidon wraps the agent's `GlobalOpenTelemetry`.
+- **No agent**: Helidon builds its own SDK from the `tracing:` config node.
+- **Forced, not guessed**: `otel.agent.present: true` in `application.yaml` replaces Helidon's heuristic detection.
+
+### 3.3 Agent: annotations only
+Configured from a file in the repo, `app/otel.properties`, passed with
+`-Dotel.javaagent.configuration-file=otel.properties`. The `:app:run` task resolves the agent from Maven and attaches
+it with that file.
+```
+otel.service.name=stopgap
 otel.instrumentation.common.default-enabled=false
 otel.instrumentation.opentelemetry-api.enabled=true                          # bridges app API calls to the agent's context
 otel.instrumentation.opentelemetry-instrumentation-annotations.enabled=true  # @WithSpan, @SpanAttribute
 otel.instrumentation.executors.enabled=true                                  # carries Context into tasks on our executors
+
+otel.traces.exporter=otlp
+otel.exporter.otlp.protocol=http/protobuf
+otel.exporter.otlp.traces.endpoint=http://localhost:10428/insert/opentelemetry/v1/traces   # VictoriaTraces
+otel.metrics.exporter=none
+otel.logs.exporter=none
 ```
 
-### 3.3 Application code
+### 3.4 Application code
 ```kotlin
 @WithSpan
 fun sync(
@@ -104,6 +132,16 @@ still an open PR).
 - **One pipeline**: Helidon, annotation and manual spans share one exporter, sampler and `Resource`, configured once.
 - **Ready for logs and metrics**: the same SDK can export them later.
 
+### Why build Helidon's `Tracer` explicitly?
+- **Decoupled**: Helidon reuses the agent's SDK only when told to; dropping the agent means flipping
+  `otel.agent.present` and adding a `tracing:` node, with no code change.
+- **No hidden globals**: replaces the deprecated `Tracer.global()` (removal planned since 4.4.0) and Helidon's service
+  registry lookup; the `Tracer` comes from our `Config` through our registry.
+
+### Why a config file for the agent?
+The agent's settings live in the repo next to `application.yaml`, under review like the rest of the config, instead of
+being scattered across env vars and deployment scripts.
+
 ### Why standard OTel API only?
 Our code imports `io.opentelemetry.*`, not Helidon or vendor types. Dropping Helidon's tracing or switching backends
 doesn't touch the annotated code.
@@ -118,32 +156,28 @@ doesn't touch the annotated code.
 | **Agent's Helidon module for server spans** | Puts agent bytecode rewriting in the request path; community-maintained and trails Helidon releases. |
 | **Helidon only, hand-written spans** | Tracing code in business logic; Helidon's span builder has no parent by default (`setNoParent()`), so a missed `.parent(...)` starts a separate trace. |
 | **Helidon `@Tracing.Traced`** | Requires Helidon declarative codegen, which our KSP endpoints don't use. |
+| **App-owned SDK used by the agent** | Not supported: the agent always runs its own SDK ([interop design](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/misc/interop-design/interop-design.md); [#12381](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/12381) closed as not planned). |
+| **Separate SDKs for Helidon and the agent** | Two exporters and two configs to keep in sync; breaks the single-pipeline goal. |
+| **`Services.get(Tracer)` / no `tracing:` node** | Falls back to `GlobalOpenTelemetry` implicitly: without the agent, server spans silently go to a no-op SDK. |
 
 ---
 
 ## 6. Trade-offs
 
-- **Agent required for annotated spans**: the jar ships in the image and is attached via `JAVA_TOOL_OPTIONS`.
+- **Agent required for annotated spans**: the jar must ship in the image (not yet done); `:app:run` attaches it today.
+- **Forced flag hides a missing agent**: with `otel.agent.present: true` and no agent (IDE run of `MainKt`, tests,
+  e2e image), `GlobalOpenTelemetry.get()` installs a no-op SDK for good. Tracing stops, with no error.
+- **Fallback not configured yet**: there's no `tracing:` node, so with the flag off Helidon exports with its defaults
+  (gRPC to `localhost:4317`), not to VictoriaTraces.
+- **Two config files**: `application.yaml` for Helidon, `otel.properties` for the agent's SDK. Only one SDK is active,
+  but service name and endpoint live in different files depending on the mode.
 - **No GraalVM native image** while the agent is in use: agents need a JVM.
-- **Agent exporters for metrics and logs** stay off (`OTEL_METRICS_EXPORTER=none`, `OTEL_LOGS_EXPORTER=none`) until
-  their proposals land.
 
 ---
 
 ## 7. Open Questions
 
-### 7.1 Who owns the single SDK?
-Today the agent does: with no `tracing:` config, Helidon falls back to `GlobalOpenTelemetry`, which the agent provides.
-That couples Helidon to the agent. Without the agent, the fallback is a no-op and server spans silently stop.
-Giving Helidon its own SDK (a `tracing:` config node) decouples it, but the agent then runs a second SDK.
-We need a setup with one SDK in which Helidon keeps tracing whether or not the agent is attached.
-
-### 7.2 `Tracer.global()` is deprecated
-`Tracer.global()` is deprecated for removal since 4.4.0, in favor of Helidon's service registry
-(`Services.get(Tracer.class)`). Its replacement depends on 7.1: we build the `Tracer` explicitly and pass it in through
-our registry.
-
-### 7.3 Helidon's span conventions
+### 7.1 Helidon's span conventions
 Observed with 4.5.5:
 - Server spans are named `HTTP Request`, with no method or route.
 - They use old attribute names (`http.status_code`, `http.url`, `http.method`).
@@ -155,10 +189,17 @@ method only (`GET`).
 
 ---
 
+### 7.2 Remaining plumbing
+- Agent jar and `otel.properties` in the container image.
+- Local backend: VictoriaTraces plus Grafana in a compose file.
+
+---
+
 ## 8. Verification
 
-A spike (agent 2.32.0, Helidon 4.5.5, agent-owned SDK) confirmed:
-- Helidon's server spans export through the agent's SDK.
-- `@WithSpan` spans share the request's trace id and have the server span as `parentSpanId`.
+Agent 2.32.0, Helidon 4.5.5, `:app:run` exporting to VictoriaTraces v0.12.1:
+- Helidon's server spans (scope `io.helidon.tracing`) and `@WithSpan` spans arrive under service `stopgap` through the
+  agent's SDK.
+- `@WithSpan` spans share the request's trace id and have the server span as parent.
 - An incoming `traceparent` is continued.
 - An exception in a `@WithSpan` method sets `ERROR` status and records an `exception` event.
