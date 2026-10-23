@@ -17,6 +17,7 @@ slf4j = "2.0.19"
 lincheck = "3.7"
 otel-instrumentation = "2.32.0"
 otel-instrumentation-alpha = "2.32.0-alpha"  # library instrumentation; same release as otel-instrumentation
+pyroscope-otel = "2.1.4"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -47,6 +48,8 @@ otel-logback-appender = { group = "io.opentelemetry.instrumentation", name = "op
 otel-instrumentation-hikaricp = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-hikaricp-3.0", version.ref = "otel-instrumentation-alpha" }
 otel-instrumentation-runtime-telemetry = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-runtime-telemetry", version.ref = "otel-instrumentation-alpha" }
 otel-instrumentation-micrometer = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-micrometer-1.5", version.ref = "otel-instrumentation-alpha" }
+# GitHub releases only; Maven Central's io.pyroscope:otel is the span processor without the profiler.
+pyroscope-otel-extension = { group = "grafana", name = "pyroscope-otel-javaagent-extension", version.ref = "pyroscope-otel" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }

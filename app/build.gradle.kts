@@ -12,6 +12,20 @@ version = "1.0-SNAPSHOT"
 // Own configuration, not runtimeOnly: runtimeClasspath ships in libs/ on the app classpath, and the agent must load
 // only via -javaagent (RFC-0002).
 val otelAgent by configurations.creating
+val otelAgentExtension by configurations.creating
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            ivy {
+                url = uri("https://github.com/grafana/otel-profiling-java/releases/download")
+                patternLayout { artifact("v[revision]/[artifact].[ext]") }
+                metadataSources { artifact() }
+            }
+        }
+        filter { includeModule("grafana", "pyroscope-otel-javaagent-extension") }
+    }
+}
 
 dependencies {
     implementation(libs.bundles.helidon)
@@ -34,6 +48,7 @@ dependencies {
     implementation(libs.otel.instrumentation.micrometer)
     implementation(libs.otel.instrumentation.runtime.telemetry)
     otelAgent(libs.otel.javaagent)
+    otelAgentExtension(libs.pyroscope.otel.extension)
     implementation(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)
 
@@ -52,9 +67,9 @@ application {
 }
 
 tasks.register<Copy>("copyOtelAgent") {
-    from(otelAgent)
+    from(otelAgent) { rename { "opentelemetry-javaagent.jar" } }
+    from(otelAgentExtension) { rename { "pyroscope-otel-javaagent-extension.jar" } }
     into(layout.buildDirectory.dir("otel"))
-    rename { "opentelemetry-javaagent.jar" }
 }
 
 ksp {
