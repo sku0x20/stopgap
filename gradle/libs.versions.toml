@@ -38,10 +38,12 @@ helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", na
 helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
 helidon-webserver-observe-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-metrics", version.ref = "helidon" }
 helidon-webserver-observe-telemetry-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-telemetry-metrics", version.ref = "helidon" }
+helidon-metrics-system-meters = { group = "io.helidon.metrics", name = "helidon-metrics-system-meters", version.ref = "helidon" }
 otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 otel-instrumentation-jdbc = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-jdbc", version.ref = "otel-instrumentation-alpha" }
 otel-logback-appender = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-logback-appender-1.0", version.ref = "otel-instrumentation-alpha" }
+otel-instrumentation-micrometer = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-micrometer-1.5", version.ref = "otel-instrumentation-alpha" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
@@ -68,5 +70,6 @@ helidon = [
     "helidon-webserver-observe-tracing",
     "helidon-tracing-providers-opentelemetry",
     "helidon-webserver-observe-metrics",
-    "helidon-webserver-observe-telemetry-metrics"
+    "helidon-webserver-observe-telemetry-metrics",
+    "helidon-metrics-system-meters"
 ]

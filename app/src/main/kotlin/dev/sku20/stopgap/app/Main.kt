@@ -9,7 +9,9 @@ import io.helidon.service.registry.Services
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import io.helidon.webserver.observe.ObserveFeature
+import io.micrometer.core.instrument.Metrics
 import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.micrometer.v1_5.OpenTelemetryMeterRegistry
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.slf4j.bridge.SLF4JBridgeHandler
 
@@ -27,6 +29,9 @@ fun main(args: Array<String>) {
     // Helidon's metrics modules look it up in Helidon's own registry, which would otherwise pick its own instance.
     // Must run before anything Helidon is built: the first lookup fixes the instance and a later set throws.
     Services.set(OpenTelemetry::class.java, openTelemetry)
+    // Helidon's Micrometer meters (request KPIs, system meters) live on Micrometer's global registry; this child sends
+    // them to the same SDK. Added before any meter exists: a registry added later misses earlier recordings.
+    Metrics.globalRegistry.add(OpenTelemetryMeterRegistry.builder(openTelemetry).build())
 
     val routing = HttpRouting.builder()
     initHttpRouting(registry, routing)

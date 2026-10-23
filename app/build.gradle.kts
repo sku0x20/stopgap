@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.instrumentation.jdbc)
     implementation(libs.otel.logback.appender)
+    implementation(libs.otel.instrumentation.micrometer)
     otelAgent(libs.otel.javaagent)
     implementation(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)

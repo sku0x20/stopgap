@@ -37,6 +37,8 @@ metrics:
   auto-http-metrics:
     # Off by default in 4.x; without it the duration is recorded in ms into a histogram declared in s (helidon#12097).
     use-updated-http-metrics: true
+  virtual-threads:
+    enabled: true
 
 generator:
   static:
