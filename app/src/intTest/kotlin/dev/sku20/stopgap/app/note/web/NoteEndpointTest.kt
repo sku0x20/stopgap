@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.app.note.web
 
 import dev.sku20.stopgap.app.note.Note
+import dev.sku20.stopgap.app.note.NoteMetrics
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
 import dev.sku20.stopgap.app.note.store.NoteNotFoundException
@@ -13,6 +14,7 @@ import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
+import io.opentelemetry.api.OpenTelemetry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -152,7 +154,7 @@ class NoteEndpointTest {
             catalog.add(FastjsonSerde())
             val noteStore = mock<NoteStore>()
             return SetupCapture(
-                NoteEndpoint(noteStore),
+                NoteEndpoint(noteStore, NoteMetrics(OpenTelemetry.noop())),
                 registerParams = arrayOf(catalog),
                 instances = mapOf(NoteStore::class.java to noteStore)
             )

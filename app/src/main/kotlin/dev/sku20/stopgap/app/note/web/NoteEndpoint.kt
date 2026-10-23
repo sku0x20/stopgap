@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.app.note.web
 
 import dev.sku20.stopgap.app.note.Note
+import dev.sku20.stopgap.app.note.NoteMetrics
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
 import dev.sku20.stopgap.app.note.store.NoteStore
@@ -11,12 +12,15 @@ import kotlin.uuid.Uuid
 // TODO: explore ETag;
 @Endpoint("/notes")
 class NoteEndpoint(
-    private val noteStore: NoteStore
+    private val noteStore: NoteStore,
+    private val noteMetrics: NoteMetrics
 ) {
 
     @Post("/")
     fun create(body: NoteReq): Note {
-        return noteStore.create(body)
+        val note = noteStore.create(body)
+        noteMetrics.recordCreated()
+        return note
     }
 
     @Get("/")
