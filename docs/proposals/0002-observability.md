@@ -41,6 +41,7 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - Request duration per route and per outbound call, under OTel semantic-convention names.
 - Connection pool, database operation and JVM metrics.
 - Business metrics recorded with the OTel `Meter` API, exported through the same SDK.
+- Duration histograms carry exemplars, so a latency spike leads to a trace that caused it.
 - Continuous CPU, allocation and lock profiles, with each server span linked to the samples taken while it ran.
 - A rolling JFR recording of JVM events (GC, locks, I/O, virtual-thread pinning) to dump when something looks wrong.
 
@@ -109,6 +110,9 @@ Helidon OTel metrics      Micrometer bridge         OTel libraries            Me
   from the same `OpenTelemetry`. Instruments are built once; attribute values stay a small fixed set, since each
   distinct combination is its own time series.
 - **The agent** exports metrics over OTLP every 60s (2s in e2e).
+- **Exemplars** link a histogram to traces: for a value recorded while a sampled span is current, the SDK keeps that
+  trace id on the bucket the value fell in (its default `trace_based` filter). LGTM's Prometheus stores them, and Grafana
+  opens the trace from a point on a latency chart.
 
 ### Profiles
 

@@ -1,12 +1,15 @@
 package e2e
 
 import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONObject
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import io.helidon.common.media.type.MediaTypes
+import io.helidon.http.HeaderNames
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class MetricsCalls {
 
@@ -71,6 +74,29 @@ class MetricsCalls {
         assertThat(awaitValue("sum(thread_count)")).isPositive()
     }
 
+    // An exemplar is the trace id of a sampled request, stored next to the histogram bucket its value fell in; the SDK
+    // attaches one only if the span is current while the value is recorded.
+    @Test
+    fun serverDurationExemplar() {
+        val traceId = newTraceId()
+        client.get("/httpbin/delay/1").header(TRACEPARENT, traceparent(traceId)).request().close()
+
+        awaitExemplar("http_server_request_duration_seconds_bucket", traceId)
+    }
+
+    @Test
+    fun dbDurationExemplar() {
+        val traceId = newTraceId()
+        val response = client.post("/notes")
+            .header(TRACEPARENT, traceparent(traceId))
+            .contentType(MediaTypes.APPLICATION_JSON)
+            .accept(MediaTypes.APPLICATION_JSON)
+            .submit("""{"text":"exemplar"}""")
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+
+        awaitExemplar("db_client_operation_duration_seconds_bucket", traceId)
+    }
+
     @Test
     fun noScrapeEndpoint() {
         val response = client.get("/observe/metrics").request()
@@ -90,6 +116,34 @@ class MetricsCalls {
         throw AssertionError("No result for $query; metric names: ${get("/api/v1/label/__name__/values", null)}")
     }
 
+    private fun awaitExemplar(metric: String, traceId: String) {
+        val deadline = System.currentTimeMillis() + 30_000
+        while (System.currentTimeMillis() < deadline) {
+            if (traceId in exemplarTraceIds(metric)) {
+                return
+            }
+            Thread.sleep(500)
+        }
+        throw AssertionError("No $metric exemplar for trace $traceId; trace ids: ${exemplarTraceIds(metric)}")
+    }
+
+    private fun exemplarTraceIds(metric: String): List<String> {
+        val traceIds = mutableListOf<String>()
+        val series = JSON.parseObject(get("/api/v1/query_exemplars", metric)).getJSONArray("data")
+        for (exemplars in series.toList(JSONObject::class.java)) {
+            for (exemplar in exemplars.getJSONArray("exemplars").toList(JSONObject::class.java)) {
+                traceIds.add(exemplar.getJSONObject("labels").getString("trace_id"))
+            }
+        }
+        return traceIds
+    }
+
+    private fun newTraceId(): String =
+        UUID.randomUUID().toString().replace("-", "")
+
+    private fun traceparent(traceId: String): String =
+        "00-$traceId-00f067aa0ba902b7-01"
+
     private fun get(path: String, query: String?): String {
         val request = prometheus.get(path)
         if (query != null) {
@@ -98,5 +152,9 @@ class MetricsCalls {
         val response = request.request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
         return response.`as`(String::class.java)
+    }
+
+    private companion object {
+        val TRACEPARENT = HeaderNames.create("traceparent")
     }
 }
