@@ -28,6 +28,15 @@ class MetricsCalls {
         assertThat(mean).isBetween(1.0, 5.0)
     }
 
+    // Helidon's Micrometer meters reach Prometheus only through the OTel bridge.
+    @Test
+    fun micrometerMeters() {
+        client.get("/").request().close()
+
+        assertThat(awaitValue("sum(requests_count_total)")).isPositive()
+        assertThat(awaitValue("sum(thread_count)")).isPositive()
+    }
+
     @Test
     fun noScrapeEndpoint() {
         val response = client.get("/observe/metrics").request()
