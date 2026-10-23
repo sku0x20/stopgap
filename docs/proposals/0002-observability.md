@@ -257,12 +257,12 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 
 ## 6. Trade-offs
 
-- **No agent, no traces, metrics or exported logs**: local runs and tests use a no-op SDK; logs still reach the
-  console.
+- **No agent, no traces, metrics, profiles or exported logs**: local runs and tests use a no-op SDK; logs still reach
+  the console.
 - **A missing agent is silent**: Helidon is told the agent is present rather than detecting it, so without it tracing
   stops with no error.
-- **Settings in two places**: the agent reads `otel.properties`, but the JDBC library reads only system properties, so
-  its options (e.g. the semconv opt-in) go on the command line.
+- **Settings in three places**: the agent reads `otel.properties` and the profiler `pyroscope.properties`, but the JDBC
+  library reads only system properties, so its options (e.g. the semconv opt-in) go on the command line.
 - **Alpha libraries**: the JDBC, HikariCP, Micrometer bridge and runtime-telemetry libraries and the Logback appender
   are versioned `-alpha`; their APIs may change between releases.
 - **No GraalVM native image** while the agent is in use.
@@ -295,7 +295,7 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   exported through the bridge, repeats the count in `http.server.request.duration`.
 - **Profiles leave over Pyroscope's protocol**, not OTLP: a second path out, next to the agent's exporter. OTLP profiles
   from inside the JVM aren't possible yet.
-- **Settings in three places**: `otel.properties`, `pyroscope.properties` and system properties on the command line.
+- **Slower startup**: the extension adds about 190ms (≈1265 to 1460ms in the image), the JFR recording about 35ms.
 - **Outside Maven Central**: the extension is downloaded from GitHub releases; it bundles its own async-profiler, OkHttp
   and Kotlin stdlib, shaded into the agent's extension class loader.
 - **Root spans only**: samples are tagged with the server span's id, so a child span's own profile can't be told apart.
