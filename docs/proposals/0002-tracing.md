@@ -54,6 +54,8 @@ Helidon tracing           @WithSpan on our methods     JDBC library         Logb
 - **JDBC** spans come from wrapping the store's `DataSource`; health checks use the raw pool and stay untraced.
 - **Logs** go through an `OpenTelemetryAppender` in `logback.xml`, next to the console appender. `main` installs that
   `OpenTelemetry` into it; records logged before that are buffered and exported once it's installed.
+- **Access log** runs inside the server span (weight 875, below tracing's 900) so each line carries its trace id;
+  Helidon's default of 1000 writes it after the span has closed.
 - **The agent** has every instrumentation off except annotation support and the bridges it depends on. It's attached
   only in the container image and configured from a file in the repo.
 - **Our code** adds attributes to the current span first, and a new span only for a unit with its own latency or
