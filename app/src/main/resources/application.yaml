@@ -15,6 +15,11 @@ server:
   features:
     access-log:
 
+# Helidon reuses the agent's SDK instead of building its own (RFC-0002).
+otel:
+  agent:
+    present: true
+
 generator:
   static:
     value: "from static generator"

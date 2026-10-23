@@ -9,6 +9,8 @@ plugins {
 group = "dev.sku20.stopgap.app"
 version = "1.0-SNAPSHOT"
 
+val otelAgent by configurations.creating
+
 dependencies {
     implementation(libs.bundles.helidon)
     implementation(project(":ir"))
@@ -21,6 +23,7 @@ dependencies {
     implementation(libs.hikaricp)
     implementation(libs.jul.to.slf4j)
     implementation(libs.otel.instrumentation.annotations)
+    otelAgent(libs.otel.javaagent)
     runtimeOnly(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)
 
@@ -35,6 +38,14 @@ dependencies {
 
 application {
     mainClass = "dev.sku20.stopgap.app.MainKt"
+}
+
+tasks.named<JavaExec>("run") {
+    val agentJar = otelAgent.elements.map { it.single().asFile.absolutePath }
+    val agentConfig = layout.projectDirectory.file("otel.properties").asFile.absolutePath
+    jvmArgumentProviders.add(CommandLineArgumentProvider {
+        listOf("-javaagent:${agentJar.get()}", "-Dotel.javaagent.configuration-file=$agentConfig")
+    })
 }
 
 ksp {
