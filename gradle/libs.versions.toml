@@ -35,6 +35,7 @@ helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-ch
 helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-tracing", version.ref = "helidon" }
 helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
 otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
+otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }

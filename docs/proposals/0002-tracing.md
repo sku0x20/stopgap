@@ -68,8 +68,9 @@ fun tracer(config: Config): Tracer {
 
 ### 3.3 Agent: annotations only
 Configured from a file in the repo, `app/otel.properties`, passed with
-`-Dotel.javaagent.configuration-file=otel.properties`. Only the container image attaches the agent: `app/Dockerfile`
-downloads the jar (pinned by checksum) and adds both flags to the `ENTRYPOINT`. `OTEL_*` env vars override the file
+`-Dotel.javaagent.configuration-file=otel.properties`. Only the container image attaches the agent: Gradle resolves the jar
+(`otelAgent` configuration, `:app:copyOtelAgent`) and `app/Dockerfile` copies it in and adds both flags to the
+`ENTRYPOINT`. `OTEL_*` env vars override the file
 per deployment (e.g. `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`).
 ```
 otel.service.name=stopgap
@@ -166,8 +167,8 @@ doesn't touch the annotated code.
 ## 6. Trade-offs
 
 - **Agent only in the image**: local runs (IDE, `:app:run`) and tests have no agent, so no spans.
-- **Agent version in two places**: the Dockerfile's agent URL and `otel-instrumentation` in `libs.versions.toml`
-  (annotations) must move together.
+- **One version for agent and annotations**: both use `otel-instrumentation` in `libs.versions.toml`, so they can't
+  drift apart.
 - **e2e image runs the agent too**: without a backend it logs export failures, unless the test sets
   `OTEL_TRACES_EXPORTER=none`.
 - **Forced flag hides a missing agent**: with `otel.agent.present: true` and no agent (IDE run of `MainKt`, `:app:run`,

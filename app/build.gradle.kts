@@ -9,6 +9,8 @@ plugins {
 group = "dev.sku20.stopgap.app"
 version = "1.0-SNAPSHOT"
 
+val otelAgent by configurations.creating
+
 dependencies {
     implementation(libs.bundles.helidon)
     implementation(project(":ir"))
@@ -21,6 +23,7 @@ dependencies {
     implementation(libs.hikaricp)
     implementation(libs.jul.to.slf4j)
     implementation(libs.otel.instrumentation.annotations)
+    otelAgent(libs.otel.javaagent)
     runtimeOnly(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)
 
@@ -35,6 +38,13 @@ dependencies {
 
 application {
     mainClass = "dev.sku20.stopgap.app.MainKt"
+}
+
+// Not on the classpath: the image attaches it with -javaagent (RFC-0002).
+tasks.register<Copy>("copyOtelAgent") {
+    from(otelAgent)
+    into(layout.buildDirectory.dir("otel"))
+    rename { "opentelemetry-javaagent.jar" }
 }
 
 ksp {
