@@ -150,8 +150,9 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   the body isn't counted; the logged duration matches the span.
 - **Client span re-activated by hand**: `WebClientTracing` keeps its span in Helidon's context and never makes it
   current in OTel's, which the Logback appender reads. `LoggingClientService` re-activates it from its ids
-  ([helidon#8861](https://github.com/helidon-io/helidon/issues/8861) workaround) so its log line carries the client
-  span; anything logged inside the call by other services would still carry the server span
+  ([helidon#8861](https://github.com/helidon-io/helidon/issues/8861) workaround) for the duration of the call, so
+  everything logged inside it (later client services, Helidon's connection code) carries the client span. Clients
+  without it, and code after the call returns, see the server span
   ([helidon#5216](https://github.com/helidon-io/helidon/issues/5216)).
 
 ---
