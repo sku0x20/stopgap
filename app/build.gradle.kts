@@ -36,6 +36,7 @@ dependencies {
 
     testImplementation(project(":helidon-test"))
     testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.testcontainers.grafana)
     kspIntTest(project(":ir")) // for codegen inside intTests `ksp` only runs for main
 }
 
