@@ -2,6 +2,7 @@ package e2e
 
 import com.alibaba.fastjson2.JSON
 import dev.sku20.stopgap.helidon.test.InjectInstance
+import io.helidon.common.media.type.MediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
@@ -43,6 +44,17 @@ class MetricsCalls {
     @Test
     fun connectionPool() {
         assertThat(awaitValue("sum(db_client_connection_count)")).isPositive()
+    }
+
+    @Test
+    fun notesCreated() {
+        val response = client.post("/notes")
+            .contentType(MediaTypes.APPLICATION_JSON)
+            .accept(MediaTypes.APPLICATION_JSON)
+            .submit("""{"text":"metrics"}""")
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+
+        assertThat(awaitValue("sum(notes_created_total)")).isPositive()
     }
 
     @Test
