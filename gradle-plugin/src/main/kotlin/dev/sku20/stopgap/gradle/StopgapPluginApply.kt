@@ -22,6 +22,13 @@ class StopgapPluginApply(private val project: Project) {
         it.e2eImageName.convention(it.imageName)
         it.e2eImageTag.convention("e2e")
         it.jarName.convention(project.provider { "${project.rootProject.name}-${project.name}.jar" })
+        // -PgitSha inside the image build, which has no git; git itself on the host.
+        it.gitSha.convention(
+            project.providers.gradleProperty("gitSha").orElse(
+                project.providers.exec { exec -> exec.commandLine("git", "rev-parse", "--short", "HEAD") }
+                    .standardOutput.asText.map { sha -> sha.trim() }
+            )
+        )
         it.dockerfile.convention(project.layout.projectDirectory.file("Dockerfile"))
         it.dockerContext.convention(project.rootProject.layout.projectDirectory)
     }
@@ -44,16 +51,20 @@ class StopgapPluginApply(private val project: Project) {
         val mainClass = project.extensions.getByType(JavaApplication::class.java).mainClass
         val runtimeClasspath: FileCollection = project.files(project.configurations.named("runtimeClasspath"))
         val prefix = libsPrefix
+        val gitSha = extension.gitSha
 
         project.tasks.named("jar", Jar::class.java) { jar ->
             jar.archiveFileName.set(extension.jarName)
             jar.dependsOn(project.tasks.named("copyLibs"))
+            jar.inputs.property("gitSha", gitSha)
             jar.doFirst {
                 val classPath = runtimeClasspath.joinToString(" ") { "$prefix${it.name}" }
                 (it as Jar).manifest.attributes(
                     mapOf(
                         "Main-Class" to mainClass.get(),
                         "Class-Path" to classPath,
+                        // The OTel agent reads it as service.version.
+                        "Implementation-Version" to gitSha.get(),
                     )
                 )
             }
@@ -67,12 +78,16 @@ class StopgapPluginApply(private val project: Project) {
         val e2eImageTag = extension.e2eImageTag
         val dockerfile = extension.dockerfile
         val dockerContext = extension.dockerContext
+        val gitSha = extension.gitSha
 
         project.tasks.register("buildImage", Exec::class.java) {
             it.doFirst {
                 (it as Exec).commandLine(
                     "docker", "build",
                     "-t", "${imageName.get()}:${imageTag.get()}",
+                    // The same commit as service.version, so a trace names the image it ran in.
+                    "-t", "${imageName.get()}:${gitSha.get()}",
+                    "--build-arg", "GIT_SHA=${gitSha.get()}",
                     "-f", dockerfile.asFile.get().absolutePath,
                     dockerContext.asFile.get().absolutePath
                 )
@@ -84,6 +99,7 @@ class StopgapPluginApply(private val project: Project) {
                 (it as Exec).commandLine(
                     "docker", "build", "-q",
                     "-t", "${e2eImageName.get()}:${e2eImageTag.get()}",
+                    "--build-arg", "GIT_SHA=${gitSha.get()}",
                     "-f", dockerfile.asFile.get().absolutePath,
                     dockerContext.asFile.get().absolutePath
                 )

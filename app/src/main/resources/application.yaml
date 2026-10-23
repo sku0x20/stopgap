@@ -13,7 +13,32 @@ server:
   media-context:
     media-supports-discover-services: false
   features:
+    # Below tracing (900) so the access-log record is written inside the server span and carries its trace id; still
+    # above CORS (850) and security (800) so their rejections are logged.
     access-log:
+      weight: 875
+
+# Helidon reuses the agent's SDK instead of building its own (RFC-0002).
+otel:
+  agent:
+    present: true
+
+# Read by Helidon's OTel metrics modules for their meter scope name. Disabled so they never build an SDK or set the
+# global one; the instance they use is the one main hands to Services (RFC-0002).
+telemetry:
+  service: stopgap
+  enabled: false
+
+metrics:
+  # OTLP through the agent's SDK only: with the publisher off there's no Prometheus registry or scrape endpoint.
+  publishers:
+    prometheus:
+      enabled: false
+  auto-http-metrics:
+    # Off by default in 4.x; without it the duration is recorded in ms into a histogram declared in s (helidon#12097).
+    use-updated-http-metrics: true
+  virtual-threads:
+    enabled: true
 
 generator:
   static:
@@ -24,3 +49,10 @@ db:
     url: jdbc:postgresql://localhost:5432/stopgap
     username: postgres
     password: postgres
+
+httpbin:
+  url: http://localhost:8081
+  client:
+    connect-timeout: PT2S
+    # Above the endpoint's 10s delay cap, so slow calls show as long spans instead of timeouts.
+    read-timeout: PT15S

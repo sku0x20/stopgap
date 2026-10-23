@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.app.note.web
 
 import dev.sku20.stopgap.app.note.Note
+import dev.sku20.stopgap.app.note.NoteMetrics
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
 import dev.sku20.stopgap.app.note.store.NoteNotFoundException
@@ -13,6 +14,7 @@ import dev.sku20.stopgap.helidon.test.integration.WebserverTest
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
+import io.opentelemetry.api.OpenTelemetry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -46,6 +48,16 @@ class NoteEndpointTest {
             .submit("""{"text":"foo"}""")
         assertThat(response.status()).isEqualTo(Status.OK_200)
         assertThat(response.`as`(String::class.java)).isEqualTo(json(note))
+    }
+
+    @Test
+    fun createMalformedBody() {
+        val response = client.post("/notes")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
+            .submit("""{"title":"foo"}""")
+        assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
+        verifyNoInteractions(noteStore)
     }
 
     @Test
@@ -142,7 +154,7 @@ class NoteEndpointTest {
             catalog.add(FastjsonSerde())
             val noteStore = mock<NoteStore>()
             return SetupCapture(
-                NoteEndpoint(noteStore),
+                NoteEndpoint(noteStore, NoteMetrics(OpenTelemetry.noop())),
                 registerParams = arrayOf(catalog),
                 instances = mapOf(NoteStore::class.java to noteStore)
             )

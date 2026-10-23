@@ -4,7 +4,7 @@ kotlin = "2.4.20"
 ksp = "2.3.12"
 jmh-plugin = "0.7.3"
 maven-publish = "0.37.0"
-helidon = "4.5.5"
+helidon = "4.5.6"
 junit = "6.1.3"
 assertj = "3.27.7"
 mockito-kotlin = "6.4.0"
@@ -15,6 +15,9 @@ hikaricp = "7.1.0"
 logback = "1.6.5"
 slf4j = "2.0.19"
 lincheck = "3.7"
+otel-instrumentation = "2.32.0"
+otel-instrumentation-alpha = "2.32.0-alpha"  # library instrumentation; same release as otel-instrumentation
+pyroscope-otel = "2.1.4"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -26,17 +29,34 @@ maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publ
 helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
 helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
+helidon-webclient-tracing = { group = "io.helidon.webclient", name = "helidon-webclient-tracing", version.ref = "helidon" }
+helidon-webclient-telemetry-metrics = { group = "io.helidon.webclient", name = "helidon-webclient-telemetry-metrics", version.ref = "helidon" }
 helidon-logging-slf4j = { group = "io.helidon.logging", name = "helidon-logging-slf4j", version.ref = "helidon" }
 helidon-http-encoding-gzip = { group = "io.helidon.http.encoding", name = "helidon-http-encoding-gzip", version.ref = "helidon" }
 helidon-webserver-access-log = { group = "io.helidon.webserver", name = "helidon-webserver-access-log", version.ref = "helidon" }
 helidon-webserver-observe-health = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-health", version.ref = "helidon" }
 helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-checks", version.ref = "helidon" }
+helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-tracing", version.ref = "helidon" }
+helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
+helidon-webserver-observe-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-metrics", version.ref = "helidon" }
+helidon-webserver-observe-telemetry-metrics = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-telemetry-metrics", version.ref = "helidon" }
+helidon-metrics-system-meters = { group = "io.helidon.metrics", name = "helidon-metrics-system-meters", version.ref = "helidon" }
+otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
+otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
+otel-instrumentation-jdbc = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-jdbc", version.ref = "otel-instrumentation-alpha" }
+otel-logback-appender = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-logback-appender-1.0", version.ref = "otel-instrumentation-alpha" }
+otel-instrumentation-hikaricp = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-hikaricp-3.0", version.ref = "otel-instrumentation-alpha" }
+otel-instrumentation-runtime-telemetry = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-runtime-telemetry", version.ref = "otel-instrumentation-alpha" }
+otel-instrumentation-micrometer = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-micrometer-1.5", version.ref = "otel-instrumentation-alpha" }
+# GitHub releases only; Maven Central's io.pyroscope:otel is the span processor without the profiler.
+pyroscope-otel-extension = { group = "grafana", name = "pyroscope-otel-javaagent-extension", version.ref = "pyroscope-otel" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
 testcontainers-postgresql = { group = "org.testcontainers", name = "testcontainers-postgresql", version.ref = "testcontainers" }
+testcontainers-grafana = { group = "org.testcontainers", name = "testcontainers-grafana", version.ref = "testcontainers" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 fastjson2-kotlin = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
 postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
@@ -52,5 +72,10 @@ helidon = [
     "helidon-http-encoding-gzip",
     "helidon-webserver-access-log",
     "helidon-webserver-observe-health",
-    "helidon-health-checks"
+    "helidon-health-checks",
+    "helidon-webserver-observe-tracing",
+    "helidon-tracing-providers-opentelemetry",
+    "helidon-webserver-observe-metrics",
+    "helidon-webserver-observe-telemetry-metrics",
+    "helidon-metrics-system-meters"
 ]

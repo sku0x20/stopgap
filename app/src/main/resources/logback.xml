@@ -11,8 +11,12 @@
         </encoder>
     </appender>
 
+    <!-- exports through the SDK handed to OpenTelemetryAppender.install in main; records before that are buffered -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="OTEL"/>
     </root>
 
 </configuration>

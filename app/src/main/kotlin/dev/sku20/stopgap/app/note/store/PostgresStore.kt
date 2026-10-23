@@ -3,6 +3,8 @@ package dev.sku20.stopgap.app.note.store
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.sql.ResultSet
 import java.util.*
 import javax.sql.DataSource
@@ -36,7 +38,11 @@ class PostgresStore(
         withStatement(SELECT_NOTES) { it.executeQuery().map(::mapNote) }
     }
 
-    override fun get(noteId: Uuid): Note = dataSource.withConnection {
+    @WithSpan
+    override fun get(
+        @SpanAttribute("note.id")
+        noteId: Uuid
+    ): Note = dataSource.withConnection {
         withStatement(SELECT_NOTE) {
             it.setObject(1, noteId.toJavaUuid())
             it.executeQuery().firstOrNull(::mapNote) ?: throw NoteNotFoundException(noteId)

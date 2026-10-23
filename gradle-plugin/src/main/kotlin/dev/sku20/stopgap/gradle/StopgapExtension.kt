@@ -10,6 +10,7 @@ interface StopgapExtension {
     val e2eImageName: Property<String>
     val e2eImageTag: Property<String>
     val jarName: Property<String>
+    val gitSha: Property<String>
     val dockerfile: RegularFileProperty
     val dockerContext: DirectoryProperty
 }
