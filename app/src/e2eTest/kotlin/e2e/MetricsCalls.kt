@@ -40,6 +40,11 @@ class MetricsCalls {
         assertThat(mean).isBetween(1.0, 5.0)
     }
 
+    @Test
+    fun connectionPool() {
+        assertThat(awaitValue("sum(db_client_connection_count)")).isPositive()
+    }
+
     // Helidon's Micrometer meters reach Prometheus only through the OTel bridge.
     @Test
     fun micrometerMeters() {
