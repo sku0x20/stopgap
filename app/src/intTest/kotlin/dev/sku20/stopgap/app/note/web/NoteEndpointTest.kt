@@ -49,6 +49,16 @@ class NoteEndpointTest {
     }
 
     @Test
+    fun createMalformedBody() {
+        val response = client.post("/notes")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
+            .submit("""{"title":"foo"}""")
+        assertThat(response.status()).isEqualTo(Status.BAD_REQUEST_400)
+        verifyNoInteractions(noteStore)
+    }
+
+    @Test
     fun get() {
         val note = Note(Uuid.random(), "foo")
         whenever(noteStore.get(note.noteId)).thenReturn(note)
