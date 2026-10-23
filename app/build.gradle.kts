@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.bundles.helidon)
     implementation(libs.helidon.webclient)
     implementation(libs.helidon.webclient.tracing)
+    implementation(libs.helidon.webclient.telemetry.metrics)
     implementation(project(":ir"))
     ksp(project(":ir"))
     implementation(project(":helidon-extensions"))
