@@ -8,6 +8,8 @@ import io.helidon.config.Config
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import io.helidon.webserver.observe.ObserveFeature
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.slf4j.bridge.SLF4JBridgeHandler
 
 fun main(args: Array<String>) {
@@ -17,6 +19,9 @@ fun main(args: Array<String>) {
 
     val registry = InstanceRegistry()
     initRegistry(registry)
+
+    // Logs export through the same SDK as traces (RFC-0002).
+    OpenTelemetryAppender.install(registry.getInstanceForType<OpenTelemetry>())
 
     val routing = HttpRouting.builder()
     initHttpRouting(registry, routing)

@@ -7,8 +7,8 @@ import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.Network
 import org.testcontainers.grafana.LgtmStackContainer
 
-// One container for the collector, Tempo, Loki, Prometheus and Grafana. Alias must match
-// OTEL_EXPORTER_OTLP_TRACES_ENDPOINT in application.env.
+// One container for the collector, Tempo, Loki, Prometheus and Grafana. Alias must match the OTEL_EXPORTER_OTLP_*
+// endpoints in application.env.
 class LgtmContainerRunner : LauncherSessionListener {
 
     private lateinit var container: LgtmStackContainer

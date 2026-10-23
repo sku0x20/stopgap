@@ -26,8 +26,9 @@ dependencies {
     implementation(libs.jul.to.slf4j)
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.instrumentation.jdbc)
+    implementation(libs.otel.logback.appender)
     otelAgent(libs.otel.javaagent)
-    runtimeOnly(libs.logback.classic)
+    implementation(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)
 
     testImplementation(libs.assertj.core)
