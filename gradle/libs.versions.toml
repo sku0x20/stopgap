@@ -15,6 +15,7 @@ hikaricp = "7.1.0"
 logback = "1.6.5"
 slf4j = "2.0.19"
 lincheck = "3.7"
+otel-instrumentation = "2.32.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -31,6 +32,9 @@ helidon-http-encoding-gzip = { group = "io.helidon.http.encoding", name = "helid
 helidon-webserver-access-log = { group = "io.helidon.webserver", name = "helidon-webserver-access-log", version.ref = "helidon" }
 helidon-webserver-observe-health = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-health", version.ref = "helidon" }
 helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-checks", version.ref = "helidon" }
+helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-tracing", version.ref = "helidon" }
+helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
+otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
@@ -52,5 +56,7 @@ helidon = [
     "helidon-http-encoding-gzip",
     "helidon-webserver-access-log",
     "helidon-webserver-observe-health",
-    "helidon-health-checks"
+    "helidon-health-checks",
+    "helidon-webserver-observe-tracing",
+    "helidon-tracing-providers-opentelemetry"
 ]

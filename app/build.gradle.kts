@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.hikaricp)
     implementation(libs.jul.to.slf4j)
+    implementation(libs.otel.instrumentation.annotations)
     runtimeOnly(libs.logback.classic)
     runtimeOnly(libs.helidon.logging.slf4j)
 
