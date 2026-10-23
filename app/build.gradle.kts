@@ -15,6 +15,8 @@ val otelAgent by configurations.creating
 
 dependencies {
     implementation(libs.bundles.helidon)
+    implementation(libs.helidon.webclient)
+    implementation(libs.helidon.webclient.tracing)
     implementation(project(":ir"))
     ksp(project(":ir"))
     implementation(project(":helidon-extensions"))
