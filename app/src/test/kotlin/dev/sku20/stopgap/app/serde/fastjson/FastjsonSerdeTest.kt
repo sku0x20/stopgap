@@ -1,6 +1,5 @@
 package dev.sku20.stopgap.app.serde.fastjson
 
-import dev.sku20.stopgap.helidon.serde.MalformedBodyException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test

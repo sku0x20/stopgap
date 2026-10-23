@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.reader.ObjectReader
 import com.alibaba.fastjson2.writer.ObjectWriter
-import dev.sku20.stopgap.helidon.serde.MalformedBodyException
 import dev.sku20.stopgap.helidon.serde.Serde
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
