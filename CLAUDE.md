@@ -4,6 +4,8 @@
 
 - Commit after every change, no matter how small. Stage the edited files by name and commit directly;
   no `git status`/`git diff` first.
+- Work happens on a branch and lands through a PR. Merge PRs with a merge commit (`gh pr merge <n> --merge`), never
+  squash or rebase, so every commit stays in history and the branch shows in the graph.
 - For large refactors, ambiguous tasks, or research requests: propose a plan first, get approval, then make changes.
 - Only do what's asked. Asked for a test → write only the test, not the implementation it needs.
 - Check existing code for an established pattern before proposing a design.
