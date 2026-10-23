@@ -45,6 +45,7 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - Every span, log record and metric names the commit and the environment it came from.
 - Continuous CPU, allocation and lock profiles, with each server span linked to the samples taken while it ran.
 - A rolling JFR recording of JVM events (GC, locks, I/O, virtual-thread pinning) to dump when something looks wrong.
+- A heap dump, crash log and JFR recording kept from every out-of-memory error and crash.
 
 ### Non-Goals
 - **Agent library instrumentation** (JDBC, HTTP clients, Helidon's server, Micrometer, JVM runtime): each layer is wired
@@ -129,7 +130,7 @@ Helidon OTel metrics      Micrometer bridge         OTel libraries            Me
 OTel agent ── Pyroscope extension ──┬── span processor on the agent's SDK: tags the root span with pyroscope.profile.id
                                     │   and the profiler's thread context with its span id
                                     └── async-profiler (CPU via ctimer, alloc, lock) ── JFR every 10s ──▶ Pyroscope
-JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump on demand
+JVM ── JFR recording (last 10 min) ──▶ jcmd JFR.dump on demand, /diagnostics on exit or crash
 ```
 
 - **The extension** is loaded into the agent with `otel.javaagent.extensions`, so there's still one agent and one SDK.
@@ -146,8 +147,19 @@ JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump
   for the whole process, so it takes at most one sample per tick however many threads are busy.
 - **Allocation and lock** samples ride in the same upload: one per 512 KiB allocated (`pyroscope.profiler.alloc`), and
   one per lock wait of 10ms or more (`pyroscope.profiler.lock`).
-- **The JFR recording** starts with the JVM (`-XX:StartFlightRecording`, default settings, `maxage=10m`) and stays in
-  the container; `jcmd 1 JFR.dump name=continuous filename=<file>` copies it out for JDK Mission Control or IntelliJ.
+- **The JFR recording** starts with the JVM (`-XX:StartFlightRecording`, default settings, `maxage=10m`);
+  `jcmd 1 JFR.dump name=continuous filename=<file>` copies it out for JDK Mission Control or IntelliJ.
+
+### Crash diagnostics
+
+- **One folder per start** under the `/diagnostics` volume, made by `entrypoint.sh`, which then `exec`s java so it
+  stays PID 1 and receives the container's `SIGTERM`. The JVM names its files after the PID, always 1 in a container,
+  so a fixed folder would hold `java_pid1.hprof` from the first crash and skip every later heap dump.
+- **On a normal stop** the JFR recording is dumped there (`dumponexit`).
+- **On a heap out-of-memory error** the JVM writes a heap dump, then aborts (`CrashOnOutOfMemoryError`): the crash
+  writes the `hs_err.log` and a JFR emergency dump (`dumppath`), and the container restarts instead of running on in a
+  broken state.
+- **On a JVM crash** (e.g. a native fault) the same `hs_err.log` and JFR emergency dump are written.
 
 ---
 
@@ -220,6 +232,11 @@ deliberate name and attribute set, so explicit code fits it; method timing alrea
 Pyroscope already uploads JFR files; the question is which sampler fills them. JFR's execution sampler takes a few
 running Java threads per tick, stops at the Java boundary, and can't attach labels to samples. async-profiler records
 mixed Java and native stacks for every thread and keeps a per-thread context id, which is how samples carry span ids.
+
+### Why crash rather than exit on out-of-memory?
+`ExitOnOutOfMemoryError` also restarts the container and keeps the heap dump, but it exits without running shutdown
+hooks, so the JFR recording is lost, and it writes no `hs_err.log`. Crashing keeps all three. Core dumps are left to
+the deployment's `ulimit -c` (0 by default in Docker); they're the size of the process.
 
 ### Why a JFR recording as well?
 JFR's value is its events, not its samples: GC pauses, JIT, safepoints, socket and file I/O, monitor waits, and
@@ -323,7 +340,10 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **Version is the commit, not the tree**: an image built with uncommitted changes reports the last commit's SHA.
 - **Profiles carry only the service name**: the profiler reads its own config, not the OTel resource, so Pyroscope
   can't split by version or environment.
-- **The JFR recording dies with the container**: dump it before stopping the container; nothing ships it anywhere.
+- **Diagnostics pile up**: every start adds a folder with a JFR dump on stop, and a heap dump is as large as the heap.
+  Nothing rotates or ships them; without a mounted volume they go with the container's anonymous volume.
+- **No diagnostics on `SIGKILL`**: the container runtime's memory-limit kill, `docker kill`, or a stop that outlasts its
+  timeout end the JVM before it can write anything. The memory limit is a different out-of-memory than the heap's.
 
 ---
 

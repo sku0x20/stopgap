@@ -14,10 +14,11 @@ COPY --from=build /project/stopgap/build/app/libs/libs libs
 COPY --from=build /project/stopgap/build/app/libs/stopgap-app.jar ./
 COPY --from=build /project/stopgap/build/app/otel otel
 COPY app/otel.properties app/pyroscope.properties otel/
+COPY --chmod=755 app/entrypoint.sh ./
+# Heap dumps, hs_err logs and JFR dumps; see entrypoint.sh.
+VOLUME /diagnostics
 # otel.semconv-stability.opt-in is a system property: the JDBC library reads it directly, not from otel.properties.
-# The JFR recording keeps the last 10 minutes for `jcmd 1 JFR.dump name=continuous filename=<file>`.
-ENTRYPOINT ["java", \
-    "-XX:StartFlightRecording=name=continuous,settings=default,maxage=10m", \
+ENTRYPOINT ["./entrypoint.sh", \
     "-javaagent:otel/opentelemetry-javaagent.jar", \
     "-Dotel.javaagent.configuration-file=otel/otel.properties", \
     "-Dotel.javaagent.extensions=otel/extensions", \
