@@ -13,7 +13,10 @@ server:
   media-context:
     media-supports-discover-services: false
   features:
+    # Below tracing (900) so the access-log record is written inside the server span and carries its trace id; still
+    # above CORS (850) and security (800) so their rejections are logged.
     access-log:
+      weight: 875
 
 # Helidon reuses the agent's SDK instead of building its own (RFC-0002).
 otel:
