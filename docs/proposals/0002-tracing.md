@@ -1,8 +1,8 @@
-# RFC-0002: Distributed Tracing and Logs
+# RFC-0002: Distributed Tracing, Logs and Metrics
 
 - **Date**: 2026-10-23
 - **Target**: `stopgap` / `app`
-- **Scope**: Traces and logs (metrics and profiles are separate proposals)
+- **Scope**: Traces, logs and metrics (profiles are a separate proposal)
 
 ---
 
@@ -14,6 +14,10 @@ write to one SDK, the agent's, and share one `Context`, so a request yields one 
 business methods down to each query and outbound call.
 Logs go through the same SDK via the OTel Logback appender, so each record carries the trace and span it was written
 in.
+
+Metrics go through it too. Helidon records HTTP server and client durations with the OTel API, OTel's Micrometer bridge
+carries Helidon's own Micrometer meters, OTel libraries add the connection pool and the JVM, and our code records
+business metrics with the OTel `Meter` API. The agent exports them over OTLP; there's no scrape endpoint.
 
 The guiding principle is **thin, decoupled layers with explicit control**: each layer does one job, is wired in our code,
 and receives the SDK from us. Nothing builds or discovers an SDK on its own.
@@ -30,13 +34,18 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - A single SDK and exporter for all spans, handed explicitly to every layer.
 - Application code depends only on the standard OTel API and annotations.
 - Every log record exported through the same SDK, correlated with the active span.
+- Request duration per route and per outbound call, under OTel semantic-convention names.
+- Connection pool, database operation and JVM metrics.
+- Business metrics recorded with the OTel `Meter` API, exported through the same SDK.
 
 ### Non-Goals
-- **Agent library instrumentation** (JDBC, HTTP clients, Helidon's server): each layer is wired explicitly instead.
-- **Connection pool (HikariCP)**: it produces metrics, not spans; it belongs to the metrics proposal.
+- **Agent library instrumentation** (JDBC, HTTP clients, Helidon's server, Micrometer, JVM runtime): each layer is wired
+  explicitly instead.
 - **Span per method**: method-level cost belongs to profiling.
 - **Agent log instrumentation**: the appender is wired explicitly instead.
-- **Metrics, profiles**: separate proposals.
+- **Metrics annotations** (`@Timed`, `@Counted`): OTel has none; business metrics use the `Meter` API.
+- **Prometheus scrape endpoint**: metrics leave only over OTLP.
+- **Profiles**: separate proposal.
 
 ---
 
@@ -65,6 +74,34 @@ Helidon tracing           @WithSpan on our methods     JDBC library         Logb
   only in the container image and configured from a file in the repo.
 - **Our code** adds attributes to the current span first, and a new span only for a unit with its own latency or
   failure mode, or one that fans out.
+
+### Metrics
+
+```
+                              single OTel SDK (agent's)
+         ▲                       ▲                        ▲                       ▲
+Helidon OTel metrics      Micrometer bridge         OTel libraries            Meter API
+(server and client        (Helidon's request KPIs   (JDBC, HikariCP,          (our business
+ HTTP duration)            and system meters)        JVM runtime)              metrics)
+```
+
+- **Helidon's registry** gets our `OpenTelemetry` too: Helidon's metrics modules look it up in Helidon's `Services`
+  rather than taking it as a parameter, so `main` binds it there with `Services.set` before building anything Helidon.
+- **Server duration** (`http.server.request.duration`, by `http.route`) comes from the filter Helidon's
+  telemetry-metrics module adds to `MetricsObserver`, which joins the observers in our config.
+- **Client duration** (`http.client.request.duration`) comes from Helidon's `WebClientTelemetryMetrics`, added to the
+  httpbin `WebClient` next to `WebClientTracing`.
+- **Helidon's Micrometer meters** (request KPIs, system and virtual-thread meters) live on Micrometer's global registry.
+  `main` adds OTel's `OpenTelemetryMeterRegistry` to it, so they reach the same SDK. Its Prometheus publisher is off, so
+  there's no other registry and no `/observe/metrics`.
+- **Connection pool** metrics (`db.client.connection.*`) come from OTel's HikariCP library, set as the pool's metrics
+  tracker. **Database operation** duration (`db.client.operation.duration`) comes from the JDBC library already wrapping
+  the store's `DataSource`.
+- **JVM** metrics (`jvm.*`) come from OTel's runtime-telemetry library, started in `main` and closed on shutdown.
+- **Business metrics** use the OTel `Meter` API in a small class per area (e.g. `NoteMetrics`), created in our registry
+  from the same `OpenTelemetry`. Instruments are built once; attribute values stay a small fixed set, since each
+  distinct combination is its own time series.
+- **The agent** exports metrics over OTLP every 60s (2s in e2e).
 
 ---
 
@@ -102,13 +139,37 @@ Same reasoning as JDBC: the appender is a line in `logback.xml` and an `install`
 exporting if the agent is replaced. The agent would hook Logback through bytecode rewriting, and both together would
 export every record twice.
 
+### Why Helidon's metrics modules for HTTP durations?
+Same reason as Helidon's tracing: they're Helidon's own, record semantic-convention names, and take the route from the
+pattern that matched. Unlike tracing they don't take the SDK as a parameter; they look it up in Helidon's `Services`.
+Binding it there with `Services.set` keeps the hand-off in our code, and it throws if anything looked the instance up
+first, so a wrong order fails at startup instead of recording into another SDK.
+
+### Why OTel's Micrometer bridge?
+Helidon's `MetricsObserver` is built on Micrometer, and its request KPIs and system meters are Micrometer meters. The
+bridge is a Micrometer registry that writes to the `OpenTelemetry` we hand it, the same shape as the JDBC wrapper.
+Micrometer's own OTLP registry would be a second exporter and `Resource`; Helidon's Prometheus publisher a second,
+pull-based path.
+
+### Why OTel libraries for the pool and the JVM?
+Same reasoning as JDBC: each takes our `OpenTelemetry`, and they record semantic-convention names
+(`db.client.connection.*`, `jvm.*`). Helidon's system meters stay: their MicroProfile-style names (`memory.usedHeap`,
+`thread.count`) don't collide with `jvm.*`, and its virtual-thread meters (`vthreads.*`, pinning) have no stable OTel
+counterpart.
+
+### Why the `Meter` API, not annotations, for business metrics?
+OTel has no metrics annotation
+([#7030](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/7030), open since 2022). Micrometer's `@Timed` and `@Counted` are AspectJ aspects: without Spring they need AspectJ weaving, a
+second bytecode rewriter next to the agent, and they put Micrometer's API in our code. A business metric is a
+deliberate name and attribute set, so explicit code fits it; method timing already comes from `@WithSpan` spans.
+
 ### Why disable agent library instrumentation?
 - **Explicit**: spans exist only where we chose them; nothing silently appears or vanishes on a library upgrade.
 - **No duplicates**: running the agent's JDBC instrumentation next to the library records every statement twice.
 - **Cheaper**: less startup work and span volume.
 
 ### Why a single SDK, owned by the agent?
-- **One pipeline**: one exporter, sampler and `Resource` for every span and log record.
+- **One pipeline**: one exporter, sampler and `Resource` for every span, log record and metric.
 - **No choice**: the agent always runs its own SDK and can't adopt one built by the app.
 
 ### Why a no-op without the agent?
@@ -133,18 +194,25 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 | **Helidon building its own SDK** | An SDK we don't control; a second SDK whenever the agent is attached. |
 | **Agent's Logback instrumentation** | Hooks logging implicitly; duplicates the appender's records if both run. |
 | **App-built SDK for logs** | A second SDK next to the agent's, with its own `Resource` and exporter config. |
+| **Prometheus scrape endpoint** | A second, pull-based path out, with its own names and labels. |
+| **Micrometer's OTLP registry** | A second exporter and `Resource` next to the agent's. |
+| **Agent's Micrometer and runtime modules** | Hook the global registry and the JVM implicitly; the libraries take our instance. |
+| **Own HTTP metrics filter** | Re-implements Helidon's semantic-convention code, which we'd then maintain. |
+| **Micrometer `@Timed`/`@Counted`** | AspectJ weaving next to the agent, and Micrometer's API in business code. |
+| **HikariCP's Micrometer tracker** | Hikari's own names instead of `db.client.connection.*`. |
 
 ---
 
 ## 6. Trade-offs
 
-- **No agent, no traces or exported logs**: local runs and tests use a no-op SDK; logs still reach the console.
+- **No agent, no traces, metrics or exported logs**: local runs and tests use a no-op SDK; logs still reach the
+  console.
 - **A missing agent is silent**: Helidon is told the agent is present rather than detecting it, so without it tracing
   stops with no error.
 - **Settings in two places**: the agent reads `otel.properties`, but the JDBC library reads only system properties, so
   its options (e.g. the semconv opt-in) go on the command line.
-- **Alpha libraries**: the JDBC library and the Logback appender are versioned `-alpha`; their APIs may change
-  between releases.
+- **Alpha libraries**: the JDBC, HikariCP, Micrometer bridge and runtime-telemetry libraries and the Logback appender
+  are versioned `-alpha`; their APIs may change between releases.
 - **No GraalVM native image** while the agent is in use.
 - **Client spans end at the response headers**: `WebClientTracing` ends the span once the status arrives, so reading
   the body isn't counted; the logged duration matches the span.
@@ -154,6 +222,21 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   everything logged inside it (later client services, Helidon's connection code) carries the client span. Clients
   without it, and code after the call returns, see the server span
   ([helidon#5216](https://github.com/helidon-io/helidon/issues/5216)).
+- **`Services.set` ordering**: it must run in `main` before anything Helidon is built; the first lookup fixes the
+  instance and a later `set` throws.
+- **A `telemetry` config node**: Helidon's metrics modules require `telemetry.service` for their meter scope name.
+  `enabled: false` stops them from building an SDK or setting the global one. The node also changes what Helidon's
+  registry serves to code not covered by `Services.set` (e.g. intTests), where `Tracer.global()` then throws; test
+  clients turn service discovery off so a discovered `WebClientTracing` never calls it.
+- **Correct server durations are opt-in**: without `use-updated-http-metrics: true`, Helidon 4.x records milliseconds
+  into a histogram declared in seconds ([helidon#12097](https://github.com/helidon-io/helidon/issues/12097)).
+- **Client metric attributes**: `WebClientTelemetryMetrics` names the method `http.client.request.method` (semantic
+  conventions: `http.request.method`) and uses the raw path as `url.template`, so each distinct path is its own series.
+  Fine for httpbin's bounded paths, not for paths carrying ids.
+- **The bridge comes first**: a Micrometer registry added after a meter exists misses that meter's earlier recordings,
+  so `main` adds it before building anything Helidon.
+- **Two sets of JVM metrics**: Helidon's system meters overlap `jvm.*` under other names.
+- **No active Micrometer publisher**: with Prometheus off, Helidon warns at startup that none is configured.
 
 ---
 
@@ -164,4 +247,7 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   and adds `http.route`, though the span name becomes only the method. Client spans have the same issue: named
   `GET-<url>` with `http.url`/`http.status_code`.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
-- **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs).
+- **`error.type` on success**: Helidon's server metric sets `error.type` to the status text for every status but `200`
+  (e.g. `Created` for `201`); the conventions set it only for errors.
+- **Duplicate request counts**: Helidon's `requests.count` KPI repeats the count in `http.server.request.duration`.
+- **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics).
