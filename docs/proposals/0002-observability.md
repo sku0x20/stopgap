@@ -41,7 +41,7 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - Request duration per route and per outbound call, under OTel semantic-convention names.
 - Connection pool, database operation and JVM metrics.
 - Business metrics recorded with the OTel `Meter` API, exported through the same SDK.
-- Continuous CPU profiles, with each server span linked to the samples taken while it ran.
+- Continuous CPU, allocation and lock profiles, with each server span linked to the samples taken while it ran.
 - A rolling JFR recording of JVM events (GC, locks, I/O, virtual-thread pinning) to dump when something looks wrong.
 
 ### Non-Goals
@@ -115,7 +115,7 @@ Helidon OTel metrics      Micrometer bridge         OTel libraries            Me
 ```
 OTel agent ── Pyroscope extension ──┬── span processor on the agent's SDK: tags the root span with pyroscope.profile.id
                                     │   and the profiler's thread context with its span id
-                                    └── async-profiler (CPU, itimer) ── JFR-format upload every 10s ──▶ Pyroscope
+                                    └── async-profiler (CPU, alloc, lock) ── JFR-format upload every 10s ──▶ Pyroscope
 JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump on demand
 ```
 
@@ -130,6 +130,8 @@ JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump
   span's profile by service name; the default is a random `javaspy.*` name.
 - **CPU via `itimer`**: async-profiler's `cpu` event needs `perf_events`, which containers usually block. `itimer` is a
   process timer signal: it works anywhere but records no kernel frames.
+- **Allocation and lock** samples ride in the same upload: one per 512 KiB allocated (`pyroscope.profiler.alloc`), and
+  one per lock wait of 10ms or more (`pyroscope.profiler.lock`).
 - **The JFR recording** starts with the JVM (`-XX:StartFlightRecording`, default settings, `maxage=10m`) and stays in
   the container; `jcmd 1 JFR.dump name=continuous filename=<file>` copies it out for JDK Mission Control or IntelliJ.
 
@@ -318,6 +320,4 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   sticks to the carrier, samples may land on the wrong span or none. Not yet checked.
 - **Traces-to-profiles in Grafana**: LGTM's Tempo data source doesn't set `tracesToProfiles`, so the "profiles for this
   span" link has to be configured by hand.
-- **Allocation and lock profiles**: off; async-profiler can add them (`pyroscope.profiler.alloc`,
-  `pyroscope.profiler.lock`) to the same upload.
 - **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics, Pyroscope for profiles).
