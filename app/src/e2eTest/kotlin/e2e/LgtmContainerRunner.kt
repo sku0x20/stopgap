@@ -19,6 +19,7 @@ class LgtmContainerRunner : LauncherSessionListener {
             .withNetwork(network)
             .withNetworkAliases("lgtm")
         container.start()
+        System.err.println("Grafana: ${container.grafanaHttpUrl}")
     }
 
     override fun launcherSessionClosed(session: LauncherSession) {

@@ -4,3 +4,4 @@ e2e.PostgresContainerRunner
 e2e.LgtmContainerRunner
 dev.sku20.stopgap.helidon.test.e2e.DockerImageRunner
 dev.sku20.stopgap.helidon.test.e2e.ClientsManager
+dev.sku20.stopgap.helidon.test.e2e.SessionKeepAlive
