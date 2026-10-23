@@ -11,8 +11,8 @@ version = "1.0-SNAPSHOT"
 
 // Own configurations, not runtimeOnly: runtimeClasspath ships in libs/ on the app classpath, and the agent must load
 // only via -javaagent (RFC-0002). Extensions go to one directory; the agent loads every jar in it.
-val otelAgent by configurations.creating
-val otelAgentExtensions by configurations.creating
+val otelAgent = configurations.create("otelAgent")
+val otelAgentExtensions = configurations.create("otelAgentExtensions")
 
 repositories {
     exclusiveContent {
