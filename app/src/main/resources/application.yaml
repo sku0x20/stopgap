@@ -1,9 +1,26 @@
 server:
   port: 8080
   host: localhost
+  protocols-discover-services: false
+  features-discover-services: false
+  concurrency-limit-discover-services: false
   protocols:
     http_1_1:
+  content-encoding:
+    content-encodings-discover-services: false
+    content-encodings:
+      gzip:
+  media-context:
+    media-supports-discover-services: false
+  features:
+    access-log:
 
 generator:
   static:
     value: "from static generator"
+
+db:
+  postgres:
+    url: jdbc:postgresql://localhost:5432/stopgap
+    username: postgres
+    password: postgres

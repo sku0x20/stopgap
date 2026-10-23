@@ -17,11 +17,18 @@ dependencies {
     ksp(project(":helidon-extensions"))
 
     implementation(libs.fastjson2.kotlin)
+    implementation(libs.postgresql)
+    implementation(libs.hikaricp)
+    implementation(libs.jul.to.slf4j)
+    runtimeOnly(libs.logback.classic)
+    runtimeOnly(libs.helidon.logging.slf4j)
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.lincheck)
 
     testImplementation(project(":helidon-test"))
+    testImplementation(libs.testcontainers.postgresql)
     kspIntTest(project(":ir")) // for codegen inside intTests `ksp` only runs for main
 }
 

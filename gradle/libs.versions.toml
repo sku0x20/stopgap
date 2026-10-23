@@ -10,6 +10,11 @@ assertj = "3.27.7"
 mockito-kotlin = "6.4.0"
 testcontainers = "2.0.5"
 fastjson2 = "2.0.65"
+postgresql = "42.7.14"
+hikaricp = "7.1.0"
+logback = "1.6.5"
+slf4j = "2.0.19"
+lincheck = "3.7"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -21,16 +26,31 @@ maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publ
 helidon-webserver = { group = "io.helidon.webserver", name = "helidon-webserver", version.ref = "helidon" }
 helidon-config-yaml = { group = "io.helidon.config", name = "helidon-config-yaml", version.ref = "helidon" }
 helidon-webclient = { group = "io.helidon.webclient", name = "helidon-webclient", version.ref = "helidon" }
+helidon-logging-slf4j = { group = "io.helidon.logging", name = "helidon-logging-slf4j", version.ref = "helidon" }
+helidon-http-encoding-gzip = { group = "io.helidon.http.encoding", name = "helidon-http-encoding-gzip", version.ref = "helidon" }
+helidon-webserver-access-log = { group = "io.helidon.webserver", name = "helidon-webserver-access-log", version.ref = "helidon" }
+helidon-webserver-observe-health = { group = "io.helidon.webserver.observe", name = "helidon-webserver-observe-health", version.ref = "helidon" }
+helidon-health-checks = { group = "io.helidon.health", name = "helidon-health-checks", version.ref = "helidon" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
+testcontainers-postgresql = { group = "org.testcontainers", name = "testcontainers-postgresql", version.ref = "testcontainers" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 fastjson2-kotlin = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2" }
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+jul-to-slf4j = { group = "org.slf4j", name = "jul-to-slf4j", version.ref = "slf4j" }
+lincheck = { group = "org.jetbrains.lincheck", name = "lincheck", version.ref = "lincheck" }
 
 [bundles]
 helidon = [
     "helidon-webserver",
-    "helidon-config-yaml"
+    "helidon-config-yaml",
+    "helidon-http-encoding-gzip",
+    "helidon-webserver-access-log",
+    "helidon-webserver-observe-health",
+    "helidon-health-checks"
 ]

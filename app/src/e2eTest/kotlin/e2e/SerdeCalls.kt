@@ -28,6 +28,17 @@ class SerdeCalls {
     }
 
     @Test
+    fun desDataClass() {
+        val response = client.post("/serde/desDataClass")
+            .contentType(HttpMediaTypes.JSON_UTF_8)
+            .accept(HttpMediaTypes.JSON_UTF_8)
+            .submit("""{"id": 1, "name": "alice"}""")
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"1:alice"}""")
+    }
+
+    @Test
     fun ser() {
         val random = Random.nextLong()
         val response = client.get("/serde/serObj")

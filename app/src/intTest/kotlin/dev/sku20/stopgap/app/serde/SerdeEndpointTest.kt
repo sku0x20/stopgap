@@ -35,6 +35,17 @@ class SerdeEndpointTest {
     }
 
     @Test
+    fun plainJson() {
+        val response = client.post("/serde/negotiate")
+            .contentType(HttpMediaTypes.JSON)
+            .accept(HttpMediaTypes.JSON)
+            .submit("""{"data":"foo"}""")
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"foo"}""")
+    }
+
+    @Test
     fun unitGet() {
         val response = client.get("/serde/unitGet").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
