@@ -238,6 +238,9 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **Two sets of JVM metrics**: Helidon's system meters overlap `jvm.*` under other names.
 - **No active Micrometer publisher**: with Prometheus off, Helidon logs a warning that none is configured (per its
   source; not yet seen in a startup log).
+- **Helidon metric quirks, left as is**: the server metric sets `error.type` to the status text for every status but
+  `200` (e.g. `Created` for `201`), where the conventions set it only for errors; and Helidon's `requests.count` KPI,
+  exported through the bridge, repeats the count in `http.server.request.duration`.
 
 ---
 
@@ -248,7 +251,4 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   and adds `http.route`, though the span name becomes only the method. Client spans have the same issue: named
   `GET-<url>` with `http.url`/`http.status_code`.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
-- **`error.type` on success**: Helidon's server metric sets `error.type` to the status text for every status but `200`
-  (e.g. `Created` for `201`); the conventions set it only for errors.
-- **Duplicate request counts**: Helidon's `requests.count` KPI repeats the count in `http.server.request.duration`.
 - **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics).
