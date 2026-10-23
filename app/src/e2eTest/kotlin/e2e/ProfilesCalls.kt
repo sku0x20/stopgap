@@ -16,18 +16,15 @@ class ProfilesCalls {
     @InjectInstance
     lateinit var client: WebClient
 
-    // The profiler uploads every 2s in e2e; the CPU type shows up once a batch with samples is ingested.
     @Test
     fun cpuProfile() {
-        val deadline = System.currentTimeMillis() + 30_000
-        while (System.currentTimeMillis() < deadline) {
-            client.get("/").request().close()
-            if (CPU_PROFILE_TYPE in profileTypes()) {
-                return
-            }
-            Thread.sleep(500)
-        }
-        throw AssertionError("No $CPU_PROFILE_TYPE profile for stopgap; types: ${profileTypes()}")
+        awaitProfileType("process_cpu:cpu:nanoseconds:cpu:nanoseconds")
+    }
+
+    // No lock counterpart: lock samples need a wait of 10ms or more, which e2e traffic doesn't reliably cause.
+    @Test
+    fun allocProfile() {
+        awaitProfileType("memory:alloc_in_new_tlab_bytes:bytes:space:bytes")
     }
 
     // The extension's span processor tags the root span, which is how Grafana finds the span's profile.
@@ -38,6 +35,19 @@ class ProfilesCalls {
 
         val server = awaitServerSpan(traceId)
         assertThat(attribute(server, "pyroscope.profile.id")).isNotBlank()
+    }
+
+    // The profiler uploads every 2s in e2e; a type shows up once a batch with its samples is ingested.
+    private fun awaitProfileType(type: String) {
+        val deadline = System.currentTimeMillis() + 30_000
+        while (System.currentTimeMillis() < deadline) {
+            client.get("/").request().close()
+            if (type in profileTypes()) {
+                return
+            }
+            Thread.sleep(500)
+        }
+        throw AssertionError("No $type profile for stopgap; types: ${profileTypes()}")
     }
 
     private fun profileTypes(): List<String> {
@@ -105,7 +115,6 @@ class ProfilesCalls {
     }
 
     private companion object {
-        const val CPU_PROFILE_TYPE = "process_cpu:cpu:nanoseconds:cpu:nanoseconds"
         val TRACEPARENT = HeaderNames.create("traceparent")
     }
 }
