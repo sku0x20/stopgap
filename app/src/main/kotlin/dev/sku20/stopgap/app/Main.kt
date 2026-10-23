@@ -5,6 +5,7 @@ import dev.sku20.stopgap.helidon.registry.generated.initHttpRouting
 import dev.sku20.stopgap.ir.InstanceRegistry
 import dev.sku20.stopgap.ir.generated.initRegistry
 import io.helidon.config.Config
+import io.helidon.service.registry.Services
 import io.helidon.webserver.WebServer
 import io.helidon.webserver.http.HttpRouting
 import io.helidon.webserver.observe.ObserveFeature
@@ -21,7 +22,11 @@ fun main(args: Array<String>) {
     initRegistry(registry)
 
     // Logs export through the same SDK as traces (RFC-0002).
-    OpenTelemetryAppender.install(registry.getInstanceForType<OpenTelemetry>())
+    val openTelemetry = registry.getInstanceForType<OpenTelemetry>()
+    OpenTelemetryAppender.install(openTelemetry)
+    // Helidon's metrics modules look it up in Helidon's own registry, which would otherwise pick its own instance.
+    // Must run before anything Helidon is built: the first lookup fixes the instance and a later set throws.
+    Services.set(OpenTelemetry::class.java, openTelemetry)
 
     val routing = HttpRouting.builder()
     initHttpRouting(registry, routing)
