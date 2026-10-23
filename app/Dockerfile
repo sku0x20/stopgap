@@ -15,4 +15,7 @@ ADD --checksum=sha256:f787eb6c7f3d18e69a431e108a15278d25ee37f83d68b678f621e063f3
     https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/2.32.0/opentelemetry-javaagent-2.32.0.jar \
     otel/opentelemetry-javaagent.jar
 COPY app/otel.properties otel/
-ENTRYPOINT ["java", "-javaagent:otel/opentelemetry-javaagent.jar", "-Dotel.javaagent.configuration-file=otel/otel.properties", "-jar", "stopgap-app.jar"]
+ENTRYPOINT ["java", \
+    "-javaagent:otel/opentelemetry-javaagent.jar", \
+    "-Dotel.javaagent.configuration-file=otel/otel.properties", \
+    "-jar", "stopgap-app.jar"]
