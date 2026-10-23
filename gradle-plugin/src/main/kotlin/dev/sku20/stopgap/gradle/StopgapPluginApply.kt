@@ -25,8 +25,9 @@ class StopgapPluginApply(private val project: Project) {
         // -PgitSha inside the image build, which has no git; git itself on the host.
         it.gitSha.convention(
             project.providers.gradleProperty("gitSha").orElse(
-                project.providers.exec { exec -> exec.commandLine("git", "rev-parse", "--short", "HEAD") }
-                    .standardOutput.asText.map { sha -> sha.trim() }
+                project.providers.of(GitShaSource::class.java) { spec ->
+                    spec.parameters.dir.set(project.layout.projectDirectory)
+                }
             )
         )
         it.dockerfile.convention(project.layout.projectDirectory.file("Dockerfile"))
