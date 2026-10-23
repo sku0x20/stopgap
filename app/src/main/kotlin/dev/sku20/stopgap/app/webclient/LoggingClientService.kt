@@ -39,22 +39,24 @@ class LoggingClientService : WebClientService {
         }
     }
 
-    // region Why the client span is made current here
-    // WebClientTracing keeps its span only in Helidon's request Context (as a SpanContext) and never activates it in
-    // OTel. The Logback appender reads OTel's Context.current(), so without this the line carries the server span's id
-    // and "logs for this span" on the client span finds nothing; only the trace id matches.
-    //
-    // This is the workaround from helidon#8861: a span must be in Helidon's Context *and* current in OTel for every
-    // consumer to see it. Helidon's SpanContext exposes only ids, so the span is rebuilt with Span.wrap; flags and
-    // state come from the current (server) span, since both share one trace and its sampling decision.
-    //
-    // Helidon chose not to trust the thread's current span for WebClient: in 2.x the call could run on another
-    // thread, so "current" might belong to another request (helidon#5216, reopened for 4.x where virtual threads make
-    // it safe). The newer helidon-webclient-telemetry-tracing has the same gap.
-    //
-    // - https://github.com/helidon-io/helidon/issues/8861
-    // - https://github.com/helidon-io/helidon/issues/5216
-    // endregion
+    /**
+     * Makes the client span current in OTel so this service's log line carries its span id.
+     *
+     * `WebClientTracing` keeps its span only in Helidon's request `Context` (as a `SpanContext`) and never activates
+     * it in OTel. The Logback appender reads OTel's `Context.current()`, so without this the line carries the server
+     * span's id and "logs for this span" on the client span finds nothing; only the trace id matches.
+     *
+     * This is the workaround from helidon#8861: a span must be in Helidon's `Context` *and* current in OTel for every
+     * consumer to see it. Helidon's `SpanContext` exposes only ids, so the span is rebuilt with `Span.wrap`; flags and
+     * state come from the current (server) span, since both share one trace and its sampling decision.
+     *
+     * Helidon chose not to trust the thread's current span for WebClient: in 2.x the call could run on another
+     * thread, so "current" might belong to another request (helidon#5216, reopened for 4.x where virtual threads
+     * make it safe). The newer `helidon-webclient-telemetry-tracing` has the same gap.
+     *
+     * - [helidon#8861](https://github.com/helidon-io/helidon/issues/8861)
+     * - [helidon#5216](https://github.com/helidon-io/helidon/issues/5216)
+     */
     private fun activateClientSpan(request: WebClientServiceRequest): Scope {
         val clientSpan = request.context().get(HelidonSpanContext::class.java)
         if (clientSpan.isEmpty) {
