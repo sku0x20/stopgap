@@ -32,3 +32,10 @@ db:
     url: jdbc:postgresql://localhost:5432/stopgap
     username: postgres
     password: postgres
+
+httpbin:
+  url: http://localhost:8081
+  client:
+    connect-timeout: PT2S
+    # Above the endpoint's 10s delay cap, so slow calls show as long spans instead of timeouts.
+    read-timeout: PT15S

@@ -2,6 +2,7 @@ dev.sku20.stopgap.helidon.test.e2e.TestPropertiesLoader
 dev.sku20.stopgap.helidon.test.e2e.DockerNetworkManager
 e2e.PostgresContainerRunner
 e2e.LgtmContainerRunner
+e2e.HttpbinContainerRunner
 dev.sku20.stopgap.helidon.test.e2e.DockerImageRunner
 dev.sku20.stopgap.helidon.test.e2e.ClientsManager
 dev.sku20.stopgap.helidon.test.e2e.SessionKeepAlive
