@@ -9,8 +9,9 @@
 ## 1. Summary
 
 Helidon traces the HTTP edge, the OpenTelemetry (OTel) JDBC library traces database statements, and the OTel Java agent
-only turns `@WithSpan` annotations on our code into spans. All three write to one SDK, the agent's, and share one
-`Context`, so a request yields one trace from the server span through our business methods down to each query.
+only turns `@WithSpan` annotations on our code into spans. Helidon's WebClient traces outbound HTTP calls. All of them
+write to one SDK, the agent's, and share one `Context`, so a request yields one trace from the server span through our
+business methods down to each query and outbound call.
 Logs go through the same SDK via the OTel Logback appender, so each record carries the trace and span it was written
 in.
 
@@ -25,6 +26,7 @@ and receives the SDK from us. Nothing builds or discovers an SDK on its own.
 - One server span per request, continuing an incoming `traceparent`.
 - Spans for chosen business methods, declared with annotations rather than tracing code.
 - A span per database statement, for the store's queries only.
+- A span per outbound HTTP call, propagating the trace to the callee.
 - A single SDK and exporter for all spans, handed explicitly to every layer.
 - Application code depends only on the standard OTel API and annotations.
 - Every log record exported through the same SDK, correlated with the active span.
@@ -52,6 +54,9 @@ Helidon tracing           @WithSpan on our methods     JDBC library         Logb
   no-op. Helidon's tracer and the JDBC wrapper both receive it.
 - **Helidon** creates server spans with a `Tracer` we build on that `OpenTelemetry`.
 - **JDBC** spans come from wrapping the store's `DataSource`; health checks use the raw pool and stay untraced.
+- **Outbound HTTP** spans come from Helidon's `WebClientTracing`, built on the same `Tracer` and added to each
+  `WebClient` with service discovery off; discovery would add a second one on `Tracer.global()`. It injects
+  `traceparent` into the request. A `LoggingClientService` inside it writes one line per call with status and duration.
 - **Logs** go through an `OpenTelemetryAppender` in `logback.xml`, next to the console appender. `main` installs that
   `OpenTelemetry` into it; records logged before that are buffered and exported once it's installed.
 - **Access log** runs inside the server span (weight 875, below tracing's 900) so each line carries its trace id;
@@ -82,6 +87,10 @@ Tracing is a cross-cutting concern. An annotation states the intent and keeps sp
 The agent has a Helidon module, but it would put bytecode rewriting in the request path. Helidon's instrumentation is
 a visible, pinned dependency, maintained by the Helidon team and released with Helidon. The agent's module is
 community-maintained and trails Helidon releases.
+
+### Why Helidon's WebClient tracing for outbound calls?
+Same reason as the server span: it's Helidon's own, takes the `Tracer` we hand it, and is added per client in our
+config. The OTel `java-http-client` library would mean a second client stack and another `-alpha` dependency.
 
 ### Why the JDBC library, not the agent's JDBC instrumentation?
 Both run the same instrumentation code and produce the same spans. The library traces only the `DataSource` we wrap,
@@ -117,6 +126,7 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 | :--- | :--- |
 | **Full agent auto-instrumentation** | Implicit span set, duplicate server spans, higher startup and volume; still no spans for our own methods. |
 | **Agent's Helidon module** | Bytecode rewriting in the request path; trails Helidon releases. |
+| **Agent's HTTP client instrumentation** | Traces every client implicitly; duplicates `WebClientTracing`'s spans if both run. |
 | **Agent's JDBC instrumentation** | Traces every connection implicitly; duplicates the library's spans if both run. |
 | **Hand-written spans** | Tracing code in business logic; Helidon's span builder has no parent by default, so a missed `.parent(...)` starts a separate trace. |
 | **App-owned SDK used by the agent** | Not supported by the agent ([interop design](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/misc/interop-design/interop-design.md), [#12381](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/12381)). |
@@ -136,6 +146,10 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **Alpha libraries**: the JDBC library and the Logback appender are versioned `-alpha`; their APIs may change
   between releases.
 - **No GraalVM native image** while the agent is in use.
+- **Client spans end at the response headers**: `WebClientTracing` ends the span once the status arrives, so reading
+  the body isn't counted; the logged duration matches the span.
+- **Client log lines carry the server span id**: `WebClientTracing` keeps its span in Helidon's context and never makes
+  it current in OTel's, which the Logback appender reads. Logs and the client span share only the trace id.
 
 ---
 
@@ -143,6 +157,7 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 
 - **Helidon's span conventions**: server spans are named `HTTP Request`, use old attribute names, mark `404` as an
   error, and come with an extra `content-write` span. Helidon's telemetry-tracing module moves to current conventions
-  and adds `http.route`, though the span name becomes only the method.
+  and adds `http.route`, though the span name becomes only the method. Client spans have the same issue: named
+  `GET-<url>` with `http.url`/`http.status_code`.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
 - **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs).
