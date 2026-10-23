@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.jul.to.slf4j)
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.instrumentation.jdbc)
+    implementation(libs.otel.instrumentation.hikaricp)
     implementation(libs.otel.logback.appender)
     implementation(libs.otel.instrumentation.micrometer)
     otelAgent(libs.otel.javaagent)

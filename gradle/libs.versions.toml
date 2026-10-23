@@ -44,6 +44,7 @@ otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation",
 otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 otel-instrumentation-jdbc = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-jdbc", version.ref = "otel-instrumentation-alpha" }
 otel-logback-appender = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-logback-appender-1.0", version.ref = "otel-instrumentation-alpha" }
+otel-instrumentation-hikaricp = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-hikaricp-3.0", version.ref = "otel-instrumentation-alpha" }
 otel-instrumentation-micrometer = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-micrometer-1.5", version.ref = "otel-instrumentation-alpha" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
