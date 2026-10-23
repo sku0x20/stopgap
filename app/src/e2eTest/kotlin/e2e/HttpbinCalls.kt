@@ -28,6 +28,15 @@ class HttpbinCalls {
     }
 
     @Test
+    fun statusMapped() {
+        assertThat(client.get("/httpbin/status-mapped/200").request().status()).isEqualTo(Status.OK_200)
+        assertThat(client.get("/httpbin/status-mapped/503").request().status()).isEqualTo(Status.BAD_GATEWAY_502)
+        assertThat(client.get("/httpbin/status-mapped/404").request().status()).isEqualTo(Status.NOT_FOUND_404)
+        assertThat(client.get("/httpbin/status-mapped/401").request().status())
+            .isEqualTo(Status.INTERNAL_SERVER_ERROR_500)
+    }
+
+    @Test
     fun invalidParam() {
         assertThat(client.get("/httpbin/delay/abc").request().status()).isEqualTo(Status.BAD_REQUEST_400)
         assertThat(client.get("/httpbin/delay/11").request().status()).isEqualTo(Status.BAD_REQUEST_400)
