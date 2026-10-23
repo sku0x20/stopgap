@@ -18,7 +18,7 @@ ENTRYPOINT ["java", \
     "-XX:StartFlightRecording=name=continuous,settings=default,maxage=10m", \
     "-javaagent:otel/opentelemetry-javaagent.jar", \
     "-Dotel.javaagent.configuration-file=otel/otel.properties", \
-    "-Dotel.javaagent.extensions=otel/pyroscope-otel-javaagent-extension.jar", \
+    "-Dotel.javaagent.extensions=otel/extensions", \
     "-Dpyroscope.configuration.file=otel/pyroscope.properties", \
     "-Dotel.semconv-stability.opt-in=database", \
     "-jar", "stopgap-app.jar"]

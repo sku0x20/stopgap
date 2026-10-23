@@ -120,7 +120,7 @@ JVM ── JFR recording (last 10 min, in the container) ──▶ jcmd JFR.dump
 ```
 
 - **The extension** is loaded into the agent with `otel.javaagent.extensions`, so there's still one agent and one SDK.
-  It adds a span processor to that SDK and starts the profiler it bundles. It comes from GitHub releases, not Maven
+  The flag points at a directory, and the agent loads every jar in it, so another extension is only a dependency. It adds a span processor to that SDK and starts the profiler it bundles. It comes from GitHub releases, not Maven
   Central, through an Ivy repository limited to that one module.
 - **Span linking**: when a root span starts (Helidon's server span), the processor sets the span id as the profiler's
   context on the current thread and adds `pyroscope.profile.id` to the span; it clears the context when the span ends.
