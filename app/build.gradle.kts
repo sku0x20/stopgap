@@ -9,6 +9,8 @@ plugins {
 group = "dev.sku20.stopgap.app"
 version = "1.0-SNAPSHOT"
 
+// Own configuration, not runtimeOnly: runtimeClasspath ships in libs/ on the app classpath, and the agent must load
+// only via -javaagent (RFC-0002).
 val otelAgent by configurations.creating
 
 dependencies {
@@ -40,7 +42,6 @@ application {
     mainClass = "dev.sku20.stopgap.app.MainKt"
 }
 
-// Not on the classpath: the image attaches it with -javaagent (RFC-0002).
 tasks.register<Copy>("copyOtelAgent") {
     from(otelAgent)
     into(layout.buildDirectory.dir("otel"))
