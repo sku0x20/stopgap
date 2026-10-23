@@ -236,7 +236,8 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **The bridge comes first**: a Micrometer registry added after a meter exists misses that meter's earlier recordings,
   so `main` adds it before building anything Helidon.
 - **Two sets of JVM metrics**: Helidon's system meters overlap `jvm.*` under other names.
-- **No active Micrometer publisher**: with Prometheus off, Helidon warns at startup that none is configured.
+- **No active Micrometer publisher**: with Prometheus off, Helidon logs a warning that none is configured (per its
+  source; not yet seen in a startup log).
 
 ---
 
