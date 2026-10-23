@@ -1,4 +1,4 @@
-# RFC-0002: Distributed Tracing, Logs and Metrics
+# RFC-0002: Observability (Traces, Logs and Metrics)
 
 - **Date**: 2026-10-23
 - **Target**: `stopgap` / `app`
