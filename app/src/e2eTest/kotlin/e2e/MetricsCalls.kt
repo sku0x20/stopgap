@@ -45,6 +45,11 @@ class MetricsCalls {
         assertThat(awaitValue("sum(db_client_connection_count)")).isPositive()
     }
 
+    @Test
+    fun jvmRuntime() {
+        assertThat(awaitValue("sum(jvm_thread_count)")).isPositive()
+    }
+
     // Helidon's Micrometer meters reach Prometheus only through the OTel bridge.
     @Test
     fun micrometerMeters() {
