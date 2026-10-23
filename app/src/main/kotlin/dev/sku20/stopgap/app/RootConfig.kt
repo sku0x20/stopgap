@@ -11,6 +11,9 @@ import dev.sku20.stopgap.helidon.serde.SerdeExtras
 import dev.sku20.stopgap.ir.annotation.Creates
 import dev.sku20.stopgap.ir.annotation.Qualifier
 import io.helidon.config.Config
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.jdbc.datasource.JdbcTelemetry
+import javax.sql.DataSource
 
 object RootConfig {
 
@@ -28,6 +31,15 @@ object RootConfig {
         hikariConfig.username = postgres.get("username").asString().get()
         hikariConfig.password = postgres.get("password").asString().get()
         return HikariDataSource(hikariConfig)
+    }
+
+    // Only queries through this wrapper are traced; health checks use the raw pool.
+    @Creates
+    fun tracedDataSource(
+        dataSource: HikariDataSource,
+        openTelemetry: OpenTelemetry
+    ): DataSource {
+        return JdbcTelemetry.create(openTelemetry).wrap(dataSource)
     }
 
     @Creates

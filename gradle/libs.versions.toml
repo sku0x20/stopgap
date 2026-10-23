@@ -16,6 +16,7 @@ logback = "1.6.5"
 slf4j = "2.0.19"
 lincheck = "3.7"
 otel-instrumentation = "2.32.0"
+otel-instrumentation-alpha = "2.32.0-alpha"  # library instrumentation; same release as otel-instrumentation
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -36,6 +37,7 @@ helidon-webserver-observe-tracing = { group = "io.helidon.webserver.observe", na
 helidon-tracing-providers-opentelemetry = { group = "io.helidon.tracing.providers", name = "helidon-tracing-providers-opentelemetry", version.ref = "helidon" }
 otel-instrumentation-annotations = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 otel-javaagent = { group = "io.opentelemetry.javaagent", name = "opentelemetry-javaagent", version.ref = "otel-instrumentation" }
+otel-instrumentation-jdbc = { group = "io.opentelemetry.instrumentation", name = "opentelemetry-jdbc", version.ref = "otel-instrumentation-alpha" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
