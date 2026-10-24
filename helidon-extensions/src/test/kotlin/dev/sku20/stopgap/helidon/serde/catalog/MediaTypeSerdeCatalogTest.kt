@@ -7,8 +7,8 @@ import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.WritableHeaders
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MediaTypeSerdeCatalogTest {
 
@@ -27,8 +27,11 @@ class MediaTypeSerdeCatalogTest {
             .isSameAs(latin1)
     }
 
-    private fun deserializerOf(mediaType: String): Deserializer =
-        mock<Deserializer> { on { this.mediaType } doReturn HttpMediaType.create(mediaType) }
+    private fun deserializerOf(mediaType: String): Deserializer {
+        val deserializer = mock<Deserializer>()
+        whenever(deserializer.mediaType).thenReturn(HttpMediaType.create(mediaType))
+        return deserializer
+    }
 
     private fun contentType(value: String): ServerRequestHeaders =
         ServerRequestHeaders.create(WritableHeaders.create().set(HeaderNames.CONTENT_TYPE, value))
