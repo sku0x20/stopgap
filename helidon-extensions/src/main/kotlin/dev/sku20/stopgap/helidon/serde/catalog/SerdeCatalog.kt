@@ -13,8 +13,8 @@ import io.helidon.http.ServerRequestHeaders
 interface SerdeCatalog {
 
     /** Picks a [Deserializer] for a request body, e.g. by its Content-Type. */
-    fun getDeserializer(headers: ServerRequestHeaders): Matched<Deserializer>
+    fun getDeserializer(headers: ServerRequestHeaders): Deserializer
 
-    /** Picks a [Serializer] for a response, e.g. by Accept; [Matched.mediaType] is the response Content-Type. */
-    fun getSerializer(headers: ServerRequestHeaders): Matched<Serializer>
+    /** Picks a [Serializer] for a response, e.g. by Accept; its media type becomes the response Content-Type. */
+    fun getSerializer(headers: ServerRequestHeaders): MatchedSerializer
 }

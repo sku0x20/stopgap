@@ -14,35 +14,33 @@ import io.helidon.http.ServerRequestHeaders
  */
 class MediaTypeSerdeCatalog : SerdeCatalog {
 
-    private val deserializers = HashMap<String, Matched<Deserializer>>()
-    private val serializers = HashMap<String, Matched<Serializer>>()
+    private val deserializers = HashMap<String, Deserializer>()
+    private val serializers = HashMap<String, MatchedSerializer>()
 
     fun addDeserializer(mediaType: HttpMediaType, deserializer: Deserializer) {
-        register(deserializers, mediaType, deserializer)
+        val key = key(mediaType)
+        require(key !in deserializers) { "Deserializer already registered for $key" }
+        deserializers[key] = deserializer
     }
 
     fun addSerializer(mediaType: HttpMediaType, serializer: Serializer) {
-        register(serializers, mediaType, serializer)
+        val key = key(mediaType)
+        require(key !in serializers) { "Serializer already registered for $key" }
+        serializers[key] = MatchedSerializer(mediaType, serializer)
     }
 
-    override fun getDeserializer(headers: ServerRequestHeaders): Matched<Deserializer> {
+    override fun getDeserializer(headers: ServerRequestHeaders): Deserializer {
         val contentType = headers.contentType().orElse(null) ?: throw UnsupportedMediaTypeException(null)
         return deserializers[key(contentType)] ?: throw UnsupportedMediaTypeException(contentType)
     }
 
-    override fun getSerializer(headers: ServerRequestHeaders): Matched<Serializer> {
+    override fun getSerializer(headers: ServerRequestHeaders): MatchedSerializer {
         val acceptedTypes = headers.acceptedTypes()
         for (mediaType in acceptedTypes) {
             val serializer = serializers[key(mediaType)]
             if (serializer != null) return serializer
         }
         throw NotAcceptableException(acceptedTypes)
-    }
-
-    private fun <T> register(registry: HashMap<String, Matched<T>>, mediaType: HttpMediaType, value: T) {
-        val key = key(mediaType)
-        require(key !in registry) { "Already registered for $key" }
-        registry[key] = Matched(mediaType, value)
     }
 
     // HttpMediaType/MediaType equality is unusable as a key: it includes parameters, mixes enum and record
