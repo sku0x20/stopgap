@@ -341,7 +341,12 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   and leaves its span id behind. Its later samples take whatever the new carrier holds: nothing or a finished request's
   id when idle, another live request's id when busy. The span's end clears whichever carrier it ends on. CPU after the
   first I/O call, usually what a slow span is about, is hit hardest. Service-wide profiles are unaffected; only
-  per-span views are wrong. A span whose samples × 10ms exceed its duration is misattributed.
+  per-span views are wrong. Until both this and the next are fixed, a span whose samples × 10ms exceed its duration is
+  misattributed, since fanned-out work adds none; tagged workers would make that check invalid.
+- **Fanned-out work isn't tagged**: only the thread that starts the root span gets its id. Executor instrumentation
+  carries OTel's `Context` to workers but not the profiler's tag, so a worker's samples go untagged on a platform pool,
+  or to whatever request its carrier last held on a virtual thread. A fanned-out span undercounts and another can
+  overcount. With tagged workers, a span's CPU could legitimately exceed its duration, up to duration × threads.
 - **Native access warning**: async-profiler loads its library through `System.load`, which JDK 25 warns about without
   `--enable-native-access` and a later release will block.
 - **Sampled-out requests leave loose ends**: their log records still carry a trace id with no trace behind it, and
