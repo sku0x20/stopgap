@@ -8,16 +8,19 @@ import io.helidon.http.ServerRequestHeaders
 
 class MediaTypeSerdeCatalog : SerdeCatalog {
 
-    private val deserializers = mutableMapOf<HttpMediaType, Deserializer>()
+    private val deserializers = mutableMapOf<String, Deserializer>()
 
     fun add(deserializer: Deserializer) {
-        deserializers[deserializer.mediaType] = deserializer
+        deserializers[key(deserializer.mediaType)] = deserializer
     }
 
     override fun getDeserializer(headers: ServerRequestHeaders): Deserializer {
         val contentType = headers.contentType().orElseThrow { UnsupportedMediaTypeException(null) }
-        return deserializers[contentType] ?: throw UnsupportedMediaTypeException(contentType)
+        return deserializers[key(contentType)] ?: throw UnsupportedMediaTypeException(contentType)
     }
 
     override fun getSerializer(headers: ServerRequestHeaders): Serializer = TODO()
+
+    // Helidon keeps type, subtype and parameter values as sent, but media types are case-insensitive.
+    private fun key(mediaType: HttpMediaType): String = mediaType.text().lowercase()
 }
