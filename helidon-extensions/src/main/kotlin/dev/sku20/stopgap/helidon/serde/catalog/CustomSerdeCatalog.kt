@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.serde
+package dev.sku20.stopgap.helidon.serde.catalog
 
 import kotlin.reflect.KClass
 

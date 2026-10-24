@@ -3,8 +3,8 @@ package dev.sku20.stopgap.app.serde
 import dev.sku20.stopgap.app.serde.plain.PlainTextSerdeCatalog
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.endpoint.Get
-import dev.sku20.stopgap.helidon.serde.CustomSerdeCatalog
-import dev.sku20.stopgap.helidon.serde.SerdeExtras
+import dev.sku20.stopgap.helidon.serde.catalog.CustomSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.catalog.SerdeExtras
 
 @Endpoint("/custom-serde-catalog")
 @CustomSerdeCatalog(clazz = PlainTextSerdeCatalog::class)

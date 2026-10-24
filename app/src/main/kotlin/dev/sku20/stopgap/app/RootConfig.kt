@@ -7,7 +7,7 @@ import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.serde.deprecated.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.serde.deprecated.SerdeCatalogDeprecated
-import dev.sku20.stopgap.helidon.serde.SerdeExtras
+import dev.sku20.stopgap.helidon.serde.catalog.SerdeExtras
 import dev.sku20.stopgap.ir.annotation.Creates
 import dev.sku20.stopgap.ir.annotation.Qualifier
 import io.helidon.config.Config
