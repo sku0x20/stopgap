@@ -8,26 +8,16 @@ import io.helidon.http.ServerRequestHeaders
 
 class MediaTypeSerdeCatalog : SerdeCatalog {
 
-    private val deserializers = mutableMapOf<String, MutableList<Deserializer>>()
+    private val deserializers = mutableMapOf<HttpMediaType, Deserializer>()
 
     fun add(deserializer: Deserializer) {
-        deserializers.getOrPut(key(deserializer.mediaType)) { mutableListOf() }.add(deserializer)
+        deserializers[deserializer.mediaType] = deserializer
     }
 
     override fun getDeserializer(headers: ServerRequestHeaders): Deserializer {
         val contentType = headers.contentType().orElseThrow { UnsupportedMediaTypeException(null) }
-        val candidates = deserializers[key(contentType)] ?: throw UnsupportedMediaTypeException(contentType)
-        return fullMatch(candidates, contentType) ?: candidates.first()
+        return deserializers[contentType] ?: throw UnsupportedMediaTypeException(contentType)
     }
 
     override fun getSerializer(headers: ServerRequestHeaders): Serializer = TODO()
-
-    private fun fullMatch(candidates: List<Deserializer>, contentType: HttpMediaType): Deserializer? {
-        val charset = contentType.charset().orElse(null) ?: return null
-        return candidates.firstOrNull { it.mediaType.charset().orElse(null).equals(charset, ignoreCase = true) }
-    }
-
-    // Type/subtype only: HttpMediaType equality includes parameters (charset) and is case-sensitive.
-    private fun key(mediaType: HttpMediaType): String =
-        "${mediaType.mediaType().type()}/${mediaType.mediaType().subtype()}".lowercase()
 }
