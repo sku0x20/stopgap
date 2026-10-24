@@ -10,7 +10,7 @@ import io.helidon.http.HttpMediaType
  *
  * @see MapSerdeCatalog
  */
-interface SerdeCatalog {
+interface SerdeCatalogDeprecated {
 
     /** Resolves a [SerdeDeprecated] to deserialize a request body, e.g. by its Content-Type. */
     fun getDeserializer(mediaType: HttpMediaType?): SerdeDeprecated

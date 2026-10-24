@@ -3,13 +3,13 @@ package dev.sku20.stopgap.helidon.serde
 import io.helidon.http.HttpMediaType
 
 /**
- * A generic [SerdeCatalog] backed by a map, with at most one [SerdeDeprecated] per media type.
+ * A generic [SerdeCatalogDeprecated] backed by a map, with at most one [SerdeDeprecated] per media type.
  *
  * Matches on type/subtype only, ignoring parameters such as `charset` or `q`.
  * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [SerdeDeprecated] matches.
  * Does not support wildcard media types (e.g. `*​/​*`).
  */
-class MapSerdeCatalog : SerdeCatalog {
+class MapSerdeCatalog : SerdeCatalogDeprecated {
 
     private val serdes = HashMap<String, SerdeDeprecated>()
 

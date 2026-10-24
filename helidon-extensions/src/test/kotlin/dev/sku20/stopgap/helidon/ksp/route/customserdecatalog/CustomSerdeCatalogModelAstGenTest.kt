@@ -43,7 +43,7 @@ class CustomSerdeCatalogModelAstGenTest {
 
     private fun qualifierParam(name: String, qualifier: String) = AstParam(
         AstLiteral(name),
-        AstType("dev.sku20.stopgap.helidon.serde.SerdeCatalog"),
+        AstType("dev.sku20.stopgap.helidon.serde.SerdeCatalogDeprecated"),
         listOf(
             AstAnnotation(
                 AstLiteral("dev.sku20.stopgap.helidon.ksp.registry.RegistryQualifier"),

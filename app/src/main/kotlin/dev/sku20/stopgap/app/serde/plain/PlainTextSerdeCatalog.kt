@@ -1,10 +1,10 @@
 package dev.sku20.stopgap.app.serde.plain
 
-import dev.sku20.stopgap.helidon.serde.SerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeCatalogDeprecated
 import dev.sku20.stopgap.helidon.serde.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 
-class PlainTextSerdeCatalog : SerdeCatalog {
+class PlainTextSerdeCatalog : SerdeCatalogDeprecated {
 
     private val serde: SerdeDeprecated = ReqResPlainSerde()
 

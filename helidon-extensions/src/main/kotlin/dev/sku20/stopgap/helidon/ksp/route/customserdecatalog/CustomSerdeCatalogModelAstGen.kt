@@ -2,7 +2,7 @@ package dev.sku20.stopgap.helidon.ksp.route.customserdecatalog
 
 import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.ksp.registry.RegistryQualifier
-import dev.sku20.stopgap.helidon.serde.SerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeCatalogDeprecated
 import dev.sku20.stopgap.helidon.serde.SerdeExtras
 
 class CustomSerdeCatalogModelAstGen(model: CustomSerdeCatalogModel?) {
@@ -17,7 +17,7 @@ class CustomSerdeCatalogModelAstGen(model: CustomSerdeCatalogModel?) {
         if (qualifier != null) {
             return AstParam(
                 name,
-                AstType(SerdeCatalog::class.qualifiedName!!),
+                AstType(SerdeCatalogDeprecated::class.qualifiedName!!),
                 listOf(
                     AstAnnotation(
                         AstLiteral(RegistryQualifier::class.qualifiedName!!),
