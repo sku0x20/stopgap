@@ -16,5 +16,5 @@ interface SerdeCatalog {
     fun getDeserializer(headers: ServerRequestHeaders): Deserializer
 
     /** Picks a [Serializer] for a response, e.g. by Accept; its media type becomes the response Content-Type. */
-    fun getSerializer(headers: ServerRequestHeaders): MatchedSerializer
+    fun getSerializer(headers: ServerRequestHeaders): Serializer
 }
