@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.reader.ObjectReader
 import com.alibaba.fastjson2.writer.ObjectWriter
-import dev.sku20.stopgap.helidon.serde.SerdeDeprecated
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import java.lang.reflect.Type

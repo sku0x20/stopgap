@@ -1,5 +1,7 @@
 package dev.sku20.stopgap.helidon.serde
 
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeCatalogDeprecated
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 
 /**

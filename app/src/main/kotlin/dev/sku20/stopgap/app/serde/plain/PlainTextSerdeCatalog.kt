@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.app.serde.plain
 
-import dev.sku20.stopgap.helidon.serde.SerdeCatalogDeprecated
-import dev.sku20.stopgap.helidon.serde.SerdeDeprecated
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeCatalogDeprecated
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 
 class PlainTextSerdeCatalog : SerdeCatalogDeprecated {

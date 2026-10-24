@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.serde
 
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat

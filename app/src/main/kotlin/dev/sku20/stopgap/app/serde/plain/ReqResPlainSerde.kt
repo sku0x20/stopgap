@@ -2,7 +2,7 @@ package dev.sku20.stopgap.app.serde.plain
 
 import dev.sku20.stopgap.app.serde.ReqDto
 import dev.sku20.stopgap.app.serde.ResDto
-import dev.sku20.stopgap.helidon.serde.SerdeDeprecated
+import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import kotlin.reflect.KClass
