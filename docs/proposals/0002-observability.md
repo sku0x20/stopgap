@@ -138,7 +138,9 @@ JVM ── JFR recording (last 10 min) ──▶ jcmd JFR.dump on demand, /diagn
   Central, through an Ivy repository limited to that one module.
 - **Span linking**: when a root span starts (Helidon's server span), the processor sets the span id as the profiler's
   context on the current thread and adds `pyroscope.profile.id` to the span; it clears the context when the span ends.
-  Samples taken in between carry the span id, nested spans included.
+  The context is native thread-local storage, one slot per OS thread, since the sampler reads it from a signal handler.
+  On a platform thread, samples taken in between carry the span id, nested spans included; virtual threads break this
+  (see Trade-offs).
 - **Profiler settings** live in `pyroscope.properties`, next to `otel.properties`: the profiler reads only its own file,
   environment and system properties. `pyroscope.application.name` must match `otel.service.name`, since Grafana finds a
   span's profile by service name; the default is a random `javaspy.*` name.
@@ -332,7 +334,14 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
 - **Outside Maven Central**: the extension is downloaded from GitHub releases; it bundles its own async-profiler, OkHttp
   and Kotlin stdlib, shaded into the agent's extension class loader.
 - **Root spans only**: samples are tagged with the server span's id, so a child span's own profile can't be told apart.
-  Spans shorter than the 10ms sampling interval may have no samples.
+  Spans shorter than the 10ms sampling interval may have no samples. Tagging child spans too (the extension's
+  non-default mode) overwrites the root's id, and a span's end clears the context instead of restoring the parent's.
+- **Span links break on virtual threads**: the profiler's context belongs to the carrier, while OTel's `Context` is a
+  `ThreadLocal` that moves with the virtual thread. A request that blocks (JDBC, WebClient) resumes on another carrier
+  and leaves its span id behind. Its later samples take whatever the new carrier holds: nothing or a finished request's
+  id when idle, another live request's id when busy. The span's end clears whichever carrier it ends on. CPU after the
+  first I/O call, usually what a slow span is about, is hit hardest. Service-wide profiles are unaffected; only
+  per-span views are wrong. A span whose samples × 10ms exceed its duration is misattributed.
 - **Native access warning**: async-profiler loads its library through `System.load`, which JDK 25 warns about without
   `--enable-native-access` and a later release will block.
 - **Sampled-out requests leave loose ends**: their log records still carry a trace id with no trace behind it, and
@@ -354,9 +363,11 @@ Dropping Helidon's tracing or switching backends doesn't touch annotated code.
   and adds `http.route`, though the span name becomes only the method. Client spans have the same issue: named
   `GET-<url>` with `http.url`/`http.status_code`.
 - **Startup queries**: statements run before any request (e.g. table creation) become standalone traces.
-- **Span links on virtual threads**: the processor sets the profiler's context on the current thread when the span
-  starts. Helidon runs each request on a virtual thread, which can park and resume on another carrier; if the context
-  sticks to the carrier, samples may land on the wrong span or none. Not yet checked.
+- **Span links on virtual threads**: the mechanism is in Trade-offs; how much it skews per-span profiles under real
+  load isn't measured. A test: two endpoints burning CPU in distinctly named functions after a blocking call, with
+  `-Djdk.virtualThreadScheduler.parallelism=1`, checking whether one span's profile holds the other's function. A fix
+  needs the profiler to follow mounts: a JDK mount/unmount hook to swap the context, or a profiler that reads the
+  mounted virtual thread at sample time.
 - **Traces-to-profiles in Grafana**: LGTM's Tempo data source doesn't set `tracesToProfiles`, so the "profiles for this
   span" link has to be configured by hand.
 - **Local backend**: Grafana LGTM (Tempo for traces, Loki for logs, Prometheus for metrics, Pyroscope for profiles).
