@@ -36,6 +36,15 @@ class MediaTypeSerdeCatalogTest {
             .isSameAs(utf8)
     }
 
+    @Test
+    fun getDeserializerIgnoresJsonCharset() {
+        val json = deserializerOf("application/json")
+        catalog.add(json)
+
+        assertThat(catalog.getDeserializer(contentType("application/json; charset=utf-8")))
+            .isSameAs(json)
+    }
+
     private fun deserializerOf(mediaType: String): Deserializer {
         val deserializer = mock<Deserializer>()
         whenever(deserializer.mediaType).thenReturn(HttpMediaType.create(mediaType))
