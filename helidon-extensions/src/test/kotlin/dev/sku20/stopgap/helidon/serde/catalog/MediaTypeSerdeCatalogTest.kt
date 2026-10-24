@@ -27,6 +27,15 @@ class MediaTypeSerdeCatalogTest {
             .isSameAs(latin1)
     }
 
+    @Test
+    fun getDeserializerIgnoresCase() {
+        val utf8 = deserializerOf("text/plain; charset=UTF-8")
+        catalog.add(utf8)
+
+        assertThat(catalog.getDeserializer(contentType("Text/PLAIN; Charset=utf-8")))
+            .isSameAs(utf8)
+    }
+
     private fun deserializerOf(mediaType: String): Deserializer {
         val deserializer = mock<Deserializer>()
         whenever(deserializer.mediaType).thenReturn(HttpMediaType.create(mediaType))
