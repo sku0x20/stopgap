@@ -10,6 +10,7 @@ import kotlin.reflect.KType
 //   KType encodes full type info including nullability, so T : Any is not needed.
 // Caller selects the right overload statically at compile time based on what type info is available.
 interface Serde {
+    /** The one exact media type, charset included, this serde reads and writes; [SerdeCatalog] picks by it. */
     val mediaType: HttpMediaType
     fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T
