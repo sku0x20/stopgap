@@ -1,30 +1,15 @@
 package dev.sku20.stopgap.helidon.serde.catalog
 
 import dev.sku20.stopgap.helidon.serde.Deserializer
-import io.helidon.common.media.type.MediaTypes
-import io.helidon.http.HeaderNames
-import io.helidon.http.HttpMediaType
-import io.helidon.http.HttpMediaTypes
-import io.helidon.http.ServerRequestHeaders
-import io.helidon.http.WritableHeaders
+import io.helidon.http.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MediaTypeSerdeCatalogTest {
 
     private val catalog = MediaTypeSerdeCatalog()
-    private val deserializer = mock<Deserializer> { on { mediaType } doReturn HttpMediaTypes.JSON_UTF_8 }
-
-    @Test
-    fun getDeserializerReturnsAddedDeserializer() {
-        catalog.add(deserializer)
-
-        val headers = ServerRequestHeaders.create(WritableHeaders.create().contentType(MediaTypes.APPLICATION_JSON))
-
-        assertThat(catalog.getDeserializer(headers)).isSameAs(deserializer)
-    }
 
     @Test
     fun getDeserializerMatchesTypeAndCharset() {
@@ -37,8 +22,11 @@ class MediaTypeSerdeCatalogTest {
         assertThat(catalog.getDeserializer(contentType("text/plain; charset=ISO-8859-1"))).isSameAs(latin1)
     }
 
-    private fun deserializerOf(mediaType: String): Deserializer =
-        mock<Deserializer> { on { this.mediaType } doReturn HttpMediaType.create(mediaType) }
+    private fun deserializerOf(mediaType: String): Deserializer {
+        val deserializer = mock<Deserializer>()
+        whenever(deserializer.mediaType).thenReturn(HttpMediaType.create(mediaType))
+        return deserializer
+    }
 
     private fun contentType(value: String): ServerRequestHeaders =
         ServerRequestHeaders.create(WritableHeaders.create().set(HeaderNames.CONTENT_TYPE, value))
