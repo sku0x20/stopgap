@@ -7,7 +7,7 @@ import dev.sku20.stopgap.app.note.UpdateReq
 import dev.sku20.stopgap.app.note.store.NoteNotFoundException
 import dev.sku20.stopgap.app.note.store.NoteStore
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
-import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.deprecated.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest

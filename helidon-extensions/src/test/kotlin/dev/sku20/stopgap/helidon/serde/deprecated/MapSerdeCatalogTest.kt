@@ -1,6 +1,7 @@
-package dev.sku20.stopgap.helidon.serde
+package dev.sku20.stopgap.helidon.serde.deprecated
 
-import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
+import dev.sku20.stopgap.helidon.serde.exceptions.NotAcceptableException
+import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat

@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.serde
+package dev.sku20.stopgap.helidon.serde.exceptions
 
 import io.helidon.http.HttpException
 import io.helidon.http.HttpMediaType
