@@ -3,28 +3,28 @@ package dev.sku20.stopgap.helidon.serde
 import io.helidon.http.HttpMediaType
 
 /**
- * A generic [SerdeCatalog] backed by a map, with at most one [Serde] per media type.
+ * A generic [SerdeCatalog] backed by a map, with at most one [SerdeDeprecated] per media type.
  *
  * Matches on type/subtype only, ignoring parameters such as `charset` or `q`.
- * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [Serde] matches.
+ * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [SerdeDeprecated] matches.
  * Does not support wildcard media types (e.g. `*​/​*`).
  */
 class MapSerdeCatalog : SerdeCatalog {
 
-    private val serdes = HashMap<String, Serde>()
+    private val serdes = HashMap<String, SerdeDeprecated>()
 
-    fun add(serde: Serde) {
+    fun add(serde: SerdeDeprecated) {
         val key = key(serde.mediaType)
         require(key !in serdes) { "Serde already registered for $key" }
         serdes[key] = serde
     }
 
-    override fun getDeserializer(mediaType: HttpMediaType?): Serde {
+    override fun getDeserializer(mediaType: HttpMediaType?): SerdeDeprecated {
         if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
         return serdes[key(mediaType)] ?: throw UnsupportedMediaTypeException(mediaType)
     }
 
-    override fun getSerializer(mediaTypes: List<HttpMediaType>): Serde {
+    override fun getSerializer(mediaTypes: List<HttpMediaType>): SerdeDeprecated {
         for (mediaType in mediaTypes) {
             val serde = serdes[key(mediaType)]
             if (serde != null) return serde

@@ -12,9 +12,9 @@ import org.mockito.kotlin.whenever
 class MapSerdeCatalogTest {
 
     private val catalog = MapSerdeCatalog()
-    private val serde = mock<Serde>()
-    private val otherSerde = mock<Serde>()
-    private val plainTextSerde = mock<Serde>()
+    private val serde = mock<SerdeDeprecated>()
+    private val otherSerde = mock<SerdeDeprecated>()
+    private val plainTextSerde = mock<SerdeDeprecated>()
 
     @BeforeEach
     fun setup() {

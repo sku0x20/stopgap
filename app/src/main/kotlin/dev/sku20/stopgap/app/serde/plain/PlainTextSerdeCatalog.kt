@@ -1,14 +1,14 @@
 package dev.sku20.stopgap.app.serde.plain
 
-import dev.sku20.stopgap.helidon.serde.Serde
 import dev.sku20.stopgap.helidon.serde.SerdeCatalog
+import dev.sku20.stopgap.helidon.serde.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 
 class PlainTextSerdeCatalog : SerdeCatalog {
 
-    private val serde: Serde = ReqResPlainSerde()
+    private val serde: SerdeDeprecated = ReqResPlainSerde()
 
-    override fun getDeserializer(mediaType: HttpMediaType?): Serde = serde
+    override fun getDeserializer(mediaType: HttpMediaType?): SerdeDeprecated = serde
 
-    override fun getSerializer(mediaTypes: List<HttpMediaType>): Serde = serde
+    override fun getSerializer(mediaTypes: List<HttpMediaType>): SerdeDeprecated = serde
 }
