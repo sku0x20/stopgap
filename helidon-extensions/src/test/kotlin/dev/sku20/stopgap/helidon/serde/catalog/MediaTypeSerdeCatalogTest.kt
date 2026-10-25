@@ -37,6 +37,14 @@ class MediaTypeSerdeCatalogTest {
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
+    @Test
+    fun getDeserializerRejectsMissingContentType() {
+        catalog.add(deserializerOf("application/json"))
+
+        assertThatThrownBy { catalog.getDeserializer(ServerRequestHeaders.create(WritableHeaders.create())) }
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+    }
+
     private fun deserializerOf(mediaType: String): Deserializer {
         val deserializer = mock<Deserializer>()
         whenever(deserializer.canDeserialize(HttpMediaType.create(mediaType))).thenReturn(true)
