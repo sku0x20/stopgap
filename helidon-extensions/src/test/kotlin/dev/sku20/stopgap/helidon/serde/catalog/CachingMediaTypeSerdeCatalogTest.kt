@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class MediaTypeSerdeCatalogTest {
+class CachingMediaTypeSerdeCatalogTest {
 
-    private val catalog = MediaTypeSerdeCatalog()
+    private val catalog = CachingMediaTypeSerdeCatalog()
 
     @Test
     fun getDeserializerReturnsMatch() {

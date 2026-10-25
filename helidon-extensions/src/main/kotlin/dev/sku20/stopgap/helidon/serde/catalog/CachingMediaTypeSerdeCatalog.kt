@@ -5,7 +5,7 @@ import dev.sku20.stopgap.helidon.serde.Serializer
 import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.ServerRequestHeaders
 
-class MediaTypeSerdeCatalog : SerdeCatalog {
+class CachingMediaTypeSerdeCatalog : SerdeCatalog {
 
     private val deserializers = mutableListOf<Deserializer>()
 
