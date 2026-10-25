@@ -27,9 +27,10 @@ class FastjsonSerde : SerdeDeprecated, Deserializer {
     }
 
     // RFC 8259: JSON is always UTF-8 and defines no charset parameter, but clients often send charset=utf-8.
+    // Helidon keeps type, subtype and charset as sent, and all three are case-insensitive.
     override fun canDeserialize(mediaType: HttpMediaType): Boolean {
-        val isJson = mediaType.type() == "application" && mediaType.subtype() == "json"
-        return isJson && mediaType.charset().orElse("utf-8") == "utf-8"
+        val isJson = mediaType.type().equals("application", true) && mediaType.subtype().equals("json", true)
+        return isJson && mediaType.charset().orElse("utf-8").equals("utf-8", true)
     }
 
     override fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T {

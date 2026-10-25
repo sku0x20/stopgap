@@ -62,6 +62,12 @@ class FastjsonSerdeTest {
     }
 
     @Test
+    fun canDeserializeIgnoresCase() {
+        assertThat(serde.canDeserialize(HttpMediaType.create("APPlication/JSON"))).isTrue()
+        assertThat(serde.canDeserialize(HttpMediaType.create("application/json; charset=UTF-8"))).isTrue()
+    }
+
+    @Test
     fun cannotDeserializeOtherTypes() {
         assertThat(serde.canDeserialize(HttpMediaType.create("text/plain"))).isFalse()
         assertThat(serde.canDeserialize(HttpMediaType.create("application/json; charset=iso-8859-1"))).isFalse()
