@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.serde.catalog
 
 import dev.sku20.stopgap.helidon.serde.Deserializer
+import dev.sku20.stopgap.helidon.serde.exceptions.MissingContentTypeException
 import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HeaderNames
 import io.helidon.http.HttpMediaType
@@ -43,8 +44,7 @@ class MediaTypeSerdeCatalogTest {
         catalog.add(deserializerOf("application/json"))
 
         assertThatThrownBy { catalog.getDeserializer(ServerRequestHeaders.create(WritableHeaders.create())) }
-            .isInstanceOf(UnsupportedMediaTypeException::class.java)
-            .hasMessage("Missing Content-Type")
+            .isInstanceOf(MissingContentTypeException::class.java)
     }
 
     private fun deserializerOf(mediaType: String): Deserializer {

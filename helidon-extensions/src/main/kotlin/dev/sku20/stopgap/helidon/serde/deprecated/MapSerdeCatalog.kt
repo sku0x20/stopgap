@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.serde.deprecated
 
+import dev.sku20.stopgap.helidon.serde.exceptions.MissingContentTypeException
 import dev.sku20.stopgap.helidon.serde.exceptions.NotAcceptableException
 import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
@@ -22,7 +23,7 @@ class MapSerdeCatalog : SerdeCatalogDeprecated {
     }
 
     override fun getDeserializer(mediaType: HttpMediaType?): SerdeDeprecated {
-        if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
+        if (mediaType == null) throw MissingContentTypeException()
         return serdes[key(mediaType)] ?: throw UnsupportedMediaTypeException(mediaType)
     }
 

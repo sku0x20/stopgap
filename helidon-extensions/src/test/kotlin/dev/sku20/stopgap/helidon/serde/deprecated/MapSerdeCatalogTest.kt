@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.serde.deprecated
 
 import dev.sku20.stopgap.helidon.serde.exceptions.NotAcceptableException
+import dev.sku20.stopgap.helidon.serde.exceptions.MissingContentTypeException
 import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
@@ -59,7 +60,7 @@ class MapSerdeCatalogTest {
     @Test
     fun throwsWhenMediaTypeIsNull() {
         assertThatThrownBy { catalog.getDeserializer(null) }
-            .isInstanceOf(UnsupportedMediaTypeException::class.java)
+            .isInstanceOf(MissingContentTypeException::class.java)
     }
 
     @Test
