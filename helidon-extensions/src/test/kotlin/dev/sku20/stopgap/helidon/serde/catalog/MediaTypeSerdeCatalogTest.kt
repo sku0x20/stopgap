@@ -35,6 +35,7 @@ class MediaTypeSerdeCatalogTest {
 
         assertThatThrownBy { catalog.getDeserializer(contentType("text/plain")) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
+            .hasMessage("Unsupported Content-Type: text/plain")
     }
 
     @Test
@@ -43,6 +44,7 @@ class MediaTypeSerdeCatalogTest {
 
         assertThatThrownBy { catalog.getDeserializer(ServerRequestHeaders.create(WritableHeaders.create())) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
+            .hasMessage("Missing Content-Type")
     }
 
     private fun deserializerOf(mediaType: String): Deserializer {

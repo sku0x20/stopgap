@@ -6,4 +6,7 @@ import io.helidon.http.Status
 
 // todo:
 class UnsupportedMediaTypeException(mediaType: HttpMediaType?) :
-    HttpException("No serde available for $mediaType", Status.UNSUPPORTED_MEDIA_TYPE_415)
+    HttpException(messageFor(mediaType), Status.UNSUPPORTED_MEDIA_TYPE_415)
+
+private fun messageFor(mediaType: HttpMediaType?): String =
+    if (mediaType == null) "Missing Content-Type" else "Unsupported Content-Type: ${mediaType.text()}"
