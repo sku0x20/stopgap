@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.reader.ObjectReader
 import com.alibaba.fastjson2.writer.ObjectWriter
+import dev.sku20.stopgap.helidon.serde.Deserializer
 import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
@@ -13,7 +14,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.javaType
 import kotlin.uuid.Uuid
 
-class FastjsonSerde : SerdeDeprecated {
+class FastjsonSerde : SerdeDeprecated, Deserializer {
 
     override val mediaType: HttpMediaType = HttpMediaTypes.JSON_UTF_8
 
@@ -23,6 +24,12 @@ class FastjsonSerde : SerdeDeprecated {
             Uuid::class.java,
             ObjectWriter<Uuid> { writer, obj, _, _, _ -> writer.writeString(obj.toString()) })
         JSON.register(Uuid::class.java, ObjectReader<Uuid> { reader, _, _, _ -> Uuid.parse(reader.readString()) })
+    }
+
+    // RFC 8259: JSON is always UTF-8 and defines no charset parameter, but clients often send charset=utf-8.
+    override fun canDeserialize(mediaType: HttpMediaType): Boolean {
+        val isJson = mediaType.type() == "application" && mediaType.subtype() == "json"
+        return isJson && mediaType.charset().orElse("utf-8") == "utf-8"
     }
 
     override fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T {

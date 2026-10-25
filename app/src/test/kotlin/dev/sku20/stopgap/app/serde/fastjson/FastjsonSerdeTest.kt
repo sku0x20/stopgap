@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.app.serde.fastjson
 
+import io.helidon.http.HttpMediaType
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -52,6 +53,18 @@ class FastjsonSerdeTest {
         val type = typeOf<Wrapper<SamplePayload>>()
         assertThatThrownBy { serde.deserialize<Wrapper<SamplePayload>>("[1]".toByteArray(), type) }
             .isInstanceOf(MalformedBodyException::class.java)
+    }
+
+    @Test
+    fun canDeserializeJson() {
+        assertThat(serde.canDeserialize(HttpMediaType.create("application/json"))).isTrue()
+        assertThat(serde.canDeserialize(HttpMediaType.create("application/json; charset=utf-8"))).isTrue()
+    }
+
+    @Test
+    fun cannotDeserializeOtherTypes() {
+        assertThat(serde.canDeserialize(HttpMediaType.create("text/plain"))).isFalse()
+        assertThat(serde.canDeserialize(HttpMediaType.create("application/json; charset=iso-8859-1"))).isFalse()
     }
 
     data class SamplePayload(val id: Int, val name: String)
