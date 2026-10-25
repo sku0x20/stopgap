@@ -1,11 +1,13 @@
 package dev.sku20.stopgap.helidon.serde.catalog
 
 import dev.sku20.stopgap.helidon.serde.Deserializer
+import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HeaderNames
 import io.helidon.http.HttpMediaType
 import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.WritableHeaders
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -25,6 +27,14 @@ class MediaTypeSerdeCatalogTest {
             .isSameAs(utf8)
         assertThat(catalog.getDeserializer(contentType("text/plain; charset=ISO-8859-1")))
             .isSameAs(latin1)
+    }
+
+    @Test
+    fun getDeserializerRejectsUnsupported() {
+        catalog.add(deserializerOf("application/json"))
+
+        assertThatThrownBy { catalog.getDeserializer(contentType("text/plain")) }
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
     private fun deserializerOf(mediaType: String): Deserializer {
