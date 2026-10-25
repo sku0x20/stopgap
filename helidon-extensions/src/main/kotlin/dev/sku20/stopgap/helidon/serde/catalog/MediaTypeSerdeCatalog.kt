@@ -9,9 +9,14 @@ import io.helidon.http.ServerRequestHeaders
 class MediaTypeSerdeCatalog : SerdeCatalog {
 
     private val deserializers = mutableListOf<Deserializer>()
+    private val serializers = mutableListOf<Serializer>()
 
-    fun add(deserializer: Deserializer) {
+    fun addDeserializer(deserializer: Deserializer) {
         deserializers.add(deserializer)
+    }
+
+    fun addSerializer(serializer: Serializer) {
+        serializers.add(serializer)
     }
 
     // todo: cache Content-Type text -> deserializer. Clients pick the key, so bound it: fill-once capacity
