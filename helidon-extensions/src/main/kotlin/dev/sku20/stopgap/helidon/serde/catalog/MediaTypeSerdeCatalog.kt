@@ -13,6 +13,8 @@ class MediaTypeSerdeCatalog : SerdeCatalog {
         deserializers.add(deserializer)
     }
 
+    // todo: cache Content-Type text -> deserializer. Clients pick the key, so bound it: fill-once capacity
+    //  (or count-min sketch admission), skip long keys and 415s. Benchmark against the plain scan first.
     override fun getDeserializer(headers: ServerRequestHeaders): Deserializer {
         val contentType = headers.contentType().orElseThrow { UnsupportedMediaTypeException(null) }
         for (deserializer in deserializers) {
