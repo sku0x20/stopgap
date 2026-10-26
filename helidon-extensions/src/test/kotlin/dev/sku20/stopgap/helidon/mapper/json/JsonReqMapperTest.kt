@@ -15,7 +15,7 @@ class JsonReqMapperTest {
     private val request = mock<ServerRequest>()
     private val content = mock<ReadableEntity>()
 
-    private data class Note(val title: String)
+    private class Note(val title: String)
 
     @Test
     fun decodesBody() {
@@ -28,6 +28,6 @@ class JsonReqMapperTest {
 
         val result = mapper.map<Note>(request, type)
 
-        assertThat(result).isEqualTo(note)
+        assertThat(result).isSameAs(note)
     }
 }
