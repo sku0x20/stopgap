@@ -10,4 +10,8 @@ import kotlin.reflect.KClass
 annotation class CustomReqMapper(
     val qualifier: String = "",
     val clazz: KClass<out ReqMapper> = ReqMapper::class
-)
+) {
+    companion object {
+        const val DEFAULT_QUALIFIER = "dev.sku20.stopgap.helidon.mapper.req.default"
+    }
+}
