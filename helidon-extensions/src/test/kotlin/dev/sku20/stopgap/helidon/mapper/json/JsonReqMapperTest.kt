@@ -1,8 +1,8 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
-import dev.sku20.stopgap.helidon.mapper.contenttyperule.ContentTypeRule
 import dev.sku20.stopgap.helidon.mapper.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.exception.UnsupportedMediaTypeException
+import dev.sku20.stopgap.helidon.mapper.mediatyperule.MediaTypeRule
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.media.ReadableEntity
@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.ByteArrayInputStream
-import java.util.Optional
+import java.util.*
 import kotlin.reflect.typeOf
 
 class JsonReqMapperTest {
 
     private val decoder = mock<JsonDecoder>()
-    private val contentTypeRule = mock<ContentTypeRule>()
-    private val mapper = JsonReqMapper(decoder, contentTypeRule)
+    private val mediaTypeRule = mock<MediaTypeRule>()
+    private val mapper = JsonReqMapper(decoder, mediaTypeRule)
     private val request = mock<ServerRequest>()
     private val headers = mock<ServerRequestHeaders>()
     private val content = mock<ReadableEntity>()
@@ -32,7 +32,7 @@ class JsonReqMapperTest {
     fun setup() {
         whenever(request.headers()).thenReturn(headers)
         whenever(headers.contentType()).thenReturn(Optional.of(HttpMediaTypes.JSON))
-        whenever(contentTypeRule.accepts(HttpMediaTypes.JSON)).thenReturn(true)
+        whenever(mediaTypeRule.accepts(HttpMediaTypes.JSON)).thenReturn(true)
     }
 
     @Test
@@ -61,7 +61,7 @@ class JsonReqMapperTest {
     @Test
     fun throwsWhenContentTypeRejected() {
         whenever(headers.contentType()).thenReturn(Optional.of(HttpMediaTypes.PLAINTEXT_UTF_8))
-        whenever(contentTypeRule.accepts(HttpMediaTypes.PLAINTEXT_UTF_8)).thenReturn(false)
+        whenever(mediaTypeRule.accepts(HttpMediaTypes.PLAINTEXT_UTF_8)).thenReturn(false)
 
         assertThatThrownBy { mapper.map<Note>(request, typeOf<Note>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
