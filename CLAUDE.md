@@ -57,7 +57,8 @@
 - Booleans get an `is`/`has`/`should` prefix (`eagerly` stays as is).
 - One model type per top-level file; no nesting in a container class. Grouping sealed subtypes in one file only when
   asked.
-- Package names use the full concept, lowercase: `CustomSerdeCatalog*` → `customserdecatalog`.
+- Package names use the full concept, lowercase, singular: `CustomSerdeCatalog*` → `customserdecatalog`,
+  `exception` not `exceptions`.
 - `lateinit var` for state set at the start of a method and used by private helpers, instead of threading a param — only
   if the method is called more than once or deferred from construction. Otherwise put it in the constructor.
 
