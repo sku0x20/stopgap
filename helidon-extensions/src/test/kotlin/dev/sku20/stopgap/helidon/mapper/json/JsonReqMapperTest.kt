@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
+import dev.sku20.stopgap.helidon.mapper.ContentTypeRule
 import dev.sku20.stopgap.helidon.mapper.EmptyBodyException
 import io.helidon.http.media.ReadableEntity
 import io.helidon.webserver.http.ServerRequest
@@ -14,7 +15,8 @@ import kotlin.reflect.typeOf
 class JsonReqMapperTest {
 
     private val decoder = mock<JsonDecoder>()
-    private val mapper = JsonReqMapper(decoder)
+    private val contentTypeRule = mock<ContentTypeRule>()
+    private val mapper = JsonReqMapper(decoder, contentTypeRule)
     private val request = mock<ServerRequest>()
     private val content = mock<ReadableEntity>()
 

@@ -1,11 +1,15 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
+import dev.sku20.stopgap.helidon.mapper.ContentTypeRule
 import dev.sku20.stopgap.helidon.mapper.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.ReqMapper
 import io.helidon.webserver.http.ServerRequest
 import kotlin.reflect.KType
 
-class JsonReqMapper(private val decoder: JsonDecoder) : ReqMapper {
+class JsonReqMapper(
+    private val decoder: JsonDecoder,
+    private val contentTypeRule: ContentTypeRule
+) : ReqMapper {
     override fun <T> map(request: ServerRequest, type: KType): T {
         val bytes = request.content().inputStream().readAllBytes()
         if (bytes.isEmpty()) {
