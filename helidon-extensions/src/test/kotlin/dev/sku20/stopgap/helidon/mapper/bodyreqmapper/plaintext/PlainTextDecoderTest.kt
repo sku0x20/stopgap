@@ -6,7 +6,7 @@ import kotlin.reflect.typeOf
 
 class PlainTextDecoderTest {
 
-    private val decoder = PlainTextDecoder()
+    private val decoder = PlainTextDecoder
 
     @Test
     fun decodesUtf8() {
