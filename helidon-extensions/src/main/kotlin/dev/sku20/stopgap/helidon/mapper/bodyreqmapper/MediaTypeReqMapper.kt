@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper
+package dev.sku20.stopgap.helidon.mapper.bodyreqmapper
 
 import io.helidon.http.HttpMediaType
 import kotlin.reflect.KType
