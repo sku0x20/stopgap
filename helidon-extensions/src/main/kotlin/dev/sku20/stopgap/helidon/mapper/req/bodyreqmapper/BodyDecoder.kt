@@ -1,6 +1,6 @@
-package dev.sku20.stopgap.helidon.mapper.bodyreqmapper
+package dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper
 
-import dev.sku20.stopgap.helidon.mapper.exception.MalformedBodyException
+import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import kotlin.reflect.KType
 
 interface BodyDecoder {

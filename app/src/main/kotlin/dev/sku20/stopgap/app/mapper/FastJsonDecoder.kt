@@ -3,8 +3,8 @@ package dev.sku20.stopgap.app.mapper
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONException
 import com.alibaba.fastjson2.reader.ObjectReader
-import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.BodyDecoder
-import dev.sku20.stopgap.helidon.mapper.exception.MalformedBodyException
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.BodyDecoder
+import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import kotlin.reflect.KType
 import kotlin.reflect.javaType
 import kotlin.uuid.Uuid

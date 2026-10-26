@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper
+package dev.sku20.stopgap.helidon.mapper.req
 
 import io.helidon.webserver.http.ServerRequest
 import kotlin.reflect.KType

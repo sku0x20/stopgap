@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.exception
+package dev.sku20.stopgap.helidon.mapper.req.exception
 
 import io.helidon.http.HttpException
 import io.helidon.http.Status

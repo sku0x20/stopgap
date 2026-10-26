@@ -1,6 +1,6 @@
-package dev.sku20.stopgap.helidon.mapper.bodyreqmapper.plaintext
+package dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext
 
-import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.BodyDecoder
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.BodyDecoder
 import kotlin.reflect.KType
 
 // Decodes UTF-8 leniently on purpose: malformed bytes (e.g. unlabelled Latin-1) become U+FFFD instead of a 400.

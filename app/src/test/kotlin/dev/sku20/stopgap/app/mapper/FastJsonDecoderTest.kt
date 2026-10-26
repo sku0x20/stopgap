@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.app.mapper
 
 import com.alibaba.fastjson2.JSONException
-import dev.sku20.stopgap.helidon.mapper.exception.MalformedBodyException
+import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.bodyreqmapper.plaintext
+package dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

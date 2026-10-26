@@ -2,7 +2,7 @@ package dev.sku20.stopgap.app.mapper
 
 import dev.sku20.stopgap.app.serde.DataClassReq
 import dev.sku20.stopgap.app.serde.ReqDto
-import dev.sku20.stopgap.helidon.mapper.CustomMapper
+import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.endpoint.Post
 import io.helidon.webserver.http.ServerResponse
@@ -35,9 +35,9 @@ class MapperEndpoint {
         res.send(body.joinToString(" = ") { it.data })
     }
 
-    // TODO: KSP ignores @CustomMapper for now, so this still decodes through the default SerdeCatalog.
+    // TODO: KSP ignores @CustomReqMapper for now, so this still decodes through the default SerdeCatalog.
     @Post("/desPlainText")
-    @CustomMapper(clazz = PlainTextReqMapper::class)
+    @CustomReqMapper(clazz = PlainTextReqMapper::class)
     fun desPlainText(
         res: ServerResponse,
         body: String

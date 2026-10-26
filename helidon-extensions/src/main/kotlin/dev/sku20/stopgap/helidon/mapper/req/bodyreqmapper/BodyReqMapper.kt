@@ -1,9 +1,9 @@
-package dev.sku20.stopgap.helidon.mapper.bodyreqmapper
+package dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper
 
-import dev.sku20.stopgap.helidon.mapper.ReqMapper
-import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.mediatyperule.MediaTypeRule
-import dev.sku20.stopgap.helidon.mapper.exception.EmptyBodyException
-import dev.sku20.stopgap.helidon.mapper.exception.UnsupportedMediaTypeException
+import dev.sku20.stopgap.helidon.mapper.req.ReqMapper
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.mediatyperule.MediaTypeRule
+import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
+import dev.sku20.stopgap.helidon.mapper.req.exception.UnsupportedMediaTypeException
 import io.helidon.webserver.http.ServerRequest
 import kotlin.reflect.KType
 

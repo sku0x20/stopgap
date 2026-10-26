@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper
+package dev.sku20.stopgap.helidon.mapper.req
 
 import kotlin.reflect.KClass
 
@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
     AnnotationTarget.FUNCTION
 )
 @Retention(AnnotationRetention.SOURCE)
-annotation class CustomMapper(
+annotation class CustomReqMapper(
     val qualifier: String = "",
     val clazz: KClass<out ReqMapper> = ReqMapper::class
 )
