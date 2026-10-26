@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import java.io.ByteArrayInputStream
 import kotlin.reflect.typeOf
 
 class JsonReqMapperTest {
@@ -23,7 +24,7 @@ class JsonReqMapperTest {
         val type = typeOf<Note>()
         val note = Note("groceries")
         whenever(request.content()).thenReturn(content)
-        whenever(content.`as`(ByteArray::class.java)).thenReturn(bytes)
+        whenever(content.inputStream()).thenReturn(ByteArrayInputStream(bytes))
         whenever(decoder.decode<Note>(bytes, type)).thenReturn(note)
 
         val result = mapper.map<Note>(request, type)
