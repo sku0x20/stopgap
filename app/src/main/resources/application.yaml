@@ -1,6 +1,8 @@
 server:
   port: 8080
   host: localhost
+  # Bodies are buffered whole before decoding, so cap them (default is unlimited); larger requests get 413.
+  max-payload-size: 1048576
   protocols-discover-services: false
   features-discover-services: false
   concurrency-limit-discover-services: false
