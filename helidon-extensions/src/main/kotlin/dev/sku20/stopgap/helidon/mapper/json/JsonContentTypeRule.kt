@@ -1,6 +1,6 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
-import dev.sku20.stopgap.helidon.mapper.ContentTypeRule
+import dev.sku20.stopgap.helidon.mapper.contenttyperules.ContentTypeRule
 import io.helidon.http.HttpMediaType
 
 // Compares type and subtype directly: HttpMediaType.test() treats wildcards as a match, so */* would pass.

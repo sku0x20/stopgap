@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
-import dev.sku20.stopgap.helidon.mapper.ContentTypeRule
 import dev.sku20.stopgap.helidon.mapper.ReqMapper
+import dev.sku20.stopgap.helidon.mapper.contenttyperules.ContentTypeRule
 import dev.sku20.stopgap.helidon.mapper.exceptions.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.exceptions.UnsupportedMediaTypeException
 import io.helidon.webserver.http.ServerRequest
