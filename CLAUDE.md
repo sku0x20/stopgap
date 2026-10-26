@@ -68,7 +68,7 @@
 - Clean contracts: non-null returns; throw a named exception for missing entities, no `T?`/`Boolean` for absence.
   Updates return the updated entity.
 - Client-facing errors: a named exception class extending `HttpException` with its status (see `BadClientException`).
-  Never `throw HttpException(...)` directly. One exception type per failure cause (several may share a status, e.g. `MissingContentTypeException` and `UnsupportedMediaTypeException` are both 415). No webserver error handlers.
+  Never `throw HttpException(...)` directly. One exception type per status. No webserver error handlers.
 - `POST` to create (server-generated ids), `PATCH` to update only the fields sent. No `PUT`.
 - `400` for malformed input (e.g. invalid UUID), `404` for a missing resource on get/update/delete.
 

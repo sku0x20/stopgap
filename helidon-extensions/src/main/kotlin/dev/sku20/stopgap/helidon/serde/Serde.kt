@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.serde.deprecated
+package dev.sku20.stopgap.helidon.serde
 
 import io.helidon.http.HttpMediaType
 import kotlin.reflect.KClass
@@ -9,8 +9,7 @@ import kotlin.reflect.KType
 // - KType: required for generic types (e.g. Wrapper<Foo>) since KClass loses type arguments at runtime;
 //   KType encodes full type info including nullability, so T : Any is not needed.
 // Caller selects the right overload statically at compile time based on what type info is available.
-interface SerdeDeprecated {
-    /** The one exact media type, charset included, this serde reads and writes; [SerdeCatalogDeprecated] picks by it. */
+interface Serde {
     val mediaType: HttpMediaType
     fun <T : Any> deserialize(bytes: ByteArray, clazz: KClass<T>): T
     fun <T> deserialize(bytes: ByteArray, type: KType): T

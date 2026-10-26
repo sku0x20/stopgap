@@ -1,8 +1,5 @@
-package dev.sku20.stopgap.helidon.serde.deprecated
+package dev.sku20.stopgap.helidon.serde
 
-import dev.sku20.stopgap.helidon.serde.exceptions.NotAcceptableException
-import dev.sku20.stopgap.helidon.serde.exceptions.MissingContentTypeException
-import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat
@@ -15,9 +12,9 @@ import org.mockito.kotlin.whenever
 class MapSerdeCatalogTest {
 
     private val catalog = MapSerdeCatalog()
-    private val serde = mock<SerdeDeprecated>()
-    private val otherSerde = mock<SerdeDeprecated>()
-    private val plainTextSerde = mock<SerdeDeprecated>()
+    private val serde = mock<Serde>()
+    private val otherSerde = mock<Serde>()
+    private val plainTextSerde = mock<Serde>()
 
     @BeforeEach
     fun setup() {
@@ -60,7 +57,7 @@ class MapSerdeCatalogTest {
     @Test
     fun throwsWhenMediaTypeIsNull() {
         assertThatThrownBy { catalog.getDeserializer(null) }
-            .isInstanceOf(MissingContentTypeException::class.java)
+            .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
     @Test

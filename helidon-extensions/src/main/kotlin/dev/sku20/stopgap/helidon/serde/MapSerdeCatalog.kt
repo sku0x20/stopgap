@@ -1,33 +1,30 @@
-package dev.sku20.stopgap.helidon.serde.deprecated
+package dev.sku20.stopgap.helidon.serde
 
-import dev.sku20.stopgap.helidon.serde.exceptions.MissingContentTypeException
-import dev.sku20.stopgap.helidon.serde.exceptions.NotAcceptableException
-import dev.sku20.stopgap.helidon.serde.exceptions.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
 
 /**
- * A generic [SerdeCatalogDeprecated] backed by a map, with at most one [SerdeDeprecated] per media type.
+ * A generic [SerdeCatalog] backed by a map, with at most one [Serde] per media type.
  *
  * Matches on type/subtype only, ignoring parameters such as `charset` or `q`.
- * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [SerdeDeprecated] matches.
+ * Throws [UnsupportedMediaTypeException]/[NotAcceptableException] when no [Serde] matches.
  * Does not support wildcard media types (e.g. `*​/​*`).
  */
-class MapSerdeCatalog : SerdeCatalogDeprecated {
+class MapSerdeCatalog : SerdeCatalog {
 
-    private val serdes = HashMap<String, SerdeDeprecated>()
+    private val serdes = HashMap<String, Serde>()
 
-    fun add(serde: SerdeDeprecated) {
+    fun add(serde: Serde) {
         val key = key(serde.mediaType)
         require(key !in serdes) { "Serde already registered for $key" }
         serdes[key] = serde
     }
 
-    override fun getDeserializer(mediaType: HttpMediaType?): SerdeDeprecated {
-        if (mediaType == null) throw MissingContentTypeException()
+    override fun getDeserializer(mediaType: HttpMediaType?): Serde {
+        if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
         return serdes[key(mediaType)] ?: throw UnsupportedMediaTypeException(mediaType)
     }
 
-    override fun getSerializer(mediaTypes: List<HttpMediaType>): SerdeDeprecated {
+    override fun getSerializer(mediaTypes: List<HttpMediaType>): Serde {
         for (mediaType in mediaTypes) {
             val serde = serdes[key(mediaType)]
             if (serde != null) return serde

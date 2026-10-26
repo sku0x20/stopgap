@@ -2,13 +2,13 @@ package dev.sku20.stopgap.app.serde.plain
 
 import dev.sku20.stopgap.app.serde.ReqDto
 import dev.sku20.stopgap.app.serde.ResDto
-import dev.sku20.stopgap.helidon.serde.deprecated.SerdeDeprecated
+import dev.sku20.stopgap.helidon.serde.Serde
 import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class ReqResPlainSerde : SerdeDeprecated {
+class ReqResPlainSerde : Serde {
 
     override val mediaType: HttpMediaType = HttpMediaTypes.PLAINTEXT_UTF_8
 

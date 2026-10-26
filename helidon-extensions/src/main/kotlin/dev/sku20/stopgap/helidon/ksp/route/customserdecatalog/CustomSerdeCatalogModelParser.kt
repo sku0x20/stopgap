@@ -4,7 +4,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import dev.sku20.stopgap.helidon.ksp.argument
 import dev.sku20.stopgap.helidon.ksp.findAnnotation
-import dev.sku20.stopgap.helidon.serde.catalog.CustomSerdeCatalog
+import dev.sku20.stopgap.helidon.serde.CustomSerdeCatalog
 
 class CustomSerdeCatalogModelParser(private val declaration: KSDeclaration) {
 
