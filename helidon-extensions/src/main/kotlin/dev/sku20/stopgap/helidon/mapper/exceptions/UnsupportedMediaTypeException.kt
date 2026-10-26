@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper
+package dev.sku20.stopgap.helidon.mapper.exceptions
 
 import io.helidon.http.HttpException
 import io.helidon.http.HttpMediaType
