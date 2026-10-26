@@ -1,5 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.mediatyperule
 
+import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.mediatyperule.CompositeMediaTypeRule
+import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.mediatyperule.MediaTypeRule
 import io.helidon.http.HttpMediaTypes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

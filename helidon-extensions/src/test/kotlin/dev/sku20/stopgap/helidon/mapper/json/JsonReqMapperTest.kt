@@ -1,8 +1,8 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
+import dev.sku20.stopgap.helidon.mapper.bodyreqmapper.mediatyperule.MediaTypeRule
 import dev.sku20.stopgap.helidon.mapper.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.exception.UnsupportedMediaTypeException
-import dev.sku20.stopgap.helidon.mapper.mediatyperule.MediaTypeRule
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.media.ReadableEntity
