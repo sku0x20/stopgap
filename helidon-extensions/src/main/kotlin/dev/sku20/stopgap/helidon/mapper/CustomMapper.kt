@@ -9,5 +9,5 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.SOURCE)
 annotation class CustomMapper(
     val qualifier: String = "",
-    val clazz: KClass<*> = Unit::class
+    val clazz: KClass<out ReqMapper> = ReqMapper::class
 )
