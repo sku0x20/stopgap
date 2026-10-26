@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.contenttyperules
+package dev.sku20.stopgap.helidon.mapper.contenttyperule
 
 import io.helidon.http.HttpMediaType
 
