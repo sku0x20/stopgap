@@ -5,5 +5,6 @@ import io.helidon.webserver.http.ServerRequest
 import kotlin.reflect.KType
 
 class JsonReqMapper(private val decoder: JsonDecoder) : ReqMapper {
-    override fun <T> map(request: ServerRequest, type: KType): T = TODO()
+    override fun <T> map(request: ServerRequest, type: KType): T =
+        decoder.decode(request.content().`as`(ByteArray::class.java), type)
 }
