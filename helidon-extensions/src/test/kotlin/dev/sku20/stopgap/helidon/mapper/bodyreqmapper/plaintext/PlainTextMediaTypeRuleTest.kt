@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.plaintext
+package dev.sku20.stopgap.helidon.mapper.bodyreqmapper.plaintext
 
 import io.helidon.http.HttpMediaType
 import org.assertj.core.api.Assertions.assertThat

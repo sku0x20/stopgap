@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.plaintext
+package dev.sku20.stopgap.helidon.mapper.bodyreqmapper.plaintext
 
 import dev.sku20.stopgap.helidon.mapper.mediatyperule.MediaTypeRule
 import io.helidon.http.HttpMediaType
