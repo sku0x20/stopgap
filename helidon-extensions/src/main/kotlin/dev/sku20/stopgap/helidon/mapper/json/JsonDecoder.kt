@@ -1,3 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.json
 
-interface JsonDecoder
+import kotlin.reflect.KType
+
+interface JsonDecoder {
+    fun <T> decode(bytes: ByteArray, type: KType): T
+}
