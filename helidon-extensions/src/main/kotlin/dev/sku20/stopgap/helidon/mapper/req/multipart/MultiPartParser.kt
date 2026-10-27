@@ -2,7 +2,6 @@ package dev.sku20.stopgap.helidon.mapper.req.multipart
 
 import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
-import io.helidon.http.ContentDisposition
 import io.helidon.http.HttpMediaType
 import java.io.InputStream
 import java.nio.file.Path
@@ -123,16 +122,15 @@ internal class MultiPartParser(
 
     private fun toPart(headers: Map<String, String>, body: PartBody): Part {
         val disposition = headers["content-disposition"] ?: throw MalformedBodyException(null)
+        val parameters = ContentDispositionParser(disposition).parse()
+        val name = parameters["name"] ?: throw MalformedBodyException(null)
+        return Part(name, parameters["filename"], contentType(headers["content-type"]), body)
+    }
+
+    private fun contentType(value: String?): HttpMediaType {
+        if (value == null) return DEFAULT_CONTENT_TYPE
         try {
-            val contentDisposition = ContentDisposition.parse(disposition)
-            val name = contentDisposition.contentName().orElseThrow { MalformedBodyException(null) }
-            val contentType = headers["content-type"]
-            return Part(
-                name,
-                contentDisposition.filename().orElse(null),
-                if (contentType == null) DEFAULT_CONTENT_TYPE else HttpMediaType.create(contentType),
-                body,
-            )
+            return HttpMediaType.create(value)
         } catch (e: IllegalArgumentException) {
             throw MalformedBodyException(e)
         }
