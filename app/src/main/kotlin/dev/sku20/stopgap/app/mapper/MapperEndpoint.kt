@@ -34,7 +34,6 @@ class MapperEndpoint {
         res.send(body.joinToString(" = ") { it.data })
     }
 
-    // TODO: KSP ignores @CustomReqMapper for now, so this still decodes through the default SerdeCatalog.
     @Post("/desPlainText")
     @CustomReqMapper(clazz = PlainTextReqMapper::class)
     fun desPlainText(
