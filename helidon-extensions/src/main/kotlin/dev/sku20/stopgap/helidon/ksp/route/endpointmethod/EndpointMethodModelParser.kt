@@ -13,6 +13,7 @@ import dev.sku20.stopgap.helidon.endpoint.Trace
 import dev.sku20.stopgap.helidon.ksp.argument
 import dev.sku20.stopgap.helidon.ksp.qualifiedName
 import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModelParser
+import dev.sku20.stopgap.helidon.ksp.route.customresmapper.CustomResMapperModelParser
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelParser
 import dev.sku20.stopgap.helidon.ksp.route.param.AuthParamModel
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelParser
@@ -30,6 +31,7 @@ class EndpointMethodModelParser(private val function: KSFunctionDeclaration) {
             annotation.argument("path"),
             CustomSerdeCatalogModelParser(function).parse(),
             CustomReqMapperModelParser(function).parse(),
+            CustomResMapperModelParser(function).parse(),
             params.filterIsInstance<AuthParamModel>().firstOrNull(),
             params,
             isResponseUnit(),

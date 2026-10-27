@@ -8,6 +8,7 @@ import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.ksp.argument
 import dev.sku20.stopgap.helidon.ksp.findAnnotation
 import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModelParser
+import dev.sku20.stopgap.helidon.ksp.route.customresmapper.CustomResMapperModelParser
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelParser
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.EndpointMethodModel
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.EndpointMethodModelParser
@@ -25,6 +26,7 @@ class EndpointModelParser(private val clazz: KSClassDeclaration) {
             parseMethods(),
             CustomSerdeCatalogModelParser(clazz).parse(),
             CustomReqMapperModelParser(clazz).parse(),
+            CustomResMapperModelParser(clazz).parse(),
         )
     }
 
