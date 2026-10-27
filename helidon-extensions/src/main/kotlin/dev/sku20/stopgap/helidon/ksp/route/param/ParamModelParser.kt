@@ -59,12 +59,9 @@ class ParamModelParser(private val param: KSValueParameter) {
         if (declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!) {
             throw IllegalArgumentException("Raw Authentication not supported in param: ${param.name!!.asString()}, use a concrete subtype")
         }
-        if (declaration.getAllSuperTypes().any {
-                it.declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!
-            }) {
-            return true
+        return declaration.getAllSuperTypes().any { superType ->
+            superType.declaration.qualifiedName?.asString() == Authentication::class.qualifiedName!!
         }
-        return false
     }
 
     private fun isAutoCloseable(): Boolean {
