@@ -51,6 +51,11 @@ object RootConfig {
     }
 
     @Creates
+    fun fastjsonSerde(): FastjsonSerde {
+        return FastjsonSerde()
+    }
+
+    @Creates
     @Qualifier(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
     fun defaultSerdeCatalog(
         fastjsonSerde: FastjsonSerde
