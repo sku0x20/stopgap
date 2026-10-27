@@ -53,10 +53,17 @@ class PartReader(
     }
 
     // "--" after a boundary closes the body; CRLF means a part follows.
+    // RFC 2046 allows spaces and tabs (transport padding) between the boundary and its CRLF.
     private fun readIsClosed(): Boolean {
-        val nextBytes = bufferedInputStream.readNBytes(2)
-        if (nextBytes.contentEquals(DASHES)) return true
-        if (!nextBytes.contentEquals(CRLF)) throw MalformedBodyException(null)
+        var byte = bufferedInputStream.read()
+        if (byte == DASH) {
+            if (bufferedInputStream.read() != DASH) throw MalformedBodyException(null)
+            return true
+        }
+        while (byte == SPACE || byte == TAB) {
+            byte = bufferedInputStream.read()
+        }
+        if (byte != CR || bufferedInputStream.read() != LF) throw MalformedBodyException(null)
         return false
     }
 
@@ -136,7 +143,11 @@ class PartReader(
 
     private companion object {
         const val DEFAULT_CONTENT_TYPE = "text/plain"
-        val DASHES = "--".toByteArray(Charsets.UTF_8)
+        const val DASH = '-'.code
+        const val SPACE = ' '.code
+        const val TAB = '\t'.code
+        const val CR = '\r'.code
+        const val LF = '\n'.code
         val CRLF = "\r\n".toByteArray(Charsets.UTF_8)
     }
 }
