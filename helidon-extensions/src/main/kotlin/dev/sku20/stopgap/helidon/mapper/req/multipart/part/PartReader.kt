@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
+import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.PartContent
@@ -26,6 +27,7 @@ class PartReader(
             "bufferSize $bufferSize exceeds the in-memory limit ${InMemoryPartContent.MAX_SIZE}"
         }
         val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
+        if (boundaryBytes.isEmpty()) throw EmptyBodyException()
         if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
         isClosed = readIsClosed()
     }
