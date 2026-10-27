@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.app.mapper
 
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.endpoint.Post
 import io.helidon.webserver.http.ServerResponse
