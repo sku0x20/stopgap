@@ -29,4 +29,15 @@ class TempFilePartContentTest {
 
         assertThat(file).doesNotExist()
     }
+
+    @Test
+    fun writeAppends() {
+        val content = TempFilePartContent(Files.createFile(tempDir.resolve("part")))
+
+        content.write("hel".toByteArray())
+        content.write("lo".toByteArray())
+
+        assertThat(content.size).isEqualTo(5)
+        assertThat(content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
+    }
 }
