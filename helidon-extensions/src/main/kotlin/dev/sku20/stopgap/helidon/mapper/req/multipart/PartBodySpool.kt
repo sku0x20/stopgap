@@ -8,7 +8,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 // Holds a part in memory up to memoryThreshold bytes, then moves it to a temp file and keeps writing there.
-internal class PartBodySpool(
+class PartBodySpool(
     private val memoryThreshold: Int,
     private val tempDirectory: Path,
 ) {

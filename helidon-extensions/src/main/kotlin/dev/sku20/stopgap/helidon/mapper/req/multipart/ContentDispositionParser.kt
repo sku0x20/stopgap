@@ -5,7 +5,7 @@ import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 // Parses the parameters of a part's Content-Disposition, e.g. form-data; name="a"; filename="b.txt".
 // Own parser because Helidon's ContentDisposition rejects filename="", which browsers send for an empty file input.
 // Only \" and \\ are unescaped, so a Windows path like C:\dir\a.txt keeps its backslashes.
-internal class ContentDispositionParser(private val value: String) {
+class ContentDispositionParser(private val value: String) {
 
     private var position = 0
 

@@ -8,7 +8,7 @@ import java.nio.file.Path
 
 // Reads the body through a fixed buffer, so memory stays flat however large the parts are.
 // Every delimiter after the first is preceded by CRLF, which belongs to the delimiter, not to the part's content.
-internal class MultiPartParser(
+class MultiPartParser(
     private val input: InputStream,
     boundary: String,
     private val memoryThreshold: Int,

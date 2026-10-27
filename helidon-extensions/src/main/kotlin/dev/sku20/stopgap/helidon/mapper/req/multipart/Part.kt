@@ -7,9 +7,4 @@ data class Part(
     val fileName: String?,
     val contentType: HttpMediaType,
     val body: PartBody,
-) {
-
-    internal fun close() {
-        body.close()
-    }
-}
+)

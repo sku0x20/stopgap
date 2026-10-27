@@ -13,7 +13,7 @@ data class MultiPart(
 
     override fun close() {
         for (part in parts) {
-            part.close()
+            part.body.close()
         }
     }
 }
