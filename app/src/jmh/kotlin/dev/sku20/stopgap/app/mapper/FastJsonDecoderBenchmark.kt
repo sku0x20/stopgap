@@ -1,0 +1,83 @@
+package dev.sku20.stopgap.app.mapper
+
+import org.openjdk.jmh.annotations.*
+import org.openjdk.jmh.infra.Blackhole
+import java.util.concurrent.TimeUnit
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
+
+data class SampleString(val data: String)
+data class SampleWrapper<T>(val data: T)
+data class SampleList(val items: List<String>)
+data class SampleMap(val entries: Map<String, String>)
+data class SampleMapAny(val entries: Map<String, Any>)
+
+@State(Scope.Benchmark)
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Warmup(iterations = 5, time = 1)
+@Measurement(iterations = 10, time = 1)
+@Fork(2)
+open class FastJsonDecoderBenchmark {
+
+    private lateinit var sampleStringBytes: ByteArray
+    private lateinit var sampleListBytes: ByteArray
+    private lateinit var sampleMapBytes: ByteArray
+    private lateinit var rawMapBytes: ByteArray
+    private lateinit var sampleStringKType: KType
+    private lateinit var sampleWrapperKType: KType
+    private lateinit var sampleListKType: KType
+    private lateinit var sampleMapKType: KType
+    private lateinit var sampleMapAnyKType: KType
+    private lateinit var mapAnyKType: KType
+
+    @Setup
+    fun setup() {
+        sampleStringBytes = """{"data":"alice"}""".toByteArray()
+        sampleListBytes = """{"items":["alice"]}""".toByteArray()
+        sampleMapBytes = """{"entries":{"key":"alice"}}""".toByteArray()
+        rawMapBytes = """{"key":"alice"}""".toByteArray()
+        sampleStringKType = typeOf<SampleString>()
+        sampleWrapperKType = typeOf<SampleWrapper<String>>()
+        sampleListKType = typeOf<SampleList>()
+        sampleMapKType = typeOf<SampleMap>()
+        sampleMapAnyKType = typeOf<SampleMapAny>()
+        mapAnyKType = typeOf<Map<String, Any>>()
+    }
+
+    @Benchmark
+    fun decodeKType(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleString>(sampleStringBytes, sampleStringKType))
+    }
+
+    @Benchmark
+    fun decodeKTypeInline(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleString>(sampleStringBytes, typeOf<SampleString>()))
+    }
+
+    @Benchmark
+    fun decodeGeneric(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
+    }
+
+    @Benchmark
+    fun decodeList(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleList>(sampleListBytes, sampleListKType))
+    }
+
+    @Benchmark
+    fun decodeMap(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleMap>(sampleMapBytes, sampleMapKType))
+    }
+
+    @Benchmark
+    fun decodeSampleMapAny(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
+    }
+
+    @Benchmark
+    fun decodeMapAny(bh: Blackhole) {
+        bh.consume(FastJsonDecoder.decode<Map<String, Any>>(rawMapBytes, mapAnyKType))
+    }
+
+}
