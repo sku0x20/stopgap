@@ -87,7 +87,7 @@ class MultipartReqMapperTest {
     }
 
     @Test
-    fun mapsFile() {
+    fun mapsPart() {
         contentType("multipart/form-data; boundary=abc")
         body(
             "--abc\r\n" +
