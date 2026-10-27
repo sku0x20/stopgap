@@ -8,7 +8,8 @@ class TempFilePartContent(
     private val path: Path = Files.createTempFile("stopgap-multipart-", ".bin")
 ) : PartContent {
 
-    override val size: Long = Files.size(path)
+    override val size: Long
+        get() = Files.size(path)
 
     override fun inputStream(): InputStream = Files.newInputStream(path)
 }
