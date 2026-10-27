@@ -1,7 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
-import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.PartContent
 import io.helidon.http.ContentDisposition
 import io.helidon.http.HttpMediaType
 import java.io.BufferedInputStream
@@ -31,7 +31,7 @@ class PartReader(
     fun next(): Part {
         if (isClosed) throw NoSuchElementException()
         val headers = readHeaders()
-        val content = readUntil(delimiter)
+        val content = readContent()
         val part = toPart(headers, content)
         isClosed = readIsClosed()
         return part
@@ -45,14 +45,20 @@ class PartReader(
         return false
     }
 
-    private fun toPart(headers: Map<String, String>, content: ByteArray): Part {
+    private fun readContent(): PartContent {
+        val writer = PartContentWriter(bufferSize)
+        readUntil(delimiter) { writer.write(it) }
+        return writer.content()
+    }
+
+    private fun toPart(headers: Map<String, String>, content: PartContent): Part {
         val dispositionHeader = headers["content-disposition"] ?: throw MalformedBodyException(null)
         // TODO: Helidon rejects filename="", which RFC 6266 allows and browsers send for an empty file input.
         val disposition = ContentDisposition.parse(dispositionHeader)
         val name = disposition.contentName().orElse(null) ?: throw MalformedBodyException(null)
         val filename = disposition.filename().orElse(null)
         val type = contentType(headers["content-type"] ?: DEFAULT_CONTENT_TYPE)
-        return Part(name, filename, type, InMemoryPartContent(content))
+        return Part(name, filename, type, content)
     }
 
     private fun contentType(value: String): HttpMediaType {
@@ -75,13 +81,16 @@ class PartReader(
         }
     }
 
-    private fun readLine(): String = String(readUntil(CRLF), Charsets.UTF_8)
+    private fun readLine(): String {
+        val line = ByteArrayOutputStream()
+        readUntil(CRLF) { line.write(it) }
+        return line.toString(Charsets.UTF_8)
+    }
 
-    // Returns the bytes before sequence and consumes sequence itself.
+    // Passes each byte before sequence to write and consumes sequence itself.
     // On a mismatch, matching restarts at 0, or at 1 if the byte is CR. That is enough only because CR is
     // the sequence's first byte and appears nowhere else in it, so a partial match can't hide another start.
-    private fun readUntil(sequence: ByteArray): ByteArray {
-        val output = ByteArrayOutputStream()
+    private fun readUntil(sequence: ByteArray, write: (Int) -> Unit) {
         var matched = 0
         while (matched < sequence.size) {
             val read = bufferedInputStream.read()
@@ -92,15 +101,16 @@ class PartReader(
                 continue
             }
             // The bytes matched so far were content after all.
-            output.write(sequence, 0, matched)
+            for (i in 0 until matched) {
+                write(sequence[i].toInt())
+            }
             if (byte == sequence[0]) {
                 matched = 1
             } else {
                 matched = 0
-                output.write(read)
+                write(read)
             }
         }
-        return output.toByteArray()
     }
 
     private companion object {
