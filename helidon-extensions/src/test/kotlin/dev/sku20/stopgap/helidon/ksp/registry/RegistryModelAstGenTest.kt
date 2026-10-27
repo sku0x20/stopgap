@@ -44,8 +44,8 @@ class RegistryModelAstGenTest {
         val endpoint = RegistryModel.Endpoint(
             "a.FooEndpoint",
             listOf(
-                RegistryModel.Param("a.FooCatalog", null),
-                RegistryModel.Param("a.SerdeCatalog", "q")
+                RegistryModel.Param("a.FooMapper", null),
+                RegistryModel.Param("a.ReqMapper", "q")
             )
         )
         val file = RegistryModelAstGen(RegistryModel(listOf(endpoint)), "a.generated").file()
@@ -57,7 +57,7 @@ class RegistryModelAstGenTest {
                 listOf(
                     getInstanceForType("a.FooEndpoint"),
                     routes,
-                    getInstanceForType("a.FooCatalog"),
+                    getInstanceForType("a.FooMapper"),
                     AstCall(AstLiteral("getInstanceForQualifier"), listOf(AstStringLiteral("q")), registry)
                 )
             )
