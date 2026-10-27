@@ -30,16 +30,31 @@ internal class MultiPartParser(
         end = 2
     }
 
+    // On failure the endpoint never runs and nothing else would close the bodies, so delete them here.
     fun parse(): MultiPart {
-        var isClosed = readToDelimiter(DISCARD)
-        val parts = mutableListOf<Part>()
-        while (!isClosed) {
-            val headers = readHeaders()
-            val spool = PartBodySpool(memoryThreshold, tempDirectory)
-            isClosed = readToDelimiter(spool::write)
-            parts.add(toPart(headers, spool.toBody()))
+        val bodies = mutableListOf<PartBody>()
+        var spool: PartBodySpool? = null
+        try {
+            var isClosed = readToDelimiter(DISCARD)
+            val parts = mutableListOf<Part>()
+            while (!isClosed) {
+                val headers = readHeaders()
+                val current = PartBodySpool(memoryThreshold, tempDirectory)
+                spool = current
+                isClosed = readToDelimiter(current::write)
+                val body = current.toBody()
+                spool = null
+                bodies.add(body)
+                parts.add(toPart(headers, body))
+            }
+            return MultiPart(parts)
+        } catch (e: Exception) {
+            if (spool != null) spool.discard()
+            for (body in bodies) {
+                body.close()
+            }
+            throw e
         }
-        return MultiPart(parts)
     }
 
     // Copies bytes up to the next delimiter into sink and consumes the delimiter; true if it closes the body.

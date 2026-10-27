@@ -19,6 +19,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -482,6 +483,66 @@ class MultipartReqMapperTest {
         assertThat(String(part.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
     }
 
+    @Test
+    fun closeDeletesTempFiles() {
+        contentType("multipart/form-data; boundary=abc")
+        body(fileBody("a".repeat(MEMORY_THRESHOLD + 1)))
+        val multiPart = map()
+
+        multiPart.close()
+        multiPart.close()
+
+        assertThat(Files.list(tempDir).count()).isZero()
+    }
+
+    @Test
+    fun deletesTempFilesWhenBodyIsTruncated() {
+        contentType("multipart/form-data; boundary=abc")
+        body(
+            "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                "\r\n" +
+                "a".repeat(MEMORY_THRESHOLD + 1)
+        )
+
+        assertThatThrownBy { map() }.isInstanceOf(MalformedBodyException::class.java)
+        assertThat(Files.list(tempDir).count()).isZero()
+    }
+
+    @Test
+    fun deletesTempFilesWhenStreamFails() {
+        contentType("multipart/form-data; boundary=abc")
+        val bytes = (
+            "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                "\r\n" +
+                "a".repeat(MEMORY_THRESHOLD + 1)
+            ).toByteArray()
+        body(FailingInputStream(bytes))
+
+        assertThatThrownBy { map() }.isInstanceOf(IOException::class.java)
+        assertThat(Files.list(tempDir).count()).isZero()
+    }
+
+    @Test
+    fun deletesEarlierPartsWhenLaterPartIsMalformed() {
+        contentType("multipart/form-data; boundary=abc")
+        body(
+            "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                "\r\n" +
+                "a".repeat(MEMORY_THRESHOLD + 1) + "\r\n" +
+                "--abc\r\n" +
+                "Content-Disposition: form-data; filename=\"no-name.txt\"\r\n" +
+                "\r\n" +
+                "b".repeat(MEMORY_THRESHOLD + 1) + "\r\n" +
+                "--abc--\r\n"
+        )
+
+        assertThatThrownBy { map() }.isInstanceOf(MalformedBodyException::class.java)
+        assertThat(Files.list(tempDir).count()).isZero()
+    }
+
     private fun fileBody(content: String) =
         "--abc\r\n" +
             "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
@@ -493,6 +554,19 @@ class MultipartReqMapperTest {
         Part(name, fileName, contentType, InMemoryPartBody(content.toByteArray()))
 
     private fun map(): MultiPart = mapper.map(request, response, typeOf<MultiPart>())
+
+    // Fails like a dropped connection once its bytes run out.
+    private class FailingInputStream(bytes: ByteArray) : InputStream() {
+        private val delegate = ByteArrayInputStream(bytes)
+
+        override fun read(): Int = read(ByteArray(1), 0, 1)
+
+        override fun read(b: ByteArray, off: Int, len: Int): Int {
+            val count = delegate.read(b, off, len)
+            if (count < 0) throw IOException("connection reset")
+            return count
+        }
+    }
 
     // Hands out one byte per read, so a delimiter always straddles reads.
     private class OneByteInputStream(bytes: ByteArray) : InputStream() {

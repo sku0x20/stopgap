@@ -11,4 +11,8 @@ data class Part(
 ) {
     /** Opens a new stream over the part's content on every call. */
     fun inputStream(): InputStream = body.inputStream()
+
+    internal fun close() {
+        body.close()
+    }
 }

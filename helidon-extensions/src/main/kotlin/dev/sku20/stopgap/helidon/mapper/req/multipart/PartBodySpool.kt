@@ -2,6 +2,7 @@ package dev.sku20.stopgap.helidon.mapper.req.multipart
 
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,5 +38,15 @@ internal class PartBodySpool(
         val stream = fileStream ?: return InMemoryPartBody(memory.toByteArray())
         stream.close()
         return TempFilePartBody(file)
+    }
+
+    fun discard() {
+        val stream = fileStream ?: return
+        try {
+            stream.close()
+        } catch (e: IOException) {
+            // the file is deleted next either way
+        }
+        TempFilePartBody(file).close()
     }
 }

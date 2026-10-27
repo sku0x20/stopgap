@@ -8,6 +8,10 @@ class InMemoryPartBody(private val bytes: ByteArray) : PartBody {
 
     override fun inputStream(): InputStream = ByteArrayInputStream(bytes)
 
+    override fun close() {
+        // nothing outside the heap to release
+    }
+
     override fun equals(other: Any?): Boolean = other is InMemoryPartBody && bytes.contentEquals(other.bytes)
 
     override fun hashCode(): Int = bytes.contentHashCode()
