@@ -1,7 +1,6 @@
 package dev.sku20.stopgap.app.mapper
 
-import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
-import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest
@@ -61,9 +60,7 @@ class MapperEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            val catalog = MapSerdeCatalog()
-            catalog.add(FastjsonSerde())
-            return SetupCapture(MapperEndpoint(), registerParams = arrayOf(catalog))
+            return SetupCapture(MapperEndpoint(), registerParams = arrayOf(FastJsonReqMapper(), PlainTextReqMapper()))
         }
     }
 }

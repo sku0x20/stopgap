@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.ksp.route.endpointmethod
 
 import dev.sku20.stopgap.codegen.ast.*
+import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModel
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.param.AuthParamModel
 import dev.sku20.stopgap.helidon.ksp.route.param.BodyParamModel
@@ -16,21 +17,23 @@ class EndpointMethodModelAstGenTest {
     private val req = AstLiteral("req")
     private val res = AstLiteral("res")
     private val endpointCatalog = CustomSerdeCatalogModel("a.EndpointCatalog", null)
+    private val endpointReqMapper = CustomReqMapperModel("a.EndpointMapper", null)
 
     @Test
     fun publicUnit() {
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p")
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.rule()).isEqualTo(rule("get", endpointCall(), call("send", res)))
         assertThat(gen.catalogParam()).isNull()
+        assertThat(gen.reqMapperParam()).isNull()
         assertThat(gen.endpointVariables()).isEmpty()
     }
 
     @Test
     fun responseParamSkipsSend() {
         val model = EndpointMethodModel("fn", HttpMethod.POST, "/p", params = listOf(ResponseParamModel))
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.rule()).isEqualTo(rule("post", endpointCall(res)))
     }
@@ -39,7 +42,7 @@ class EndpointMethodModelAstGenTest {
     fun authParam() {
         val authParam = AuthParamModel("a.User")
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p", authParamModel = authParam, params = listOf(authParam))
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.rule()).isEqualTo(
             rule("get", authVal(), authCheck("a.User"), endpointCall(AstLiteral("auth")), call("send", res))
@@ -49,7 +52,7 @@ class EndpointMethodModelAstGenTest {
     @Test
     fun defaultAuth() {
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p")
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "a.Admin")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "a.Admin")
 
         assertThat(gen.rule()).isEqualTo(rule("get", authVal(), authCheck("a.Admin"), endpointCall(), call("send", res)))
     }
@@ -57,7 +60,7 @@ class EndpointMethodModelAstGenTest {
     @Test
     fun missingAuthThrows() {
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p")
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, null)
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, null)
 
         assertThatThrownBy { gen.rule() }
             .isInstanceOf(IllegalArgumentException::class.java)
@@ -75,7 +78,7 @@ class EndpointMethodModelAstGenTest {
             params = listOf(authParam),
             isResponseUnit = false,
         )
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, null)
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, null)
 
         val body = (gen.rule().arguments[1] as AstLambda).content
         assertThat(body.take(3)).isEqualTo(listOf(authVal(), authCheck("a.User"), serVal("a_EndpointCatalog")))
@@ -84,7 +87,7 @@ class EndpointMethodModelAstGenTest {
     @Test
     fun serializedResponse() {
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p", isResponseUnit = false)
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.rule()).isEqualTo(
             rule(
@@ -102,22 +105,32 @@ class EndpointMethodModelAstGenTest {
     fun body() {
         val body = BodyParamModel(TypeModel("a.Body"))
         val model = EndpointMethodModel("fn", HttpMethod.POST, "/p", params = listOf(body))
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
-        val deserVal = AstAssignment(
-            AstLiteral("deser"),
-            null,
-            VariableType.VAL,
-            call(
-                "getDeserializer",
-                AstLiteral("a_EndpointCatalog"),
-                call("orElse", call("contentType", call("headers", req)), AstLiteral("null")),
-            ),
+        val map = AstCall(
+            AstLiteral("map"),
+            listOf(req, AstLiteral("fnBodyKType")),
+            AstLiteral("a_EndpointMapper"),
+            listOf(AstType("a.Body")),
         )
-        val rule = gen.rule()
-        val content = (rule.arguments[1] as AstLambda).content
-        assertThat(content.first()).isEqualTo(deserVal)
-        assertThat(gen.catalogParam()).isEqualTo(AstParam(AstLiteral("a_EndpointCatalog"), AstType("a.EndpointCatalog")))
+        assertThat(gen.rule()).isEqualTo(rule("post", endpointCall(map), call("send", res)))
+        assertThat(gen.catalogParam()).isNull()
+        assertThat(gen.reqMapperParam()).isEqualTo(AstParam(AstLiteral("a_EndpointMapper"), AstType("a.EndpointMapper")))
+    }
+
+    @Test
+    fun methodReqMapperOverridesEndpoint() {
+        val body = BodyParamModel(TypeModel("a.Body"))
+        val model = EndpointMethodModel(
+            "fn",
+            HttpMethod.POST,
+            "/p",
+            customReqMapperModel = CustomReqMapperModel("a.MethodMapper", null),
+            params = listOf(body),
+        )
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
+
+        assertThat(gen.reqMapperParam()).isEqualTo(AstParam(AstLiteral("a_MethodMapper"), AstType("a.MethodMapper")))
     }
 
     @Test
@@ -129,7 +142,7 @@ class EndpointMethodModelAstGenTest {
             CustomSerdeCatalogModel("a.MethodCatalog", null),
             isResponseUnit = false,
         )
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.catalogParam()).isEqualTo(AstParam(AstLiteral("a_MethodCatalog"), AstType("a.MethodCatalog")))
     }
@@ -137,7 +150,7 @@ class EndpointMethodModelAstGenTest {
     @Test
     fun endpointVariables() {
         val model = EndpointMethodModel("fn", HttpMethod.GET, "/p", params = listOf(HeaderParamModel("X-Id")))
-        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, "public")
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointCatalog, endpointReqMapper, "public")
 
         assertThat(gen.endpointVariables()).containsExactly(
             AstAssignment(

@@ -3,6 +3,8 @@ package dev.sku20.stopgap.helidon.ksp.route.endpointmethod
 import dev.sku20.stopgap.codegen.ast.*
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.route.EndpointSymbolProcessor
+import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModel
+import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModelAstGen
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
 import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelAstGen
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelAstGen
@@ -13,6 +15,7 @@ class EndpointMethodModelAstGen(
     private val model: EndpointMethodModel,
     private val endpointFqn: String,
     endpointCatalog: CustomSerdeCatalogModel?,
+    endpointReqMapper: CustomReqMapperModel?,
     private val defaultAuthType: String?,
 ) {
 
@@ -23,7 +26,8 @@ class EndpointMethodModelAstGen(
     private val resp = AstLiteral("resp")
 
     private val catalogGen = CustomSerdeCatalogModelAstGen(model.customSerdeCatalogModel ?: endpointCatalog)
-    private val paramGens = model.params.map { ParamModelAstGen(it, model.name, catalogGen.name()) }
+    private val reqMapperGen = CustomReqMapperModelAstGen(model.customReqMapperModel ?: endpointReqMapper)
+    private val paramGens = model.params.map { ParamModelAstGen(it, model.name, reqMapperGen.name()) }
 
     fun rule(): AstCall = AstCall(
         AstLiteral(model.httpMethod.name.lowercase()),
@@ -41,17 +45,18 @@ class EndpointMethodModelAstGen(
     }
 
     fun catalogParam(): AstParam? {
-        if (!isUsingCatalog() && model.isResponseUnit) return null
+        if (model.isResponseUnit) return null
         return catalogGen.param()
+    }
+
+    fun reqMapperParam(): AstParam? {
+        if (!isUsingReqMapper()) return null
+        return reqMapperGen.param()
     }
 
     private fun body(): List<AstExpression> {
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
-        for (paramGen in paramGens) {
-            val variable = paramGen.ruleVariable()
-            if (variable != null) body.add(variable)
-        }
         if (!model.isResponseUnit) {
             body.add(serdeVal(ser, "getSerializer", call("acceptedTypes", headers())))
         }
@@ -114,9 +119,9 @@ class EndpointMethodModelAstGen(
         return listOf(invocation, call("send", res))
     }
 
-    private fun isUsingCatalog(): Boolean {
+    private fun isUsingReqMapper(): Boolean {
         for (paramGen in paramGens) {
-            if (paramGen.isUsingCatalog()) return true
+            if (paramGen.isUsingReqMapper()) return true
         }
         return false
     }
