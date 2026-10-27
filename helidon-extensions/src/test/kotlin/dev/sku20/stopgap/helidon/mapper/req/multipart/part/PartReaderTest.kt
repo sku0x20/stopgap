@@ -15,14 +15,12 @@ class PartReaderTest {
 
     @Test
     fun readsSinglePart() {
-        val body = """
-            --abc
-            Content-Disposition: form-data; name="title"
-            Content-Type: text/plain
-
-            groceries
-            --abc--
-        """.trimIndent().replace("\n", "\r\n")
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"title\"\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n" +
+            "groceries\r\n" +
+            "--abc--"
         val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
 
         val part = reader.part()!!
