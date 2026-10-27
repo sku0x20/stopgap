@@ -21,10 +21,18 @@ class MultipartRequest(
         return MultiPart(parts)
     }
 
+    // On failure the endpoint never runs to close the parts read so far, so close them here.
     private fun parseParts() {
-        val reader = PartReader(boundary, bodyStream)
-        while (reader.hasNext()) {
-            parts.add(reader.next())
+        try {
+            val reader = PartReader(boundary, bodyStream)
+            while (reader.hasNext()) {
+                parts.add(reader.next())
+            }
+        } catch (e: Exception) {
+            for (part in parts) {
+                part.close()
+            }
+            throw e
         }
     }
 
