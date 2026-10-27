@@ -16,21 +16,32 @@ class PartReader(
     private val dashBoundary = "--$boundary".toByteArray(Charsets.UTF_8)
     private val delimiter = "\r\n--$boundary".toByteArray(Charsets.UTF_8)
     private val bufferedInputStream = BufferedInputStream(bodyStream)
+    private var isClosed: Boolean
 
     // Only the opening boundary is read here; later ones are consumed with the delimiter that ends each part.
     init {
         val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
         if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
+        isClosed = readIsClosed()
     }
 
-    fun part(): Part? {
-        // "--" closes the body; CRLF means a part follows.
-        val nextBytes = bufferedInputStream.readNBytes(2)
-        if (nextBytes.contentEquals(DASHES)) return null
-        if (!nextBytes.contentEquals(CRLF)) throw MalformedBodyException(null)
+    fun hasNext(): Boolean = !isClosed
+
+    fun part(): Part {
+        if (isClosed) throw NoSuchElementException()
         val headers = readHeaders()
         val content = readUntil(delimiter)
-        return toPart(headers, content)
+        val part = toPart(headers, content)
+        isClosed = readIsClosed()
+        return part
+    }
+
+    // "--" after a boundary closes the body; CRLF means a part follows.
+    private fun readIsClosed(): Boolean {
+        val nextBytes = bufferedInputStream.readNBytes(2)
+        if (nextBytes.contentEquals(DASHES)) return true
+        if (!nextBytes.contentEquals(CRLF)) throw MalformedBodyException(null)
+        return false
     }
 
     private fun toPart(headers: Map<String, String>, content: ByteArray): Part {

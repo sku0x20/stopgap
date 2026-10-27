@@ -7,10 +7,10 @@ import java.io.ByteArrayInputStream
 class PartReaderTest {
 
     @Test
-    fun returnsNullAtCloseDelimiter() {
+    fun hasNoNextAtCloseDelimiter() {
         val reader = PartReader("abc", ByteArrayInputStream("--abc--".toByteArray()))
 
-        assertThat(reader.part()).isNull()
+        assertThat(reader.hasNext()).isFalse()
     }
 
     @Test
@@ -23,13 +23,13 @@ class PartReaderTest {
             "--abc--"
         val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
 
-        val part = reader.part()!!
+        val part = reader.part()
 
         assertThat(part.name).isEqualTo("title")
         assertThat(part.filename).isNull()
         assertThat(part.type.text()).isEqualTo("text/plain")
         assertThat(part.content.inputStream().readAllBytes()).isEqualTo("groceries".toByteArray())
-        assertThat(reader.part()).isNull()
+        assertThat(reader.hasNext()).isFalse()
     }
 
     @Test
@@ -46,14 +46,14 @@ class PartReaderTest {
             "--abc--"
         val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
 
-        val first = reader.part()!!
-        val second = reader.part()!!
+        val first = reader.part()
+        val second = reader.part()
 
         assertThat(first.name).isEqualTo("title")
         assertThat(first.content.inputStream().readAllBytes()).isEqualTo("groceries".toByteArray())
         assertThat(second.name).isEqualTo("attachment")
         assertThat(second.filename).isEqualTo("notes.txt")
         assertThat(second.content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
-        assertThat(reader.part()).isNull()
+        assertThat(reader.hasNext()).isFalse()
     }
 }
