@@ -7,7 +7,7 @@ class PartReader(
     private val bodyStream: InputStream
 ) {
 
-    private val closeDelimiter = "--$boundary--".toByteArray(Charsets.US_ASCII)
+    private val closeDelimiter = "--$boundary--".toByteArray(Charsets.UTF_8)
 
     fun part(): Part? {
         val bytes = bodyStream.readNBytes(closeDelimiter.size)
