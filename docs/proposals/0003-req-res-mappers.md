@@ -23,16 +23,17 @@ as content negotiation, vendor media types or multipart, is a mapper the user wr
 
 ```kotlin
 interface ReqMapper {
-    fun <T> map(request: ServerRequest, type: KType): T
+    fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T
 }
 
 interface ResMapper {
-    fun <T> map(response: ServerResponse, value: T)
+    fun <T> map(request: ServerRequest, response: ServerResponse, value: T)
 }
 ```
 
-A mapper gets Helidon's `ServerRequest` or `ServerResponse`, not a narrowed view: headers, content type, the raw body
-stream and the status are all in reach.
+Both mappers get Helidon's `ServerRequest` and `ServerResponse`, not a narrowed view: request headers, the raw body
+stream, response headers and the status are all in reach. A `ResMapper` can read `Accept`; a `ReqMapper` can set a
+response header or register `whenSent`.
 
 ### Choosing a mapper
 
@@ -72,11 +73,11 @@ mapper directly; there is no lookup at request time:
 
 ```kotlin
 rules.post("/desObj", { req, res ->
-    endpoint.desObj(res, reqMapper.map<ReqDto>(req, desObjBodyKType))
+    endpoint.desObj(res, reqMapper.map<ReqDto>(req, res, desObjBodyKType))
 })
 rules.get("/serObj", { req, res ->
     val resp = endpoint.serObj()
-    resMapper.map(res, resp)
+    resMapper.map(req, res, resp)
 })
 ```
 
