@@ -5,8 +5,8 @@ import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.route.EndpointSymbolProcessor
 import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModel
 import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModelAstGen
-import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
-import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModelAstGen
+import dev.sku20.stopgap.helidon.ksp.route.customresmapper.CustomResMapperModel
+import dev.sku20.stopgap.helidon.ksp.route.customresmapper.CustomResMapperModelAstGen
 import dev.sku20.stopgap.helidon.ksp.route.param.ParamModelAstGen
 import io.helidon.http.HttpException
 import io.helidon.http.Status
@@ -14,19 +14,18 @@ import io.helidon.http.Status
 class EndpointMethodModelAstGen(
     private val model: EndpointMethodModel,
     private val endpointFqn: String,
-    endpointCatalog: CustomSerdeCatalogModel?,
     endpointReqMapper: CustomReqMapperModel?,
+    endpointResMapper: CustomResMapperModel?,
     private val defaultAuthType: String?,
 ) {
 
     private val req = AstLiteral("req")
     private val res = AstLiteral("res")
     private val auth = AstLiteral("auth")
-    private val ser = AstLiteral("ser")
     private val resp = AstLiteral("resp")
 
-    private val catalogGen = CustomSerdeCatalogModelAstGen(model.customSerdeCatalogModel ?: endpointCatalog)
     private val reqMapperGen = CustomReqMapperModelAstGen(model.customReqMapperModel ?: endpointReqMapper)
+    private val resMapperGen = CustomResMapperModelAstGen(model.customResMapperModel ?: endpointResMapper)
     private val paramGens = model.params.map { ParamModelAstGen(it, model.name, reqMapperGen.name()) }
 
     fun rule(): AstCall = AstCall(
@@ -44,9 +43,9 @@ class EndpointMethodModelAstGen(
         return variables
     }
 
-    fun catalogParam(): AstParam? {
+    fun resMapperParam(): AstParam? {
         if (model.isResponseUnit) return null
-        return catalogGen.param()
+        return resMapperGen.param()
     }
 
     fun reqMapperParam(): AstParam? {
@@ -57,9 +56,6 @@ class EndpointMethodModelAstGen(
     private fun body(): List<AstExpression> {
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
-        if (!model.isResponseUnit) {
-            body.add(serdeVal(ser, "getSerializer", call("acceptedTypes", headers())))
-        }
         body.addAll(endpointCall())
         return body
     }
@@ -95,13 +91,6 @@ class EndpointMethodModelAstGen(
         return defaultAuthType
     }
 
-    private fun serdeVal(name: AstLiteral, getter: String, argument: AstExpression) = AstAssignment(
-        name,
-        null,
-        VariableType.VAL,
-        AstCall(AstLiteral(getter), listOf(argument), catalogGen.name()),
-    )
-
     private fun endpointCall(): List<AstExpression> {
         val arguments = mutableListOf<AstExpression>()
         for (paramGen in paramGens) {
@@ -111,8 +100,7 @@ class EndpointMethodModelAstGen(
         if (!model.isResponseUnit) {
             return listOf(
                 AstAssignment(resp, null, VariableType.VAL, invocation),
-                call("contentType", call("headers", res), AstLiteral("${ser.value}.mediaType")),
-                call("send", res, call("serialize", ser, resp)),
+                call("map", resMapperGen.name(), res, resp),
             )
         }
         if (isSendingResponse()) return listOf(invocation)
@@ -132,8 +120,6 @@ class EndpointMethodModelAstGen(
         }
         return false
     }
-
-    private fun headers() = call("headers", req)
 
     private fun call(name: String, receiver: AstExpression, vararg arguments: AstExpression) =
         AstCall(AstLiteral(name), arguments.toList(), receiver)
