@@ -1,70 +1,105 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart
 
+import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import io.helidon.http.ContentDisposition
 import io.helidon.http.HttpMediaType
+import java.io.InputStream
+import java.io.OutputStream
 
+// Reads the body through a fixed buffer, so memory stays flat however large the parts are.
 // Every delimiter after the first is preceded by CRLF, which belongs to the delimiter, not to the part's content.
 internal class MultiPartParser(
-    private val bytes: ByteArray,
+    private val input: InputStream,
     boundary: String,
 ) {
 
     private val delimiter = "\r\n--$boundary".toByteArray(Charsets.US_ASCII)
-    private var position = 0
+    private val buffer = ByteArray(BUFFER_SIZE)
+    private var start = 0
+    private var end = 0
+    private var bytesRead = 0L
+
+    init {
+        if (boundary.length > MAX_BOUNDARY_LENGTH) throw MalformedBodyException(null)
+        // A virtual CRLF lets the first delimiter match even when the body opens with it.
+        buffer[0] = CR
+        buffer[1] = LF
+        end = 2
+    }
 
     fun parse(): MultiPart {
-        skipPreamble()
+        var isClosed = readToDelimiter(OutputStream.nullOutputStream())
         val parts = mutableListOf<Part>()
-        while (!isCloseDelimiter()) {
-            skipLineEnd()
-            parts.add(parsePart())
+        while (!isClosed) {
+            parts.add(toPart(readHeaders()))
+            isClosed = readToDelimiter(OutputStream.nullOutputStream())
         }
         return MultiPart(parts)
     }
 
-    // The first delimiter may open the body without a leading CRLF.
-    private fun skipPreamble() {
-        if (startsWith(delimiter, 0, 2)) {
-            position = delimiter.size - 2
-            return
+    // Copies bytes up to the next delimiter into sink and consumes the delimiter; true if it closes the body.
+    private fun readToDelimiter(sink: OutputStream): Boolean {
+        while (true) {
+            val index = indexOfDelimiter()
+            if (index < 0) {
+                // A delimiter may start in the last bytes, so keep them for the next read.
+                val safeEnd = end - delimiter.size + 1
+                if (safeEnd > start) {
+                    sink.write(buffer, start, safeEnd - start)
+                    start = safeEnd
+                }
+                if (!read()) endOfInput()
+                continue
+            }
+            sink.write(buffer, start, index - start)
+            start = index
+            if (peek(delimiter.size) == DASH && peek(delimiter.size + 1) == DASH) {
+                start += delimiter.size + 2
+                return true
+            }
+            val lineEnd = paddedLineEndLength(delimiter.size)
+            if (lineEnd < 0) {
+                // Only a prefix of a longer line, e.g. --abcd for boundary abc: it is content.
+                sink.write(buffer, start, 1)
+                start += 1
+                continue
+            }
+            start += delimiter.size + lineEnd
+            return false
         }
-        val index = indexOf(delimiter, 0)
-        if (index < 0) throw MalformedBodyException(null)
-        position = index + delimiter.size
     }
 
-    private fun isCloseDelimiter(): Boolean = startsWith(DASHES, position, 0)
-
-    private fun skipLineEnd() {
-        if (!startsWith(CRLF, position, 0)) throw MalformedBodyException(null)
-        position += CRLF.size
+    // RFC 2046 allows spaces and tabs between the boundary and its CRLF.
+    private fun paddedLineEndLength(offset: Int): Int {
+        var i = offset
+        while (peek(i) == SPACE || peek(i) == TAB) i++
+        if (peek(i) == CR.toInt() && peek(i + 1) == LF.toInt()) return i + 2 - offset
+        return -1
     }
 
-    private fun parsePart(): Part {
-        val headers = parseHeaders()
-        val contentEnd = indexOf(delimiter, position)
-        if (contentEnd < 0) throw MalformedBodyException(null)
-        position = contentEnd + delimiter.size
-        return toPart(headers)
-    }
-
-    private fun parseHeaders(): Map<String, String> {
-        if (startsWith(CRLF, position, 0)) {
-            position += CRLF.size
-            return emptyMap()
-        }
-        val end = indexOf(HEADERS_END, position)
-        if (end < 0) throw MalformedBodyException(null)
-        val block = String(bytes, position, end - position, Charsets.UTF_8)
-        position = end + HEADERS_END.size
+    private fun readHeaders(): Map<String, String> {
         val headers = HashMap<String, String>()
-        for (line in block.split("\r\n")) {
+        while (true) {
+            val line = readLine()
+            if (line.isEmpty()) return headers
             val colon = line.indexOf(':')
             if (colon < 0) throw MalformedBodyException(null)
             headers[line.substring(0, colon).trim().lowercase()] = line.substring(colon + 1).trim()
         }
-        return headers
+    }
+
+    private fun readLine(): String {
+        while (true) {
+            for (i in start until end - 1) {
+                if (buffer[i] == CR && buffer[i + 1] == LF) {
+                    val line = String(buffer, start, i - start, Charsets.UTF_8)
+                    start = i + 2
+                    return line
+                }
+            }
+            if (!read()) throw MalformedBodyException(null)
+        }
     }
 
     private fun toPart(headers: Map<String, String>): Part {
@@ -83,26 +118,56 @@ internal class MultiPartParser(
         }
     }
 
-    private fun startsWith(pattern: ByteArray, from: Int, patternStart: Int): Boolean {
-        val length = pattern.size - patternStart
-        if (from + length > bytes.size) return false
-        for (i in 0 until length) {
-            if (bytes[from + i] != pattern[patternStart + i]) return false
-        }
-        return true
-    }
-
-    private fun indexOf(pattern: ByteArray, from: Int): Int {
-        for (i in from..bytes.size - pattern.size) {
-            if (startsWith(pattern, i, 0)) return i
+    private fun indexOfDelimiter(): Int {
+        for (i in start..end - delimiter.size) {
+            if (isDelimiterAt(i)) return i
         }
         return -1
     }
 
+    private fun isDelimiterAt(index: Int): Boolean {
+        for (i in delimiter.indices) {
+            if (buffer[index + i] != delimiter[i]) return false
+        }
+        return true
+    }
+
+    // Byte at start + offset, reading more as needed; -1 at end of input or past the buffer.
+    private fun peek(offset: Int): Int {
+        while (start + offset >= end) {
+            if (offset >= buffer.size || !read()) return -1
+        }
+        return buffer[start + offset].toInt()
+    }
+
+    // Moves unread bytes to the front and reads more; false at end of input or when the buffer is full.
+    private fun read(): Boolean {
+        if (start > 0) {
+            System.arraycopy(buffer, start, buffer, 0, end - start)
+            end -= start
+            start = 0
+        }
+        if (end == buffer.size) return false
+        val count = input.read(buffer, end, buffer.size - end)
+        if (count < 0) return false
+        end += count
+        bytesRead += count
+        return true
+    }
+
+    private fun endOfInput(): Nothing {
+        if (bytesRead == 0L) throw EmptyBodyException()
+        throw MalformedBodyException(null)
+    }
+
     private companion object {
-        val CRLF = "\r\n".toByteArray(Charsets.US_ASCII)
-        val DASHES = "--".toByteArray(Charsets.US_ASCII)
-        val HEADERS_END = "\r\n\r\n".toByteArray(Charsets.US_ASCII)
+        const val BUFFER_SIZE = 8192
+        const val MAX_BOUNDARY_LENGTH = 70
+        const val CR = '\r'.code.toByte()
+        const val LF = '\n'.code.toByte()
+        const val DASH = '-'.code
+        const val SPACE = ' '.code
+        const val TAB = '\t'.code
         val DEFAULT_CONTENT_TYPE: HttpMediaType = HttpMediaType.create("text/plain")
     }
 }

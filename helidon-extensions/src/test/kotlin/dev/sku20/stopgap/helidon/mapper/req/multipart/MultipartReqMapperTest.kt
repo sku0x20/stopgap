@@ -18,6 +18,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.*
 import kotlin.reflect.typeOf
 
@@ -401,12 +402,66 @@ class MultipartReqMapperTest {
         assertThatThrownBy { map() }.isInstanceOf(MalformedBodyException::class.java)
     }
 
+    @Test
+    fun mapsBodyReadOneByteAtATime() {
+        contentType("multipart/form-data; boundary=abc")
+        val bytes = (
+            "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"title\"\r\n" +
+                "\r\n" +
+                "x\r\n--abcd\r\n" +
+                "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"attachment\"; filename=\"notes.txt\"\r\n" +
+                "\r\n" +
+                "hello\r\n" +
+                "--abc--\r\n"
+            ).toByteArray()
+        body(OneByteInputStream(bytes))
+
+        assertThat(map()).isEqualTo(
+            MultiPart(listOf(Part("title", null, textPlain), Part("attachment", "notes.txt", textPlain)))
+        )
+    }
+
+    @Test
+    fun mapsPartLargerThanBuffer() {
+        contentType("multipart/form-data; boundary=abc")
+        body(
+            "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                "\r\n" +
+                "a".repeat(20_000) + "\r\n" +
+                "--abc\r\n" +
+                "Content-Disposition: form-data; name=\"title\"\r\n" +
+                "\r\n" +
+                "groceries\r\n" +
+                "--abc--\r\n"
+        )
+
+        assertThat(map()).isEqualTo(
+            MultiPart(listOf(Part("attachment", "big.txt", textPlain), Part("title", null, textPlain)))
+        )
+    }
+
     private fun map(): MultiPart = mapper.map(request, response, typeOf<MultiPart>())
 
+    // Hands out one byte per read, so a delimiter always straddles reads.
+    private class OneByteInputStream(bytes: ByteArray) : InputStream() {
+        private val delegate = ByteArrayInputStream(bytes)
+
+        override fun read(): Int = delegate.read()
+
+        override fun read(b: ByteArray, off: Int, len: Int): Int = delegate.read(b, off, minOf(len, 1))
+    }
+
     private fun body(value: String) {
+        body(ByteArrayInputStream(value.toByteArray()))
+    }
+
+    private fun body(stream: InputStream) {
         val content = mock<ReadableEntity>()
         whenever(request.content()).thenReturn(content)
-        whenever(content.inputStream()).thenReturn(ByteArrayInputStream(value.toByteArray()))
+        whenever(content.inputStream()).thenReturn(stream)
     }
 
     private fun contentType(value: String) {
