@@ -3,6 +3,7 @@ package dev.sku20.stopgap.helidon.mapper.req.multipart
 import dev.sku20.stopgap.helidon.mapper.req.exception.InvalidBoundaryException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MissingBoundaryException
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.Part
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.PartParser
 import io.helidon.http.HttpMediaType
 import java.io.InputStream
 
@@ -21,9 +22,8 @@ class MultipartRequest(
     }
 
     private fun parseParts() {
-//        val part = PartParser(bodyStream)
-//            .part()
-//        parts.add(part)
+        val part = PartParser(boundary, bodyStream).part()
+        parts.add(part)
     }
 
     private fun parseBoundary() {
