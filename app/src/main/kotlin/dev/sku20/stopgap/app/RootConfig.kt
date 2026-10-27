@@ -63,7 +63,7 @@ object RootConfig {
     @Creates
     @Qualifier(CustomReqMapper.DEFAULT_QUALIFIER)
     fun defaultReqMapper(): ReqMapper {
-        return FastJsonReqMapper
+        return FastJsonReqMapper()
     }
 
     @Creates

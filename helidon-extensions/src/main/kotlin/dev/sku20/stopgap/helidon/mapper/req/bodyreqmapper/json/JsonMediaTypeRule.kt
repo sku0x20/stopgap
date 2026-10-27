@@ -4,7 +4,7 @@ import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.mediatyperule.MediaTyp
 import io.helidon.http.HttpMediaType
 
 // Compares type and subtype directly: HttpMediaType.test() treats wildcards as a match, so */* would pass.
-object JsonMediaTypeRule : MediaTypeRule {
+class JsonMediaTypeRule : MediaTypeRule {
     override fun accepts(mediaType: HttpMediaType?): Boolean {
         val type = mediaType?.mediaType() ?: return false
         val subtype = type.subtype()

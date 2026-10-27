@@ -9,7 +9,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.javaType
 import kotlin.uuid.Uuid
 
-object FastJsonDecoder : BodyDecoder {
+class FastJsonDecoder : BodyDecoder {
 
     init {
         // kotlin Uuid as string, not its bit fields

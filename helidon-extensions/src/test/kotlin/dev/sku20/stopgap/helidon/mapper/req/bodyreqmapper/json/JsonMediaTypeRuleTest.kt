@@ -6,39 +6,41 @@ import org.junit.jupiter.api.Test
 
 class JsonMediaTypeRuleTest {
 
+    private val rule = JsonMediaTypeRule()
+
     @Test
     fun acceptsJson() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("application/json"))).isTrue()
+        assertThat(rule.accepts(HttpMediaType.create("application/json"))).isTrue()
     }
 
     @Test
     fun acceptsJsonWithParameters() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("application/json; charset=utf-8"))).isTrue()
+        assertThat(rule.accepts(HttpMediaType.create("application/json; charset=utf-8"))).isTrue()
     }
 
     @Test
     fun ignoresCase() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("Application/JSON"))).isTrue()
+        assertThat(rule.accepts(HttpMediaType.create("Application/JSON"))).isTrue()
     }
 
     @Test
     fun acceptsVendorJson() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("application/vnd.acme+json"))).isTrue()
+        assertThat(rule.accepts(HttpMediaType.create("application/vnd.acme+json"))).isTrue()
     }
 
     @Test
     fun rejectsPlainText() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("text/plain"))).isFalse()
+        assertThat(rule.accepts(HttpMediaType.create("text/plain"))).isFalse()
     }
 
     @Test
     fun rejectsMissingMediaType() {
-        assertThat(JsonMediaTypeRule.accepts(null)).isFalse()
+        assertThat(rule.accepts(null)).isFalse()
     }
 
     @Test
     fun rejectsWildcards() {
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("*/*"))).isFalse()
-        assertThat(JsonMediaTypeRule.accepts(HttpMediaType.create("application/*"))).isFalse()
+        assertThat(rule.accepts(HttpMediaType.create("*/*"))).isFalse()
+        assertThat(rule.accepts(HttpMediaType.create("application/*"))).isFalse()
     }
 }

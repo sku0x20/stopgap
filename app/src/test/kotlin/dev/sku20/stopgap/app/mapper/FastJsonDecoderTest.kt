@@ -10,7 +10,7 @@ import kotlin.uuid.Uuid
 
 class FastJsonDecoderTest {
 
-    private val decoder = FastJsonDecoder
+    private val decoder = FastJsonDecoder()
 
     @Test
     fun decodes() {

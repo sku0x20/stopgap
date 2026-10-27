@@ -35,6 +35,8 @@ data class SampleMapAny(val entries: Map<String, Any>)
 @Fork(2)
 open class FastJsonDecoderBenchmark {
 
+    private val decoder = FastJsonDecoder()
+
     private lateinit var sampleStringBytes: ByteArray
     private lateinit var sampleListBytes: ByteArray
     private lateinit var sampleMapBytes: ByteArray
@@ -62,37 +64,37 @@ open class FastJsonDecoderBenchmark {
 
     @Benchmark
     fun decodeKType(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleString>(sampleStringBytes, sampleStringKType))
+        bh.consume(decoder.decode<SampleString>(sampleStringBytes, sampleStringKType))
     }
 
     @Benchmark
     fun decodeKTypeInline(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleString>(sampleStringBytes, typeOf<SampleString>()))
+        bh.consume(decoder.decode<SampleString>(sampleStringBytes, typeOf<SampleString>()))
     }
 
     @Benchmark
     fun decodeGeneric(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
+        bh.consume(decoder.decode<SampleWrapper<String>>(sampleStringBytes, sampleWrapperKType))
     }
 
     @Benchmark
     fun decodeList(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleList>(sampleListBytes, sampleListKType))
+        bh.consume(decoder.decode<SampleList>(sampleListBytes, sampleListKType))
     }
 
     @Benchmark
     fun decodeMap(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleMap>(sampleMapBytes, sampleMapKType))
+        bh.consume(decoder.decode<SampleMap>(sampleMapBytes, sampleMapKType))
     }
 
     @Benchmark
     fun decodeSampleMapAny(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
+        bh.consume(decoder.decode<SampleMapAny>(sampleMapBytes, sampleMapAnyKType))
     }
 
     @Benchmark
     fun decodeMapAny(bh: Blackhole) {
-        bh.consume(FastJsonDecoder.decode<Map<String, Any>>(rawMapBytes, mapAnyKType))
+        bh.consume(decoder.decode<Map<String, Any>>(rawMapBytes, mapAnyKType))
     }
 
 }
