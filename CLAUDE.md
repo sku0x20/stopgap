@@ -35,7 +35,7 @@
 
 ## Kotlin Style
 
-- `private` by default. Only make something public if it cannot be private.
+- `private` by default. Only make something public if it cannot be private. Never `internal`.
 - No class inheritance: no `open`/`abstract`/base classes, no template method. Use interfaces, `by` delegation, strategy
   (interfaces / function types), sealed interfaces + a single `when`. Interface-extends-interface is fine. Exception:
   exception classes extending `HttpException`.
