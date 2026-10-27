@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
+import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.FilePartContent
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
@@ -84,6 +85,12 @@ class PartReaderTest {
         assertThat(large.content).isInstanceOf(FilePartContent::class.java)
         assertThat(large.content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
         large.close()
+    }
+
+    @Test
+    fun rejectsEmptyBody() {
+        assertThatThrownBy { PartReader("abc", ByteArrayInputStream(ByteArray(0))) }
+            .isInstanceOf(EmptyBodyException::class.java)
     }
 
     @Test
