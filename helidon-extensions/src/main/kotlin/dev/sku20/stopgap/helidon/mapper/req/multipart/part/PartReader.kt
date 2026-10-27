@@ -39,25 +39,17 @@ class PartReader(
     private fun readLine(): String = String(readUntil(CRLF), Charsets.UTF_8)
 
     // Returns the bytes before sequence and consumes sequence itself.
-    // On a mismatch, matching restarts at the current byte. That is enough only because the sequence's first
-    // byte (CR) appears nowhere else in it, so a partial match can't hide the start of another.
+    // The window slides one byte at a time, so sequence is found wherever it starts.
     private fun readUntil(sequence: ByteArray): ByteArray {
         val output = ByteArrayOutputStream()
-        var matched = 0
-        while (matched < sequence.size) {
+        val window = bufferedInputStream.readNBytes(sequence.size)
+        if (window.size < sequence.size) throw MalformedBodyException(null)
+        while (!window.contentEquals(sequence)) {
+            output.write(window[0].toInt())
+            System.arraycopy(window, 1, window, 0, window.size - 1)
             val byte = bufferedInputStream.read()
             if (byte < 0) throw MalformedBodyException(null)
-            if (byte == sequence[matched].toInt()) {
-                matched++
-                continue
-            }
-            output.write(sequence, 0, matched)
-            if (byte == sequence[0].toInt()) {
-                matched = 1
-            } else {
-                matched = 0
-                output.write(byte)
-            }
+            window[window.size - 1] = byte.toByte()
         }
         return output.toByteArray()
     }
