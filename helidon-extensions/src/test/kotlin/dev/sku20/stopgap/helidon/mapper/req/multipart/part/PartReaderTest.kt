@@ -88,6 +88,64 @@ class PartReaderTest {
     }
 
     @Test
+    fun ignoresHeaderNameCase() {
+        val part = partWithHeaders("CONTENT-DISPOSITION: form-data; name=\"title\"\r\ncontent-TYPE: text/html\r\n")
+
+        assertThat(part.name).isEqualTo("title")
+        assertThat(part.type.text()).isEqualTo("text/html")
+    }
+
+    @Test
+    fun defaultsContentTypeToTextPlain() {
+        val part = partWithHeaders("Content-Disposition: form-data; name=\"title\"\r\n")
+
+        assertThat(part.type.text()).isEqualTo("text/plain")
+    }
+
+    @Test
+    fun readsNonAsciiFileName() {
+        val part = partWithHeaders("Content-Disposition: form-data; name=\"cv\"; filename=\"résumé.pdf\"\r\n")
+
+        assertThat(part.filename).isEqualTo("résumé.pdf")
+    }
+
+    @Test
+    fun readsRepeatedName() {
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"tag\"\r\n" +
+            "\r\n" +
+            "a\r\n" +
+            "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"tag\"\r\n" +
+            "\r\n" +
+            "b\r\n" +
+            "--abc--"
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
+
+        val first = reader.next()
+        val second = reader.next()
+
+        assertThat(first.name).isEqualTo("tag")
+        assertThat(first.content.inputStream().readAllBytes()).isEqualTo("a".toByteArray())
+        assertThat(second.name).isEqualTo("tag")
+        assertThat(second.content.inputStream().readAllBytes()).isEqualTo("b".toByteArray())
+    }
+
+    @Test
+    fun rejectsMalformedHeaders() {
+        assertThatThrownBy { partWithHeaders("Content-Disposition form-data; name=\"title\"\r\n") }
+            .isInstanceOf(MalformedBodyException::class.java)
+        assertThatThrownBy { partWithHeaders("Content-Type: text/plain\r\n") }
+            .isInstanceOf(MalformedBodyException::class.java)
+        assertThatThrownBy { partWithHeaders("Content-Disposition: form-data\r\n") }
+            .isInstanceOf(MalformedBodyException::class.java)
+        assertThatThrownBy {
+            partWithHeaders("Content-Disposition: form-data; name=\"title\"\r\nContent-Type: text\r\n")
+        }
+            .isInstanceOf(MalformedBodyException::class.java)
+    }
+
+    @Test
     fun skipsPreamble() {
         val body = "This is the preamble.\r\n" +
             "--abc\r\n" +
@@ -175,6 +233,12 @@ class PartReaderTest {
         assertThatThrownBy { reader.next() }
             .isInstanceOf(MalformedBodyException::class.java)
         assertThat(tempFiles()).isEqualTo(filesBefore)
+    }
+
+    // Reads a single part with the given header lines, each ending in CRLF.
+    private fun partWithHeaders(headers: String): Part {
+        val body = "--abc\r\n" + headers + "\r\n" + "content\r\n" + "--abc--"
+        return PartReader("abc", ByteArrayInputStream(body.toByteArray())).next()
     }
 
     private fun tempFiles(): Set<Path> {
