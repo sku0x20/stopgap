@@ -9,20 +9,25 @@ import kotlin.reflect.KType
 
 class MultipartReqMapper : ReqMapper {
     override fun <T> map(request: ServerRequest, type: KType): T {
-        val contentType = request.headers().contentType().orElse(null)
-        if (contentType == null || !isFormData(contentType)) {
-            throw UnsupportedMediaTypeException(contentType)
-        }
-        val boundary = contentType.parameters()["boundary"]
-        if (boundary.isNullOrEmpty()) {
-            throw MissingBoundaryException()
-        }
+        val boundary = boundary(request)
         TODO("Not yet implemented")
     }
 
+    private fun boundary(request: ServerRequest): String {
+        val contentType = request.headers().contentType().orElse(null)
+        if (!isFormData(contentType)) {
+            throw UnsupportedMediaTypeException(contentType)
+        }
+        val boundary = contentType!!.parameters()["boundary"]
+        if (boundary.isNullOrEmpty()) {
+            throw MissingBoundaryException()
+        }
+        return boundary
+    }
+
     // Compares type and subtype directly: HttpMediaType.test() treats wildcards as a match.
-    private fun isFormData(contentType: HttpMediaType): Boolean {
-        val type = contentType.mediaType()
+    private fun isFormData(contentType: HttpMediaType?): Boolean {
+        val type = contentType?.mediaType() ?: return false
         return type.type().equals("multipart", ignoreCase = true) &&
             type.subtype().equals("form-data", ignoreCase = true)
     }
