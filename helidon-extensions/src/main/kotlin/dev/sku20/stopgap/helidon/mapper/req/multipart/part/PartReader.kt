@@ -51,7 +51,13 @@ class PartReader(
 
     private fun readContent(): PartContent {
         val writer = PartContentWriter(bufferSize)
-        readUntil(delimiter) { writer.write(it) }
+        // On failure no Part is returned, so nothing else would ever delete the file.
+        try {
+            readUntil(delimiter) { writer.write(it) }
+        } catch (e: Exception) {
+            writer.discard()
+            throw e
+        }
         return writer.content()
     }
 
