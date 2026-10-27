@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.PartContent
 import io.helidon.http.ContentDisposition
 import io.helidon.http.HttpMediaType
@@ -21,6 +22,9 @@ class PartReader(
 
     // Only the opening boundary is read here; later ones are consumed with the delimiter that ends each part.
     init {
+        require(bufferSize <= InMemoryPartContent.MAX_SIZE) {
+            "bufferSize $bufferSize exceeds the in-memory limit ${InMemoryPartContent.MAX_SIZE}"
+        }
         val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
         if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
         isClosed = readIsClosed()

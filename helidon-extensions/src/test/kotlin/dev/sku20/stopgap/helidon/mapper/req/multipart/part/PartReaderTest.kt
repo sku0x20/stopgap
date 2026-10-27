@@ -1,10 +1,14 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
+import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.FilePartContent
 import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
+import java.nio.file.Files
+import java.nio.file.Path
 
 class PartReaderTest {
 
@@ -80,5 +84,30 @@ class PartReaderTest {
         assertThat(large.content).isInstanceOf(FilePartContent::class.java)
         assertThat(large.content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
         large.close()
+    }
+
+    @Test
+    fun rejectsBufferSizeOverInMemoryLimit() {
+        assertThatThrownBy { PartReader("abc", ByteArrayInputStream(ByteArray(0)), InMemoryPartContent.MAX_SIZE + 1) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun deletesFileWhenUploadIsTruncated() {
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+            "\r\n" +
+            "a".repeat(20)
+        val filesBefore = tempFiles()
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()), 4)
+
+        assertThatThrownBy { reader.next() }
+            .isInstanceOf(MalformedBodyException::class.java)
+        assertThat(tempFiles()).isEqualTo(filesBefore)
+    }
+
+    private fun tempFiles(): Set<Path> {
+        val tempDir = Path.of(System.getProperty("java.io.tmpdir"))
+        Files.newDirectoryStream(tempDir, "stopgap-multipart-*").use { return it.toSet() }
     }
 }
