@@ -105,6 +105,22 @@ class PartReaderTest {
     }
 
     @Test
+    fun allowsTransportPadding() {
+        val body = "--abc \t \r\n" +
+            "Content-Disposition: form-data; name=\"title\"\r\n" +
+            "\r\n" +
+            "groceries\r\n" +
+            "--abc--"
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
+
+        val part = reader.next()
+
+        assertThat(part.name).isEqualTo("title")
+        assertThat(part.content.inputStream().readAllBytes()).isEqualTo("groceries".toByteArray())
+        assertThat(reader.hasNext()).isFalse()
+    }
+
+    @Test
     fun rejectsEmptyBody() {
         assertThatThrownBy { PartReader("abc", ByteArrayInputStream(ByteArray(0))) }
             .isInstanceOf(EmptyBodyException::class.java)
