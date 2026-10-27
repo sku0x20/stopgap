@@ -7,7 +7,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 
-class TempFilePartContentTest {
+class FilePartContentTest {
 
     @TempDir
     lateinit var tempDir: Path
@@ -16,7 +16,7 @@ class TempFilePartContentTest {
     fun exposesSizeAndBytes() {
         val file = Files.write(tempDir.resolve("part"), "hello".toByteArray())
 
-        val content = TempFilePartContent(file)
+        val content = FilePartContent(file)
 
         assertThat(content.size).isEqualTo(5)
         assertThat(content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
@@ -26,14 +26,14 @@ class TempFilePartContentTest {
     fun closeDeletesFile() {
         val file = Files.write(tempDir.resolve("part"), "hello".toByteArray())
 
-        TempFilePartContent(file).close()
+        FilePartContent(file).close()
 
         assertThat(file).doesNotExist()
     }
 
     @Test
     fun writeAppends() {
-        val content = TempFilePartContent(Files.createFile(tempDir.resolve("part")))
+        val content = FilePartContent(Files.createFile(tempDir.resolve("part")))
 
         content.startWriting()
         content.write("hel".toByteArray())
@@ -46,7 +46,7 @@ class TempFilePartContentTest {
 
     @Test
     fun rejectsCallsOutOfOrder() {
-        val content = TempFilePartContent(Files.createFile(tempDir.resolve("part")))
+        val content = FilePartContent(Files.createFile(tempDir.resolve("part")))
 
         assertThatThrownBy { content.write("a".toByteArray()) }
             .isInstanceOf(IllegalStateException::class.java)

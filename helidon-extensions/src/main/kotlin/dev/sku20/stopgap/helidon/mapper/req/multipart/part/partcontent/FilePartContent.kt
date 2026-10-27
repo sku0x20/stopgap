@@ -8,7 +8,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
-class TempFilePartContent(
+class FilePartContent(
     private val path: Path = Files.createTempFile("stopgap-multipart-", ".bin")
 ) : PartContent {
 
