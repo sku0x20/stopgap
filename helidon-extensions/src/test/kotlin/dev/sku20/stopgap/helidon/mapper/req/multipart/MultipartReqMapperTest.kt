@@ -41,7 +41,7 @@ class MultipartReqMapperTest {
         whenever(request.headers()).thenReturn(headers)
         whenever(headers.contentType()).thenReturn(Optional.of(HttpMediaType.create("multipart/form-data; boundary=abc")))
         whenever(request.content()).thenReturn(content)
-        whenever(content.inputStream()).thenReturn(ByteArrayInputStream(ByteArray(0)))
+        whenever(content.inputStream()).thenReturn(ByteArrayInputStream("--abc--".toByteArray()))
 
         val multiPart = mapper.map<MultiPart>(request, response, typeOf<MultiPart>())
 

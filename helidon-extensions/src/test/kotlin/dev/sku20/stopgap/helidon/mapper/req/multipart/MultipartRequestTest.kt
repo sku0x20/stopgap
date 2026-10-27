@@ -24,19 +24,19 @@ class MultipartRequestTest {
         assertThatThrownBy { multiPart("multipart/form-data; boundary=\"abc \"") }
             .isInstanceOf(InvalidBoundaryException::class.java)
 
-        assertThatCode { multiPart("multipart/form-data; boundary=${"a".repeat(70)}") }
+        assertThatCode { multiPart("multipart/form-data; boundary=${"a".repeat(70)}", "--${"a".repeat(70)}--") }
             .doesNotThrowAnyException()
-        assertThatCode { multiPart("multipart/form-data; boundary=\"abc\"") }
+        assertThatCode { multiPart("multipart/form-data; boundary=\"abc\"", "--abc--") }
             .doesNotThrowAnyException()
     }
 
     @Test
     fun parsesValidRequest() {
-        val multiPart = multiPart("multipart/form-data; boundary=abc")
+        val multiPart = multiPart("multipart/form-data; boundary=abc", "--abc--")
 
         assertThat(multiPart.parts).isEmpty()
     }
 
-    private fun multiPart(contentType: String): MultiPart =
-        MultipartRequest(HttpMediaType.create(contentType), ByteArrayInputStream(ByteArray(0))).multiPart()
+    private fun multiPart(contentType: String, body: String = ""): MultiPart =
+        MultipartRequest(HttpMediaType.create(contentType), ByteArrayInputStream(body.toByteArray())).multiPart()
 }
