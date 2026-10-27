@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.app.serde
+package dev.sku20.stopgap.app.mapper
 
 // Deliberately not @JvmRecord: checks fastjson2 resolves constructor params without kotlin-reflect.
 data class DataClassReq(

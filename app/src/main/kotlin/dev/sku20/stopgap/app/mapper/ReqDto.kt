@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.app.serde
+package dev.sku20.stopgap.app.mapper
 
 @JvmRecord
 data class ReqDto(

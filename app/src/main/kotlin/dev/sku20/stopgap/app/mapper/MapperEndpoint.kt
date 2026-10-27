@@ -1,7 +1,5 @@
 package dev.sku20.stopgap.app.mapper
 
-import dev.sku20.stopgap.app.serde.DataClassReq
-import dev.sku20.stopgap.app.serde.ReqDto
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
 import dev.sku20.stopgap.helidon.endpoint.Post
