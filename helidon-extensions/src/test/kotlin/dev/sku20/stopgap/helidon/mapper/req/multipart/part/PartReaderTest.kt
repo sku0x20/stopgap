@@ -120,6 +120,21 @@ class PartReaderTest {
         assertThat(reader.hasNext()).isFalse()
     }
 
+    // RFC 2046 5.1.1: a line that starts with the boundary is a boundary line, so "--abcd" can't be content.
+    @Test
+    fun rejectsBoundaryPrefixInContent() {
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"title\"\r\n" +
+            "\r\n" +
+            "groceries\r\n" +
+            "--abcd\r\n" +
+            "--abc--"
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
+
+        assertThatThrownBy { reader.next() }
+            .isInstanceOf(MalformedBodyException::class.java)
+    }
+
     @Test
     fun rejectsEmptyBody() {
         assertThatThrownBy { PartReader("abc", ByteArrayInputStream(ByteArray(0))) }
