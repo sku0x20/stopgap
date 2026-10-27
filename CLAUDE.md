@@ -16,6 +16,11 @@
 ## Communication
 
 - Terse responses. No preamble ("I'll now do X") or trailing summaries.
+- Two modes, inferred from the request; I can override with "discuss" / "just do it":
+  - Discussion (questions, design, "what do you think"): full reasoning, trade-offs, a recommendation.
+  - Implementation ("add", "fix", "implement"): I read the diff, so don't describe it. Say only what the diff
+    doesn't show: decisions I didn't specify, skipped steps, test failures, bugs found. Nothing to say → say nothing.
+- Teaching notes are a one-line hint; I'll ask if I want the deep dive.
 - Self-documenting code: names tell what, the body tells how, comments tell why. Never restate the code. When a
   comment or KDoc is needed, keep it to one or two short, crisp sentences.
 - Teach as you go: when you spot a non-obvious concept or pitfall (races, HTTP semantics, DB internals), add a short
