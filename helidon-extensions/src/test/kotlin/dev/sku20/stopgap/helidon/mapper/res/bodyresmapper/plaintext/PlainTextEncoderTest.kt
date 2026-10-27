@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.plaintext
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 
 class PlainTextEncoderTest {
@@ -15,9 +16,14 @@ class PlainTextEncoderTest {
     }
 
     @Test
-    fun encodesToString() {
-        val bytes = encoder.encode(42)
+    fun throwsOnNonString() {
+        assertThatThrownBy { encoder.encode(42) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
 
-        assertThat(bytes).isEqualTo("42".toByteArray(Charsets.UTF_8))
+    @Test
+    fun throwsOnNull() {
+        assertThatThrownBy { encoder.encode(null) }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 }

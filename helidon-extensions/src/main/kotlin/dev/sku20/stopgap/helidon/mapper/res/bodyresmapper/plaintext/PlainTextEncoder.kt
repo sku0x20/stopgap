@@ -2,7 +2,10 @@ package dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.plaintext
 
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.BodyEncoder
 
-// Encodes any value via toString(), so non-String values still produce a body instead of failing.
+// A non-String value means an endpoint is wired to the wrong mapper: a server bug, not a client error.
 class PlainTextEncoder : BodyEncoder {
-    override fun <T> encode(value: T): ByteArray = value.toString().toByteArray(Charsets.UTF_8)
+    override fun <T> encode(value: T): ByteArray {
+        require(value is String) { "PlainTextEncoder encodes String only, got ${value?.javaClass?.name}" }
+        return value.toByteArray(Charsets.UTF_8)
+    }
 }
