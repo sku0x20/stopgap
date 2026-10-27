@@ -11,43 +11,20 @@ import java.io.ByteArrayInputStream
 class MultipartRequestTest {
 
     @Test
-    fun rejectsMissingBoundary() {
+    fun validatesBoundary() {
         assertThatThrownBy { multiPart("multipart/form-data") }
             .isInstanceOf(MissingBoundaryException::class.java)
-    }
-
-    @Test
-    fun rejectsEmptyBoundary() {
         assertThatThrownBy { multiPart("multipart/form-data; boundary=\"\"") }
             .isInstanceOf(MissingBoundaryException::class.java)
-    }
-
-    @Test
-    fun rejectsTooLongBoundary() {
         assertThatThrownBy { multiPart("multipart/form-data; boundary=${"a".repeat(71)}") }
             .isInstanceOf(InvalidBoundaryException::class.java)
-    }
-
-    @Test
-    fun acceptsMaxLengthBoundary() {
-        assertThatCode { multiPart("multipart/form-data; boundary=${"a".repeat(70)}") }
-            .doesNotThrowAnyException()
-    }
-
-    @Test
-    fun rejectsInvalidBoundaryChar() {
         assertThatThrownBy { multiPart("multipart/form-data; boundary=\"ab@c\"") }
             .isInstanceOf(InvalidBoundaryException::class.java)
-    }
-
-    @Test
-    fun rejectsBoundaryEndingInSpace() {
         assertThatThrownBy { multiPart("multipart/form-data; boundary=\"abc \"") }
             .isInstanceOf(InvalidBoundaryException::class.java)
-    }
 
-    @Test
-    fun acceptsQuotedBoundary() {
+        assertThatCode { multiPart("multipart/form-data; boundary=${"a".repeat(70)}") }
+            .doesNotThrowAnyException()
         assertThatCode { multiPart("multipart/form-data; boundary=\"abc\"") }
             .doesNotThrowAnyException()
     }
