@@ -12,8 +12,9 @@ Every endpoint method has exactly one `ReqMapper` and one `ResMapper`. The `ReqM
 body parameter; the `ResMapper` writes the return value to the response. The toolkit picks neither by media type: an
 annotation or the default picks it at compile time, and the mapper decides everything else.
 
-The toolkit ships good defaults built from small, swappable parts (JSON and plain text). Anything they don't cover, such
-as content negotiation, vendor media types or multipart, is a mapper the user writes and names on the endpoint.
+The toolkit ships good defaults built from small, swappable parts (JSON and plain text) and a streaming
+`multipart/form-data` mapper. Anything they don't cover, such as content negotiation or vendor media types, is a mapper
+the user writes and names on the endpoint.
 
 ---
 
@@ -83,6 +84,19 @@ rules.get("/serObj", { req, res ->
 
 `ReqMapper` is only injected for methods with a body parameter, `ResMapper` only for methods that return a value.
 
+When the body type is `AutoCloseable`, the route closes it after the endpoint returns, whether it returned or threw:
+
+```kotlin
+rules.post("/desMultipart", { req, res ->
+    val body = reqMapper.map<MultiPart>(req, res, desMultipartBodyKType)
+    try {
+        endpoint.desMultipart(res, body)
+    } finally {
+        body.close()
+    }
+})
+```
+
 ### Shipped building blocks
 
 | Request side                                      | Response side                                     |
@@ -95,6 +109,32 @@ rules.get("/serObj", { req, res ->
 `BodyReqMapper` checks the content type against the rule (415 otherwise), reads the raw bytes, rejects an empty body
 (400) and hands the bytes to the decoder. A decoder throws `MalformedBodyException` (400) for bytes it can't decode.
 `BodyResMapper` sets its media type and sends the encoded bytes.
+
+### Multipart
+
+`MultipartReqMapper` is its own `ReqMapper`, not a `BodyReqMapper`: it streams the body instead of reading it whole. It
+accepts exactly `multipart/form-data` (415 otherwise), validates the boundary against RFC 2046 (1 to 70 allowed
+characters, `MissingBoundaryException`/`InvalidBoundaryException` 400) and returns a `MultiPart`:
+
+```kotlin
+data class MultiPart(val parts: List<Part>) : AutoCloseable
+
+data class Part(
+    val name: String,
+    val filename: String?,
+    val type: HttpMediaType,
+    val content: PartContent,
+) : AutoCloseable
+
+interface PartContent : AutoCloseable {
+    val size: Long
+    fun inputStream(): InputStream
+}
+```
+
+A part's content stays in memory up to 16 KiB (`InMemoryPartContent`) and moves to a temp file past that
+(`FilePartContent`). `inputStream()` opens a new stream on every call. Closing the `MultiPart` deletes the temp files; the
+generated route does that once the endpoint is done.
 
 ---
 
@@ -170,6 +210,24 @@ The endpoint's `ResMapper` decides the representation, the same way its `ReqMapp
 response always carries the mapper's media type, so there is nothing to vary and no 406 to send. JSON goes out as plain
 `application/json`: RFC 8259 defines no `charset` parameter for it.
 
+### Why does multipart hand parts over undecoded?
+
+Decoding each part by its own `Content-Type` would bring back the media type → decoder mapping that mappers exist to
+avoid. A form's parts mean whatever the endpoint says they mean, so the endpoint reads each part's stream itself.
+
+### Why an own multipart parser?
+
+The parser reads the request stream once, byte by byte through a buffer, and writes each part straight to memory or a
+temp file, so memory stays flat however large the upload is. It follows RFC 2046 and RFC 7578: it skips the preamble and
+transport padding, treats a line starting with the boundary as a boundary line (so `--abcd` for boundary `abc` is
+rejected, as 5.1.1 says), and fails a body that ends without the close delimiter instead of treating it as complete.
+
+### Why does the route close the body, not the endpoint?
+
+Temp files must go whatever the endpoint does: it may read a part twice, never open it, or throw. Closing in a `finally`
+around the endpoint call covers all of those, and `whenSent` doesn't run on every error path. When parsing itself fails,
+the endpoint never runs, so the parser deletes every file it wrote before rethrowing.
+
 ### Why named exceptions?
 
 Each failure cause has its own `HttpException` subclass with its status (`UnsupportedMediaTypeException` 415,
@@ -181,3 +239,10 @@ errors whichever mapper ran.
 ## 4. Trade-offs
 
 None of substance. A need the defaults don't cover, including content negotiation, is a custom mapper.
+
+Multipart has two known gaps:
+
+- No limits yet on part count, header line length or preamble length. Content goes to disk, so memory is bounded, but a
+  client can still make the server read and store as much as it sends.
+- Content-Disposition is parsed by Helidon, which rejects `filename=""` (sent by browsers for an empty file input) with
+  `IllegalArgumentException`, a 500.
