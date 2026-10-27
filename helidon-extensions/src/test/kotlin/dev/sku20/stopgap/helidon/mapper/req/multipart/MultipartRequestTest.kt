@@ -3,6 +3,7 @@ package dev.sku20.stopgap.helidon.mapper.req.multipart
 import dev.sku20.stopgap.helidon.mapper.req.exception.InvalidBoundaryException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MissingBoundaryException
 import io.helidon.http.HttpMediaType
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -27,6 +28,13 @@ class MultipartRequestTest {
             .doesNotThrowAnyException()
         assertThatCode { multiPart("multipart/form-data; boundary=\"abc\"") }
             .doesNotThrowAnyException()
+    }
+
+    @Test
+    fun parsesValidRequest() {
+        val multiPart = multiPart("multipart/form-data; boundary=abc")
+
+        assertThat(multiPart.parts).isEmpty()
     }
 
     private fun multiPart(contentType: String): MultiPart =
