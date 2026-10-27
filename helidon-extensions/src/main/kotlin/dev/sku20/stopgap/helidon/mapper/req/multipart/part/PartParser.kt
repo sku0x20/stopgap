@@ -1,5 +1,6 @@
-package dev.sku20.stopgap.helidon.mapper.req.multipart
+package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
+import dev.sku20.stopgap.helidon.mapper.req.multipart.Part
 import java.io.InputStream
 
 class PartParser(
