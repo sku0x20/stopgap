@@ -56,14 +56,32 @@ class EndpointMethodModelAstGen(
     private fun body(): List<AstExpression> {
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
-        for (paramGen in paramGens) {
-            val bodyDec = paramGen.closeableBody() ?: continue
-            body.add(bodyDec)
-            body.add(AstTry(endpointCall(), emptyList(), listOf(paramGen.closeBody())))
+        val bodyParam = bodyParam()
+        if (bodyParam == null) {
+            body.addAll(endpointCall())
             return body
         }
-        body.addAll(endpointCall())
+        body.add(bodyParam.bodyVariable())
+        if (!bodyParam.isCloseable()) {
+            body.addAll(endpointCall())
+            return body
+        }
+        val tryFinally = AstTry(
+            endpointCall(),
+            emptyList(),
+            listOf(bodyParam.closeBody())
+        )
+        body.add(tryFinally)
         return body
+    }
+
+    private fun bodyParam(): ParamModelAstGen? {
+        for (paramGen in paramGens) {
+            if (paramGen.isBodyParam()) {
+                return paramGen
+            }
+        }
+        return null
     }
 
     private fun authCheck(): List<AstExpression> {
@@ -110,6 +128,7 @@ class EndpointMethodModelAstGen(
             )
         }
         if (isSendingResponse()) return listOf(invocation)
+        // this code will never reach only???
         return listOf(invocation, call("send", res))
     }
 

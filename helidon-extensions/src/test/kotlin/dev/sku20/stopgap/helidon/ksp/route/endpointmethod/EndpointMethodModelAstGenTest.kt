@@ -106,7 +106,14 @@ class EndpointMethodModelAstGenTest {
             AstLiteral("a_EndpointMapper"),
             listOf(AstType("a.Body")),
         )
-        assertThat(gen.rule()).isEqualTo(rule("post", endpointCall(map), call("send", res)))
+        assertThat(gen.rule()).isEqualTo(
+            rule(
+                "post",
+                AstAssignment(AstLiteral("body"), null, VariableType.VAL, map),
+                endpointCall(AstLiteral("body")),
+                call("send", res),
+            )
+        )
         assertThat(gen.resMapperParam()).isNull()
         assertThat(gen.reqMapperParam()).isEqualTo(AstParam(AstLiteral("a_EndpointMapper"), AstType("a.EndpointMapper")))
     }

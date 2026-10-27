@@ -74,31 +74,20 @@ class ParamModelAstGenTest {
         val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body")), "fn", reqMapper)
 
         assertThat(gen.isBodyParam()).isTrue()
-        assertThat(gen.argument()).isEqualTo(map(AstType("a.Body")))
+        assertThat(gen.isCloseable()).isFalse()
+        assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
         assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(AstType("a.Body")))
-        assertThat(gen.closeableBody()).isNull()
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(AstType("a.Body")))
     }
 
     @Test
     fun closeableBody() {
         val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body"), true), "fn", reqMapper)
 
+        assertThat(gen.isCloseable()).isTrue()
         assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
-        assertThat(gen.closeableBody())
-            .isEqualTo(AstAssignment(AstLiteral("body"), null, VariableType.VAL, map(AstType("a.Body"))))
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(AstType("a.Body")))
         assertThat(gen.closeBody()).isEqualTo(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
-    }
-
-    @Test
-    fun nullableCloseableBody() {
-        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body", isNullable = true), true), "fn", reqMapper)
-
-        assertThat(gen.closeBody()).isEqualTo(
-            AstIf(
-                AstLiteral("body != null"),
-                listOf(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
-            )
-        )
     }
 
     @Test
@@ -107,12 +96,14 @@ class ParamModelAstGenTest {
         val gen = ParamModelAstGen(BodyParamModel(type), "fn", reqMapper)
 
         val astType = AstType("kotlin.collections.List", listOf(AstType("a.Body", isNullable = true)))
-        assertThat(gen.argument()).isEqualTo(map(astType))
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(astType))
         assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(astType))
     }
 
     private fun map(type: AstType) =
         AstCall(AstLiteral("map"), listOf(req, AstLiteral("res"), AstLiteral("fnBodyKType")), reqMapper, listOf(type))
+
+    private fun bodyVal(type: AstType) = AstAssignment(AstLiteral("body"), null, VariableType.VAL, map(type))
 
     private fun kTypeVal(type: AstType) = AstAssignment(
         AstLiteral("fnBodyKType"),

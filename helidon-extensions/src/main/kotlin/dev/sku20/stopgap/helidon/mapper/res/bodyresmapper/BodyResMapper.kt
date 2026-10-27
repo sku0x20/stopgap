@@ -9,7 +9,7 @@ class BodyResMapper(
     private val mediaType: HttpMediaType,
     private val encoder: BodyEncoder,
 ) : ResMapper {
-    override fun <T> map(request: ServerRequest, response: ServerResponse, value: T) {
+    override fun <T : Any> map(request: ServerRequest, response: ServerResponse, value: T) {
         response.headers().contentType(mediaType)
         response.send(encoder.encode(value))
     }

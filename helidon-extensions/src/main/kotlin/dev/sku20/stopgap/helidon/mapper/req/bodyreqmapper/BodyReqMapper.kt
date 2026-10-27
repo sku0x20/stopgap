@@ -12,7 +12,7 @@ class BodyReqMapper(
     private val rule: MediaTypeRule,
     private val decoder: BodyDecoder,
 ) : ReqMapper {
-    override fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T {
+    override fun <T : Any> map(request: ServerRequest, response: ServerResponse, type: KType): T {
         val contentType = request.headers().contentType().orElse(null)
         if (!rule.accepts(contentType)) {
             throw UnsupportedMediaTypeException(contentType)

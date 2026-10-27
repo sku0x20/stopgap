@@ -14,7 +14,7 @@ class MultipartReqMapper(
     private val tempDirectory: Path = Path.of(System.getProperty("java.io.tmpdir")),
 ) : ReqMapper {
     @Suppress("UNCHECKED_CAST")
-    override fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T {
+    override fun <T : Any> map(request: ServerRequest, response: ServerResponse, type: KType): T {
         val boundary = boundary(request)
         val input = request.content().inputStream()
         return MultiPartParser(input, boundary, memoryThreshold, tempDirectory).parse() as T
