@@ -31,11 +31,20 @@ class PartReader(
 
     private fun toPart(headers: Map<String, String>, content: ByteArray): Part {
         val dispositionHeader = headers["content-disposition"] ?: throw MalformedBodyException(null)
+        // TODO: Helidon rejects filename="", which RFC 6266 allows and browsers send for an empty file input.
         val disposition = ContentDisposition.parse(dispositionHeader)
         val name = disposition.contentName().orElse(null) ?: throw MalformedBodyException(null)
         val filename = disposition.filename().orElse(null)
-        val type = HttpMediaType.create(headers["content-type"] ?: DEFAULT_CONTENT_TYPE)
+        val type = contentType(headers["content-type"] ?: DEFAULT_CONTENT_TYPE)
         return Part(name, filename, type, InMemoryPartContent(content))
+    }
+
+    private fun contentType(value: String): HttpMediaType {
+        try {
+            return HttpMediaType.create(value)
+        } catch (e: IllegalArgumentException) {
+            throw MalformedBodyException(e)
+        }
     }
 
     // Header names are lowercased, since they are case-insensitive.
