@@ -1,7 +1,8 @@
 package dev.sku20.stopgap.helidon.ksp.route.endpoint
 
 import dev.sku20.stopgap.codegen.ast.*
-import dev.sku20.stopgap.helidon.ksp.route.customserdecatalog.CustomSerdeCatalogModel
+import dev.sku20.stopgap.helidon.ksp.route.customreqmapper.CustomReqMapperModel
+import dev.sku20.stopgap.helidon.ksp.route.customresmapper.CustomResMapperModel
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.EndpointMethodModel
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.EndpointMethodModelAstGen
 import dev.sku20.stopgap.helidon.ksp.route.endpointmethod.HttpMethod
@@ -13,13 +14,14 @@ import org.junit.jupiter.api.Test
 
 class EndpointModelAstGenTest {
 
-    private val catalog = CustomSerdeCatalogModel("a.Catalog", null)
+    private val reqMapper = CustomReqMapperModel("a.Mapper", null)
+    private val resMapper = CustomResMapperModel("a.ResMapper", null)
     private val endpointParam = AstParam(AstLiteral("endpoint"), AstType("a.Endpoint"))
     private val routesParam = AstParam(AstLiteral("routes"), AstType("io.helidon.webserver.http.HttpRouting.Builder"))
 
     @Test
     fun empty() {
-        val model = EndpointModel("a.Endpoint", "/e", emptyList(), null)
+        val model = EndpointModel("a.Endpoint", "/e", emptyList(), null, null)
 
         assertThat(EndpointModelAstGen(model, "public").function()).isEqualTo(
             AstFunction("registerRoutesFor", listOf(endpointParam, routesParam), listOf(register()))
@@ -31,15 +33,15 @@ class EndpointModelAstGenTest {
         val header = HeaderParamModel("X-Id")
         val first = EndpointMethodModel("first", HttpMethod.GET, "/a", params = listOf(header))
         val second = EndpointMethodModel("second", HttpMethod.POST, "/b", params = listOf(BodyParamModel(TypeModel("a.Body"))))
-        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), catalog)
+        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), reqMapper, resMapper)
 
-        val firstGen = EndpointMethodModelAstGen(first, "a.Endpoint", catalog, "public")
-        val secondGen = EndpointMethodModelAstGen(second, "a.Endpoint", catalog, "public")
+        val firstGen = EndpointMethodModelAstGen(first, "a.Endpoint", reqMapper, resMapper, "public")
+        val secondGen = EndpointMethodModelAstGen(second, "a.Endpoint", reqMapper, resMapper, "public")
         assertThat(EndpointModelAstGen(model, "public").function()).isEqualTo(
             AstFunction(
                 "registerRoutesFor",
-                listOf(endpointParam, routesParam, AstParam(AstLiteral("a_Catalog"), AstType("a.Catalog"))),
-                firstGen.endpointVariables() + register(firstGen.rule(), secondGen.rule()),
+                listOf(endpointParam, routesParam, AstParam(AstLiteral("a_Mapper"), AstType("a.Mapper"))),
+                firstGen.endpointVariables() + secondGen.endpointVariables() + register(firstGen.rule(), secondGen.rule()),
             )
         )
     }
@@ -48,15 +50,18 @@ class EndpointModelAstGenTest {
     fun dedupesParamsAndVariables() {
         val header = HeaderParamModel("X-Id")
         val body = BodyParamModel(TypeModel("a.Body"))
-        val first = EndpointMethodModel("first", HttpMethod.POST, "/a", params = listOf(header, body))
-        val second = EndpointMethodModel("second", HttpMethod.POST, "/b", params = listOf(header, body))
-        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), catalog)
+        val first = EndpointMethodModel("first", HttpMethod.POST, "/a", params = listOf(header, body), isResponseUnit = false)
+        val second = EndpointMethodModel("second", HttpMethod.POST, "/b", params = listOf(header, body), isResponseUnit = false)
+        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), reqMapper, resMapper)
 
         val function = EndpointModelAstGen(model, "public").function()
 
-        val firstGen = EndpointMethodModelAstGen(first, "a.Endpoint", catalog, "public")
-        assertThat(function.parameters).containsExactly(endpointParam, routesParam, firstGen.catalogParam())
-        assertThat(function.content.dropLast(1)).isEqualTo(firstGen.endpointVariables())
+        val firstGen = EndpointMethodModelAstGen(first, "a.Endpoint", reqMapper, resMapper, "public")
+        val secondGen = EndpointMethodModelAstGen(second, "a.Endpoint", reqMapper, resMapper, "public")
+        assertThat(function.parameters)
+            .containsExactly(endpointParam, routesParam, firstGen.resMapperParam(), firstGen.reqMapperParam())
+        assertThat(function.content.dropLast(1))
+            .isEqualTo(firstGen.endpointVariables() + secondGen.endpointVariables().drop(1))
     }
 
     private fun register(vararg rules: AstExpression) = AstCall(

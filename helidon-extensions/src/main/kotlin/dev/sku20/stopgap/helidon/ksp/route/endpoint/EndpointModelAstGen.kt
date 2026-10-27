@@ -13,7 +13,7 @@ class EndpointModelAstGen(
     private val rules = AstLiteral("rules")
 
     private val methodGens = model.methods.map {
-        EndpointMethodModelAstGen(it, model.fqn, model.customSerdeCatalogModel, defaultAuthType)
+        EndpointMethodModelAstGen(it, model.fqn, model.customReqMapperModel, model.customResMapperModel, defaultAuthType)
     }
 
     fun function(): AstFunction {
@@ -29,8 +29,10 @@ class EndpointModelAstGen(
             AstParam(routes, AstType("${HttpRouting.Builder::class.qualifiedName}")),
         )
         for (methodGen in methodGens) {
-            val param = methodGen.catalogParam()
-            if (param != null && param !in params) params.add(param)
+            val resMapperParam = methodGen.resMapperParam()
+            if (resMapperParam != null && resMapperParam !in params) params.add(resMapperParam)
+            val reqMapperParam = methodGen.reqMapperParam()
+            if (reqMapperParam != null && reqMapperParam !in params) params.add(reqMapperParam)
         }
         return params
     }

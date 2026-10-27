@@ -1,13 +1,15 @@
 package dev.sku20.stopgap.app.note.web
 
+import dev.sku20.stopgap.app.mapper.FastJsonDecoder
+import dev.sku20.stopgap.app.mapper.FastJsonEncoder
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
+import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.json.JsonResMapper
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteMetrics
 import dev.sku20.stopgap.app.note.NoteReq
 import dev.sku20.stopgap.app.note.UpdateReq
 import dev.sku20.stopgap.app.note.store.NoteNotFoundException
 import dev.sku20.stopgap.app.note.store.NoteStore
-import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
-import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest
@@ -150,12 +152,10 @@ class NoteEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            val catalog = MapSerdeCatalog()
-            catalog.add(FastjsonSerde())
             val noteStore = mock<NoteStore>()
             return SetupCapture(
                 NoteEndpoint(noteStore, NoteMetrics(OpenTelemetry.noop())),
-                registerParams = arrayOf(catalog),
+                registerParams = arrayOf(JsonResMapper(FastJsonEncoder()), JsonReqMapper(FastJsonDecoder())),
                 instances = mapOf(NoteStore::class.java to noteStore)
             )
         }

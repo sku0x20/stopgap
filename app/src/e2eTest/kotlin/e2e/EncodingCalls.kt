@@ -28,7 +28,7 @@ class EncodingCalls {
 
     @Test
     fun gzipRequest() {
-        val response = client.post("/serde/desObj")
+        val response = client.post("/mapper/desObj")
             .contentType(HttpMediaTypes.JSON_UTF_8)
             .header(HeaderNames.CONTENT_ENCODING, "gzip")
             .submit(gzip("""{"data": "alice"}"""))

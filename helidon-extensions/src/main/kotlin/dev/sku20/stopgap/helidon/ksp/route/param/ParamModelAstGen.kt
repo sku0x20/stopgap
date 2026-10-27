@@ -5,11 +5,13 @@ import dev.sku20.stopgap.codegen.ast.*
 class ParamModelAstGen(
     private val model: ParamModel,
     private val functionName: String,
-    private val catalogName: AstLiteral,
+    private val reqMapperName: AstLiteral,
 ) {
 
     private val req = AstLiteral("req")
-    private val deser = AstLiteral("deser")
+    private val res = AstLiteral("res")
+
+    private val body = AstLiteral("body")
 
     fun argument(): AstExpression = when (model) {
         RequestParamModel -> req
@@ -18,7 +20,7 @@ class ParamModelAstGen(
         is QueryParamModel -> get(call("query", req), AstStringLiteral(model.name))
         is HeaderParamModel -> get(call("headers", req), headerName(model))
         is AuthParamModel -> AstLiteral("auth")
-        is BodyParamModel -> bodyArgument(model)
+        is BodyParamModel -> body
     }
 
     fun endpointVariable(): AstAssignment? = when (model) {
@@ -29,39 +31,35 @@ class ParamModelAstGen(
             VariableType.VAL,
             AstCall(AstLiteral("io.helidon.http.HeaderNames.create"), listOf(AstStringLiteral(model.name)))
         )
+
         is BodyParamModel -> bodyKTypeVariable(model)
     }
 
-    fun isUsingCatalog(): Boolean = model is BodyParamModel
+    fun isBodyParam(): Boolean = model is BodyParamModel
+
+    fun bodyVariable(): AstAssignment {
+        return AstAssignment(body, null, VariableType.VAL, reqMapCall(model as BodyParamModel))
+    }
+
+    fun isCloseable(): Boolean = model is BodyParamModel && model.isAutoCloseable
+
+    fun closeBody(): AstExpression {
+        return AstCall(AstLiteral("close"), emptyList(), body)
+    }
 
     fun isSendingResponse(): Boolean = model == ResponseParamModel
 
-    fun ruleVariable(): AstAssignment? {
-        if (model !is BodyParamModel) return null
-        val contentType = AstCall(AstLiteral("orElse"), listOf(AstLiteral("null")), call("contentType", call("headers", req)))
-        return AstAssignment(
-            deser,
-            null,
-            VariableType.VAL,
-            AstCall(AstLiteral("getDeserializer"), listOf(contentType), catalogName)
-        )
-    }
+    private fun reqMapCall(model: BodyParamModel): AstCall =
+        AstCall(AstLiteral("map"), listOf(req, res, bodyKType), reqMapperName, listOf(toAstType(model.type)))
 
-    private fun bodyArgument(model: BodyParamModel): AstCall {
-        val bytes = AstCall(AstLiteral("readAllBytes"), emptyList(), call("inputStream", call("content", req)))
-        val type = if (model.type.typeArguments.isEmpty()) AstLiteral("${model.type.fqn}::class") else bodyKType
-        return AstCall(AstLiteral("deserialize"), listOf(bytes, type), deser)
-    }
-
-    private fun bodyKTypeVariable(model: BodyParamModel): AstAssignment? {
-        if (model.type.typeArguments.isEmpty()) return null
-        return AstAssignment(
+    // Built once per endpoint; typeOf inside the rule lambda would run on every request.
+    private fun bodyKTypeVariable(model: BodyParamModel): AstAssignment =
+        AstAssignment(
             bodyKType,
             null,
             VariableType.VAL,
             AstCall(AstLiteral("kotlin.reflect.typeOf"), emptyList(), null, listOf(toAstType(model.type)))
         )
-    }
 
     private val bodyKType = AstLiteral("${functionName}BodyKType")
 

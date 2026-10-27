@@ -7,55 +7,50 @@ import org.junit.jupiter.api.Test
 class ParamModelAstGenTest {
 
     private val req = AstLiteral("req")
-    private val catalog = AstLiteral("a_Catalog")
+    private val reqMapper = AstLiteral("a_Mapper")
 
     @Test
     fun request() {
-        val gen = ParamModelAstGen(RequestParamModel, "fn", catalog)
+        val gen = ParamModelAstGen(RequestParamModel, "fn", reqMapper)
 
-        assertThat(gen.isUsingCatalog()).isFalse()
+        assertThat(gen.isBodyParam()).isFalse()
         assertThat(gen.isSendingResponse()).isFalse()
         assertThat(gen.argument()).isEqualTo(req)
         assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isNull()
     }
 
     @Test
     fun response() {
-        val gen = ParamModelAstGen(ResponseParamModel, "fn", catalog)
+        val gen = ParamModelAstGen(ResponseParamModel, "fn", reqMapper)
 
         assertThat(gen.isSendingResponse()).isTrue()
         assertThat(gen.argument()).isEqualTo(AstLiteral("res"))
         assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isNull()
     }
 
     @Test
     fun path() {
-        val gen = ParamModelAstGen(PathParamModel("id"), "fn", catalog)
+        val gen = ParamModelAstGen(PathParamModel("id"), "fn", reqMapper)
 
         assertThat(gen.argument()).isEqualTo(
             get(call("pathParameters", call("path", req)), AstStringLiteral("id"))
         )
         assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isNull()
     }
 
     @Test
     fun query() {
-        val gen = ParamModelAstGen(QueryParamModel("q"), "fn", catalog)
+        val gen = ParamModelAstGen(QueryParamModel("q"), "fn", reqMapper)
 
         assertThat(gen.argument()).isEqualTo(get(call("query", req), AstStringLiteral("q")))
         assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isNull()
     }
 
     @Test
     fun header() {
-        val gen = ParamModelAstGen(HeaderParamModel("X-Id"), "fn", catalog)
+        val gen = ParamModelAstGen(HeaderParamModel("X-Id"), "fn", reqMapper)
 
         assertThat(gen.argument()).isEqualTo(get(call("headers", req), AstLiteral("X_Id_header_name")))
-        assertThat(gen.ruleVariable()).isNull()
         assertThat(gen.endpointVariable()).isEqualTo(
             AstAssignment(
                 AstLiteral("X_Id_header_name"),
@@ -68,60 +63,53 @@ class ParamModelAstGenTest {
 
     @Test
     fun auth() {
-        val gen = ParamModelAstGen(AuthParamModel("a.User"), "fn", catalog)
+        val gen = ParamModelAstGen(AuthParamModel("a.User"), "fn", reqMapper)
 
         assertThat(gen.argument()).isEqualTo(AstLiteral("auth"))
         assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isNull()
     }
 
     @Test
     fun body() {
-        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body")), "fn", catalog)
+        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body")), "fn", reqMapper)
 
-        assertThat(gen.isUsingCatalog()).isTrue()
-        assertThat(gen.argument()).isEqualTo(deserialize(AstLiteral("a.Body::class")))
-        assertThat(gen.endpointVariable()).isNull()
-        assertThat(gen.ruleVariable()).isEqualTo(deserVal)
+        assertThat(gen.isBodyParam()).isTrue()
+        assertThat(gen.isCloseable()).isFalse()
+        assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
+        assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(AstType("a.Body")))
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(AstType("a.Body")))
+    }
+
+    @Test
+    fun closeableBody() {
+        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body"), true), "fn", reqMapper)
+
+        assertThat(gen.isCloseable()).isTrue()
+        assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(AstType("a.Body")))
+        assertThat(gen.closeBody()).isEqualTo(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
     }
 
     @Test
     fun genericBody() {
         val type = TypeModel("kotlin.collections.List", listOf(TypeModel("a.Body", isNullable = true)))
-        val gen = ParamModelAstGen(BodyParamModel(type), "fn", catalog)
+        val gen = ParamModelAstGen(BodyParamModel(type), "fn", reqMapper)
 
-        assertThat(gen.argument()).isEqualTo(deserialize(AstLiteral("fnBodyKType")))
-        assertThat(gen.endpointVariable()).isEqualTo(
-            AstAssignment(
-                AstLiteral("fnBodyKType"),
-                null,
-                VariableType.VAL,
-                AstCall(
-                    AstLiteral("kotlin.reflect.typeOf"),
-                    emptyList(),
-                    null,
-                    listOf(AstType("kotlin.collections.List", listOf(AstType("a.Body", isNullable = true))))
-                )
-            )
-        )
-        assertThat(gen.ruleVariable()).isEqualTo(deserVal)
+        val astType = AstType("kotlin.collections.List", listOf(AstType("a.Body", isNullable = true)))
+        assertThat(gen.bodyVariable()).isEqualTo(bodyVal(astType))
+        assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(astType))
     }
 
-    private val deserVal = AstAssignment(
-        AstLiteral("deser"),
+    private fun map(type: AstType) =
+        AstCall(AstLiteral("map"), listOf(req, AstLiteral("res"), AstLiteral("fnBodyKType")), reqMapper, listOf(type))
+
+    private fun bodyVal(type: AstType) = AstAssignment(AstLiteral("body"), null, VariableType.VAL, map(type))
+
+    private fun kTypeVal(type: AstType) = AstAssignment(
+        AstLiteral("fnBodyKType"),
         null,
         VariableType.VAL,
-        AstCall(
-            AstLiteral("getDeserializer"),
-            listOf(AstCall(AstLiteral("orElse"), listOf(AstLiteral("null")), call("contentType", call("headers", req)))),
-            catalog
-        )
-    )
-
-    private fun deserialize(type: AstExpression) = AstCall(
-        AstLiteral("deserialize"),
-        listOf(AstCall(AstLiteral("readAllBytes"), emptyList(), call("inputStream", call("content", req))), type),
-        AstLiteral("deser")
+        AstCall(AstLiteral("kotlin.reflect.typeOf"), emptyList(), null, listOf(type))
     )
 
     private fun call(name: String, receiver: AstExpression) = AstCall(AstLiteral(name), emptyList(), receiver)

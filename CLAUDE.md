@@ -16,6 +16,11 @@
 ## Communication
 
 - Terse responses. No preamble ("I'll now do X") or trailing summaries.
+- Two modes, inferred from the request; I can override with "discuss" / "just do it":
+  - Discussion (questions, design, "what do you think"): full reasoning, trade-offs, a recommendation.
+  - Implementation ("add", "fix", "implement"): I read the diff, so don't describe it. Say only what the diff
+    doesn't show: decisions I didn't specify, skipped steps, test failures, bugs found. Nothing to say → say nothing.
+- Teaching notes are a one-line hint; I'll ask if I want the deep dive.
 - Self-documenting code: names tell what, the body tells how, comments tell why. Never restate the code. When a
   comment or KDoc is needed, keep it to one or two short, crisp sentences.
 - Teach as you go: when you spot a non-obvious concept or pitfall (races, HTTP semantics, DB internals), add a short
@@ -30,7 +35,7 @@
 
 ## Kotlin Style
 
-- `private` by default. Only make something public if it cannot be private.
+- `private` by default. Only make something public if it cannot be private. Never `internal`.
 - No class inheritance: no `open`/`abstract`/base classes, no template method. Use interfaces, `by` delegation, strategy
   (interfaces / function types), sealed interfaces + a single `when`. Interface-extends-interface is fine. Exception:
   exception classes extending `HttpException`.
@@ -57,7 +62,8 @@
 - Booleans get an `is`/`has`/`should` prefix (`eagerly` stays as is).
 - One model type per top-level file; no nesting in a container class. Grouping sealed subtypes in one file only when
   asked.
-- Package names use the full concept, lowercase: `CustomSerdeCatalog*` → `customserdecatalog`.
+- Package names use the full concept, lowercase, singular: `CustomReqMapper*` → `customreqmapper`,
+  `exception` not `exceptions`.
 - `lateinit var` for state set at the start of a method and used by private helpers, instead of threading a param — only
   if the method is called more than once or deferred from construction. Otherwise put it in the constructor.
 
@@ -68,7 +74,7 @@
 - Clean contracts: non-null returns; throw a named exception for missing entities, no `T?`/`Boolean` for absence.
   Updates return the updated entity.
 - Client-facing errors: a named exception class extending `HttpException` with its status (see `BadClientException`).
-  Never `throw HttpException(...)` directly. One exception type per status. No webserver error handlers.
+  Never `throw HttpException(...)` directly. One exception type per failure cause (several may share a status, e.g. `MissingContentTypeException` and `UnsupportedMediaTypeException` are both 415). No webserver error handlers.
 - `POST` to create (server-generated ids), `PATCH` to update only the fields sent. No `PUT`.
 - `400` for malformed input (e.g. invalid UUID), `404` for a missing resource on get/update/delete.
 
