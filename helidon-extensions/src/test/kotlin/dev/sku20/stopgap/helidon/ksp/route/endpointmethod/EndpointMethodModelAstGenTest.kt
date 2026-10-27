@@ -112,6 +112,47 @@ class EndpointMethodModelAstGenTest {
     }
 
     @Test
+    fun closesAutoCloseableBody() {
+        val body = BodyParamModel(TypeModel("a.Body"), true)
+        val model = EndpointMethodModel("fn", HttpMethod.POST, "/p", params = listOf(body), isResponseUnit = false)
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointReqMapper, endpointResMapper, "public")
+
+        val map = AstCall(
+            AstLiteral("map"),
+            listOf(req, res, AstLiteral("fnBodyKType")),
+            AstLiteral("a_EndpointMapper"),
+            listOf(AstType("a.Body")),
+        )
+        assertThat(gen.rule()).isEqualTo(
+            rule(
+                "post",
+                AstAssignment(AstLiteral("body"), null, VariableType.VAL, map),
+                AstTry(
+                    listOf(respVal(AstLiteral("body")), mapResp("a_EndpointResMapper")),
+                    emptyList(),
+                    listOf(call("close", AstLiteral("body"))),
+                ),
+            )
+        )
+    }
+
+    @Test
+    fun closesAutoCloseableBodyAfterSend() {
+        val body = BodyParamModel(TypeModel("a.Body"), true)
+        val model = EndpointMethodModel("fn", HttpMethod.POST, "/p", params = listOf(body))
+        val gen = EndpointMethodModelAstGen(model, "a.Endpoint", endpointReqMapper, endpointResMapper, "public")
+
+        val content = (gen.rule().arguments[1] as AstLambda).content
+        assertThat(content[1]).isEqualTo(
+            AstTry(
+                listOf(endpointCall(AstLiteral("body")), call("send", res)),
+                emptyList(),
+                listOf(call("close", AstLiteral("body"))),
+            )
+        )
+    }
+
+    @Test
     fun methodReqMapperOverridesEndpoint() {
         val body = BodyParamModel(TypeModel("a.Body"))
         val model = EndpointMethodModel(

@@ -2,6 +2,8 @@ package dev.sku20.stopgap.app.mapper
 
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
+import dev.sku20.stopgap.helidon.mapper.req.multipart.MultiPart
+import dev.sku20.stopgap.helidon.mapper.req.multipart.MultipartReqMapper
 import dev.sku20.stopgap.helidon.mapper.res.CustomResMapper
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.plaintext.PlainTextResMapper
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
@@ -43,6 +45,15 @@ class MapperEndpoint {
         body: String
     ) {
         res.send(body)
+    }
+
+    @Post("/desMultipart")
+    @CustomReqMapper(clazz = MultipartReqMapper::class)
+    fun desMultipart(
+        res: ServerResponse,
+        body: MultiPart
+    ) {
+        res.send(body.parts.joinToString(" ") { "${it.name}:${it.fileName}:${it.inputStream().readAllBytes().size}" })
     }
 
     @Get("/serObj")

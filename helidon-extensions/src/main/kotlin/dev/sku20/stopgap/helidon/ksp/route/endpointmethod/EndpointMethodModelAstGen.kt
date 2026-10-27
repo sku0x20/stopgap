@@ -56,6 +56,13 @@ class EndpointMethodModelAstGen(
     private fun body(): List<AstExpression> {
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
+        for (paramGen in paramGens) {
+            val closeableBody = paramGen.closeableBodyVariable() ?: continue
+            // Sends stay inside try: the endpoint or ResMapper may still read the body while responding.
+            body.add(closeableBody)
+            body.add(AstTry(endpointCall(), emptyList(), listOf(paramGen.closeBody())))
+            return body
+        }
         body.addAll(endpointCall())
         return body
     }

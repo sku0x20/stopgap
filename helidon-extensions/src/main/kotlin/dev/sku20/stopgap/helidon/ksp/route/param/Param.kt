@@ -24,4 +24,5 @@ data class AuthParamModel(
 
 data class BodyParamModel(
     val type: TypeModel,
+    val isAutoCloseable: Boolean = false,
 ) : ParamModel

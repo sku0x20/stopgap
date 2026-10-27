@@ -76,6 +76,29 @@ class ParamModelAstGenTest {
         assertThat(gen.isUsingReqMapper()).isTrue()
         assertThat(gen.argument()).isEqualTo(map(AstType("a.Body")))
         assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(AstType("a.Body")))
+        assertThat(gen.closeableBodyVariable()).isNull()
+    }
+
+    @Test
+    fun closeableBody() {
+        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body"), true), "fn", reqMapper)
+
+        assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
+        assertThat(gen.closeableBodyVariable())
+            .isEqualTo(AstAssignment(AstLiteral("body"), null, VariableType.VAL, map(AstType("a.Body"))))
+        assertThat(gen.closeBody()).isEqualTo(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
+    }
+
+    @Test
+    fun nullableCloseableBody() {
+        val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body", isNullable = true), true), "fn", reqMapper)
+
+        assertThat(gen.closeBody()).isEqualTo(
+            AstIf(
+                AstLiteral("body != null"),
+                listOf(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
+            )
+        )
     }
 
     @Test

@@ -9,6 +9,7 @@ class ParamModelAstGen(
 ) {
 
     private val req = AstLiteral("req")
+    private val body = AstLiteral("body")
 
     fun argument(): AstExpression = when (model) {
         RequestParamModel -> req
@@ -17,7 +18,7 @@ class ParamModelAstGen(
         is QueryParamModel -> get(call("query", req), AstStringLiteral(model.name))
         is HeaderParamModel -> get(call("headers", req), headerName(model))
         is AuthParamModel -> AstLiteral("auth")
-        is BodyParamModel -> bodyArgument(model)
+        is BodyParamModel -> if (model.isAutoCloseable) body else bodyArgument(model)
     }
 
     fun endpointVariable(): AstAssignment? = when (model) {
@@ -32,6 +33,20 @@ class ParamModelAstGen(
     }
 
     fun isUsingReqMapper(): Boolean = model is BodyParamModel
+
+    // Hoisted out of the endpoint call so the route can close it in a finally block.
+    fun closeableBodyVariable(): AstAssignment? {
+        if (model !is BodyParamModel || !model.isAutoCloseable) return null
+        return AstAssignment(body, null, VariableType.VAL, bodyArgument(model))
+    }
+
+    fun closeBody(): AstExpression {
+        val close = AstCall(AstLiteral("close"), emptyList(), body)
+        if (model is BodyParamModel && model.type.isNullable) {
+            return AstIf(AstLiteral("${body.value} != null"), listOf(close))
+        }
+        return close
+    }
 
     fun isSendingResponse(): Boolean = model == ResponseParamModel
 

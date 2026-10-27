@@ -3,7 +3,9 @@ package dev.sku20.stopgap.helidon.ksp.route.param
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSValueParameter
 import dev.sku20.stopgap.helidon.authentication.Authentication
 import dev.sku20.stopgap.helidon.ksp.argument
@@ -52,7 +54,7 @@ class ParamModelParser(private val param: KSValueParameter) {
 
     private fun parseTypedParam(): ParamModel = when {
         isAuthentication() -> AuthParamModel(fqn)
-        else -> BodyParamModel(toTypeModel(type))
+        else -> BodyParamModel(toTypeModel(type), isAutoCloseable())
     }
 
     private fun isAuthentication(): Boolean {
@@ -68,6 +70,24 @@ class ParamModelParser(private val param: KSValueParameter) {
             return true
         }
         return false
+    }
+
+    private fun isAutoCloseable(): Boolean {
+        val declaration = type.declaration
+        if (declaration !is KSClassDeclaration) return false
+        for (superType in declaration.getAllSuperTypes()) {
+            if (expand(superType.declaration).qualifiedName?.asString() == AutoCloseable::class.java.name) return true
+        }
+        return false
+    }
+
+    // Kotlin's AutoCloseable is a typealias for java.lang.AutoCloseable on the JVM.
+    private fun expand(declaration: KSDeclaration): KSDeclaration {
+        var expanded = declaration
+        while (expanded is KSTypeAlias) {
+            expanded = expanded.type.resolve().declaration
+        }
+        return expanded
     }
 
     private fun toTypeModel(type: KSType): TypeModel {
