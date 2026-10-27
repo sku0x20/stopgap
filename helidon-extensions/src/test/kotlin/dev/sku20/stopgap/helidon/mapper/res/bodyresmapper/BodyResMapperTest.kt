@@ -16,7 +16,7 @@ class BodyResMapperTest {
     private val response = mock<ServerResponse>()
     private val headers = mock<ServerResponseHeaders>()
 
-    private class Note(val title: String)
+    private data class Note(val title: String)
 
     @BeforeEach
     fun setup() {
