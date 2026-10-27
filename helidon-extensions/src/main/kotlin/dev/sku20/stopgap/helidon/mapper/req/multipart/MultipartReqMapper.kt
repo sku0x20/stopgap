@@ -14,8 +14,7 @@ class MultipartReqMapper : ReqMapper {
         response: ServerResponse,
         type: KType
     ): T {
-        val mediaType = request.headers().contentType().orElse(null)
-        if (mediaType == null) throw UnsupportedMediaTypeException(mediaType)
+        val mediaType = request.headers().contentType().orElse(null) ?: throw UnsupportedMediaTypeException(null)
         val content = request.content().inputStream()
         val multipartRequest = MultipartRequest(mediaType, content)
         return multipartRequest.multiPart() as T

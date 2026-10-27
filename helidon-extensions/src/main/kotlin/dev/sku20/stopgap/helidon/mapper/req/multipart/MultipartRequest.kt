@@ -4,8 +4,8 @@ import io.helidon.http.HttpMediaType
 import java.io.InputStream
 
 class MultipartRequest(
-    val mediaType: HttpMediaType,
-    val bodyStream: InputStream
+    private val mediaType: HttpMediaType,
+    private val bodyStream: InputStream
 ) {
     fun multiPart(): MultiPart {
         TODO()

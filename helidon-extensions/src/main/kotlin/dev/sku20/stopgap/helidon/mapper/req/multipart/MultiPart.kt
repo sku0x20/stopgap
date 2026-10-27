@@ -8,12 +8,12 @@ data class MultiPart(
 ) {
     data class Part(
         val name: String,
-        val filename: String,
+        val filename: String?,
         val type: HttpMediaType,
         val content: Content,
     ) {
         data class Content(
-            val size: Int,
+            val size: Long,
             val inputStream: InputStream,
         )
     }
