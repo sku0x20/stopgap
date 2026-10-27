@@ -6,13 +6,18 @@ import dev.sku20.stopgap.helidon.mapper.req.exception.UnsupportedMediaTypeExcept
 import io.helidon.http.HttpMediaType
 import io.helidon.webserver.http.ServerRequest
 import io.helidon.webserver.http.ServerResponse
+import java.nio.file.Path
 import kotlin.reflect.KType
 
-class MultipartReqMapper : ReqMapper {
+class MultipartReqMapper(
+    private val memoryThreshold: Int = DEFAULT_MEMORY_THRESHOLD,
+    private val tempDirectory: Path = Path.of(System.getProperty("java.io.tmpdir")),
+) : ReqMapper {
     @Suppress("UNCHECKED_CAST")
     override fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T {
         val boundary = boundary(request)
-        return MultiPartParser(request.content().inputStream(), boundary).parse() as T
+        val input = request.content().inputStream()
+        return MultiPartParser(input, boundary, memoryThreshold, tempDirectory).parse() as T
     }
 
     private fun boundary(request: ServerRequest): String {
@@ -32,5 +37,9 @@ class MultipartReqMapper : ReqMapper {
         val type = contentType?.mediaType() ?: return false
         return type.type().equals("multipart", ignoreCase = true) &&
             type.subtype().equals("form-data", ignoreCase = true)
+    }
+
+    private companion object {
+        const val DEFAULT_MEMORY_THRESHOLD = 16 * 1024
     }
 }

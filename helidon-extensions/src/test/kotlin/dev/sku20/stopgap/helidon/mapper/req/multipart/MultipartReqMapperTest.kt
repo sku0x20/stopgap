@@ -13,18 +13,23 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 import kotlin.reflect.typeOf
 
 class MultipartReqMapperTest {
 
-    private val mapper = MultipartReqMapper()
+    @TempDir
+    lateinit var tempDir: Path
+    private lateinit var mapper: MultipartReqMapper
     private val request = mock<ServerRequest>()
     private val response = mock<ServerResponse>()
     private val headers = mock<ServerRequestHeaders>()
@@ -32,6 +37,7 @@ class MultipartReqMapperTest {
 
     @BeforeEach
     fun setup() {
+        mapper = MultipartReqMapper(MEMORY_THRESHOLD, tempDir)
         whenever(request.headers()).thenReturn(headers)
     }
 
@@ -107,7 +113,7 @@ class MultipartReqMapperTest {
         val multiPart = mapper.map<MultiPart>(request, response, typeOf<MultiPart>())
 
         assertThat(multiPart).isEqualTo(
-            MultiPart(listOf(Part("attachment", "notes.txt", HttpMediaType.create("text/plain"))))
+            MultiPart(listOf(part("attachment", "notes.txt", HttpMediaType.create("text/plain"), "hello")))
         )
     }
 
@@ -130,8 +136,8 @@ class MultipartReqMapperTest {
         assertThat(map()).isEqualTo(
             MultiPart(
                 listOf(
-                    Part("title", null, textPlain),
-                    Part("attachment", "photo.png", HttpMediaType.create("image/png")),
+                    part("title", null, textPlain, "groceries"),
+                    part("attachment", "photo.png", HttpMediaType.create("image/png"), "png"),
                 )
             )
         )
@@ -153,7 +159,7 @@ class MultipartReqMapperTest {
         )
 
         assertThat(map()).isEqualTo(
-            MultiPart(listOf(Part("files", "a.txt", textPlain), Part("files", "b.txt", textPlain)))
+            MultiPart(listOf(part("files", "a.txt", textPlain, "a"), part("files", "b.txt", textPlain, "b")))
         )
     }
 
@@ -168,7 +174,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("title", null, textPlain, "groceries"))))
     }
 
     @Test
@@ -184,7 +190,7 @@ class MultipartReqMapperTest {
         )
 
         assertThat(map()).isEqualTo(
-            MultiPart(listOf(Part("attachment", "", HttpMediaType.create("application/octet-stream"))))
+            MultiPart(listOf(part("attachment", "", HttpMediaType.create("application/octet-stream"), "")))
         )
     }
 
@@ -199,7 +205,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("attachment", "nöte.txt", textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("attachment", "nöte.txt", textPlain, "hello"))))
     }
 
     @Test
@@ -214,7 +220,9 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, HttpMediaType.create("text/csv")))))
+        assertThat(map()).isEqualTo(
+            MultiPart(listOf(part("title", null, HttpMediaType.create("text/csv"), "a,b")))
+        )
     }
 
     @Test
@@ -228,7 +236,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("title", null, textPlain, "groceries"))))
     }
 
     @Test
@@ -243,7 +251,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("title", null, textPlain, "groceries"))))
     }
 
     @Test
@@ -258,7 +266,7 @@ class MultipartReqMapperTest {
                 "ignored epilogue"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("title", null, textPlain, "groceries"))))
     }
 
     @Test
@@ -272,7 +280,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("title", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("title", null, textPlain, "groceries"))))
     }
 
     @Test
@@ -286,7 +294,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("notes", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("notes", null, textPlain, "line one\r\nline two"))))
     }
 
     @Test
@@ -300,7 +308,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(MultiPart(listOf(Part("notes", null, textPlain))))
+        assertThat(map()).isEqualTo(MultiPart(listOf(part("notes", null, textPlain, "x\r\n--abcd\r\ny"))))
     }
 
     @Test
@@ -419,7 +427,12 @@ class MultipartReqMapperTest {
         body(OneByteInputStream(bytes))
 
         assertThat(map()).isEqualTo(
-            MultiPart(listOf(Part("title", null, textPlain), Part("attachment", "notes.txt", textPlain)))
+            MultiPart(
+                listOf(
+                    part("title", null, textPlain, "x\r\n--abcd"),
+                    part("attachment", "notes.txt", textPlain, "hello"),
+                )
+            )
         )
     }
 
@@ -438,10 +451,46 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        assertThat(map()).isEqualTo(
-            MultiPart(listOf(Part("attachment", "big.txt", textPlain), Part("title", null, textPlain)))
-        )
+        val parts = map().parts
+
+        assertThat(parts[0].name).isEqualTo("attachment")
+        assertThat(parts[0].fileName).isEqualTo("big.txt")
+        assertThat(String(parts[0].inputStream().readAllBytes())).isEqualTo("a".repeat(20_000))
+        assertThat(parts[1]).isEqualTo(part("title", null, textPlain, "groceries"))
     }
+
+    @Test
+    fun keepsPartUpToThresholdInMemory() {
+        contentType("multipart/form-data; boundary=abc")
+        body(fileBody("a".repeat(MEMORY_THRESHOLD)))
+
+        val part = map().parts[0]
+
+        assertThat(part).isEqualTo(part("attachment", "big.txt", textPlain, "a".repeat(MEMORY_THRESHOLD)))
+        assertThat(Files.list(tempDir).count()).isZero()
+    }
+
+    @Test
+    fun spillsPartOverThresholdToTempFile() {
+        contentType("multipart/form-data; boundary=abc")
+        body(fileBody("a".repeat(MEMORY_THRESHOLD + 1)))
+
+        val part = map().parts[0]
+
+        assertThat(Files.list(tempDir).count()).isOne()
+        assertThat(String(part.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
+        assertThat(String(part.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
+    }
+
+    private fun fileBody(content: String) =
+        "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+            "\r\n" +
+            content + "\r\n" +
+            "--abc--\r\n"
+
+    private fun part(name: String, fileName: String?, contentType: HttpMediaType, content: String) =
+        Part(name, fileName, contentType, InMemoryPartBody(content.toByteArray()))
 
     private fun map(): MultiPart = mapper.map(request, response, typeOf<MultiPart>())
 
@@ -466,5 +515,9 @@ class MultipartReqMapperTest {
 
     private fun contentType(value: String) {
         whenever(headers.contentType()).thenReturn(Optional.of(HttpMediaType.create(value)))
+    }
+
+    private companion object {
+        const val MEMORY_THRESHOLD = 1024
     }
 }

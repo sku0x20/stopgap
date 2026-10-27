@@ -5,13 +5,15 @@ import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
 import io.helidon.http.ContentDisposition
 import io.helidon.http.HttpMediaType
 import java.io.InputStream
-import java.io.OutputStream
+import java.nio.file.Path
 
 // Reads the body through a fixed buffer, so memory stays flat however large the parts are.
 // Every delimiter after the first is preceded by CRLF, which belongs to the delimiter, not to the part's content.
 internal class MultiPartParser(
     private val input: InputStream,
     boundary: String,
+    private val memoryThreshold: Int,
+    private val tempDirectory: Path,
 ) {
 
     private val delimiter = "\r\n--$boundary".toByteArray(Charsets.US_ASCII)
@@ -29,30 +31,32 @@ internal class MultiPartParser(
     }
 
     fun parse(): MultiPart {
-        var isClosed = readToDelimiter(OutputStream.nullOutputStream())
+        var isClosed = readToDelimiter(DISCARD)
         val parts = mutableListOf<Part>()
         while (!isClosed) {
-            parts.add(toPart(readHeaders()))
-            isClosed = readToDelimiter(OutputStream.nullOutputStream())
+            val headers = readHeaders()
+            val spool = PartBodySpool(memoryThreshold, tempDirectory)
+            isClosed = readToDelimiter(spool::write)
+            parts.add(toPart(headers, spool.toBody()))
         }
         return MultiPart(parts)
     }
 
     // Copies bytes up to the next delimiter into sink and consumes the delimiter; true if it closes the body.
-    private fun readToDelimiter(sink: OutputStream): Boolean {
+    private fun readToDelimiter(sink: (ByteArray, Int, Int) -> Unit): Boolean {
         while (true) {
             val index = indexOfDelimiter()
             if (index < 0) {
                 // A delimiter may start in the last bytes, so keep them for the next read.
                 val safeEnd = end - delimiter.size + 1
                 if (safeEnd > start) {
-                    sink.write(buffer, start, safeEnd - start)
+                    sink(buffer, start, safeEnd - start)
                     start = safeEnd
                 }
                 if (!read()) endOfInput()
                 continue
             }
-            sink.write(buffer, start, index - start)
+            sink(buffer, start, index - start)
             start = index
             if (peek(delimiter.size) == DASH && peek(delimiter.size + 1) == DASH) {
                 start += delimiter.size + 2
@@ -61,7 +65,7 @@ internal class MultiPartParser(
             val lineEnd = paddedLineEndLength(delimiter.size)
             if (lineEnd < 0) {
                 // Only a prefix of a longer line, e.g. --abcd for boundary abc: it is content.
-                sink.write(buffer, start, 1)
+                sink(buffer, start, 1)
                 start += 1
                 continue
             }
@@ -102,7 +106,7 @@ internal class MultiPartParser(
         }
     }
 
-    private fun toPart(headers: Map<String, String>): Part {
+    private fun toPart(headers: Map<String, String>, body: PartBody): Part {
         val disposition = headers["content-disposition"] ?: throw MalformedBodyException(null)
         try {
             val contentDisposition = ContentDisposition.parse(disposition)
@@ -112,6 +116,7 @@ internal class MultiPartParser(
                 name,
                 contentDisposition.filename().orElse(null),
                 if (contentType == null) DEFAULT_CONTENT_TYPE else HttpMediaType.create(contentType),
+                body,
             )
         } catch (e: IllegalArgumentException) {
             throw MalformedBodyException(e)
@@ -169,5 +174,6 @@ internal class MultiPartParser(
         const val SPACE = ' '.code
         const val TAB = '\t'.code
         val DEFAULT_CONTENT_TYPE: HttpMediaType = HttpMediaType.create("text/plain")
+        val DISCARD: (ByteArray, Int, Int) -> Unit = { _, _, _ -> }
     }
 }
