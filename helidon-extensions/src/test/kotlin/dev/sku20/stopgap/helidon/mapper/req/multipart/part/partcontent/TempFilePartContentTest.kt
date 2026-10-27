@@ -20,4 +20,13 @@ class TempFilePartContentTest {
         assertThat(content.size).isEqualTo(5)
         assertThat(content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
     }
+
+    @Test
+    fun closeDeletesFile() {
+        val file = Files.write(tempDir.resolve("part"), "hello".toByteArray())
+
+        TempFilePartContent(file).close()
+
+        assertThat(file).doesNotExist()
+    }
 }

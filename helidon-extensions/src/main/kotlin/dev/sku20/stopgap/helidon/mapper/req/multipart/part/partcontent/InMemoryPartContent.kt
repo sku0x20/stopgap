@@ -15,6 +15,10 @@ class InMemoryPartContent(
 
     override fun inputStream(): InputStream = ByteArrayInputStream(bytes)
 
+    override fun close() {
+        // nothing outside the heap to release
+    }
+
     companion object {
         const val MAX_SIZE = 16 * 1024
     }

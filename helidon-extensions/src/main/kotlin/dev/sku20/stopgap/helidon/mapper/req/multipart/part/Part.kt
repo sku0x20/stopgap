@@ -8,4 +8,9 @@ data class Part(
     val filename: String?,
     val type: HttpMediaType,
     val content: PartContent,
-)
+) : AutoCloseable {
+
+    override fun close() {
+        content.close()
+    }
+}

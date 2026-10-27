@@ -12,4 +12,14 @@ class TempFilePartContent(
         get() = Files.size(path)
 
     override fun inputStream(): InputStream = Files.newInputStream(path)
+
+    // TODO: log a failed delete instead of throwing; close runs in a finally, where an exception would hide
+    //  the endpoint's own.
+    override fun close() {
+        Files.deleteIfExists(path)
+    }
+
+    fun write(data: ByteArray) {
+        TODO()
+    }
 }
