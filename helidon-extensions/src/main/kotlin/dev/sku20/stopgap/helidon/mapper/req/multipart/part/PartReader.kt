@@ -11,6 +11,7 @@ class PartReader(
 ) {
 
     private val dashBoundary = "--$boundary".toByteArray(Charsets.UTF_8)
+    private val delimiter = "\r\n--$boundary".toByteArray(Charsets.UTF_8)
     private val bufferedInputStream = BufferedInputStream(bodyStream)
 
     fun part(): Part? {
@@ -21,7 +22,8 @@ class PartReader(
         if (nextBytes.contentEquals(DASHES)) return null
         if (!nextBytes.contentEquals(CRLF)) throw MalformedBodyException(null)
         val headers = readHeaders()
-        TODO("read content")
+        val content = readUntil(delimiter)
+        TODO("build part")
     }
 
     // Header names are lowercased, since they are case-insensitive.
