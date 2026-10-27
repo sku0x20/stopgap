@@ -31,12 +31,13 @@ class ParamModelAstGen(
             VariableType.VAL,
             AstCall(AstLiteral("io.helidon.http.HeaderNames.create"), listOf(AstStringLiteral(model.name)))
         )
+
         is BodyParamModel -> bodyKTypeVariable(model)
     }
 
     fun isBodyParam(): Boolean = model is BodyParamModel
 
-    fun reqBody(): AstAssignment? {
+    fun closeableBody(): AstAssignment? {
         if (model !is BodyParamModel || !model.isAutoCloseable) return null
         return AstAssignment(body, null, VariableType.VAL, reqMapCall(model))
     }

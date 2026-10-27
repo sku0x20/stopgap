@@ -76,7 +76,7 @@ class ParamModelAstGenTest {
         assertThat(gen.isBodyParam()).isTrue()
         assertThat(gen.argument()).isEqualTo(map(AstType("a.Body")))
         assertThat(gen.endpointVariable()).isEqualTo(kTypeVal(AstType("a.Body")))
-        assertThat(gen.reqBody()).isNull()
+        assertThat(gen.closeableBody()).isNull()
     }
 
     @Test
@@ -84,7 +84,7 @@ class ParamModelAstGenTest {
         val gen = ParamModelAstGen(BodyParamModel(TypeModel("a.Body"), true), "fn", reqMapper)
 
         assertThat(gen.argument()).isEqualTo(AstLiteral("body"))
-        assertThat(gen.reqBody())
+        assertThat(gen.closeableBody())
             .isEqualTo(AstAssignment(AstLiteral("body"), null, VariableType.VAL, map(AstType("a.Body"))))
         assertThat(gen.closeBody()).isEqualTo(AstCall(AstLiteral("close"), emptyList(), AstLiteral("body")))
     }

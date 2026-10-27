@@ -57,8 +57,8 @@ class EndpointMethodModelAstGen(
         val body = mutableListOf<AstExpression>()
         body.addAll(authCheck())
         for (paramGen in paramGens) {
-            val closeableBody = paramGen.reqBody() ?: continue
-            body.add(closeableBody)
+            val bodyDec = paramGen.closeableBody() ?: continue
+            body.add(bodyDec)
             body.add(AstTry(endpointCall(), emptyList(), listOf(paramGen.closeBody())))
             return body
         }
