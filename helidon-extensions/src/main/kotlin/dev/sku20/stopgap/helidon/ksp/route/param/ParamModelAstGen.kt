@@ -36,7 +36,7 @@ class ParamModelAstGen(
     fun isSendingResponse(): Boolean = model == ResponseParamModel
 
     private fun bodyArgument(model: BodyParamModel): AstCall =
-        AstCall(AstLiteral("map"), listOf(req, bodyKType), reqMapperName, listOf(toAstType(model.type)))
+        AstCall(AstLiteral("map"), listOf(req, AstLiteral("res"), bodyKType), reqMapperName, listOf(toAstType(model.type)))
 
     // Built once per endpoint; typeOf inside the rule lambda would run on every request.
     private fun bodyKTypeVariable(model: BodyParamModel): AstAssignment =

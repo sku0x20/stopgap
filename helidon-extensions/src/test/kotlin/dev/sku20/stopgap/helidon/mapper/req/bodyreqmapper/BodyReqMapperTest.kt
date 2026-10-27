@@ -7,6 +7,7 @@ import io.helidon.http.HttpMediaTypes
 import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.media.ReadableEntity
 import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -25,6 +26,7 @@ class BodyReqMapperTest {
     private val decoder = mock<BodyDecoder>()
     private val mapper = BodyReqMapper(rule, decoder)
     private val request = mock<ServerRequest>()
+    private val response = mock<ServerResponse>()
     private val headers = mock<ServerRequestHeaders>()
     private val content = mock<ReadableEntity>()
 
@@ -46,7 +48,7 @@ class BodyReqMapperTest {
         whenever(content.inputStream()).thenReturn(ByteArrayInputStream(bytes))
         whenever(decoder.decode<Note>(bytes, type)).thenReturn(note)
 
-        val result = mapper.map<Note>(request, type)
+        val result = mapper.map<Note>(request, response, type)
 
         assertThat(result).isSameAs(note)
     }
@@ -55,7 +57,7 @@ class BodyReqMapperTest {
     fun throwsOnEmptyBody() {
         whenever(content.inputStream()).thenReturn(ByteArrayInputStream(ByteArray(0)))
 
-        assertThatThrownBy { mapper.map<Note>(request, typeOf<Note>()) }
+        assertThatThrownBy { mapper.map<Note>(request, response, typeOf<Note>()) }
             .isInstanceOf(EmptyBodyException::class.java)
     }
 
@@ -63,7 +65,7 @@ class BodyReqMapperTest {
     fun throwsWhenMediaTypeRejected() {
         whenever(rule.accepts(HttpMediaTypes.JSON)).thenReturn(false)
 
-        assertThatThrownBy { mapper.map<Note>(request, typeOf<Note>()) }
+        assertThatThrownBy { mapper.map<Note>(request, response, typeOf<Note>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -71,7 +73,7 @@ class BodyReqMapperTest {
     fun skipsBodyWhenMediaTypeRejected() {
         whenever(rule.accepts(HttpMediaTypes.JSON)).thenReturn(false)
 
-        assertThatThrownBy { mapper.map<Note>(request, typeOf<Note>()) }
+        assertThatThrownBy { mapper.map<Note>(request, response, typeOf<Note>()) }
 
         verify(request, never()).content()
     }

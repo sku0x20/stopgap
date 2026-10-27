@@ -102,7 +102,7 @@ class EndpointMethodModelAstGenTest {
 
         val map = AstCall(
             AstLiteral("map"),
-            listOf(req, AstLiteral("fnBodyKType")),
+            listOf(req, res, AstLiteral("fnBodyKType")),
             AstLiteral("a_EndpointMapper"),
             listOf(AstType("a.Body")),
         )

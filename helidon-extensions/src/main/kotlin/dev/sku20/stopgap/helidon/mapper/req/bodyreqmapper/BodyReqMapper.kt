@@ -5,13 +5,14 @@ import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.mediatyperule.MediaTyp
 import dev.sku20.stopgap.helidon.mapper.req.exception.EmptyBodyException
 import dev.sku20.stopgap.helidon.mapper.req.exception.UnsupportedMediaTypeException
 import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 import kotlin.reflect.KType
 
 class BodyReqMapper(
     private val rule: MediaTypeRule,
     private val decoder: BodyDecoder,
 ) : ReqMapper {
-    override fun <T> map(request: ServerRequest, type: KType): T {
+    override fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T {
         val contentType = request.headers().contentType().orElse(null)
         if (!rule.accepts(contentType)) {
             throw UnsupportedMediaTypeException(contentType)

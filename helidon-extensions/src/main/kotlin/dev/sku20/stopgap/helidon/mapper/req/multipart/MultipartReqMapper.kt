@@ -6,11 +6,12 @@ import dev.sku20.stopgap.helidon.mapper.req.exception.MissingBoundaryException
 import dev.sku20.stopgap.helidon.mapper.req.exception.UnsupportedMediaTypeException
 import io.helidon.http.HttpMediaType
 import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 import kotlin.reflect.KType
 
 class MultipartReqMapper : ReqMapper {
     @Suppress("UNCHECKED_CAST")
-    override fun <T> map(request: ServerRequest, type: KType): T {
+    override fun <T> map(request: ServerRequest, response: ServerResponse, type: KType): T {
         val boundary = boundary(request)
         val bytes = request.content().inputStream().readAllBytes()
         if (bytes.isEmpty()) {

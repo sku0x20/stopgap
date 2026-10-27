@@ -8,6 +8,7 @@ import io.helidon.http.HttpMediaType
 import io.helidon.http.ServerRequestHeaders
 import io.helidon.http.media.ReadableEntity
 import io.helidon.webserver.http.ServerRequest
+import io.helidon.webserver.http.ServerResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -24,6 +25,7 @@ class MultipartReqMapperTest {
 
     private val mapper = MultipartReqMapper()
     private val request = mock<ServerRequest>()
+    private val response = mock<ServerResponse>()
     private val headers = mock<ServerRequestHeaders>()
     private val textPlain = HttpMediaType.create("text/plain")
 
@@ -36,7 +38,7 @@ class MultipartReqMapperTest {
     fun rejectsMissingContentType() {
         whenever(headers.contentType()).thenReturn(Optional.empty())
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -44,7 +46,7 @@ class MultipartReqMapperTest {
     fun rejectsOtherMediaType() {
         contentType("application/json")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -52,7 +54,7 @@ class MultipartReqMapperTest {
     fun rejectsOtherMultipartSubtype() {
         contentType("multipart/mixed; boundary=abc")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -60,7 +62,7 @@ class MultipartReqMapperTest {
     fun rejectsWildcards() {
         contentType("multipart/*; boundary=abc")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(UnsupportedMediaTypeException::class.java)
     }
 
@@ -68,7 +70,7 @@ class MultipartReqMapperTest {
     fun rejectsMissingBoundary() {
         contentType("multipart/form-data")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(MissingBoundaryException::class.java)
     }
 
@@ -76,7 +78,7 @@ class MultipartReqMapperTest {
     fun rejectsEmptyBoundary() {
         contentType("multipart/form-data; boundary=\"\"")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
             .isInstanceOf(MissingBoundaryException::class.java)
     }
 
@@ -84,7 +86,7 @@ class MultipartReqMapperTest {
     fun skipsBodyWhenRejected() {
         contentType("application/json")
 
-        assertThatThrownBy { mapper.map<Any>(request, typeOf<Any>()) }
+        assertThatThrownBy { mapper.map<Any>(request, response, typeOf<Any>()) }
 
         verify(request, never()).content()
     }
@@ -101,7 +103,7 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        val multiPart = mapper.map<MultiPart>(request, typeOf<MultiPart>())
+        val multiPart = mapper.map<MultiPart>(request, response, typeOf<MultiPart>())
 
         assertThat(multiPart).isEqualTo(
             MultiPart(listOf(Part("attachment", "notes.txt", HttpMediaType.create("text/plain"))))
@@ -399,7 +401,7 @@ class MultipartReqMapperTest {
         assertThatThrownBy { map() }.isInstanceOf(MalformedBodyException::class.java)
     }
 
-    private fun map(): MultiPart = mapper.map(request, typeOf<MultiPart>())
+    private fun map(): MultiPart = mapper.map(request, response, typeOf<MultiPart>())
 
     private fun body(value: String) {
         val content = mock<ReadableEntity>()

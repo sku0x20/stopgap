@@ -89,7 +89,7 @@ class ParamModelAstGenTest {
     }
 
     private fun map(type: AstType) =
-        AstCall(AstLiteral("map"), listOf(req, AstLiteral("fnBodyKType")), reqMapper, listOf(type))
+        AstCall(AstLiteral("map"), listOf(req, AstLiteral("res"), AstLiteral("fnBodyKType")), reqMapper, listOf(type))
 
     private fun kTypeVal(type: AstType) = AstAssignment(
         AstLiteral("fnBodyKType"),
