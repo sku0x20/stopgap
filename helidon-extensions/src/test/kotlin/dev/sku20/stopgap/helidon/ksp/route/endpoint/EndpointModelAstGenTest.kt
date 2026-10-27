@@ -21,7 +21,7 @@ class EndpointModelAstGenTest {
 
     @Test
     fun empty() {
-        val model = EndpointModel("a.Endpoint", "/e", emptyList(), null, null, null)
+        val model = EndpointModel("a.Endpoint", "/e", emptyList(), null, null)
 
         assertThat(EndpointModelAstGen(model, "public").function()).isEqualTo(
             AstFunction("registerRoutesFor", listOf(endpointParam, routesParam), listOf(register()))
@@ -33,7 +33,7 @@ class EndpointModelAstGenTest {
         val header = HeaderParamModel("X-Id")
         val first = EndpointMethodModel("first", HttpMethod.GET, "/a", params = listOf(header))
         val second = EndpointMethodModel("second", HttpMethod.POST, "/b", params = listOf(BodyParamModel(TypeModel("a.Body"))))
-        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), null, reqMapper, resMapper)
+        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), reqMapper, resMapper)
 
         val firstGen = EndpointMethodModelAstGen(first, "a.Endpoint", reqMapper, resMapper, "public")
         val secondGen = EndpointMethodModelAstGen(second, "a.Endpoint", reqMapper, resMapper, "public")
@@ -52,7 +52,7 @@ class EndpointModelAstGenTest {
         val body = BodyParamModel(TypeModel("a.Body"))
         val first = EndpointMethodModel("first", HttpMethod.POST, "/a", params = listOf(header, body), isResponseUnit = false)
         val second = EndpointMethodModel("second", HttpMethod.POST, "/b", params = listOf(header, body), isResponseUnit = false)
-        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), null, reqMapper, resMapper)
+        val model = EndpointModel("a.Endpoint", "/e", listOf(first, second), reqMapper, resMapper)
 
         val function = EndpointModelAstGen(model, "public").function()
 

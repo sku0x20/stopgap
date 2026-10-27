@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.sku20.stopgap.app.authn.AppAuthenticationResolver
 import dev.sku20.stopgap.app.mapper.FastJsonDecoder
 import dev.sku20.stopgap.app.mapper.FastJsonEncoder
-import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.ReqMapper
@@ -13,9 +12,6 @@ import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.helidon.mapper.res.CustomResMapper
 import dev.sku20.stopgap.helidon.mapper.res.ResMapper
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.json.JsonResMapper
-import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
-import dev.sku20.stopgap.helidon.serde.SerdeCatalog
-import dev.sku20.stopgap.helidon.serde.SerdeExtras
 import dev.sku20.stopgap.ir.annotation.Creates
 import dev.sku20.stopgap.ir.annotation.Qualifier
 import io.helidon.config.Config
@@ -53,21 +49,6 @@ object RootConfig {
         openTelemetry: OpenTelemetry
     ): DataSource {
         return JdbcTelemetry.create(openTelemetry).wrap(dataSource)
-    }
-
-    @Creates
-    fun fastjsonSerde(): FastjsonSerde {
-        return FastjsonSerde()
-    }
-
-    @Creates
-    @Qualifier(SerdeExtras.DEFAULT_CATALOG_QUALIFIER)
-    fun defaultSerdeCatalog(
-        fastjsonSerde: FastjsonSerde
-    ): SerdeCatalog {
-        val mapSerdeCatalog = MapSerdeCatalog()
-        mapSerdeCatalog.add(fastjsonSerde)
-        return mapSerdeCatalog
     }
 
     @Creates
