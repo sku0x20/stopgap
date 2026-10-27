@@ -25,21 +25,17 @@ class BodyResMapperTest {
 
     @Test
     fun sendsEncodedBody() {
-        val note = Note("groceries")
         val bytes = """{"title":"groceries"}""".toByteArray()
-        whenever(encoder.encode(note)).thenReturn(bytes)
+        whenever(encoder.encode(Note("groceries"))).thenReturn(bytes)
 
-        mapper.map(response, note)
+        mapper.map(response, Note("groceries"))
 
         verify(response).send(bytes)
     }
 
     @Test
     fun setsContentType() {
-        val note = Note("groceries")
-        whenever(encoder.encode(note)).thenReturn(ByteArray(0))
-
-        mapper.map(response, note)
+        mapper.map(response, Note("groceries"))
 
         verify(headers).contentType(HttpMediaTypes.JSON)
     }
