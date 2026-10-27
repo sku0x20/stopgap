@@ -72,15 +72,6 @@ class ParamModelParser(private val param: KSValueParameter) {
         }
     }
 
-    // Kotlin's AutoCloseable is a typealias for java.lang.AutoCloseable on the JVM.
-    private fun expandTypeAlias(declaration: KSDeclaration): KSDeclaration {
-        var expanded = declaration
-        while (expanded is KSTypeAlias) {
-            expanded = expanded.type.resolve().declaration
-        }
-        return expanded
-    }
-
     private fun toTypeModel(type: KSType): TypeModel {
         val typeArguments = mutableListOf<TypeModel>()
         for (argument in type.arguments) {
@@ -93,5 +84,14 @@ class ParamModelParser(private val param: KSValueParameter) {
             typeArguments,
             type.isMarkedNullable,
         )
+    }
+
+    // Kotlin's AutoCloseable is a typealias for java.lang.AutoCloseable on the JVM.
+    private fun expandTypeAlias(declaration: KSDeclaration): KSDeclaration {
+        var expanded = declaration
+        while (expanded is KSTypeAlias) {
+            expanded = expanded.type.resolve().declaration
+        }
+        return expanded
     }
 }
