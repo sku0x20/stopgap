@@ -128,7 +128,7 @@ class EndpointMethodModelAstGen(
             )
         }
         if (isSendingResponse()) return listOf(invocation)
-        // this code will never reach only???
+        // Unit endpoint without a ServerResponse param, e.g. fun delete(id: String): nothing else sends, so res.send().
         return listOf(invocation, call("send", res))
     }
 
