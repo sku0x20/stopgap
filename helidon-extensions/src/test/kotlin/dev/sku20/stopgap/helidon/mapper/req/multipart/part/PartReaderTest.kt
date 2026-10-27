@@ -161,6 +161,22 @@ class PartReaderTest {
         assertThat(tempFiles()).isEqualTo(filesBefore)
     }
 
+    @Test
+    fun deletesFileWhenBoundaryLineIsMalformed() {
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"attachment\"; filename=\"notes.txt\"\r\n" +
+            "\r\n" +
+            "hello\r\n" +
+            "--abcd\r\n" +
+            "--abc--"
+        val filesBefore = tempFiles()
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()), 4)
+
+        assertThatThrownBy { reader.next() }
+            .isInstanceOf(MalformedBodyException::class.java)
+        assertThat(tempFiles()).isEqualTo(filesBefore)
+    }
+
     private fun tempFiles(): Set<Path> {
         val tempDir = Path.of(System.getProperty("java.io.tmpdir"))
         Files.newDirectoryStream(tempDir, "stopgap-multipart-*").use { return it.toSet() }
