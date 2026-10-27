@@ -16,15 +16,14 @@ class PartReader(
     private val dashBoundary = "--$boundary".toByteArray(Charsets.UTF_8)
     private val delimiter = "\r\n--$boundary".toByteArray(Charsets.UTF_8)
     private val bufferedInputStream = BufferedInputStream(bodyStream)
-    private var isFirst = true
+
+    // Only the opening boundary is read here; later ones are consumed with the delimiter that ends each part.
+    init {
+        val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
+        if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
+    }
 
     fun part(): Part? {
-        // Later boundaries are consumed with the delimiter that ends the previous part.
-        if (isFirst) {
-            val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
-            if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
-            isFirst = false
-        }
         // "--" closes the body; CRLF means a part follows.
         val nextBytes = bufferedInputStream.readNBytes(2)
         if (nextBytes.contentEquals(DASHES)) return null
