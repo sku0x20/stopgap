@@ -1,5 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.FilePartContent
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -55,5 +57,28 @@ class PartReaderTest {
         assertThat(second.filename).isEqualTo("notes.txt")
         assertThat(second.content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
         assertThat(reader.hasNext()).isFalse()
+    }
+
+    @Test
+    fun switchesToFileOverBufferSize() {
+        val body = "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"small\"\r\n" +
+            "\r\n" +
+            "hi\r\n" +
+            "--abc\r\n" +
+            "Content-Disposition: form-data; name=\"large\"\r\n" +
+            "\r\n" +
+            "hello\r\n" +
+            "--abc--"
+        val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()), 4)
+
+        val small = reader.next()
+        val large = reader.next()
+
+        assertThat(small.content).isInstanceOf(InMemoryPartContent::class.java)
+        assertThat(small.content.inputStream().readAllBytes()).isEqualTo("hi".toByteArray())
+        assertThat(large.content).isInstanceOf(FilePartContent::class.java)
+        assertThat(large.content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
+        large.close()
     }
 }

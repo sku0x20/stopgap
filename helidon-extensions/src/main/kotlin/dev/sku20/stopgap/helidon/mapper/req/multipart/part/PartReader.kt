@@ -10,7 +10,8 @@ import java.io.InputStream
 
 class PartReader(
     boundary: String,
-    bodyStream: InputStream
+    bodyStream: InputStream,
+    private val bufferSize: Int = 16 * 1024,
 ) {
 
     private val dashBoundary = "--$boundary".toByteArray(Charsets.UTF_8)
