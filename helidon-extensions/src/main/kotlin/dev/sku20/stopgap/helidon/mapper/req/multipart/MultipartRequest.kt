@@ -18,7 +18,7 @@ class MultipartRequest(
     fun multiPart(): MultiPart {
         parseBoundary()
         parseParts()
-        return MultiPart(emptyList())
+        return MultiPart(parts)
     }
 
     private fun parseParts() {
