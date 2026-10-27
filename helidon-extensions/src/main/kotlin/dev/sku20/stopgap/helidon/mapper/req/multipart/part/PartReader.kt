@@ -36,23 +36,33 @@ class PartReader(
         }
     }
 
-    // Reads up to CRLF and drops it.
-    private fun readLine(): String {
-        val line = ByteArrayOutputStream()
-        while (true) {
+    private fun readLine(): String = String(readUntil(CRLF), Charsets.UTF_8)
+
+    // Returns the bytes before sequence and consumes sequence itself.
+    // On a mismatch, matching restarts at the current byte. That is enough only because the sequence's first
+    // byte (CR) appears nowhere else in it, so a partial match can't hide the start of another.
+    private fun readUntil(sequence: ByteArray): ByteArray {
+        val output = ByteArrayOutputStream()
+        var matched = 0
+        while (matched < sequence.size) {
             val byte = bufferedInputStream.read()
             if (byte < 0) throw MalformedBodyException(null)
-            if (byte == CR) {
-                if (bufferedInputStream.read() != LF) throw MalformedBodyException(null)
-                return line.toString(Charsets.UTF_8)
+            if (byte == sequence[matched].toInt()) {
+                matched++
+                continue
             }
-            line.write(byte)
+            output.write(sequence, 0, matched)
+            if (byte == sequence[0].toInt()) {
+                matched = 1
+            } else {
+                matched = 0
+                output.write(byte)
+            }
         }
+        return output.toByteArray()
     }
 
     private companion object {
-        const val CR = '\r'.code
-        const val LF = '\n'.code
         val DASHES = "--".toByteArray(Charsets.UTF_8)
         val CRLF = "\r\n".toByteArray(Charsets.UTF_8)
     }
