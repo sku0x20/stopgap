@@ -98,9 +98,11 @@ class MultipartReqMapperTest {
                 "--abc--\r\n"
         )
 
-        val file = mapper.map<UploadedFile>(request, typeOf<UploadedFile>())
+        val multiPart = mapper.map<MultiPart>(request, typeOf<MultiPart>())
 
-        assertThat(file).isEqualTo(UploadedFile("attachment", "notes.txt", HttpMediaType.create("text/plain"), 5))
+        assertThat(multiPart).isEqualTo(
+            MultiPart(listOf(Part("attachment", "notes.txt", HttpMediaType.create("text/plain"))))
+        )
     }
 
     private fun body(value: String) {
