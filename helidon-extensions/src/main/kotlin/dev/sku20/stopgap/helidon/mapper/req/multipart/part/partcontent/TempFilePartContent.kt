@@ -5,7 +5,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class TempFilePartContent(
-    private val path: Path
+    private val path: Path = Files.createTempFile("stopgap-multipart-", ".bin")
 ) : PartContent {
 
     override val size: Long = Files.size(path)
