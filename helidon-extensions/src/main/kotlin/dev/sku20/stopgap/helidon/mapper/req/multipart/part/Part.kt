@@ -1,6 +1,6 @@
-package dev.sku20.stopgap.helidon.mapper.req.multipart
+package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
-import dev.sku20.stopgap.helidon.mapper.req.multipart.partcontent.PartContent
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.PartContent
 import io.helidon.http.HttpMediaType
 
 data class Part(

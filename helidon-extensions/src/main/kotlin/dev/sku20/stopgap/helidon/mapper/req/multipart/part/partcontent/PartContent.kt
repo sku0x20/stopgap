@@ -1,4 +1,4 @@
-package dev.sku20.stopgap.helidon.mapper.req.multipart.partcontent
+package dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent
 
 import java.io.InputStream
 

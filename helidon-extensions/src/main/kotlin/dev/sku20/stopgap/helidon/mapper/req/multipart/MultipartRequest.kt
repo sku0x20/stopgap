@@ -2,6 +2,7 @@ package dev.sku20.stopgap.helidon.mapper.req.multipart
 
 import dev.sku20.stopgap.helidon.mapper.req.exception.InvalidBoundaryException
 import dev.sku20.stopgap.helidon.mapper.req.exception.MissingBoundaryException
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.Part
 import io.helidon.http.HttpMediaType
 import java.io.InputStream
 
