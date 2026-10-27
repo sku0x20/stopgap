@@ -1,6 +1,5 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
-import io.helidon.http.HttpMediaType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -28,7 +27,7 @@ class PartReaderTest {
 
         assertThat(part.name).isEqualTo("title")
         assertThat(part.filename).isNull()
-        assertThat(part.type).isEqualTo(HttpMediaType.create("text/plain"))
+        assertThat(part.type.text()).isEqualTo("text/plain")
         assertThat(part.content.inputStream().readAllBytes()).isEqualTo("groceries".toByteArray())
         assertThat(reader.part()).isNull()
     }
