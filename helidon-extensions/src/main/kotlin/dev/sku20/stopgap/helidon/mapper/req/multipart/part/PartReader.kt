@@ -1,6 +1,9 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part
 
 import dev.sku20.stopgap.helidon.mapper.req.exception.MalformedBodyException
+import dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent.InMemoryPartContent
+import io.helidon.http.ContentDisposition
+import io.helidon.http.HttpMediaType
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -23,7 +26,16 @@ class PartReader(
         if (!nextBytes.contentEquals(CRLF)) throw MalformedBodyException(null)
         val headers = readHeaders()
         val content = readUntil(delimiter)
-        TODO("build part")
+        return toPart(headers, content)
+    }
+
+    private fun toPart(headers: Map<String, String>, content: ByteArray): Part {
+        val dispositionHeader = headers["content-disposition"] ?: throw MalformedBodyException(null)
+        val disposition = ContentDisposition.parse(dispositionHeader)
+        val name = disposition.contentName().orElse(null) ?: throw MalformedBodyException(null)
+        val filename = disposition.filename().orElse(null)
+        val type = HttpMediaType.create(headers["content-type"] ?: DEFAULT_CONTENT_TYPE)
+        return Part(name, filename, type, InMemoryPartContent(content))
     }
 
     // Header names are lowercased, since they are case-insensitive.
@@ -67,6 +79,7 @@ class PartReader(
     }
 
     private companion object {
+        const val DEFAULT_CONTENT_TYPE = "text/plain"
         val DASHES = "--".toByteArray(Charsets.UTF_8)
         val CRLF = "\r\n".toByteArray(Charsets.UTF_8)
     }
