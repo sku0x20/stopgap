@@ -12,6 +12,21 @@ data class SampleList(val items: List<String>)
 data class SampleMap(val entries: Map<String, String>)
 data class SampleMapAny(val entries: Map<String, Any>)
 
+// Results (thrpt, ops/ms, 2 forks x 10 iterations x 1s):
+//   decodeKType           72600  ± 800
+//   decodeList            54137  ± 105
+//   decodeMap             39217  ± 336
+//   decodeSampleMapAny    38371  ± 245
+//   decodeKTypeInline     16672  ± 86
+//   decodeGeneric         11080  ± 920
+//   decodeMapAny           9676  ± 58
+//
+// Findings:
+// - Matches FastjsonDeserializeBenchmark: the decoder's null check and try/catch cost nothing measurable.
+// - SampleMapAny (~38k) is as fast as SampleMap, not ~5.7k: the old benchmark decoded SampleWrapper<Map<String, Any>>
+//   by mistake, so its "penalties stack" finding measured the generic wrapper, not an Any-valued field.
+// - A top-level Map<String, Any> (~9.7k) is ~4x slower than the same map as a field. Unverified: the top-level
+//   ParameterizedType may resolve to a slower generic reader than the field's.
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
