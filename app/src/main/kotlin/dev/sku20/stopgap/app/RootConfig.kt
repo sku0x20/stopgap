@@ -3,12 +3,13 @@ package dev.sku20.stopgap.app
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.sku20.stopgap.app.authn.AppAuthenticationResolver
+import dev.sku20.stopgap.app.mapper.FastJsonDecoder
 import dev.sku20.stopgap.app.mapper.FastJsonEncoder
-import dev.sku20.stopgap.app.mapper.FastJsonReqMapper
 import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.authentication.AuthenticationResolver
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.ReqMapper
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.helidon.mapper.res.CustomResMapper
 import dev.sku20.stopgap.helidon.mapper.res.ResMapper
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.json.JsonResMapper
@@ -72,7 +73,7 @@ object RootConfig {
     @Creates
     @Qualifier(CustomReqMapper.DEFAULT_QUALIFIER)
     fun defaultReqMapper(): ReqMapper {
-        return FastJsonReqMapper()
+        return JsonReqMapper(FastJsonDecoder())
     }
 
     @Creates

@@ -1,5 +1,6 @@
 package dev.sku20.stopgap.app.mapper
 
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
@@ -60,7 +61,7 @@ class MapperEndpointTest {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(MapperEndpoint(), registerParams = arrayOf(FastJsonReqMapper(), PlainTextReqMapper()))
+            return SetupCapture(MapperEndpoint(), registerParams = arrayOf(JsonReqMapper(FastJsonDecoder()), PlainTextReqMapper()))
         }
     }
 }

@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.app.note.web
 
-import dev.sku20.stopgap.app.mapper.FastJsonReqMapper
+import dev.sku20.stopgap.app.mapper.FastJsonDecoder
+import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.app.note.Note
 import dev.sku20.stopgap.app.note.NoteMetrics
 import dev.sku20.stopgap.app.note.NoteReq
@@ -156,7 +157,7 @@ class NoteEndpointTest {
             val noteStore = mock<NoteStore>()
             return SetupCapture(
                 NoteEndpoint(noteStore, NoteMetrics(OpenTelemetry.noop())),
-                registerParams = arrayOf(catalog, FastJsonReqMapper()),
+                registerParams = arrayOf(catalog, JsonReqMapper(FastJsonDecoder())),
                 instances = mapOf(NoteStore::class.java to noteStore)
             )
         }
