@@ -7,7 +7,7 @@ class PartParser(
     private val bodyStream: InputStream
 ) {
 
-    fun part(): Part {
+    fun part(): Part? {
         TODO()
     }
 }
