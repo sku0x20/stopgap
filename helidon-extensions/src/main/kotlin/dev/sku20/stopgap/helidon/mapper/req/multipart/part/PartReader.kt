@@ -10,6 +10,8 @@ import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
+// TODO: limit part count, header line length and preamble length; content goes to disk, but a client can
+//  still make the server read and store as much as it sends.
 class PartReader(
     boundary: String,
     bodyStream: InputStream,
