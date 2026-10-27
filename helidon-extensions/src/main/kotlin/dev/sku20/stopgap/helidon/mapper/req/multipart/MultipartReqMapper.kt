@@ -15,11 +15,16 @@ class MultipartReqMapper : ReqMapper {
         response: ServerResponse,
         type: KType
     ): T {
-        val mediaType = request.headers().contentType().orElse(null) ?: throw UnsupportedMediaTypeException(null)
-        if (!isFormData(mediaType)) throw UnsupportedMediaTypeException(mediaType)
+        val mediaType = validContentType(request)
         val content = request.content().inputStream()
         val multipartRequest = MultipartRequest(mediaType, content)
         return multipartRequest.multiPart() as T
+    }
+
+    private fun validContentType(request: ServerRequest): HttpMediaType {
+        val mediaType = request.headers().contentType().orElse(null) ?: throw UnsupportedMediaTypeException(null)
+        if (!isFormData(mediaType)) throw UnsupportedMediaTypeException(mediaType)
+        return mediaType
     }
 
     // Compares type and subtype directly: HttpMediaType.test() treats wildcards as a match.
