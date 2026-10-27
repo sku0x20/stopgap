@@ -16,8 +16,10 @@ internal class PartBodySpool(
     private val memory = ByteArrayOutputStream()
     private lateinit var file: Path
     private var fileStream: OutputStream? = null
+    private var size = 0L
 
     fun write(bytes: ByteArray, offset: Int, length: Int) {
+        size += length
         val stream = fileStream
         if (stream != null) {
             stream.write(bytes, offset, length)
@@ -37,7 +39,7 @@ internal class PartBodySpool(
     fun toBody(): PartBody {
         val stream = fileStream ?: return InMemoryPartBody(memory.toByteArray())
         stream.close()
-        return TempFilePartBody(file)
+        return TempFilePartBody(file, size)
     }
 
     fun discard() {
@@ -47,6 +49,6 @@ internal class PartBodySpool(
         } catch (e: IOException) {
             // the file is deleted next either way
         }
-        TempFilePartBody(file).close()
+        TempFilePartBody(file, size).close()
     }
 }

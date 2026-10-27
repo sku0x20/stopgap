@@ -6,6 +6,8 @@ import java.io.InputStream
 // Compares by content, so a Part holding it compares by value.
 class InMemoryPartBody(private val bytes: ByteArray) : PartBody {
 
+    override val size: Long = bytes.size.toLong()
+
     override fun inputStream(): InputStream = ByteArrayInputStream(bytes)
 
     override fun close() {

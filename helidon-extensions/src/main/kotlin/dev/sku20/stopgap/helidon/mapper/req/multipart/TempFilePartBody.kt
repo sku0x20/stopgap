@@ -5,7 +5,10 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
-class TempFilePartBody internal constructor(private val path: Path) : PartBody {
+class TempFilePartBody internal constructor(
+    private val path: Path,
+    override val size: Long,
+) : PartBody {
 
     override fun inputStream(): InputStream = Files.newInputStream(path)
 

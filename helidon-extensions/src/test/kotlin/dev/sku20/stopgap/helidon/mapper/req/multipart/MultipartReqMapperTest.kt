@@ -456,7 +456,7 @@ class MultipartReqMapperTest {
 
         assertThat(parts[0].name).isEqualTo("attachment")
         assertThat(parts[0].fileName).isEqualTo("big.txt")
-        assertThat(String(parts[0].inputStream().readAllBytes())).isEqualTo("a".repeat(20_000))
+        assertThat(String(parts[0].body.inputStream().readAllBytes())).isEqualTo("a".repeat(20_000))
         assertThat(parts[1]).isEqualTo(part("title", null, textPlain, "groceries"))
     }
 
@@ -468,6 +468,7 @@ class MultipartReqMapperTest {
         val part = map().parts[0]
 
         assertThat(part).isEqualTo(part("attachment", "big.txt", textPlain, "a".repeat(MEMORY_THRESHOLD)))
+        assertThat(part.body.size).isEqualTo(MEMORY_THRESHOLD.toLong())
         assertThat(Files.list(tempDir).count()).isZero()
     }
 
@@ -479,8 +480,9 @@ class MultipartReqMapperTest {
         val part = map().parts[0]
 
         assertThat(Files.list(tempDir).count()).isOne()
-        assertThat(String(part.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
-        assertThat(String(part.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
+        assertThat(part.body.size).isEqualTo(MEMORY_THRESHOLD + 1L)
+        assertThat(String(part.body.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
+        assertThat(String(part.body.inputStream().readAllBytes())).isEqualTo("a".repeat(MEMORY_THRESHOLD + 1))
     }
 
     @Test

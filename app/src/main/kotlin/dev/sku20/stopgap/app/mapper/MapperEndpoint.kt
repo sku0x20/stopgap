@@ -53,7 +53,7 @@ class MapperEndpoint {
         res: ServerResponse,
         body: MultiPart
     ) {
-        res.send(body.parts.joinToString(" ") { "${it.name}:${it.fileName}:${it.inputStream().readAllBytes().size}" })
+        res.send(body.parts.joinToString(" ") { "${it.name}:${it.fileName}:${it.body.size}" })
     }
 
     @Get("/serObj")
