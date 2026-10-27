@@ -23,7 +23,7 @@ class PartReaderTest {
             "--abc--"
         val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
 
-        val part = reader.part()
+        val part = reader.next()
 
         assertThat(part.name).isEqualTo("title")
         assertThat(part.filename).isNull()
@@ -46,8 +46,8 @@ class PartReaderTest {
             "--abc--"
         val reader = PartReader("abc", ByteArrayInputStream(body.toByteArray()))
 
-        val first = reader.part()
-        val second = reader.part()
+        val first = reader.next()
+        val second = reader.next()
 
         assertThat(first.name).isEqualTo("title")
         assertThat(first.content.inputStream().readAllBytes()).isEqualTo("groceries".toByteArray())

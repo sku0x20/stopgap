@@ -24,7 +24,7 @@ class MultipartRequest(
     private fun parseParts() {
         val reader = PartReader(boundary, bodyStream)
         while (reader.hasNext()) {
-            parts.add(reader.part())
+            parts.add(reader.next())
         }
     }
 

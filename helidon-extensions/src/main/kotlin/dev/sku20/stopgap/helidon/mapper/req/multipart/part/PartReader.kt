@@ -27,7 +27,7 @@ class PartReader(
 
     fun hasNext(): Boolean = !isClosed
 
-    fun part(): Part {
+    fun next(): Part {
         if (isClosed) throw NoSuchElementException()
         val headers = readHeaders()
         val content = readUntil(delimiter)
