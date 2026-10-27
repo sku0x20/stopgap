@@ -9,6 +9,8 @@ class ParamModelAstGen(
 ) {
 
     private val req = AstLiteral("req")
+    private val res = AstLiteral("res")
+
     private val body = AstLiteral("body")
 
     fun argument(): AstExpression = when (model) {
@@ -18,7 +20,7 @@ class ParamModelAstGen(
         is QueryParamModel -> get(call("query", req), AstStringLiteral(model.name))
         is HeaderParamModel -> get(call("headers", req), headerName(model))
         is AuthParamModel -> AstLiteral("auth")
-        is BodyParamModel -> if (model.isAutoCloseable) body else bodyArgument(model)
+        is BodyParamModel -> if (model.isAutoCloseable) body else reqMapCall(model)
     }
 
     fun endpointVariable(): AstAssignment? = when (model) {
@@ -32,12 +34,11 @@ class ParamModelAstGen(
         is BodyParamModel -> bodyKTypeVariable(model)
     }
 
-    fun isUsingReqMapper(): Boolean = model is BodyParamModel
+    fun isBodyParam(): Boolean = model is BodyParamModel
 
-    // Hoisted out of the endpoint call so the route can close it in a finally block.
-    fun closeableBodyVariable(): AstAssignment? {
+    fun reqBody(): AstAssignment? {
         if (model !is BodyParamModel || !model.isAutoCloseable) return null
-        return AstAssignment(body, null, VariableType.VAL, bodyArgument(model))
+        return AstAssignment(body, null, VariableType.VAL, reqMapCall(model))
     }
 
     fun closeBody(): AstExpression {
@@ -50,8 +51,8 @@ class ParamModelAstGen(
 
     fun isSendingResponse(): Boolean = model == ResponseParamModel
 
-    private fun bodyArgument(model: BodyParamModel): AstCall =
-        AstCall(AstLiteral("map"), listOf(req, AstLiteral("res"), bodyKType), reqMapperName, listOf(toAstType(model.type)))
+    private fun reqMapCall(model: BodyParamModel): AstCall =
+        AstCall(AstLiteral("map"), listOf(req, res, bodyKType), reqMapperName, listOf(toAstType(model.type)))
 
     // Built once per endpoint; typeOf inside the rule lambda would run on every request.
     private fun bodyKTypeVariable(model: BodyParamModel): AstAssignment =
