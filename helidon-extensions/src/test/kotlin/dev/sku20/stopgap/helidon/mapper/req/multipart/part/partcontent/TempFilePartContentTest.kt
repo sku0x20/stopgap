@@ -1,6 +1,7 @@
 package dev.sku20.stopgap.helidon.mapper.req.multipart.part.partcontent
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -41,5 +42,22 @@ class TempFilePartContentTest {
 
         assertThat(content.size).isEqualTo(5)
         assertThat(content.inputStream().readAllBytes()).isEqualTo("hello".toByteArray())
+    }
+
+    @Test
+    fun rejectsCallsOutOfOrder() {
+        val content = TempFilePartContent(Files.createFile(tempDir.resolve("part")))
+
+        assertThatThrownBy { content.write("a".toByteArray()) }
+            .isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { content.finishWriting() }
+            .isInstanceOf(IllegalStateException::class.java)
+
+        content.startWriting()
+
+        assertThatThrownBy { content.inputStream() }
+            .isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { content.size }
+            .isInstanceOf(IllegalStateException::class.java)
     }
 }
