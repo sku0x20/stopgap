@@ -36,9 +36,15 @@ class PartReader(
         if (isClosed) throw NoSuchElementException()
         val headers = readHeaders()
         val content = readContent()
-        val part = toPart(headers, content)
-        isClosed = readIsClosed()
-        return part
+        // On failure the part is never returned, so nothing else would close its content.
+        try {
+            val part = toPart(headers, content)
+            isClosed = readIsClosed()
+            return part
+        } catch (e: Exception) {
+            content.close()
+            throw e
+        }
     }
 
     // The body either starts with the boundary, or with a preamble that ends in CRLF before it.
