@@ -12,6 +12,6 @@ class PartReader(
     fun part(): Part? {
         val bytes = bodyStream.readNBytes(closeDelimiter.size)
         if (bytes.contentEquals(closeDelimiter)) return null
-        TODO()
+        TODO("read a single part; needs the PartContent impls first")
     }
 }
