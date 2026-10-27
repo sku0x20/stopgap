@@ -194,7 +194,7 @@ class EndpointMethodModelAstGenTest {
     private fun respVal(vararg arguments: AstExpression) =
         AstAssignment(AstLiteral("resp"), null, VariableType.VAL, endpointCall(*arguments))
 
-    private fun mapResp(resMapper: String) = call("map", AstLiteral(resMapper), res, AstLiteral("resp"))
+    private fun mapResp(resMapper: String) = call("map", AstLiteral(resMapper), req, res, AstLiteral("resp"))
 
     private fun call(name: String, receiver: AstExpression, vararg arguments: AstExpression) =
         AstCall(AstLiteral(name), arguments.toList(), receiver)

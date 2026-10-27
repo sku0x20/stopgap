@@ -100,7 +100,7 @@ class EndpointMethodModelAstGen(
         if (!model.isResponseUnit) {
             return listOf(
                 AstAssignment(resp, null, VariableType.VAL, invocation),
-                call("map", resMapperGen.name(), res, resp),
+                call("map", resMapperGen.name(), req, res, resp),
             )
         }
         if (isSendingResponse()) return listOf(invocation)
