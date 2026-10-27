@@ -2,11 +2,13 @@ package dev.sku20.stopgap.app.mapper
 
 import dev.sku20.stopgap.helidon.mapper.req.CustomReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
+import dev.sku20.stopgap.helidon.mapper.res.CustomResMapper
+import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.plaintext.PlainTextResMapper
 import dev.sku20.stopgap.helidon.endpoint.Endpoint
+import dev.sku20.stopgap.helidon.endpoint.Get
 import dev.sku20.stopgap.helidon.endpoint.Post
 import io.helidon.webserver.http.ServerResponse
 
-// Responses are sent raw so only the request side goes through a mapper.
 @Endpoint("/mapper")
 class MapperEndpoint {
 
@@ -41,6 +43,22 @@ class MapperEndpoint {
         body: String
     ) {
         res.send(body)
+    }
+
+    @Get("/serObj")
+    fun serObj(): ResDto {
+        return ResDto("foo")
+    }
+
+    @Get("/serGeneric")
+    fun serGeneric(): List<ResDto> {
+        return listOf(ResDto("foo"), ResDto("bar"))
+    }
+
+    @Get("/serPlainText")
+    @CustomResMapper(clazz = PlainTextResMapper::class)
+    fun serPlainText(): String {
+        return "foo"
     }
 
 }

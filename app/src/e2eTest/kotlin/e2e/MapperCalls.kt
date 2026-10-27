@@ -52,4 +52,31 @@ class MapperCalls {
         assertThat(text).isEqualTo("foo")
     }
 
+    @Test
+    fun serObj() {
+        val response = client.get("/mapper/serObj").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"foo"}""")
+    }
+
+    @Test
+    fun serGeneric() {
+        val response = client.get("/mapper/serGeneric").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""[{"data":"foo"},{"data":"bar"}]""")
+    }
+
+    @Test
+    fun serPlainText() {
+        val response = client.get("/mapper/serPlainText").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("foo")
+    }
+
 }

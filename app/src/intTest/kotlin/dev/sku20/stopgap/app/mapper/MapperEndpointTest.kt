@@ -1,7 +1,9 @@
 package dev.sku20.stopgap.app.mapper
 
+import dev.sku20.stopgap.app.serde.fastjson.FastjsonSerde
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
+import dev.sku20.stopgap.helidon.serde.MapSerdeCatalog
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest
@@ -57,11 +59,43 @@ class MapperEndpointTest {
         assertThat(text).isEqualTo("foo")
     }
 
+    @Test
+    fun serObj() {
+        val response = client.get("/mapper/serObj").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""{"data":"foo"}""")
+    }
+
+    @Test
+    fun serGeneric() {
+        val response = client.get("/mapper/serGeneric").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.JSON)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("""[{"data":"foo"},{"data":"bar"}]""")
+    }
+
+    @Test
+    fun serPlainText() {
+        val response = client.get("/mapper/serPlainText").request()
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        assertThat(response.headers().contentType()).hasValue(HttpMediaTypes.PLAINTEXT_UTF_8)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("foo")
+    }
+
     companion object {
         @JvmStatic
         @WebserverTest.Setup
         fun setup(): SetupCapture {
-            return SetupCapture(MapperEndpoint(), registerParams = arrayOf(JsonReqMapper(FastJsonDecoder()), PlainTextReqMapper()))
+            val catalog = MapSerdeCatalog()
+            catalog.add(FastjsonSerde())
+            return SetupCapture(
+                MapperEndpoint(),
+                registerParams = arrayOf(JsonReqMapper(FastJsonDecoder()), PlainTextReqMapper(), catalog)
+            )
         }
     }
 }
