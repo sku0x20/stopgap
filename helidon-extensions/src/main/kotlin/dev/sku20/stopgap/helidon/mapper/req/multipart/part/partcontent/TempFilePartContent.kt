@@ -4,6 +4,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
 class TempFilePartContent(
     private val path: Path = Files.createTempFile("stopgap-multipart-", ".bin")
@@ -24,6 +25,6 @@ class TempFilePartContent(
     }
 
     fun write(data: ByteArray) {
-        TODO()
+        Files.write(path, data, StandardOpenOption.APPEND)
     }
 }
