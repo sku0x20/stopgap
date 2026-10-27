@@ -11,10 +11,18 @@ class MultipartRequest(
 ) {
 
     private lateinit var boundary: String
+    private val parts = mutableListOf<Part>()
 
     fun multiPart(): MultiPart {
         parseBoundary()
+        parseParts()
         return MultiPart(emptyList())
+    }
+
+    private fun parseParts() {
+//        val part = PartParser(bodyStream)
+//            .part()
+//        parts.add(part)
     }
 
     private fun parseBoundary() {
