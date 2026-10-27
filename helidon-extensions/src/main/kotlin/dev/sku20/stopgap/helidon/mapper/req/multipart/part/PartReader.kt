@@ -26,9 +26,7 @@ class PartReader(
         require(bufferSize <= InMemoryPartContent.MAX_SIZE) {
             "bufferSize $bufferSize exceeds the in-memory limit ${InMemoryPartContent.MAX_SIZE}"
         }
-        val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
-        if (boundaryBytes.isEmpty()) throw EmptyBodyException()
-        if (!boundaryBytes.contentEquals(dashBoundary)) throw MalformedBodyException(null)
+        readOpeningBoundary()
         isClosed = readIsClosed()
     }
 
@@ -41,6 +39,17 @@ class PartReader(
         val part = toPart(headers, content)
         isClosed = readIsClosed()
         return part
+    }
+
+    // The body either starts with the boundary, or with a preamble that ends in CRLF before it.
+    // mark/reset puts back the bytes peeked at, since the preamble's CRLF may be among them.
+    private fun readOpeningBoundary() {
+        bufferedInputStream.mark(dashBoundary.size)
+        val boundaryBytes = bufferedInputStream.readNBytes(dashBoundary.size)
+        if (boundaryBytes.isEmpty()) throw EmptyBodyException()
+        if (boundaryBytes.contentEquals(dashBoundary)) return
+        bufferedInputStream.reset()
+        readUntil(delimiter) { }
     }
 
     // "--" after a boundary closes the body; CRLF means a part follows.
