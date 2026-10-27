@@ -2,16 +2,20 @@ package dev.sku20.stopgap.app.mapper
 
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.json.JsonReqMapper
 import dev.sku20.stopgap.helidon.mapper.req.bodyreqmapper.plaintext.PlainTextReqMapper
+import dev.sku20.stopgap.helidon.mapper.req.multipart.MultipartReqMapper
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.json.JsonResMapper
 import dev.sku20.stopgap.helidon.mapper.res.bodyresmapper.plaintext.PlainTextResMapper
 import dev.sku20.stopgap.helidon.test.InjectInstance
 import dev.sku20.stopgap.helidon.test.integration.SetupCapture
 import dev.sku20.stopgap.helidon.test.integration.WebserverTest
+import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
 
 @WebserverTest
 class MapperEndpointTest {
@@ -60,6 +64,45 @@ class MapperEndpointTest {
     }
 
     @Test
+    fun desMultipart() {
+        val response = client.post("/mapper/desMultipart")
+            .contentType(HttpMediaType.create("multipart/form-data; boundary=abc"))
+            .submit(
+                "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"title\"\r\n" +
+                    "\r\n" +
+                    "groceries\r\n" +
+                    "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"attachment\"; filename=\"notes.txt\"\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "\r\n" +
+                    "hello\r\n" +
+                    "--abc--\r\n"
+            )
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("title:null:9 attachment:notes.txt:5")
+    }
+
+    @Test
+    fun desMultipartDeletesTempFiles() {
+        val filesBefore = tempFiles()
+        val response = client.post("/mapper/desMultipart")
+            .contentType(HttpMediaType.create("multipart/form-data; boundary=abc"))
+            .submit(
+                "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                    "\r\n" +
+                    "a".repeat(20_000) + "\r\n" +
+                    "--abc--\r\n"
+            )
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("attachment:big.txt:20000")
+        assertThat(awaitTempFiles(filesBefore)).isTrue()
+    }
+
+    @Test
     fun serObj() {
         val response = client.get("/mapper/serObj").request()
         assertThat(response.status()).isEqualTo(Status.OK_200)
@@ -86,6 +129,21 @@ class MapperEndpointTest {
         assertThat(text).isEqualTo("foo")
     }
 
+    // The route closes the body after send returns, so the client can see the response a moment before the delete.
+    private fun awaitTempFiles(expected: Set<Path>): Boolean {
+        val deadline = System.nanoTime() + 2_000_000_000
+        while (System.nanoTime() < deadline) {
+            if (tempFiles() == expected) return true
+            Thread.sleep(10)
+        }
+        return false
+    }
+
+    private fun tempFiles(): Set<Path> {
+        val tempDir = Path.of(System.getProperty("java.io.tmpdir"))
+        Files.newDirectoryStream(tempDir, "stopgap-multipart-*").use { return it.toSet() }
+    }
+
     companion object {
         @JvmStatic
         @WebserverTest.Setup
@@ -95,6 +153,7 @@ class MapperEndpointTest {
                 registerParams = arrayOf(
                     JsonReqMapper(FastJsonDecoder()),
                     PlainTextReqMapper(),
+                    MultipartReqMapper(),
                     JsonResMapper(FastJsonEncoder()),
                     PlainTextResMapper()
                 )

@@ -1,6 +1,7 @@
 package e2e
 
 import dev.sku20.stopgap.helidon.test.InjectInstance
+import io.helidon.http.HttpMediaType
 import io.helidon.http.HttpMediaTypes
 import io.helidon.http.Status
 import io.helidon.webclient.api.WebClient
@@ -50,6 +51,43 @@ class MapperCalls {
         assertThat(response.status()).isEqualTo(Status.OK_200)
         val text = response.inputStream().bufferedReader().readText()
         assertThat(text).isEqualTo("foo")
+    }
+
+    @Test
+    fun desMultipart() {
+        val response = client.post("/mapper/desMultipart")
+            .contentType(HttpMediaType.create("multipart/form-data; boundary=abc"))
+            .submit(
+                "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"title\"\r\n" +
+                    "\r\n" +
+                    "groceries\r\n" +
+                    "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"attachment\"; filename=\"notes.txt\"\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "\r\n" +
+                    "hello\r\n" +
+                    "--abc--\r\n"
+            )
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("title:null:9 attachment:notes.txt:5")
+    }
+
+    @Test
+    fun desMultipartLargePart() {
+        val response = client.post("/mapper/desMultipart")
+            .contentType(HttpMediaType.create("multipart/form-data; boundary=abc"))
+            .submit(
+                "--abc\r\n" +
+                    "Content-Disposition: form-data; name=\"attachment\"; filename=\"big.txt\"\r\n" +
+                    "\r\n" +
+                    "a".repeat(20_000) + "\r\n" +
+                    "--abc--\r\n"
+            )
+        assertThat(response.status()).isEqualTo(Status.OK_200)
+        val text = response.inputStream().bufferedReader().readText()
+        assertThat(text).isEqualTo("attachment:big.txt:20000")
     }
 
     @Test
