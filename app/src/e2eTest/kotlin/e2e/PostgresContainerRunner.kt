@@ -7,7 +7,7 @@ import org.junit.platform.launcher.LauncherSessionListener
 import org.testcontainers.containers.Network
 import org.testcontainers.postgresql.PostgreSQLContainer
 
-// Alias and credentials must match the DB_POSTGRES_* entries in application.env.
+// Alias and credentials must match the DB_POSTGRES_* and DB_MIGRATE_URL entries in application.env.
 class PostgresContainerRunner : LauncherSessionListener {
 
     private lateinit var container: PostgreSQLContainer

@@ -9,19 +9,18 @@ RUN --mount=type=cache,target=${GRADLE_USER_HOME} ./gradlew --no-daemon -PgitSha
 
 
 FROM ghcr.io/graalvm/jdk-community:25i-ol10
+# Owned before VOLUME, so Docker seeds new volumes with this owner and the stopgap user can write its dumps there.
+RUN groupadd --system stopgap && useradd --system --gid stopgap --no-create-home stopgap \
+    && mkdir /diagnostics && chown stopgap:stopgap /diagnostics
 WORKDIR /app/stopgap
 COPY --from=build /project/stopgap/build/app/libs/libs libs
 COPY --from=build /project/stopgap/build/app/libs/stopgap-app.jar ./
 COPY --from=build /project/stopgap/build/app/otel otel
 COPY app/otel.properties app/pyroscope.properties otel/
+COPY --from=ghcr.io/amacneil/dbmate:2.37.0 /usr/local/bin/dbmate /usr/local/bin/
+COPY app/db/migrations db/migrations
 COPY --chmod=755 app/entrypoint.sh ./
 # Heap dumps, hs_err logs and JFR dumps; see entrypoint.sh.
 VOLUME /diagnostics
-# otel.semconv-stability.opt-in is a system property: the JDBC library reads it directly, not from otel.properties.
-ENTRYPOINT ["./entrypoint.sh", \
-    "-javaagent:otel/opentelemetry-javaagent.jar", \
-    "-Dotel.javaagent.configuration-file=otel/otel.properties", \
-    "-Dotel.javaagent.extensions=otel/extensions", \
-    "-Dpyroscope.configuration.file=otel/pyroscope.properties", \
-    "-Dotel.semconv-stability.opt-in=database", \
-    "-jar", "stopgap-app.jar"]
+USER stopgap
+ENTRYPOINT ["./entrypoint.sh"]

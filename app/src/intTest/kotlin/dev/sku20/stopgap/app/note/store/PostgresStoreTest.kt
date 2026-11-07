@@ -13,15 +13,24 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.Network
+import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy
 import org.testcontainers.postgresql.PostgreSQLContainer
+import org.testcontainers.utility.MountableFile
+import java.time.Duration
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
 @TestInstance(PER_CLASS)
 class PostgresStoreTest {
 
+    private val network = Network.newNetwork()
+
     private val postgres = PostgreSQLContainer("postgres:18-alpine")
         .withDatabaseName("stopgap")
+        .withNetwork(network)
+        .withNetworkAliases("postgres")
 
     private lateinit var dataSource: HikariDataSource
 
@@ -30,6 +39,7 @@ class PostgresStoreTest {
     @BeforeAll
     fun startPostgres() {
         postgres.start()
+        migrate()
         val config = HikariConfig()
         config.jdbcUrl = postgres.jdbcUrl
         config.username = postgres.username
@@ -49,18 +59,20 @@ class PostgresStoreTest {
     fun stopPostgres() {
         dataSource.close()
         postgres.stop()
+        network.close()
     }
 
-    @Test
-    fun createsTableOnInit() {
-        val sql = "SELECT count(*) FROM information_schema.tables WHERE table_name = 'notes'"
-        dataSource.connection.use { conn ->
-            conn.createStatement().use {
-                val rs = it.executeQuery(sql)
-                rs.next()
-                assertThat(rs.getLong(1)).isEqualTo(1)
-            }
-        }
+    // Same dbmate and migrations as the app images, so the test runs against the real schema.
+    private fun migrate() {
+        val url = "postgres://${postgres.username}:${postgres.password}@postgres:5432/stopgap?sslmode=disable"
+        GenericContainer("ghcr.io/amacneil/dbmate:2.37.0")
+            .withNetwork(network)
+            .withEnv("DATABASE_URL", url)
+            .withCopyFileToContainer(MountableFile.forHostPath("db/migrations"), "/db/migrations")
+            .withCommand("--migrations-dir", "/db/migrations", "--no-dump-schema", "up")
+            .withStartupCheckStrategy(OneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(30)))
+            .withLogConsumer { System.err.print(it.utf8String) }
+            .use { it.start() }
     }
 
     @Test

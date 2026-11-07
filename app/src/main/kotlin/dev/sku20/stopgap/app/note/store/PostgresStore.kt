@@ -17,10 +17,6 @@ class PostgresStore(
     private val dataSource: DataSource,
 ) : NoteStore {
 
-    init {
-        createTable()
-    }
-
     @OptIn(ExperimentalUuidApi::class)
     override fun create(req: NoteReq): Note {
         val note = Note(Uuid.generateV7(), req.text)
@@ -64,10 +60,6 @@ class PostgresStore(
         }
     }
 
-    private fun createTable(): Unit = dataSource.withConnection {
-        withStatement(CREATE_TABLE) { it.execute() }
-    }
-
     private fun mapNote(rs: ResultSet): Note = Note(
         rs.getObject("note_id", UUID::class.java).toKotlinUuid(),
         rs.getString("text"),
@@ -75,13 +67,6 @@ class PostgresStore(
 
     // Statements
     private companion object {
-
-        const val CREATE_TABLE = """
-            CREATE TABLE IF NOT EXISTS notes (
-                note_id uuid PRIMARY KEY,
-                text    text NOT NULL
-            )
-        """
 
         const val INSERT_NOTE = "INSERT INTO notes (note_id, text) VALUES (?, ?)"
 
