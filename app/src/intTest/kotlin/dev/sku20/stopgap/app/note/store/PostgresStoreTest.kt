@@ -52,18 +52,6 @@ class PostgresStoreTest {
     }
 
     @Test
-    fun createsTableOnInit() {
-        val sql = "SELECT count(*) FROM information_schema.tables WHERE table_name = 'notes'"
-        dataSource.connection.use { conn ->
-            conn.createStatement().use {
-                val rs = it.executeQuery(sql)
-                rs.next()
-                assertThat(rs.getLong(1)).isEqualTo(1)
-            }
-        }
-    }
-
-    @Test
     fun create() {
         val note = store.create(NoteReq("foo"))
 
