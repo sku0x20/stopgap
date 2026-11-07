@@ -9,6 +9,9 @@ RUN --mount=type=cache,target=${GRADLE_USER_HOME} ./gradlew --no-daemon -PgitSha
 
 
 FROM ghcr.io/graalvm/jdk-community:25i-ol10
+# Owned before VOLUME, so Docker seeds new volumes with this owner and the stopgap user can write its dumps there.
+RUN groupadd --system stopgap && useradd --system --gid stopgap --no-create-home stopgap \
+    && mkdir /diagnostics && chown stopgap:stopgap /diagnostics
 WORKDIR /app/stopgap
 COPY --from=build /project/stopgap/build/app/libs/libs libs
 COPY --from=build /project/stopgap/build/app/libs/stopgap-app.jar ./
@@ -19,4 +22,5 @@ COPY app/db/migrations db/migrations
 COPY --chmod=755 app/entrypoint.sh ./
 # Heap dumps, hs_err logs and JFR dumps; see entrypoint.sh.
 VOLUME /diagnostics
+USER stopgap
 ENTRYPOINT ["./entrypoint.sh"]
